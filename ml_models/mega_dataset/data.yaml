@@ -1,0 +1,8 @@
+path: C:/Users/pragy/Downloads/cumta/mega_dataset
+train: C:/Users/pragy/Downloads/cumta/mega_dataset/train/images
+val: C:/Users/pragy/Downloads/cumta/mega_dataset/valid/images
+nc: 3
+names:
+  0: potholes
+  1: speedbumps
+  2: zebracrossing
