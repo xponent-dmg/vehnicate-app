@@ -10,12 +10,12 @@ class App extends StatelessWidget {
       title: 'Vehnicate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        primaryColor: Colors.blue[600],
+        primarySwatch: Colors.deepPurple,
+        primaryColor: Colors.deepPurple,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.light),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.light),
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blue[600],
+          backgroundColor: Colors.deepPurple[600],
           foregroundColor: Colors.white,
           elevation: 2,
           centerTitle: true,
@@ -23,7 +23,7 @@ class App extends StatelessWidget {
         cardTheme: CardThemeData(elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue[600],
+            backgroundColor: Colors.deepPurple[600],
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),

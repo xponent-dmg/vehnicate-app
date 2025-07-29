@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/accelerometer_graph.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:vehnicate_frontend/Pages/sensor_graph.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -11,7 +12,7 @@ class Homepage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Vehnicate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
         centerTitle: true,
-        backgroundColor: Colors.blue[600],
+        backgroundColor: Colors.deepPurple[600],
         foregroundColor: Colors.white,
         elevation: 2,
       ),
@@ -34,7 +35,17 @@ class Homepage extends StatelessWidget {
                     subtitle: "Monitor acceleration without gravity",
                     icon: Icons.trending_up,
                     color: Colors.blue,
-                    onTap: () => _navigateToPage(context, const AccelerometerGraph()),
+                    onTap:
+                        () => _navigateToPage(
+                          context,
+                          SensorGraph(
+                            stream: userAccelerometerEventStream(),
+                            title: "Accelerometer",
+                            getX: (e) => e.x,
+                            getY: (e) => e.y,
+                            getZ: (e) => e.z,
+                          ),
+                        ),
                   ),
                   const SizedBox(height: 12),
                   _buildSensorCard(
@@ -43,7 +54,17 @@ class Homepage extends StatelessWidget {
                     subtitle: "Track device rotation and orientation",
                     icon: Icons.screen_rotation_outlined,
                     color: Colors.green,
-                    onTap: () => _navigateToPage(context, const AccelerometerGraph()),
+                    onTap:
+                        () => _navigateToPage(
+                          context,
+                          SensorGraph(
+                            stream: gyroscopeEventStream(),
+                            title: "Gyroscope",
+                            getX: (e) => e.x,
+                            getY: (e) => e.y,
+                            getZ: (e) => e.z,
+                          ),
+                        ),
                   ),
                 ],
               ),
