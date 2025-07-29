@@ -4,3 +4,4 @@ import 'package:vehnicate_frontend/app.dart';
 void main() {
   runApp(App());
 }
+
