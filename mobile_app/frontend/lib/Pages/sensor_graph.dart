@@ -1,27 +1,40 @@
 import 'dart:async';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vehnicate_frontend/Widgets/line_chart_widget.dart';
 
-class AccelerometerGraph extends StatefulWidget {
-  const AccelerometerGraph({super.key});
+class SensorGraph<T> extends StatefulWidget {
+  final Stream<T> stream;
+  final double Function(T) getX;
+  final double Function(T) getY;
+  final double Function(T) getZ;
+  final String title;
+
+  const SensorGraph({
+    super.key,
+    required this.stream,
+    required this.title,
+    required this.getX,
+    required this.getY,
+    required this.getZ,
+  });
 
   @override
-  State<AccelerometerGraph> createState() => _AccelerometerGraphState();
+  State<SensorGraph<T>> createState() => _SensorGraphState<T>();
 }
 
-class _AccelerometerGraphState extends State<AccelerometerGraph> {
+class _SensorGraphState<T> extends State<SensorGraph<T>> {
   List<FlSpot> _xPoints = [FlSpot(0, 0)];
   List<FlSpot> _yPoints = [FlSpot(0, 0)];
   List<FlSpot> _zPoints = [FlSpot(0, 0)];
   int time = 0;
-  late StreamSubscription<UserAccelerometerEvent>? _sub;
 
   bool isRunning = false;
 
+  StreamSubscription<T>? _sub;
+
   void startStream() {
-    _sub = userAccelerometerEventStream().listen((UserAccelerometerEvent event) {
+    _sub = widget.stream.listen((T event) {
       setState(() {
         //if you want to see the points dynamically, just last 50 points
 
@@ -32,9 +45,9 @@ class _AccelerometerGraphState extends State<AccelerometerGraph> {
           _zPoints.removeAt(0);
         }
         */
-        _xPoints.add(FlSpot(time.toDouble(), event.x));
-        _yPoints.add(FlSpot(time.toDouble(), event.y));
-        _zPoints.add(FlSpot(time.toDouble(), event.z));
+        _xPoints.add(FlSpot(time.toDouble(), widget.getX(event)));
+        _yPoints.add(FlSpot(time.toDouble(), widget.getY(event)));
+        _zPoints.add(FlSpot(time.toDouble(), widget.getZ(event)));
         time++;
         isRunning = true;
       });
@@ -76,7 +89,7 @@ class _AccelerometerGraphState extends State<AccelerometerGraph> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Accelerometer Chart"),
+        title: Text(widget.title),
         actions: [
           IconButton(
             icon: Icon(isRunning ? Icons.pause : Icons.play_arrow_rounded),
@@ -90,20 +103,11 @@ class _AccelerometerGraphState extends State<AccelerometerGraph> {
         child: Column(
           children: [
             const Text("X Axis"),
-            SizedBox(
-              height: 200,
-              child: LineChartWidget(dataPoints: _xPoints, color: Colors.red),
-            ),
+            SizedBox(height: 200, child: LineChartWidget(dataPoints: _xPoints, color: Colors.red)),
             const Text("Y Axis"),
-            SizedBox(
-              height: 200,
-              child: LineChartWidget(dataPoints: _yPoints, color: Colors.green),
-            ),
+            SizedBox(height: 200, child: LineChartWidget(dataPoints: _yPoints, color: Colors.green)),
             const Text("Z Axis"),
-            SizedBox(
-              height: 200,
-              child: LineChartWidget(dataPoints: _zPoints, color: Colors.blue),
-            ),
+            SizedBox(height: 200, child: LineChartWidget(dataPoints: _zPoints, color: Colors.blue)),
           ],
         ),
       ),
