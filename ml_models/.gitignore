@@ -5,4 +5,4 @@
 *.mp4
 *.pt
 *.env
-prototype/
+prototype/** 
