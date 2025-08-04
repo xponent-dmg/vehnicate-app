@@ -654,7 +654,7 @@ void transmitTask(void *pvParameters) {
       continue;
     }
 
-    const int MAX_LINES_PER_BATCH = 800;
+    const int MAX_LINES_PER_BATCH = 500;
     while (dataFile.available()) {
       String jsonData = "{\"id\":\"ESP32_MPU6500\",\"data\":[";
       int lineCount = 0;

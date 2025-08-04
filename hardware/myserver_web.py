@@ -8,8 +8,9 @@ import os
 from datetime import datetime
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-
+# Increase to 2MB (or as required)
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB
 CORS(app)
 UPLOAD_FOLDER = r"D:\Vehnicate\Prototype\data\images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -30,7 +31,9 @@ def upload_image():
 sensor_data = {
     'timestamps': deque(maxlen=50),
     'accel': {'x': deque(maxlen=50), 'y': deque(maxlen=50), 'z': deque(maxlen=50)},
-    'gyro': {'x': deque(maxlen=50), 'y': deque(maxlen=50), 'z': deque(maxlen=50)}
+    'gyro': {'x': deque(maxlen=50), 'y': deque(maxlen=50), 'z': deque(maxlen=50)},
+    'lat': deque(maxlen=50),
+    'lon': deque(maxlen=50)
 }
 
 # Statistics tracking
@@ -59,17 +62,23 @@ def initialize_csv_logging():
         if not os.path.exists(CSV_FOLDER):
             os.makedirs(CSV_FOLDER)
             print(f"Created log directory: {CSV_FOLDER}")
+        # Update the header for both IMU and GPS
         if not os.path.exists(CSV_FILE_PATH):
             with open(CSV_FILE_PATH, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Date', 'Time', 'Timestamp_ms', 'Accel_X', 'Accel_Y', 'Accel_Z', 
-                                 'Gyro_X', 'Gyro_Y', 'Gyro_Z'])
+                writer.writerow([
+                    'Date', 'Time', 'Timestamp_ms',
+                    'Accel_X', 'Accel_Y', 'Accel_Z',
+                    'Gyro_X', 'Gyro_Y', 'Gyro_Z',
+                    'Latitude', 'Longitude'
+                ])
             print(f"Created new log file: {CSV_FILE_PATH}")
     except Exception as e:
         print(f"Error initializing CSV logging: {e}")
 
 def log_data_to_csv_background():
     """Background thread: logs data from queue to CSV"""
+    global log_thread_running
     while log_thread_running:
         batch = []
         # Gather up to 500 points at a time for efficient writing
@@ -83,15 +92,16 @@ def log_data_to_csv_background():
                     for point in batch:
                         now = datetime.now()
                         writer.writerow([
-                            now.date(),
-                            now.time(),
+                            now.date(), now.time(),
                             point['timestamp'],
                             point['ax'],
                             point['ay'],
                             point['az'],
                             point['gx'],
                             point['gy'],
-                            point['gz']
+                            point['gz'],
+                            point.get('lat', ''),      # Store GPS if available, blank if not
+                            point.get('lon', '')
                         ])
                 print(f"Logged {len(batch)} data points (background)")
             except Exception as e:
@@ -114,6 +124,7 @@ def receive_data():
 
         data_points = []
         for point in data['data']:
+            # Accept and store lat/lon if present
             data_points.append({
                 'timestamp': point['t'],
                 'ax': point['x'],
@@ -121,7 +132,9 @@ def receive_data():
                 'az': point['z'],
                 'gx': point['gx'],
                 'gy': point['gy'],
-                'gz': point['gz']
+                'gz': point['gz'],
+                'lat': point.get('lat', None),
+                'lon': point.get('lon', None)
             })
 
         # Queue data for background logging
@@ -138,6 +151,8 @@ def receive_data():
                 sensor_data['gyro']['x'].append(point['gx'])
                 sensor_data['gyro']['y'].append(point['gy'])
                 sensor_data['gyro']['z'].append(point['gz'])
+                sensor_data['lat'].append(point.get('lat'))
+                sensor_data['lon'].append(point.get('lon'))
             stats['total_readings'] += len(data_points)
             stats['total_chunks'] += 1
             stats['last_update'] = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -162,7 +177,9 @@ def get_live_data():
                 'x': list(sensor_data['gyro']['x']),
                 'y': list(sensor_data['gyro']['y']),
                 'z': list(sensor_data['gyro']['z'])
-            }
+            },
+            'lat': list(sensor_data['lat']),
+            'lon': list(sensor_data['lon'])
         })
 
 @app.route('/api/stats', methods=['GET'])
@@ -193,6 +210,3 @@ if __name__ == '__main__':
     finally:
         log_thread_running = False
         log_thread.join()
-
-
-
