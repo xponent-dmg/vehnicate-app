@@ -1,3 +1,4 @@
+//transmit imu and gps data
 #include <Wire.h>
 #include <SD.h>
 #include <SPI.h>
@@ -32,19 +33,13 @@ const char* SD_FILE = "/data.csv";
 const char apn[]  = "airtelgprs.com";
 const char user[] = "";
 const char pass[] = "";
-const char server[] = "20a249b490f8.ngrok-free.app";
+const char server[] = "a16457b53bf2.ngrok-free.app";
 
 // --- Serial setup ---
 #define SerialMon Serial
 #define SerialAT  Serial2
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
-
-// --- ESP32-CAM UART configuration ---
-#define CAM_UART_TX 14
-#define CAM_UART_RX 21
-#define CAM_UART_BAUD 115200
-HardwareSerial CamSerial(1);
 
 // --- MPU6500 address ---
 const uint8_t MPU_ADDR = 0x68;
@@ -55,15 +50,12 @@ Kalman kalGyroX, kalGyroY, kalGyroZ;
 KalmanOrientation kalRoll, kalPitch;
 
 // --- FreeRTOS components ---
-TaskHandle_t sensorTaskHandle, sdTaskHandle, transmitTaskHandle;
+TaskHandle_t sensorTaskHandle, sdTaskHandle, transmitTaskHandle, gpsTaskHandle;
 SemaphoreHandle_t modemMutex;
 
 // --- Sensor variables ---
 uint8_t i2cData[14];
 uint32_t timer;
-float vel_x = 0, vel_y = 0, vel_z = 0;
-float prev_accel_x = 0, prev_accel_y = 0, prev_accel_z = 0;
-unsigned long last_zupt = 0;
 float gyro_offset_x = 0, gyro_offset_y = 0, gyro_offset_z = 0;
 
 // --- SD Card SPI instance ---
@@ -80,6 +72,16 @@ typedef struct {
   float gz_c;
 } SensorData_t;
 
+// --- GPS data structure ---
+typedef struct {
+  float latitude;
+  float longitude;
+  bool valid;
+} GpsData_t;
+
+// --- Global GPS data ---
+volatile GpsData_t lastGpsData = {0.0f, 0.0f, false};
+
 // --- Queue for sensor data ---
 #define QUEUE_LENGTH 50
 #define QUEUE_ITEM_SIZE sizeof(SensorData_t)
@@ -87,7 +89,7 @@ QueueHandle_t sensorQueue;
 
 // --- SD write buffer ---
 #define SD_BUFFER_SIZE 100
-#define MAX_ENTRY_LEN 120
+#define MAX_ENTRY_LEN 150
 char sdBuffer[SD_BUFFER_SIZE][MAX_ENTRY_LEN];
 int sdBufferIndex = 0;
 
@@ -100,22 +102,37 @@ bool i2cWrite(uint8_t reg, uint8_t data, bool sendStop) {
   Wire.beginTransmission(MPU_ADDR);
   Wire.write(reg);
   Wire.write(data);
-  return Wire.endTransmission(sendStop);
+  return Wire.endTransmission(sendStop) == 0;
 }
 bool i2cWrite(uint8_t reg, uint8_t *data, uint8_t length, bool sendStop) {
   Wire.beginTransmission(MPU_ADDR);
   Wire.write(reg);
   Wire.write(data, length);
-  return Wire.endTransmission(sendStop);
+  return Wire.endTransmission(sendStop) == 0;
 }
 bool i2cRead(uint8_t reg, uint8_t *data, uint8_t length) {
   Wire.beginTransmission(MPU_ADDR);
   Wire.write(reg);
-  if (Wire.endTransmission(false)) return true;
+  if (Wire.endTransmission(false) != 0) return true;
   Wire.requestFrom(MPU_ADDR, length);
   uint8_t i = 0;
-  while (Wire.available()) data[i++] = Wire.read();
+  while (Wire.available() && i < length) data[i++] = Wire.read();
   return false;
+}
+
+// --- Helper: send AT command and wait response with timeout and optional response string ---
+bool sendATCommand(const char* cmd, uint32_t delayMs = 200, uint32_t waitMs = 2000, String* response = nullptr) {
+  modem.sendAT(cmd);
+  delay(delayMs);
+  int respCode;
+  if (response) {
+    respCode = modem.waitResponse(waitMs, *response);
+  } else {
+    respCode = modem.waitResponse(waitMs);
+  }
+  SerialMon.printf("AT Command: %s, Response code: %d\n", cmd, respCode);
+  if (response && respCode == 1) SerialMon.println("Response: " + *response);
+  return respCode == 1;
 }
 
 // --- Modem initialization ---
@@ -136,10 +153,8 @@ void modemInit() {
   modem.restart();
   delay(3000);
 
-  modem.sendAT("+QHTTPTERM");
-  modem.waitResponse(2000);
-  modem.sendAT("+QHTTPCFG=\"reset\"");
-  modem.waitResponse(2000);
+  sendATCommand("+QHTTPTERM");
+  sendATCommand("+QHTTPCFG=\"reset\"", 200, 2000);
 
   SerialMon.print("Modem: ");
   SerialMon.println(modem.getModemInfo());
@@ -166,7 +181,7 @@ void modemInit() {
   SerialMon.println("Modem setup complete");
 }
 
-// --- SD card initialization ---
+
 void sdInit() {
   spiSD.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS, spiSD)) {
@@ -180,13 +195,174 @@ void sdInit() {
   }
 }
 
-// --- Sensor reading task ---
+// --- GPS enable and configuration (called once in gpsTask) ---
+bool enableGps() {
+  if (!sendATCommand("+QGPS=0")) {  // First turn off GPS if on
+    SerialMon.println("Warning: Could not turn off GPS first");
+  }
+  delay(500);
+
+  // Optional cold start GPS for fresh fix
+  // sendATCommand("+QGPSCFG=\"coldstart\",1");
+  // delay(500);
+
+  bool success = sendATCommand("+QGPS=1");
+  if (success) {
+    SerialMon.println("GPS enabled");
+  } else {
+    SerialMon.println("Failed to enable GPS");
+  }
+  return success;
+}
+
+// --- Retrieve GPS fix status ---
+int getGpsFixStatus() {
+  modem.sendAT("+QGPS?");
+  String resp;
+  if (modem.waitResponse(2000, resp) == 1) {
+    int idx = resp.indexOf("+QGPS:");
+    if (idx >= 0) {
+      int comma1 = resp.indexOf(',', idx);
+      if (comma1 > 0 && resp.length() > comma1 + 1) {
+        char fixChar = resp.charAt(comma1 + 1);
+        int fix = fixChar - '0';
+        return fix;
+      }
+    }
+  }
+  return 0;
+}
+
+// --- Get GPS location if fix available ---
+bool getGpsLocation(float *lat, float *lon) {
+  modem.sendAT("+QGPSLOC=2");
+  String gpsResp;
+  if (modem.waitResponse(5000, gpsResp) == 1) {
+    SerialMon.println("Raw GPS Resp: " + gpsResp);
+    int idx = gpsResp.indexOf("+QGPSLOC:");
+    if (idx >= 0) {
+      String fields = gpsResp.substring(idx + 9);
+      fields.trim();
+      int firstComma = fields.indexOf(',');
+      int secondComma = fields.indexOf(',', firstComma + 1);
+      int thirdComma = fields.indexOf(',', secondComma + 1);
+      if (firstComma > 0 && secondComma > firstComma && thirdComma > secondComma) {
+        String latStr = fields.substring(firstComma + 1, secondComma);
+        String lonStr = fields.substring(secondComma + 1, thirdComma);
+        float flat = latStr.toFloat();
+        float flon = lonStr.toFloat();
+        if (abs(flat) > 0.01 && abs(flon) > 0.01) {
+          *lat = flat;
+          *lon = flon;
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+// --- Task: GPS monitoring ---
+void gpsTask(void* pvParameters) {
+  while (!setup_complete) vTaskDelay(10);
+
+  xSemaphoreTake(modemMutex, portMAX_DELAY);
+
+  SerialMon.println("⏳ Enabling GPS...");
+
+  modem.sendAT("+QGPSEND");
+  modem.waitResponse();
+
+  modem.sendAT("+QGPSCFG=\"priority\",1");
+  modem.waitResponse();
+
+  //modem.sendAT("+QGPSCFG=\"gnssconfig\",1");
+  //modem.waitResponse();
+
+  modem.sendAT("+QGPSCFG=\"autogps\",1");
+  modem.waitResponse();
+
+  // ====== BEGIN AGPS/XTRA SECTION ======
+  SerialMon.println("Enabling AGPS (XTRA)...");
+  // Enable AGPS/XTRA
+  modem.sendAT("+QGPSXTRA=1"); modem.waitResponse();
+  // Download AGPS XTRA data
+  SerialMon.println("Downloading XTRA data for AGPS...");
+  modem.sendAT("+QFOTADL=\"http://xtrapath1.izatcloud.net/xtra3grc.bin\"");
+  if (modem.waitResponse(15000) != 1) {
+    SerialMon.println("❌ Failed to download XTRA data.");
+  } else {
+    SerialMon.println("✅ XTRA data downloaded.");
+  }
+  modem.sendAT("+QGPSXTRADATA?"); modem.waitResponse();
+  modem.sendAT("+QLTS=1"); modem.waitResponse();
+  modem.sendAT("+QGPSCFG=\"gnssconfig\",3"); modem.waitResponse();
+  // ====== END AGPS/XTRA SECTION =======
+
+  modem.sendAT("+QGPS=1");
+  modem.waitResponse(10000); // wait longer to allow GPS to power up
+
+  xSemaphoreGive(modemMutex);
+
+  SerialMon.println("✅ GPS initialized, waiting for fix...");
+
+  while (!transmitMode) {
+    xSemaphoreTake(modemMutex, portMAX_DELAY);
+
+    modem.sendAT("+QGPSLOC=2");
+    String gpsResp;
+    if (modem.waitResponse(10000, gpsResp) == 1) {
+      int idx = gpsResp.indexOf("+QGPSLOC:");
+      if (idx >= 0) {
+        String fields = gpsResp.substring(idx + 9);
+        fields.trim();
+        int firstComma = fields.indexOf(',');
+        int secondComma = fields.indexOf(',', firstComma + 1);
+        int thirdComma = fields.indexOf(',', secondComma + 1);
+
+        if (firstComma > 0 && secondComma > firstComma && thirdComma > secondComma) {
+          String latStr = fields.substring(firstComma + 1, secondComma);
+          String lonStr = fields.substring(secondComma + 1, thirdComma);
+          float lat = latStr.toFloat();
+          float lon = lonStr.toFloat();
+
+          if (abs(lat) > 0.01 && abs(lon) > 0.01) {
+            lastGpsData.latitude = lat;
+            lastGpsData.longitude = lon;
+            lastGpsData.valid = true;
+            SerialMon.printf("✅ GPS FIX: LAT=%.6f, LON=%.6f\n", lat, lon);
+          } else {
+            lastGpsData.valid = false;
+            SerialMon.println("⚠️ No fix yet (coords are zeros)");
+          }
+        }
+      } else {
+        SerialMon.println("⚠️ +QGPSLOC not found in response");
+      }
+    } else {
+      SerialMon.println("❌ Timeout waiting for +QGPSLOC");
+    }
+
+    xSemaphoreGive(modemMutex);
+    vTaskDelay(5000 / portTICK_PERIOD_MS);  // wait before next attempt
+  }
+
+  // Stop GPS before exiting
+  xSemaphoreTake(modemMutex, portMAX_DELAY);
+  modem.sendAT("+QGPSEND");
+  modem.waitResponse();
+  xSemaphoreGive(modemMutex);
+
+  vTaskDelete(NULL);
+}
+
+
+// --- Sensor read task ---
 void sensorReadTask(void *pvParameters) {
   while (!setup_complete) vTaskDelay(10);
+
   while (1) {
-    if (transmitMode) {
-      vTaskSuspend(NULL);
-    }
+    if (transmitMode) vTaskSuspend(NULL);
 
     while (i2cRead(0x3B, i2cData, 14));
 
@@ -197,8 +373,9 @@ void sensorReadTask(void *pvParameters) {
     int16_t gyroY = (i2cData[10] << 8) | i2cData[11];
     int16_t gyroZ = (i2cData[12] << 8) | i2cData[13];
 
-    double dt = (double)(micros() - timer) / 1000000.0;
-    timer = micros();
+    static uint32_t prevMicros = micros();
+    double dt = (double)(micros() - prevMicros) / 1000000.0;
+    prevMicros = micros();
 
     double filtAccX = kalAccX.filter(accX, dt);
     double filtAccY = kalAccY.filter(accY, dt);
@@ -207,7 +384,6 @@ void sensorReadTask(void *pvParameters) {
     double filtGyroY = kalGyroY.filter(gyroY, dt);
     double filtGyroZ = kalGyroZ.filter(gyroZ, dt);
 
-    // Calibration and conversion
     float ax0=0.00, ay0=0.00, az0=0.03, 
           kax=1.00202, kay=1.0004, kaz=0.9902971,
           sax1=-0.02020, sax2=-0.01010305,
@@ -220,9 +396,9 @@ void sensorReadTask(void *pvParameters) {
     float ay_c = (((say1* (filtAccX - ax0)) + (kay * (filtAccY - ay0)) + (say2 * (filtAccZ - az0))))*9.80665;
     float az_c = (((saz1 * (filtAccX - ax0)) + (saz2 * (filtAccY - ay0)) + (kaz * (filtAccZ - az0))))*9.80665;
 
-    float gx_c = (filtGyroX/131) - gyro_offset_x; 
-    float gy_c = (filtGyroY/131) - gyro_offset_y;
-    float gz_c = (filtGyroZ/131) - gyro_offset_z;
+    float gx_c = (float)filtGyroX / 131.0 - gyro_offset_x;
+    float gy_c = (float)filtGyroY / 131.0 - gyro_offset_y;
+    float gz_c = (float)filtGyroZ / 131.0 - gyro_offset_z;
 
     float rollAcc = atan2(ay_c, az_c) * RAD_TO_DEG;
     float pitchAcc = atan2(-ax_c, sqrt(ay_c * ay_c + az_c * az_c)) * RAD_TO_DEG;
@@ -234,33 +410,11 @@ void sensorReadTask(void *pvParameters) {
     float gravity_y = 9.80665 * sin(roll * DEG_TO_RAD) * cos(pitch * DEG_TO_RAD);
     float gravity_z = 9.80665 * cos(roll * DEG_TO_RAD) * cos(pitch * DEG_TO_RAD);
 
-    float accel_x = ax_c - gravity_x;
-    float accel_y = ay_c - gravity_y;
-    float accel_z = az_c - gravity_z;
+    float accel_x=ax_c-gravity_x;
+    float accel_y=ay_c-gravity_y;
+    float accel_z=az_c-gravity_z;
 
-    vel_x += (prev_accel_x + accel_x) * dt / 2.0;
-    vel_y += (prev_accel_y + accel_y) * dt / 2.0;
-    vel_z += (prev_accel_z + accel_z) * dt / 2.0; 
 
-    prev_accel_x = accel_x;
-    prev_accel_y = accel_y;
-    prev_accel_z = accel_z;
-
-    // Zero velocity update
-    float x_threshold = 9.80665*0.03;
-    float y_threshold = 9.80665*0.03;
-    float z_threshold = 9.80665*0.03;
-    if (abs(accel_x) < x_threshold && abs(accel_y) < y_threshold && abs(accel_z) < z_threshold) {
-      if (millis() - last_zupt > 500) {
-        vel_x = 0;
-        vel_y = 0;
-        vel_z = 0;
-      }
-    } else {
-      last_zupt = millis();
-    }
-
-    // Prepare sensor data struct (ALWAYS copy, never reference)
     SensorData_t sensorData = {
       .timestamp = millis(),
       .accel_x = accel_x,
@@ -271,30 +425,45 @@ void sensorReadTask(void *pvParameters) {
       .gz_c = gz_c
     };
 
-    SerialMon.printf("T:%lu, X:%.6f, Y:%.6f, Z:%.6f, GX:%.6f, GY:%.6f, GZ:%.6f\n",
-    sensorData.timestamp,
-    sensorData.accel_x,
-    sensorData.accel_y,
-    sensorData.accel_z,
-    sensorData.gx_c,
-    sensorData.gy_c,
-    sensorData.gz_c
-    );
+    // Print IMU and latest GPS data
+    if (lastGpsData.valid) {
+      SerialMon.printf("T:%lu, Ax: %.6f, Ay: %.6f, Az: %.6f, Gx: %.6f, Gy: %.6f, Gz: %.6f, Lat: %.6f, Lon: %.6f\n",
+                       sensorData.timestamp,
+                       sensorData.accel_x,
+                       sensorData.accel_y,
+                       sensorData.accel_z,
+                       sensorData.gx_c,
+                       sensorData.gy_c,
+                       sensorData.gz_c,
+                       lastGpsData.latitude,
+                       lastGpsData.longitude);
+    } else {
+      SerialMon.printf("T:%lu, Ax: %.6f, Ay: %.6f, Az: %.6f, Gx: %.6f, Gy: %.6f, Gz: %.6f, GPS: No Fix\n",
+                       sensorData.timestamp,
+                       sensorData.accel_x,
+                       sensorData.accel_y,
+                       sensorData.accel_z,
+                       sensorData.gx_c,
+                       sensorData.gy_c,
+                       sensorData.gz_c);
+    }
 
-    // Send to queue (non-blocking)
     if (xQueueSend(sensorQueue, &sensorData, 0) != pdPASS) {
       SerialMon.println("Queue full! Dropping data");
     }
 
-    vTaskDelay(pdMS_TO_TICKS(10)); // 100Hz sampling
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
 
 // --- SD write task ---
 void sdWriteTask(void *pvParameters) {
   SensorData_t receivedData;
+  unsigned long lastFlush = millis();
+
   while (1) {
     if (transmitMode) {
+      // Flush remaining buffer on transmit mode start
       if (sdBufferIndex > 0) {
         File dataFile = SD.open(SD_FILE, FILE_APPEND);
         if (dataFile) {
@@ -302,94 +471,171 @@ void sdWriteTask(void *pvParameters) {
             dataFile.println(sdBuffer[i]);
           }
           dataFile.close();
+          SerialMon.printf("Flushed %d entries on transmit mode start\n", sdBufferIndex);
           sdBufferIndex = 0;
         }
       }
-      vTaskDelete(NULL);
+      vTaskDelete(NULL);  // exit task on transmit mode
     }
 
+    // Wait max 100ms for new queue data, to avoid starving CPU
     if (xQueueReceive(sensorQueue, &receivedData, pdMS_TO_TICKS(100)) == pdPASS) {
       snprintf(sdBuffer[sdBufferIndex], sizeof(sdBuffer[0]),
-               "%lu,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f",
+               "%lu,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f",
                receivedData.timestamp,
                receivedData.accel_x,
                receivedData.accel_y,
                receivedData.accel_z,
                receivedData.gx_c,
                receivedData.gy_c,
-               receivedData.gz_c);
+               receivedData.gz_c,
+               lastGpsData.latitude,
+               lastGpsData.longitude);
       sdBufferIndex++;
+    }
 
-      if (sdBufferIndex >= SD_BUFFER_SIZE) {
-        File dataFile = SD.open(SD_FILE, FILE_APPEND);
-        if (dataFile) {
-          for (int i = 0; i < SD_BUFFER_SIZE; i++) {
-            dataFile.println(sdBuffer[i]);
-          }
-          dataFile.close();
-          sdBufferIndex = 0;
-        } else {
-          SerialMon.println("SD write error! Clearing buffer to avoid repetition.");
-          sdBufferIndex = 0;
+    // Flush if buffer is full or every 3 seconds if buffer has data
+    if (sdBufferIndex >= SD_BUFFER_SIZE){//|| (sdBufferIndex > 0 && millis() - lastFlush > 3000)) {
+      File dataFile = SD.open(SD_FILE, FILE_APPEND);
+      if (dataFile) {
+        for (int i = 0; i < sdBufferIndex; i++) {
+          dataFile.println(sdBuffer[i]);
         }
+        dataFile.close();
+        SerialMon.printf("Flushed %d entries to SD\n", sdBufferIndex);
+        sdBufferIndex = 0;
+        lastFlush = millis();
+      } else {
+        SerialMon.println("SD write error! Clearing buffer to avoid repetition.");
+        sdBufferIndex = 0;
       }
     }
   }
 }
 
-// --- Send command to ESP32-CAM over UART ---
-void sendCamCommand(const char* cmd) {
-  CamSerial.print(cmd);
-}
+/*
+// --- Transmission task ---
+void transmitTask(void *pvParameters) {
+  while (!setup_complete) vTaskDelay(pdMS_TO_TICKS(10));
 
-// --- Receive images from ESP32-CAM and store to SD card ---
-void receiveImagesFromCamToSD() {
-  CamSerial.begin(CAM_UART_BAUD, SERIAL_8N1, CAM_UART_RX, CAM_UART_TX);
-  SerialMon.println("Sending SENDIMG command to camera...");
-  sendCamCommand("SENDIMG\n");
-  while (true) {
-    String header = CamSerial.readStringUntil('\n');
-    SerialMon.println("Camera header: " + header);
-    if (header == "DONE") {
-      SerialMon.println("All images received from camera.");
-      break;
+  for (;;) {
+    if (!transmitMode) {
+      digitalWrite(LED_PIN, LOW);
+      vTaskDelay(pdMS_TO_TICKS(500));
+      continue;
     }
-    if (!header.startsWith("IMG:")) continue;
+    digitalWrite(LED_PIN, HIGH);
+    SerialMon.println("Transmission mode started.");
 
-    int idx1 = header.indexOf(':', 4);
-    String filename = header.substring(4, idx1);
-    int imgSize = header.substring(idx1 + 1).toInt();
-    SerialMon.printf("Receiving image %s (%d bytes)\n", filename.c_str(), imgSize);
-
-    const int CHUNK_SIZE = 1024;
-    int bytesReceived = 0;
-    File imgFile = SD.open("/" + filename, FILE_WRITE);
-    if (!imgFile) {
-      SerialMon.println("Failed to open file for writing image!");
+    File dataFile = SD.open(SD_FILE, FILE_READ);
+    if (!dataFile) {
+      SerialMon.println("No SD data file found for transmission.");
+      vTaskDelay(pdMS_TO_TICKS(2000));
       continue;
     }
 
-    while (bytesReceived < imgSize) {
-      int toRead = min(CHUNK_SIZE, imgSize - bytesReceived);
-      uint8_t buf[CHUNK_SIZE];
-      int n = CamSerial.readBytes(buf, toRead);
-      if (n > 0) {
-        imgFile.write(buf, n);
-        bytesReceived += n;
-        SerialMon.printf("Received %d/%d bytes\n", bytesReceived, imgSize);
-      } else {
-        imgFile.close();
-        SerialMon.println("Timeout or error during image receive");
+    const int MAX_LINES_PER_BATCH = 800;
+
+    while (dataFile.available()) {
+      String jsonData = "{\"id\":\"ESP32_MPU6500\",\"data\":[";
+      int lineCount = 0;
+      bool first = true;
+
+      while (dataFile.available() && lineCount < MAX_LINES_PER_BATCH) {
+        String line = dataFile.readStringUntil('\n');
+        line.trim();
+        if (line.length() == 0) continue;
+
+        unsigned long timestamp;
+        float ax, ay, az, gx, gy, gz, lat, lon;
+        int parsed = sscanf(line.c_str(), "%lu,%f,%f,%f,%f,%f,%f,%f,%f",
+                            &timestamp, &ax, &ay, &az, &gx, &gy, &gz, &lat, &lon);
+        if (parsed == 9) {
+          if (!first) jsonData += ",";
+          jsonData += "{\"t\":" + String(timestamp) +
+                      ",\"x\":" + String(ax, 3) +
+                      ",\"y\":" + String(ay, 3) +
+                      ",\"z\":" + String(az, 3) +
+                      ",\"gx\":" + String(gx, 3) +
+                      ",\"gy\":" + String(gy, 3) +
+                      ",\"gz\":" + String(gz, 3) +
+                      ",\"lat\":" + String(lat, 6) +
+                      ",\"lon\":" + String(lon, 6) + "}";
+          first = false;
+          lineCount++;
+        }
+      }
+      jsonData += "]}";
+
+      SerialMon.println("Sending batch...");
+
+      if (!sendATCommand("+QICSGP=1,1,\"airtelgprs.com\",\"\",\"\",1", 500, 2000)) {
+        SerialMon.println("Failed to set APN");
         break;
       }
-    }
-    imgFile.close();
-    SerialMon.printf("Image %s saved to SD card.\n", filename.c_str());
-  }
-  CamSerial.end();
-}
+      if (!sendATCommand("+QIACT=1", 1000, 10000)) {
+        SerialMon.println("Failed to activate bearer");
+        break;
+      }
+      if (!sendATCommand("+QHTTPCFG=\"contextid\",1", 200, 2000)) {
+        SerialMon.println("Failed HTTP context setup");
+        break;
+      }
 
-// --- Transmission task: IMU upload, then image reception ---
+      String url = "http://" + String(server) + "/api";
+      modem.sendAT("+QHTTPURL=" + String(url.length()) + ",60");
+      if (modem.waitResponse(5000, "CONNECT") != 1) {
+        SerialMon.println("URL setup failed");
+        break;
+      }
+      modem.stream.print(url);
+      if (modem.waitResponse(10000) != 1) {
+        SerialMon.println("URL send failed");
+        break;
+      }
+
+      modem.sendAT("+QHTTPPARA=\"USERDATA\",\"ngrok-skip-browser-warning: true\"");
+      if (modem.waitResponse(2000) != 1) {
+        SerialMon.println("Failed to set HTTP parameters");
+        break;
+      }
+
+      modem.sendAT("+QHTTPPOST=" + String(jsonData.length()) + ",60,60");
+      if (modem.waitResponse(10000, "CONNECT") != 1) {
+        SerialMon.println("HTTP POST setup failed");
+        break;
+      }
+      modem.stream.print(jsonData);
+
+      String postResponse;
+      if (modem.waitResponse(30000, postResponse) == 1) {
+        SerialMon.println("POST OK: " + postResponse);
+      } else {
+        SerialMon.println("POST failed");
+        break;
+      }
+
+      vTaskDelay(pdMS_TO_TICKS(3000));
+    }
+    dataFile.close();
+
+    if (SD.remove(SD_FILE)) {
+      SerialMon.println("Data file deleted after transmission.");
+    } else {
+      SerialMon.println("Failed to delete data file after transmission.");
+    }
+    // Create new empty data log file
+    File f = SD.open(SD_FILE, FILE_WRITE);
+    if (f) f.close();
+
+    SerialMon.println("Transmission complete. Halting transmission task.");
+    digitalWrite(LED_PIN, LOW);
+
+    vTaskDelete(NULL);
+  }
+}
+*/
+// --- Transmission task ---
 void transmitTask(void *pvParameters) {
   while (!setup_complete) vTaskDelay(10);
   for (;;) {
@@ -400,7 +646,7 @@ void transmitTask(void *pvParameters) {
     }
     digitalWrite(LED_PIN, HIGH);
 
-    // --- IMU Transmission to server ---
+    // --- Transmission code ---
     File dataFile = SD.open(SD_FILE, FILE_READ);
     if (!dataFile) {
       SerialMon.println("No SD data for transmission");
@@ -419,9 +665,10 @@ void transmitTask(void *pvParameters) {
         if (line.length() == 0) continue;
 
         unsigned long timestamp;
-        float ax, ay, az, gx, gy, gz;
-        int parsed = sscanf(line.c_str(), "%lu,%f,%f,%f,%f,%f,%f", &timestamp, &ax, &ay, &az, &gx, &gy, &gz);
-        if (parsed == 7) {
+        float ax, ay, az, gx, gy, gz, lat, lon;
+        int parsed = sscanf(line.c_str(), "%lu,%f,%f,%f,%f,%f,%f,%f,%f",
+                            &timestamp, &ax, &ay, &az, &gx, &gy, &gz, &lat, &lon);
+        if (parsed == 9) {
           if (!first) jsonData += ",";
           jsonData += "{\"t\":" + String(timestamp) +
                       ",\"x\":" + String(ax, 3) +
@@ -429,7 +676,9 @@ void transmitTask(void *pvParameters) {
                       ",\"z\":" + String(az, 3) +
                       ",\"gx\":" + String(gx, 3) +
                       ",\"gy\":" + String(gy, 3) +
-                      ",\"gz\":" + String(gz, 3) + "}";
+                      ",\"gz\":" + String(gz, 3) +
+                      ",\"lat\":" + String(lat, 6) +
+                      ",\"lon\":" + String(lon, 6) + "}";
           first = false;
           lineCount++;
         }
@@ -477,16 +726,16 @@ void transmitTask(void *pvParameters) {
     SD.remove(SD_FILE);
     File f = SD.open(SD_FILE, FILE_WRITE);
     f.close();
-    SerialMon.println("All IMU data sent and SD cleared.");
+    SerialMon.println("All data sent and SD cleared.");
 
-    // --- Now receive images from ESP32-CAM and store to SD ---
-    SerialMon.println("Starting image transfer from camera...");
-    receiveImagesFromCamToSD();
-
-    SerialMon.println("All data received and SD card updated.");
     SerialMon.println("Transmission complete. Halting system...");
     digitalWrite(LED_PIN, LOW);
-    vTaskDelete(NULL);
+
+    // Optionally power off modem or signal done
+    // digitalWrite(MODEM_POWER_ON, LOW);
+
+    vTaskDelete(NULL); // Kill transmission task
+
   }
 }
 
@@ -505,9 +754,9 @@ void setup() {
 
   // MPU6500 init
   uint8_t initData[4] = {7, 0x00, 0x00, 0x00};
-  while (i2cWrite(0x19, 0x07, true));
-  while (i2cWrite(0x19, initData, 4, false));
-  while (i2cWrite(0x6B, 0x01, true));
+  while (!i2cWrite(0x19, 0x07, true));
+  while (!i2cWrite(0x19, initData, 4, false));
+  while (!i2cWrite(0x6B, 0x01, true));
   while (i2cRead(0x75, i2cData, 1));
   if (i2cData[0] != 0x70) {
     SerialMon.println("MPU6500 not found!");
@@ -552,9 +801,7 @@ void setup() {
   gyro_offset_y /= 3000;
   gyro_offset_z /= 3000;
   SerialMon.println("Calibration complete");
-  Serial.println(gyro_offset_x); 
-  Serial.println(gyro_offset_y); 
-  Serial.println(gyro_offset_z);
+  SerialMon.printf("Gyro Offsets: X=%.6f, Y=%.6f, Z=%.6f\n", gyro_offset_x, gyro_offset_y, gyro_offset_z);
 
   modemInit();
 
@@ -564,9 +811,10 @@ void setup() {
     while(1);
   }
 
+  xTaskCreatePinnedToCore(gpsTask, "GpsTask", 4096, NULL, 3, &gpsTaskHandle, 1);
+  vTaskDelay(30000 / portTICK_PERIOD_MS);
   xTaskCreatePinnedToCore(sensorReadTask, "SensorTask", 4096, NULL, 2, &sensorTaskHandle, 0);
   xTaskCreatePinnedToCore(sdWriteTask, "SDTask", 8192, NULL, 1, &sdTaskHandle, 1);
-  // Note: Do NOT start transmitTask in setup!
 
   setup_complete = true;
 }
