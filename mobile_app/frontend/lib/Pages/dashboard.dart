@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
 
@@ -126,14 +127,29 @@ class DashboardPage extends StatelessWidget {
 										children: [
 											Row(
 												children: [
-													Container(
-														padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-														decoration: BoxDecoration(
-															color: Color(0xFF8E44AD),
-															borderRadius: BorderRadius.circular(25),
-														),
-														child: Text('START', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-													),
+													GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => ImuCollector()),
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Color(0xFF8E44AD),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              child: Text(
+                                'START',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
 													Spacer(),
 													Container(
 														padding: EdgeInsets.all(8),
