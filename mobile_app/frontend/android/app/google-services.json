@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "1088463950262",
+    "project_id": "vehnicatelogin",
+    "storage_bucket": "vehnicatelogin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088463950262:android:01088632c30a133d0a3117",
+        "android_client_info": {
+          "package_name": "com.vehnicate.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088463950262-60mghi0t4vjr6leakshfmu46pn784smp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vehnicate.app",
+            "certificate_hash": "e47cd38ce3714afe9581e82ce80d64e4c0a3ea97"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqznkvH2y93BYc3chD-ExV3MMFqkzvnc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
