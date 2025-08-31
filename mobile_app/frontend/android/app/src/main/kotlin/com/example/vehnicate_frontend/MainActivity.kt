@@ -1,4 +1,4 @@
-package com.example.vehnicate_frontend
+package com.vehnicate.app
 
 import io.flutter.embedding.android.FlutterActivity
 

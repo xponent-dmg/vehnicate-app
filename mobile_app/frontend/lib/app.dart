@@ -1,6 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/homepage.dart';
-import 'package:vehnicate_frontend/Pages/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/login_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -30,7 +31,7 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      home: ProfilePage(),
+      home: const LoginPage(),
     );
   }
 }
