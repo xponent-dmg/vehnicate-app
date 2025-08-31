@@ -331,3 +331,4 @@ class IMUDataService {
   // Check if data collection is active
   static bool get isActive => _uploadTimer?.isActive == true;
 }
+
