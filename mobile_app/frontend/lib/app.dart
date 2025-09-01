@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/homepage.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
 
 class App extends StatelessWidget {
@@ -8,6 +6,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('📱 Building App widget...');
+
     return MaterialApp(
       title: 'Vehnicate',
       debugShowCheckedModeBanner: false,
@@ -31,7 +31,12 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginPage(),
+      home: Builder(
+        builder: (context) {
+          print('🏠 Building home widget (LoginPage)...');
+          return const LoginPage();
+        },
+      ),
     );
   }
 }

@@ -5,25 +5,87 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vehnicate_frontend/app.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Load environment variables
-  await dotenv.load(fileName: ".env");
-    await Firebase.initializeApp(
-    options: FirebaseOptions(
-      apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
-      appId: dotenv.env['FIREBASE_APP_ID'] ?? '',
-      messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-      projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    ),
-  );
-  
-  // Initialize Supabase
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-  );
-  
-  runApp(const App());
-}
+  print('🚀 Starting app initialization...');
 
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    print('✅ Flutter binding initialized');
+
+    // Load environment variables
+    print('📁 Loading environment variables...');
+    await dotenv.load(fileName: ".env");
+    print('✅ Environment variables loaded');
+
+    // Debug: Print environment variables (without sensitive data)
+    print('🔍 Environment check:');
+    print('  - FIREBASE_API_KEY: ${dotenv.env['FIREBASE_API_KEY']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
+    print('  - FIREBASE_APP_ID: ${dotenv.env['FIREBASE_APP_ID']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
+    print(
+      '  - FIREBASE_MESSAGING_SENDER_ID: ${dotenv.env['FIREBASE_MESSAGING_SENDER_ID']?.isNotEmpty == true ? 'SET' : 'NOT SET'}',
+    );
+    print('  - FIREBASE_PROJECT_ID: ${dotenv.env['FIREBASE_PROJECT_ID']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
+    print('  - SUPABASE_URL: ${dotenv.env['SUPABASE_URL']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
+    print('  - SUPABASE_ANON_KEY: ${dotenv.env['SUPABASE_ANON_KEY']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
+
+    // Initialize Firebase
+    print('🔥 Initializing Firebase...');
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
+        appId: dotenv.env['FIREBASE_APP_ID'] ?? '',
+        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+        projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
+      ),
+    );
+    print('✅ Firebase initialized successfully');
+
+    // Initialize Supabase
+    print('⚡ Initializing Supabase...');
+    await Supabase.initialize(url: dotenv.env['SUPABASE_URL'] ?? '', anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '');
+    print('✅ Supabase initialized successfully');
+
+    print('🎯 Running app...');
+    runApp(const App());
+    print('✅ App started successfully');
+  } catch (e, stackTrace) {
+    print('❌ ERROR during app initialization:');
+    print('Error: $e');
+    print('Stack trace: $stackTrace');
+
+    // Run a minimal error app to show the error
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.red,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.white, size: 64),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'App Initialization Error',
+                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error: $e',
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Check the console for more details',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
