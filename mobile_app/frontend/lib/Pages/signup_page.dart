@@ -149,6 +149,11 @@ class _SignupPageState extends State<SignupPage> {
 													if (value == null || value.isEmpty) {
 														return 'Please enter your email';
 													}
+													// Add email format validation
+													final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+													if (!emailRegExp.hasMatch(value)) {
+														return 'Please enter a valid email address';
+													}
 													return null;
 												},
 											),

@@ -40,7 +40,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
     try {
       await SupabaseService().updateUserProfile(
-        userId: widget.userId,
+        userId: widget.userId,  // Pass the Firebase UID
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
       );
