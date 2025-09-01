@@ -75,16 +75,11 @@ class AuthService {
   // Sign in with Google
   Future<UserCredential> signInWithGoogle() async {
     try {
-      print('Starting Google sign in...');
-      // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       
       if (googleUser == null) {
-        print('Google sign in was cancelled by user');
         throw Exception('Google sign in was cancelled');
       }
-
-      print('Google user obtained: ${googleUser.email}');
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
@@ -95,7 +90,6 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-      print('Firebase credential created, signing in...');
       // Once signed in, return the UserCredential
       final result = await _auth.signInWithCredential(credential);
       

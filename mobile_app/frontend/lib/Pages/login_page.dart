@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:vehnicate_frontend/Pages/dashboard.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-  bool _isSignUp = false;
+  // final bool _isSignUp = false;
 
   @override
   void initState() {
@@ -37,14 +36,13 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      if (_isSignUp) {
-        await AuthService().signUpWithEmail(_emailController.text.trim(), _passwordController.text);
-      } else {
-        await AuthService().signInWithEmail(_emailController.text.trim(), _passwordController.text);
-      }
+      await AuthService().signInWithEmail(_emailController.text.trim(), _passwordController.text);
 
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
+        Navigator.pushNamedAndRemoveUntil(
+          context, "/dash",
+          (route)=>false
+          );
       }
     } catch (e) {
       if (mounted) {
@@ -64,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
       await AuthService().signInWithGoogle();
 
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
+        Navigator.pushNamedAndRemoveUntil(context, "/dash",(route)=>false);
       }
     } catch (e) {
       if (mounted) {
@@ -147,9 +145,9 @@ class _LoginPageState extends State<LoginPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
+                          // if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          //   return 'Please enter a valid email';
+                          // }
                           return null;
                         },
                       ),
@@ -227,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 )
                                 : Text(
-                                  _isSignUp ? 'Sign up' : 'Sign in',
+                                  'Sign in',
                                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                 ),
                       ),
@@ -240,17 +238,15 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _isSignUp ? "Already have an account? " : "Don't have an account? ",
+                         "Don't have an account? ",
                           style: TextStyle(color: Colors.white.withOpacity(0.7)),
                         ),
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              _isSignUp = !_isSignUp;
-                            });
+                            Navigator.pushNamed(context, "/signup");
                           },
                           child: Text(
-                            _isSignUp ? 'Sign in' : 'Sign up',
+                           'Sign up',
                             style: const TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
                           ),
                         ),
@@ -295,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
 
-                        // Apple Sign In (placeholder)
+                        // Apple Sign In (non functional)
                         Container(
                           width: 60,
                           height: 60,
@@ -307,7 +303,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: const Icon(FontAwesomeIcons.apple, color: Colors.white, size: 24),
                         ),
 
-                        // Facebook Sign In (placeholder)
+                        // Skip Sign In (temp)
                         Container(
                           width: 60,
                           height: 60,
@@ -318,9 +314,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           child: IconButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
+                              Navigator.pushNamedAndRemoveUntil(
                                 context,
-                                MaterialPageRoute(builder: (context) => DashboardPage()),
+                                "/dash",
+                                (route)=>false,
                               );
                             },
                             icon: Icon(FontAwesomeIcons.forwardStep, color: Colors.white, size: 24),

@@ -1,5 +1,5 @@
 name: vehnicate_frontend
-description: "A new Flutter project."
+description: "Vehnicate App development"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -33,16 +33,16 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+  # fl_chart: ^1.0.0
+  # http: ^1.5.0
   cupertino_icons: ^1.0.8
   sensors_plus: ^6.1.1
-  fl_chart: ^1.0.0
   firebase_core: ^4.0.0
-  supabase_flutter: ^2.10.0
   firebase_auth: ^6.0.1
-  google_sign_in: ^6.2.2
   firebase_analytics: ^12.0.0
+  google_sign_in: ^6.2.2
+  supabase_flutter: ^2.10.0
   geolocator: ^14.0.2
-  http: ^1.5.0
   font_awesome_flutter: ^10.9.1
   percent_indicator: ^4.2.5
   flutter_dotenv: ^5.1.0

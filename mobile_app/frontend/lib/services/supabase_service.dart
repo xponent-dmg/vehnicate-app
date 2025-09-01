@@ -1,8 +1,63 @@
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 class SupabaseService {
+  // Register user in Supabase 
+  Future<void> registerUser({required String uid, required String email, required String password}) async {
+    try {
+      print('Ensuring Supabase client is initialized...');
+      await initialize();
+      
+      // First, sign in to Supabase using email
+      print('Signing in to Supabase...');
+      try {
+        await _client.auth.signInWithPassword(
+          email: email,
+          password: password 
+        );
+      } catch (e) {
+        // If sign in fails, try signing up
+        print('Sign in failed, attempting to sign up...');
+        await _client.auth.signUp(
+          email: email,
+          password: password
+        );
+      }
+      
+      print('Checking Supabase connection...');
+      try {
+        final healthCheck = await _client.from('userdetails').select().limit(1);
+        print('Supabase connection successful. Health check response: $healthCheck');
+      } catch (e) {
+        print('Supabase health check failed: $e');
+      }
+      
+      print('Attempting to register user in Supabase...');
+      print('User ID: $uid');
+      print('Email: $email');
+      
+      // Get the current Supabase user's UUID
+      final supabaseUid = _client.auth.currentUser?.id;
+      
+      final response = await _client.from('userdetails').insert({
+        'firebasesuid': uid,
+        'email': email,
+        'created_at': DateTime.now().toIso8601String(),
+        'user_id': supabaseUid,
+        'role': 'user'  // Default role for new users
+      }).select();
+      
+      print('Supabase response: $response');
+      print('User registered successfully in Supabase');
+    } catch (e, stackTrace) {
+      print('Error registering user in Supabase:');
+      print('Error: $e');
+      print('Stack trace: $stackTrace');
+      rethrow; // This will propagate the error to the signup page
+    }
+  }
   static final SupabaseService _instance = SupabaseService._internal();
   factory SupabaseService() => _instance;
   SupabaseService._internal();
@@ -17,11 +72,24 @@ class SupabaseService {
 
   // Initialize Supabase
   Future<void> initialize() async {
-    await Supabase.initialize(
-      url: 'YOUR_SUPABASE_URL', // Replace with your Supabase URL
-      anonKey: 'YOUR_SUPABASE_ANON_KEY', // Replace with your Supabase anon key
-    );
-    _client = Supabase.instance.client;
+    try {
+      _client = Supabase.instance.client;
+      print('Using existing Supabase instance');
+    } catch (e) {
+      print('No existing Supabase instance found');
+      try {
+        // Initialize a new instance if none exists
+        await Supabase.initialize(
+          url: dotenv.env['SUPABASE_URL'] ?? '',
+          anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+        );
+        _client = Supabase.instance.client;
+        print('New Supabase instance initialized successfully');
+      } catch (e) {
+        print('Error initializing Supabase: $e');
+        throw Exception('Failed to initialize Supabase: $e');
+      }
+    }
   }
 
   // Start streaming IMU data
@@ -110,9 +178,9 @@ class SupabaseService {
   Future<List<Map<String, dynamic>>> getRecentIMUData({int limit = 100}) async {
     try {
       final response = await _client
-          .from('imu_data')
+          .from('datatransmission')
           .select()
-          .eq('user_id', _client.auth.currentUser?.id ?? '')
+          .eq('dataid', _client.auth.currentUser?.id ?? '')
           .order('timestamp', ascending: false)
           .limit(limit);
       
@@ -148,6 +216,35 @@ class SupabaseService {
       }).eq('session_id', _sessionId!);
     } catch (e) {
       print('Error ending session: $e');
+    }
+  }
+
+  // Update user profile
+  Future<void> updateUserProfile({
+    required String userId,
+    required String fullName,
+    required String username,
+  }) async {
+    try {
+      // First, update the user profile
+      final supabaseUid = _client.auth.currentUser?.id;
+      
+      await _client.from('userdetails').upsert({
+        'firebasesuid': userId,
+        'userid': supabaseUid,
+        'name': fullName,
+        'username': username,
+        'phone': null,  
+        'address': null,
+        'licensenumber': null,
+        'vehicleid': null,
+        'creditid': null,
+        'rpsid': null,
+        'rpsscore': null
+      });
+    } catch (e) {
+      print('Error updating user profile: $e');
+      throw Exception('Failed to update profile: $e');
     }
   }
 }
