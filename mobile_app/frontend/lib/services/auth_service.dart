@@ -17,28 +17,19 @@ class AuthService {
   Future<UserCredential> signInWithEmail(String email, String password) async {
     try {
       print('Attempting email sign in for: $email');
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
+      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+
       // Log analytics event for successful login
       await _analytics.logLogin(loginMethod: 'email');
-      
+
       print('Email sign in successful');
       return result;
     } on FirebaseAuthException catch (e) {
       print('FirebaseAuthException: ${e.code} - ${e.message}');
-      
+
       // Log analytics event for failed login
-      await _analytics.logEvent(
-        name: 'login_failed',
-        parameters: {
-          'method': 'email',
-          'error_code': e.code,
-        },
-      );
-      
+      await _analytics.logEvent(name: 'login_failed', parameters: {'method': 'email', 'error_code': e.code});
+
       throw _handleAuthException(e);
     } catch (e) {
       print('General sign in error: $e');
@@ -49,25 +40,16 @@ class AuthService {
   // Sign up with email and password
   Future<UserCredential> signUpWithEmail(String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
+      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+
       // Log analytics event for successful sign up
       await _analytics.logSignUp(signUpMethod: 'email');
-      
+
       return result;
     } on FirebaseAuthException catch (e) {
       // Log analytics event for failed sign up
-      await _analytics.logEvent(
-        name: 'sign_up_failed',
-        parameters: {
-          'method': 'email',
-          'error_code': e.code,
-        },
-      );
-      
+      await _analytics.logEvent(name: 'sign_up_failed', parameters: {'method': 'email', 'error_code': e.code});
+
       throw _handleAuthException(e);
     }
   }
@@ -78,7 +60,7 @@ class AuthService {
       print('Starting Google sign in...');
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
         print('Google sign in was cancelled by user');
         throw Exception('Google sign in was cancelled');
@@ -98,24 +80,18 @@ class AuthService {
       print('Firebase credential created, signing in...');
       // Once signed in, return the UserCredential
       final result = await _auth.signInWithCredential(credential);
-      
+
       // Log analytics event for successful Google sign in
       await _analytics.logLogin(loginMethod: 'google');
-      
+
       print('Google sign in successful: ${result.user?.email}');
       return result;
     } on FirebaseAuthException catch (e) {
       print('FirebaseAuthException during Google sign in: ${e.code} - ${e.message}');
-      
+
       // Log analytics event for failed Google login
-      await _analytics.logEvent(
-        name: 'login_failed',
-        parameters: {
-          'method': 'google',
-          'error_code': e.code,
-        },
-      );
-      
+      await _analytics.logEvent(name: 'login_failed', parameters: {'method': 'google', 'error_code': e.code});
+
       throw Exception('Firebase Auth Error: ${e.message}');
     } catch (e) {
       print('General Google sign in error: $e');
@@ -127,10 +103,10 @@ class AuthService {
   Future<void> signOut() async {
     try {
       print('Starting signOut process');
-      
+
       // Log analytics event for logout
       await _analytics.logEvent(name: 'logout');
-      
+
       await _googleSignIn.signOut();
       print('Google sign out completed');
       await _auth.signOut();
