@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:vehnicate_frontend/services/auth_service.dart';
+import 'package:vehnicate_frontend/Pages/login_page.dart';
 
 // Constants and Theme
 class ProfileConstants {
@@ -89,6 +91,58 @@ class ProfileConstants {
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Color(0xFF2d2d44),
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF8E44AD)),
+                  SizedBox(width: 20),
+                  Text('Logging out...', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      // Sign out
+      await AuthService().signOut();
+
+      // Check if widget is still mounted before using context
+      if (context.mounted) {
+        // Close loading dialog
+        Navigator.of(context).pop();
+
+        // Navigate to login page
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      // Check if widget is still mounted before using context
+      if (context.mounted) {
+        // Close loading dialog if it's open
+        Navigator.of(context).pop();
+
+        // Show error message
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to logout: $e'), backgroundColor: Colors.red));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +156,7 @@ class ProfilePage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildHeader(),
+                _buildHeader(context),
                 _buildProfileSection(),
                 _buildStatsSection(),
                 const SizedBox(height: 14),
@@ -117,27 +171,33 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white)),
-          _buildLogoutButton(),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          ),
+          _buildLogoutButton(context),
         ],
       ),
     );
   }
 
-  Widget _buildLogoutButton() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: ProfileConstants.logoutRed),
-        borderRadius: BorderRadius.circular(10),
+  Widget _buildLogoutButton(context) {
+    return GestureDetector(
+      onTap: () => _handleLogout(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: ProfileConstants.logoutRed),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text('Log out', style: ProfileConstants.logoutStyle),
       ),
-      child: const Text('Log out', style: ProfileConstants.logoutStyle),
     );
   }
 
