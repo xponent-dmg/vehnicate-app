@@ -72,3 +72,5 @@ app.*.map.json
 
 # Coverage
 coverage/
+
+.env
