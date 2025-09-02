@@ -9,29 +9,30 @@ class SupabaseService {
 
   late SupabaseClient _client;
 
-  // Register user in Supabase 
+  // Register user in Supabase
   Future<void> registerUser({required String uid, required String email, required String password}) async {
     try {
       print('Ensuring Supabase client is initialized...');
       await initialize();
-      
+
       // Sanitize email
       final sanitizedEmail = email.trim().toLowerCase();
-      
+
       try {
         // First create the user record in userdetails table
         print('Attempting to create user record in userdetails...');
         print('Firebase UID: $uid');
         print('Email: $sanitizedEmail');
-        
-        final response = await _client.from('userdetails').insert({
-          'firebaseuid': uid,
-          'email': sanitizedEmail,
-          'name': 'New User',  // Required field, can be updated later
-          'created_at': DateTime.now().toIso8601String(),
-          'role': 'User'  // Notice the capital 'U' as per your enum check
-        }).select();
-        
+
+        final response =
+            await _client.from('userdetails').insert({
+              'firebaseuid': uid,
+              'email': sanitizedEmail,
+              'name': 'New User', // Required field, can be updated later
+              'created_at': DateTime.now().toIso8601String(),
+              'role': 'User', // Notice the capital 'U' as per your enum check
+            }).select();
+
         print('User record created in userdetails: ${response.toString()}');
 
         print('Attempting Supabase auth signup...');
@@ -40,20 +41,20 @@ class SupabaseService {
           final authResponse = await _client.auth.signUp(
             email: sanitizedEmail,
             password: password,
-            data: {
-              'firebaseuid': uid
-            }
+            data: {'firebaseuid': uid},
           );
-          
+
           print('Supabase auth response: ${authResponse.toString()}');
-          
+
           if (authResponse.user?.id != null) {
             print('Updating user record with Supabase ID: ${authResponse.user!.id}');
             try {
-              final updateResponse = await _client.from('userdetails')
-                .update({'supabase_uid': authResponse.user!.id})
-                .eq('firebaseuid', uid)
-                .select();
+              final updateResponse =
+                  await _client
+                      .from('userdetails')
+                      .update({'supabase_uid': authResponse.user!.id})
+                      .eq('firebaseuid', uid)
+                      .select();
               print('Update response: ${updateResponse.toString()}');
             } catch (e) {
               print('Warning: Could not update supabase_uid: $e');
@@ -99,25 +100,20 @@ class SupabaseService {
   }
 
   // Update user profile
-  Future<void> updateUserProfile({
-    required String userId,
-    required String fullName,
-    required String username,
-  }) async {
+  Future<void> updateUserProfile({required String userId, required String fullName, required String username}) async {
     try {
       print('Updating profile for user with Firebase UID: $userId');
-      
+
       // Update only the specified fields while maintaining the firebaseuid
-      final response = await _client.from('userdetails')
-          .update({
-            'name': fullName,
-            'username': username,
-          })
-          .eq('firebaseuid', userId)  // Use firebaseuid to find the correct record
-          .select();
-          
+      final response =
+          await _client
+              .from('userdetails')
+              .update({'name': fullName, 'username': username})
+              .eq('firebaseuid', userId) // Use firebaseuid to find the correct record
+              .select();
+
       print('Profile update response: $response');
-      
+
       if ((response as List).isEmpty) {
         throw Exception('User record not found');
       }

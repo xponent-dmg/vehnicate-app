@@ -91,6 +91,33 @@ class ProfileConstants {
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  Future<void> _showLogoutDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ProfileConstants.cardBackground,
+          elevation: 5,
+          title: Text("Confirm Logout", style: ProfileConstants.nameStyle),
+          content: Text("Are you sure you want to logout of this account?", style: ProfileConstants.labelStyle),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => _handleLogout(context),
+              child: Text("Logout", style: ProfileConstants.deleteStyle),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _handleLogout(BuildContext context) async {
     try {
       // Show loading dialog
@@ -124,10 +151,9 @@ class ProfilePage extends StatelessWidget {
         Navigator.of(context).pop();
 
         // Navigate to login page
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-          (Route<dynamic> route) => false,
-        );
+        Navigator.of(
+          context,
+        ).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
       }
     } catch (e) {
       // Check if widget is still mounted before using context
@@ -189,7 +215,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildLogoutButton(context) {
     return GestureDetector(
-      onTap: () => _handleLogout(context),
+      onTap: () => _showLogoutDialog(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
