@@ -6,3 +6,53 @@
 *.lock
 local.properties
 build/
+
+# Unused platforms (mobile-only project)
+macos/
+linux/
+windows/
+web/
+
+# iOS related
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/flutter_export_environment.sh
+
+# Android related
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/key.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/.project
+**/android/.settings/
+
+# Keystore files
+*.jks
+*.keystore
+*.p12
+*.key
+*.mobileprovision
+*.cer
+
+# Symbolication and obfuscation related
+app.*.symbols
+app.*.map.json
+
+# Coverage
+coverage/

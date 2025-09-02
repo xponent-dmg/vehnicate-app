@@ -7,8 +7,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
 class ImuCollector extends StatefulWidget {
+  const ImuCollector({super.key});
+
   @override
-  _ImuCollectorState createState() => _ImuCollectorState();
+  State<ImuCollector> createState() => _ImuCollectorState();
 }
 
 class _ImuCollectorState extends State<ImuCollector> {
@@ -45,8 +47,7 @@ class _ImuCollectorState extends State<ImuCollector> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, cannot request.');
+      return Future.error('Location permissions are permanently denied, cannot request.');
     }
   }
 
@@ -54,6 +55,15 @@ class _ImuCollectorState extends State<ImuCollector> {
     if (isCollecting) return;
     await initLocation();
     setState(() => isCollecting = true);
+
+    // Show snackbar for starting collection
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('📱 Started sensor data collection'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
 
     // Gyroscope stream
     gyroSub = gyroscopeEvents.listen((event) {
@@ -97,9 +107,17 @@ class _ImuCollectorState extends State<ImuCollector> {
     // Upload buffer every 10s
     uploadTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
       if (imuBuffer.isNotEmpty) {
+        // Show snackbar for data upload
         print("📤 Timer triggered - uploading ${imuBuffer.length} records");
         List<Map<String, dynamic>> temp = List.from(imuBuffer);
         imuBuffer.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('📤 Uploaded ${temp.length} sensor records'),
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 1),
+          ),
+        );
         await sendToSupabase(temp);
       } else {
         print("⏰ Upload timer triggered but buffer is empty");
@@ -113,13 +131,22 @@ class _ImuCollectorState extends State<ImuCollector> {
     positionSub?.cancel();
     uploadTimer?.cancel();
     setState(() => isCollecting = false);
+
+    // Show snackbar for stopping collection
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('⏹️ Stopped sensor data collection'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> sendToSupabase(List<Map<String, dynamic>> data) async {
     try {
       print("Attempting to send ${data.length} records to Supabase...");
       print("Sample data: ${data.isNotEmpty ? data.first : 'No data'}");
-      
+
       final response = await supabase.from('datatransmission').insert(data);
       print("✅ Successfully sent ${data.length} records to Supabase");
       print("Response: $response");
