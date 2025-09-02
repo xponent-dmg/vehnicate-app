@@ -75,7 +75,8 @@ class _ImuCollectorState extends State<ImuCollector> {
     // Accelerometer stream
     accelSub = accelerometerEvents.listen((event) {
       final imuData = {
-        "vehicleid": 1, // 🔹 replace with actual vehicle ID
+        "vehicleid": 1,
+        "dataid": DateTime.now().millisecondsSinceEpoch.toString(),
         "timesent": DateTime.now().toIso8601String(),
         "accelx": event.x,
         "accely": event.y,
@@ -172,7 +173,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("IMU + GPS Collector")),
+      appBar: AppBar(title: Text("IMU + GPS Collector test page")),
       body: Center(
         child: ElevatedButton(
           onPressed: isCollecting ? stopCollection : startCollection,

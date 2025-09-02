@@ -5,30 +5,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vehnicate_frontend/app.dart';
 
 void main() async {
-  print('🚀 Starting app initialization...');
-
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    print('✅ Flutter binding initialized');
-
-    // Load environment variables
-    print('📁 Loading environment variables...');
+  WidgetsFlutterBinding.ensureInitialized();
+    try {
     await dotenv.load(fileName: ".env");
-    print('✅ Environment variables loaded');
-
-    // Debug: Print environment variables (without sensitive data)
-    print('🔍 Environment check:');
-    print('  - FIREBASE_API_KEY: ${dotenv.env['FIREBASE_API_KEY']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
-    print('  - FIREBASE_APP_ID: ${dotenv.env['FIREBASE_APP_ID']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
-    print(
-      '  - FIREBASE_MESSAGING_SENDER_ID: ${dotenv.env['FIREBASE_MESSAGING_SENDER_ID']?.isNotEmpty == true ? 'SET' : 'NOT SET'}',
-    );
-    print('  - FIREBASE_PROJECT_ID: ${dotenv.env['FIREBASE_PROJECT_ID']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
-    print('  - SUPABASE_URL: ${dotenv.env['SUPABASE_URL']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
-    print('  - SUPABASE_ANON_KEY: ${dotenv.env['SUPABASE_ANON_KEY']?.isNotEmpty == true ? 'SET' : 'NOT SET'}');
-
-    // Initialize Firebase
-    print('🔥 Initializing Firebase...');
+    print("Environment variables loaded successfully");
     await Firebase.initializeApp(
       options: FirebaseOptions(
         apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
@@ -47,12 +27,11 @@ void main() async {
     print('🎯 Running app...');
     runApp(const App());
     print('✅ App started successfully');
-  } catch (e, stackTrace) {
+  } 
+  catch (e, stackTrace) {
     print('❌ ERROR during app initialization:');
     print('Error: $e');
     print('Stack trace: $stackTrace');
-
-    // Run a minimal error app to show the error
     runApp(
       MaterialApp(
         home: Scaffold(
