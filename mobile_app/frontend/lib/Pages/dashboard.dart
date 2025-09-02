@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
 
@@ -104,11 +105,7 @@ class DashboardPage extends StatelessWidget {
                             ),
                             child: Text(
                               'Weekly',
-                              style: TextStyle(
-                                color: Color(0xFF8E44AD),
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
-                              ),
+                              style: TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w500, fontSize: 12),
                             ),
                           ),
                         ],
@@ -160,15 +157,18 @@ class DashboardPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                children: [
-                  Icon(Icons.home, color: Colors.white, size: 24),
-                  SizedBox(width: 10),
-                  Text("Home", style: ProfileConstants.labelStyle),
-                ],
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DriveAnalyzePage())),
+              child: Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
+                child: Row(
+                  children: [
+                    Icon(Icons.home, color: Colors.white, size: 24),
+                    SizedBox(width: 10),
+                    Text("Home", style: ProfileConstants.labelStyle),
+                  ],
+                ),
               ),
             ),
             Icon(Icons.location_on, color: Colors.white54, size: 24),
@@ -257,10 +257,7 @@ Widget _startCard(BuildContext context) {
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Color(0xFF8E44AD),
-                  borderRadius: BorderRadius.circular(25),
-                ),
+                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
                 child: Text('START', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ),
@@ -285,11 +282,7 @@ Widget _startCard(BuildContext context) {
           ],
         ),
         SizedBox(height: 20),
-        _textField(
-          hintText: "Current location",
-          icon: FontAwesomeIcons.locationCrosshairs,
-          color: Color(0xFF8E44AD),
-        ),
+        _textField(hintText: "Current location", icon: FontAwesomeIcons.locationCrosshairs, color: Color(0xFF8E44AD)),
 
         SizedBox(height: 12),
         _textField(hintText: 'Where to?', icon: FontAwesomeIcons.locationDot, color: Colors.white54),
