@@ -4,14 +4,38 @@ class SplashPage extends StatefulWidget  {
   @override
   _SplashPageState createState() => _SplashPageState();
 }
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  bool _showFinalText = false;
   @override
   void initState() {
     super.initState();
-    // Navigate to login_page after 1 second
-    Future.delayed(Duration(seconds: 1), () {
-      Navigator.pushReplacementNamed(context, '/login');
-    });
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin:0,end:1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut,
+      ),
+    )..addStatusListener((status){
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _showFinalText = true;
+        });
+        // Navigate after animation completes
+        Future.delayed(Duration(milliseconds: 500), () {
+          Navigator.pushReplacementNamed(context, '/login');
+        });
+      }
+    }
+    );
+    _controller.forward();
+  }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,13 +59,21 @@ class _SplashPageState extends State<SplashPage> {
                 fit: BoxFit.contain,
               ),
               SizedBox(height: 20), // spacing between image and text
-              Text(
-                "vehnicate",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context,child){
+                  return Text(
+                    _showFinalText ? "vehnicate" : "Vehicle+communicate",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: Tween<double>(begin: 0, end: -1)
+                          .animate(_animation)
+                          .value,
+                    ),
+                  );
+                }
               ),
              Transform.translate( 
               offset: Offset(0, MediaQuery.of(context).size.height/3),
