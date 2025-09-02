@@ -1,26 +1,10 @@
-# Miscellaneous
-*.log
-*.swp
-.DS_Store
-.buildlog/
-.history
-migrate_working_dir/
-
-# IDEs
-*.iml
-*.ipr
-*.iws
-.idea/
-.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
+.env
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-.pub-cache/
-.pub/
+*.lock
+local.properties
 build/
 
 # Unused platforms (mobile-only project)
@@ -72,5 +56,3 @@ app.*.map.json
 
 # Coverage
 coverage/
-
-.env
