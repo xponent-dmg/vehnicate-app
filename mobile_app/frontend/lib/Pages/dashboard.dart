@@ -158,7 +158,6 @@ class DashboardPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DriveAnalyzePage())),
               child: Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
@@ -172,8 +171,22 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
             Icon(Icons.location_on, color: Colors.white54, size: 24),
-            Icon(Icons.directions_car, color: Colors.white54, size: 24),
-            Icon(Icons.person, color: Colors.white54, size: 24),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, "/garage"),
+              child: Row(
+                children: [
+                    Icon(Icons.directions_car, color: Colors.white54, size: 24),
+                ],
+              ), 
+            ),
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DriveAnalyzePage())),
+              child: Row(
+                children: [
+                  Icon(Icons.analytics, color: Colors.white54, size: 24),
+              ],
+              ),
+            )
           ],
         ),
       ),
