@@ -5,7 +5,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
-import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -174,6 +174,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
       ),
+
       // Bottom Navigation Bar
       bottomNavigationBar: Container(
         margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),

@@ -8,7 +8,8 @@ import 'package:vehnicate_frontend/Pages/login_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/signup_page.dart';
-import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/home.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -50,6 +51,8 @@ class App extends StatelessWidget {
         "/garage":(context)=>GaragePage(),
         "/analyze":(context)=>DriveAnalyzePage(),
         "/editdetails":(context)=>EditProfilePage(),
+        "/home": (context) => Home(),
+
       },
       initialRoute: "/splash",
     );
