@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
-          context, "/dash",
+          context, "/home",
           (route)=>false
           );
       }
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
       await AuthService().signInWithGoogle();
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, "/dash",(route)=>false);
+        Navigator.pushNamedAndRemoveUntil(context, "/home",(route)=>false);
       }
     } catch (e) {
       if (mounted) {
@@ -316,7 +316,7 @@ class _LoginPageState extends State<LoginPage> {
                             onPressed: () {
                               Navigator.pushNamedAndRemoveUntil(
                                 context,
-                                "/dash",
+                                "/home",
                                 (route)=>false,
                               );
                             },

@@ -7,7 +7,8 @@ import 'package:vehnicate_frontend/Pages/login_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/signup_page.dart';
-import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/home.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -39,16 +40,16 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      routes:{
-        "/splash":(context)=>SplashPage(),
-        "/login":(context)=>LoginPage(),
-        "/signup":(context)=>SignupPage(),
-        "/profile":(context)=>ProfilePage(),
-        "/dash":(context)=>DashboardPage(),
-        "/imu":(context)=>ImuCollector(),
-        "/garage":(context)=>GaragePage(),
-        "/analyze":(context)=>DriveAnalyzePage(),
-
+      routes: {
+        "/splash": (context) => SplashPage(),
+        "/login": (context) => LoginPage(),
+        "/signup": (context) => SignupPage(),
+        "/profile": (context) => ProfilePage(),
+        "/dash": (context) => DashboardPage(),
+        "/imu": (context) => ImuCollector(),
+        "/garage": (context) => GaragePage(),
+        "/analytics": (context) => DriveAnalyzePage(),
+        "/home": (context) => Home(),
       },
       initialRoute: "/splash",
     );

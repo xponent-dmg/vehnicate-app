@@ -246,46 +246,6 @@ class DriveAnalyzePage extends StatelessWidget {
           child: Column(children: [_buildHeader(context), Expanded(child: _buildDrivesList())]),
         ),
       ),
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        height: 80,
-        decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.all(Radius.circular(25))),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, "/dash"),
-              child: Row(
-                children: [
-                    Icon(Icons.home, color: Colors.white54, size: 24),
-                ],
-              ), 
-            ),
-            Icon(Icons.location_on, color: Colors.white54, size: 24),
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, "/garage"),
-              child: Row(
-                children: [
-                    Icon(Icons.directions_car, color: Colors.white54, size: 24),
-                ],
-              ), 
-            ),
-            GestureDetector(
-              child: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  children: [
-                    Icon(Icons.analytics, color: Colors.white, size: 24),
-                    SizedBox(width: 10),
-                    Text("Analyze", style: TextStyle(color: Colors.white, fontSize: 14)),
-                  ],
-                ),
-              ),
-            ),
-          ]
-        ),
-      ),
     );
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
-import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -10,43 +10,6 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   actionsPadding: EdgeInsets.symmetric(horizontal: 20),
-      //   backgroundColor: ProfileConstants.primaryBackground,
-      //   elevation: 0,
-      //   toolbarHeight: 90,
-      //   leadingWidth: 120,
-      //   leading: Padding(
-      //     padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-      //     child: Row(
-      //       children: [
-      //         CircleAvatar(
-      //           backgroundColor: const Color.fromARGB(255, 212, 161, 9),
-      //           radius: 10,
-      //           child: Icon(FontAwesomeIcons.centSign, size: 11),
-      //         ),
-      //         SizedBox(width: 6),
-      //         Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-      //       ],
-      //     ),
-      //   ),
-      //   title: Column(
-      //     children: [
-      //       Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-      //       Text('Calm in the Chaos', style: TextStyle(color: Colors.white70, fontSize: 11)),
-      //     ],
-      //   ),
-      //   actions: [
-      //     GestureDetector(
-      //       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage())),
-      //       child: CircleAvatar(
-      //         radius: 22,
-      //         backgroundColor: Color(0xFF8E44AD),
-      //         child: Transform.translate(offset: Offset(0, 1.2), child: Image.asset("assets/logo.png")),
-      //       ),
-      //     ),
-      //   ],
-      // ),
       backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -148,34 +111,8 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
       ),
+
       // Bottom Navigation Bar
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        height: 80,
-        decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.all(Radius.circular(25))),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                children: [
-                  Icon(Icons.home, color: Colors.white, size: 24),
-                  SizedBox(width: 10),
-                  Text("Home", style: ProfileConstants.labelStyle),
-                ],
-              ),
-            ),
-            Icon(Icons.location_on, color: Colors.white54, size: 24),
-            Icon(Icons.directions_car, color: Colors.white54, size: 24),
-            IconButton(
-              onPressed: () => Navigator.pushNamed(context, "/analytics"),
-              icon: Icon(Icons.analytics, color: Colors.white54, size: 24),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

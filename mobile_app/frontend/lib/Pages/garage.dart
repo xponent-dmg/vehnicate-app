@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/profile_page.dart';
 
 class GaragePage extends StatelessWidget {
+  const GaragePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,46 +55,6 @@ class GaragePage extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        height: 80,
-        decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.all(Radius.circular(25))),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, "/dash"),
-              child: Row(
-                children: [
-                    Icon(Icons.home, color: Colors.white54, size: 24),
-                ],
-              ), 
-            ),
-            Icon(Icons.location_on, color: Colors.white54, size: 24),
-            GestureDetector(
-              child: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  children: [
-                    Icon(Icons.directions_car, color: Colors.white, size: 24),
-                    SizedBox(width: 10),
-                    Text("Garage", style: ProfileConstants.labelStyle),
-                  ],
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, "/analyze"),
-              child: Row(
-                children: [
-                    Icon(Icons.analytics, color: Colors.white54, size: 24),
-                ],
-              ), 
-            ),
-          ]
         ),
       ),
     );
