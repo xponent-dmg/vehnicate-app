@@ -1,58 +1,155 @@
-.env
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/flutter_export_environment.sh
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-*.lock
-local.properties
-build/
+.pub-cache/
+.pub/
+/build/
 
-# Unused platforms (mobile-only project)
-macos/
-linux/
-windows/
-web/
-
-# iOS related
-**/ios/Flutter/.last_build_id
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral/
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
-**/ios/Pods/
-**/ios/.symlinks/
-**/ios/Flutter/flutter_export_environment.sh
-
-# Android related
-**/android/app/debug/
-**/android/app/profile/
-**/android/app/release/
-**/android/.gradle/
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/key.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/.project
-**/android/.settings/
-
-# Keystore files
-*.jks
-*.keystore
-*.p12
-*.key
-*.mobileprovision
-*.cer
-
-# Symbolication and obfuscation related
+# Symbolication related
 app.*.symbols
+
+# Obfuscation related
 app.*.map.json
 
-# Coverage
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Environment variables and sensitive configuration
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+**/.env
+**/.env.*
+
+# Firebase configuration files
+**/google-services.json
+**/GoogleService-Info.plist
+firebase-adminsdk-*.json
+firebase_options.dart
+
+# API Keys and secrets
+api_keys.dart
+secrets.dart
+config/secrets.yml
+config/database.yml
+
+# Local configuration
+local.properties
+key.properties
+keystore.jks
+*.keystore
+*.p12
+upload-keystore.jks
+
+# iOS specific sensitive files
+**/ios/Runner/GoogleService-Info.plist
+**/ios/firebase_app_id_file.json
+**/ios/Runner/firebase_app_id_file.json
+
+# Android specific sensitive files
+**/android/app/google-services.json
+**/android/key.properties
+**/android/app/keystore.jks
+**/android/app/upload-keystore.jks
+
+# Gradle files with potential secrets
+gradle.properties
+**/gradle.properties
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# IDE specific files
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.iml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node modules (if you have any web components)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
 coverage/
+*.lcov
+
+# Flutter build artifacts
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+
+# Web build
+**/web/build/
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Generated files
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
+
+# Supabase local development
+.supabase/
+supabase/.env

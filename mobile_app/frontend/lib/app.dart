@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
+
+import 'package:vehnicate_frontend/Pages/garage.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/signup_page.dart';
 import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
 
@@ -36,15 +39,18 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      routes: {
-        "/login": (context) => LoginPage(),
-        "/signup": (context) => SignupPage(),
-        "/profile": (context) => ProfilePage(),
-        "/dash": (context) => DashboardPage(),
-        "/imu": (context) => ImuCollector(),
-        "/analytics": (context) => DriveAnalyzePage(),
+      routes:{
+        "/splash":(context)=>SplashPage(),
+        "/login":(context)=>LoginPage(),
+        "/signup":(context)=>SignupPage(),
+        "/profile":(context)=>ProfilePage(),
+        "/dash":(context)=>DashboardPage(),
+        "/imu":(context)=>ImuCollector(),
+        "/garage":(context)=>GaragePage(),
+        "/analyze":(context)=>DriveAnalyzePage(),
+
       },
-      initialRoute: "/login",
+      initialRoute: "/splash",
     );
   }
 }
