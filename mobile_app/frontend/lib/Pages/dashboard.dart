@@ -182,36 +182,23 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            GestureDetector(
-              child: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  children: [
-                    Icon(Icons.home, color: Colors.white, size: 24),
-                    SizedBox(width: 10),
-                    Text("Home", style: ProfileConstants.labelStyle),
-                  ],
-                ),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
+              child: Row(
+                children: [
+                  Icon(Icons.home, color: Colors.white, size: 24),
+                  SizedBox(width: 10),
+                  Text("Home", style: ProfileConstants.labelStyle),
+                ],
               ),
             ),
             Icon(Icons.location_on, color: Colors.white54, size: 24),
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, "/garage"),
-              child: Row(
-                children: [
-                    Icon(Icons.directions_car, color: Colors.white54, size: 24),
-                ],
-              ), 
+            Icon(Icons.directions_car, color: Colors.white54, size: 24),
+            IconButton(
+              onPressed: () => Navigator.pushNamed(context, "/analytics"),
+              icon: Icon(Icons.analytics, color: Colors.white54, size: 24),
             ),
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DriveAnalyzePage())),
-              child: Row(
-                children: [
-                  Icon(Icons.analytics, color: Colors.white54, size: 24),
-              ],
-              ),
-            )
           ],
         ),
       ),
