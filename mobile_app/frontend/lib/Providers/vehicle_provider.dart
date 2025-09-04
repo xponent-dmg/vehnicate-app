@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
@@ -21,7 +22,33 @@ class VehicleProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   Object? get error => _error;
 
-  Future<void> loadVehicleByVehicleId(String? firebaseUuid) async {
+  StreamSubscription<firebase.User?>? _authSub;
+
+  VehicleProvider() {
+    _listenAuth();
+  }
+
+  void _listenAuth() {
+    _authSub?.cancel();
+    _authSub = firebase.FirebaseAuth.instance.authStateChanges().listen((user) async {
+      if (user == null) {
+        _setVehicle(null);
+        return;
+      }
+      await loadVehicleByUserId(user.uid);
+    });
+  }
+
+  Future<void> refresh() async {
+    final uid = firebase.FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      _setVehicle(null);
+      return;
+    }
+    await loadVehicleByUserId(uid);
+  }
+
+  Future<void> loadVehicleByUserId(String? firebaseUuid) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -52,5 +79,11 @@ class VehicleProvider extends ChangeNotifier {
     _vehicleInsurance = data?['insurance'];
     _vehicleRegistration = data?['registration'];
     _vehiclePUC = data?['puc'];
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 }

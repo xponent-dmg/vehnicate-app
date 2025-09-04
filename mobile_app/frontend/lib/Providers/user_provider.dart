@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/models/user_model.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
@@ -10,13 +9,12 @@ class UserProvider extends ChangeNotifier {
   StreamSubscription<firebase.User?>? _authSub;
   bool _isLoading = false;
   Object? _error;
-  final VehicleProvider _vehicleProvider;
 
   AppUser? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   Object? get error => _error;
 
-  UserProvider(this._vehicleProvider) {
+  UserProvider() {
     _listenAuth();
   }
 
@@ -64,8 +62,6 @@ class UserProvider extends ChangeNotifier {
   void _setUser(AppUser? user) {
     _currentUser = user;
     notifyListeners();
-
-    _vehicleProvider.loadVehicleByVehicleId(user?.firebaseUid);
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -54,7 +55,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     _rpsScoreCard(context),
                     SizedBox(width: 16),
                     // Car Info
-                    _selectedCarCard(),
+                    _selectedCarCard(context),
                   ],
                 ),
                 SizedBox(height: 24),
@@ -279,7 +280,7 @@ Widget _rpsScoreCard(BuildContext context) {
   );
 }
 
-Widget _selectedCarCard() {
+Widget _selectedCarCard(BuildContext context) {
   return Expanded(
     child: Container(
       height: 160,
@@ -290,12 +291,21 @@ Widget _selectedCarCard() {
         children: [
           Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Audi Q7', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text('TN10BY7079', style: TextStyle(color: Colors.white54, fontSize: 11)),
-                ],
+              Consumer<VehicleProvider>(
+                builder:
+                    (context, vehicleProvider, child) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vehicleProvider.vehicleName ?? 'No vehicle',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        Text(
+                          vehicleProvider.vehicleRegistration ?? '------',
+                          style: TextStyle(color: Colors.white54, fontSize: 11),
+                        ),
+                      ],
+                    ),
               ),
               Spacer(),
               Column(
