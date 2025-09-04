@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Constants and Theme
 class ProfileConstants {
@@ -88,8 +90,32 @@ class ProfileConstants {
   static const double horizontalPadding = 28.0;
 }
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage>{
+  Map<String, dynamic>? userDetails;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+  }
+
+  Future<void> _loadUserDetails() async {
+    try {
+      final details = await getUserdetails();
+      setState(() {
+        userDetails = details;
+      });
+      print("Loaded user details: $userDetails");
+    } catch (e) {
+      print("Error loading user details: $e");
+    }
+  }
 
   Future<void> _showLogoutDialog(BuildContext context) {
     return showDialog(
@@ -232,9 +258,9 @@ class ProfilePage extends StatelessWidget {
       children: [
         _buildAvatar(),
         const SizedBox(height: 16),
-        const Text('Samprisha', style: ProfileConstants.nameStyle),
+        Text("${userDetails?['name']??'Guest'}", style: ProfileConstants.nameStyle),
         const SizedBox(height: 4),
-        const Text('@username', style: ProfileConstants.usernameStyle),
+        Text('@${userDetails?['username']??'Guest'}', style: ProfileConstants.usernameStyle),
       ],
     );
   }
@@ -339,7 +365,7 @@ class ProfilePage extends StatelessWidget {
           progressColor: ProfileConstants.accentPurple,
           circularStrokeCap: CircularStrokeCap.round, // rounded ends
           animation: true,
-          center: const Text("80", style: ProfileConstants.metricValueStyle),
+          center: Text("${userDetails?['rpsscore']??'50'}", style: ProfileConstants.metricValueStyle),
         ),
         SizedBox(height: 5),
         SizedBox(
@@ -358,11 +384,11 @@ class ProfilePage extends StatelessWidget {
         children: [
           const Text('Personal Information', style: ProfileConstants.sectionTitleStyle),
           const SizedBox(height: 8),
-          _buildInfoRow('Email', 'bluewhale123@gmail.com', isFirst: true),
+          _buildInfoRow('Email', '${userDetails?['email']??'mail not given'}', isFirst: true),
           SizedBox(height: 3),
-          _buildInfoRow('Phone', '9876543210'),
+          _buildInfoRow('Phone', '${userDetails?['phone']??'phone not given'}'),
           SizedBox(height: 3),
-          _buildInfoRow('Address', 'Alakazam, Pacific Ocean', isLast: true),
+          _buildInfoRow('Address', '${userDetails?['address']??'Address not updated'}', isLast: true),
         ],
       ),
     );
@@ -380,7 +406,10 @@ class ProfilePage extends StatelessWidget {
           SizedBox(height: 3),
           _buildSettingRow('Dark Mode', true),
           SizedBox(height: 3),
-          _buildInfoRow('User analytics', '', isLast: false),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, "/editdetails"),
+            child: _buildInfoRow('Update Details', '', isLast: false),
+          ),
           SizedBox(height: 3),
           _buildDeleteAccountRow(),
         ],
@@ -393,7 +422,7 @@ class ProfilePage extends StatelessWidget {
       height: ProfileConstants.cardHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: ProfileConstants.cardBackground,
+        color: const Color.fromARGB(255, 14, 14, 26),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
           topRight: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
@@ -469,5 +498,30 @@ class ProfilePage extends StatelessWidget {
       ),
       child: const Center(child: Text('Delete Account', style: ProfileConstants.deleteStyle)),
     );
+  }
+}
+Future<Map<String, dynamic>?> getUserdetails() async {
+  try {
+    // Get current Firebase user
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    print("Firebase User ID: ${firebaseUser?.uid}");
+
+    if (firebaseUser == null) {
+      print("No Firebase user found");
+      return null;
+    }
+
+    // Query Supabase using Firebase UID
+    final username = await Supabase.instance.client
+        .from('userdetails')
+        .select()
+        .eq('firebaseuid', firebaseUser.uid)
+        .single();
+    
+    print("Supabase response: $username");
+    return username;
+  } catch (e) {
+    print("Error getting username: $e");
+    return null;
   }
 }
