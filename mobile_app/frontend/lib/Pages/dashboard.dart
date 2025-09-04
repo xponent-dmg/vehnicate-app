@@ -39,7 +39,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Consumer<UserProvider>(
                   builder:
                       (context, userProvider, child) => Text(
-                        "Hey, $userProvider.currentUser?.name ?? 'Guest'} 👋",
+                        "Hey ${userProvider.currentUser?.name ?? 'there'} 👋",
                         style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
                       ),
                 ),

@@ -14,44 +14,29 @@ class GaragePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 20),
                 // Header with welcome text
                 Text(
                   'Welcome to your Garage,',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 35),
 
                 // Statistics Cards
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStatCard('647', 'Miles Travelled'),
-                    _buildStatCard('753', 'Credits Earned'),
-                  ],
+                  children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
                 ),
                 const SizedBox(height: 30),
 
                 // Vehicle Documentation Section
-                Text(
-                  'Vehicle Docs',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('Vehicle Docs', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 15),
-                
+
                 _buildDocumentTile('Registration Certificate', Icons.description),
                 _buildDocumentTile('Vehicle Insurance', Icons.car_repair),
                 _buildDocumentTile('PUC', Icons.eco),
                 _buildDocumentTile('Driving License', Icons.card_membership),
-                _buildDocumentTile('Personal Details', Icons.person),
-                _buildDocumentTile('Owner Profile', Icons.account_circle),
               ],
             ),
           ),
@@ -71,22 +56,9 @@ class GaragePage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(value, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
           SizedBox(height: 5),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-            ),
-          ),
+          Text(label, style: TextStyle(color: Colors.grey, fontSize: 14)),
         ],
       ),
     );
@@ -95,32 +67,15 @@ class GaragePage extends StatelessWidget {
   Widget _buildDocumentTile(String title, IconData icon) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: Colors.purple,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          color: Colors.grey,
-          size: 16,
-        ),
+        leading: Icon(icon, color: Colors.purple),
+        title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
+        trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
         onTap: () {
           // Handle navigation to document details
         },
       ),
     );
-    
   }
 }

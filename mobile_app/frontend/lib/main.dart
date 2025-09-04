@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    try {
+  try {
     await dotenv.load(fileName: ".env");
-    print("Environment variables loaded successfully");
     await Firebase.initializeApp(
       options: FirebaseOptions(
         apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
@@ -17,18 +18,9 @@ void main() async {
         projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
       ),
     );
-    print('✅ Firebase initialized successfully');
-
-    // Initialize Supabase
-    print('⚡ Initializing Supabase...');
     await Supabase.initialize(url: dotenv.env['SUPABASE_URL'] ?? '', anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '');
-    print('✅ Supabase initialized successfully');
-
-    print('🎯 Running app...');
-    runApp(const App());
-    print('✅ App started successfully');
-  } 
-  catch (e, stackTrace) {
+    runApp(MultiProvider(providers: [ChangeNotifierProvider(create: (_) => UserProvider())], child: const App()));
+  } catch (e, stackTrace) {
     print('❌ ERROR during app initialization:');
     print('Error: $e');
     print('Stack trace: $stackTrace');
