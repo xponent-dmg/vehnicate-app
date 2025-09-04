@@ -122,4 +122,18 @@ class SupabaseService {
       throw Exception('Failed to update profile: $e');
     }
   }
+
+  Future<Map<String, dynamic>?> getUserdetails(String firebaseUuid) async {
+    try {
+
+      // Query Supabase using Firebase UID
+      final user = await Supabase.instance.client.from('userdetails').select().eq('firebaseuid', firebaseUuid).single();
+
+      print("Supabase response: $user");
+      return user;
+    } catch (e) {
+      print("Error getting username: $e");
+      return null;
+    }
+  }
 }

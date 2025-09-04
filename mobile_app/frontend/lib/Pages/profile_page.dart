@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Constants and Theme
 class ProfileConstants {
@@ -96,25 +96,12 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>{
+class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userDetails;
 
   @override
   void initState() {
     super.initState();
-    _loadUserDetails();
-  }
-
-  Future<void> _loadUserDetails() async {
-    try {
-      final details = await getUserdetails();
-      setState(() {
-        userDetails = details;
-      });
-      print("Loaded user details: $userDetails");
-    } catch (e) {
-      print("Error loading user details: $e");
-    }
   }
 
   Future<void> _showLogoutDialog(BuildContext context) {
@@ -209,10 +196,10 @@ class _ProfilePageState extends State<ProfilePage>{
             child: Column(
               children: [
                 _buildHeader(context),
-                _buildProfileSection(),
+                _buildProfileSection(context),
                 _buildStatsSection(),
                 const SizedBox(height: 14),
-                _buildPersonalInfoSection(),
+                _buildPersonalInfoSection(context),
                 const SizedBox(height: 30),
                 _buildSettingsSection(),
               ],
@@ -223,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage>{
     );
   }
 
-  Widget _buildHeader(context) {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
@@ -239,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage>{
     );
   }
 
-  Widget _buildLogoutButton(context) {
+  Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
       onTap: () => _showLogoutDialog(context),
       child: Container(
@@ -253,15 +240,20 @@ class _ProfilePageState extends State<ProfilePage>{
     );
   }
 
-  Widget _buildProfileSection() {
-    return Column(
-      children: [
-        _buildAvatar(),
-        const SizedBox(height: 16),
-        Text("${userDetails?['name']??'Guest'}", style: ProfileConstants.nameStyle),
-        const SizedBox(height: 4),
-        Text('@${userDetails?['username']??'Guest'}', style: ProfileConstants.usernameStyle),
-      ],
+  Widget _buildProfileSection(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.currentUser;
+        return Column(
+          children: [
+            _buildAvatar(),
+            const SizedBox(height: 16),
+            Text(user?.name ?? 'Guest', style: ProfileConstants.nameStyle),
+            const SizedBox(height: 4),
+            Text('@${user?.username ?? 'Guest'}', style: ProfileConstants.usernameStyle),
+          ],
+        );
+      },
     );
   }
 
@@ -365,7 +357,7 @@ class _ProfilePageState extends State<ProfilePage>{
           progressColor: ProfileConstants.accentPurple,
           circularStrokeCap: CircularStrokeCap.round, // rounded ends
           animation: true,
-          center: Text("${userDetails?['rpsscore']??'50'}", style: ProfileConstants.metricValueStyle),
+          center: Text("${userDetails?['rpsscore'] ?? '50'}", style: ProfileConstants.metricValueStyle),
         ),
         SizedBox(height: 5),
         SizedBox(
@@ -376,20 +368,25 @@ class _ProfilePageState extends State<ProfilePage>{
     );
   }
 
-  Widget _buildPersonalInfoSection() {
+  Widget _buildPersonalInfoSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Personal Information', style: ProfileConstants.sectionTitleStyle),
-          const SizedBox(height: 8),
-          _buildInfoRow('Email', '${userDetails?['email']??'mail not given'}', isFirst: true),
-          SizedBox(height: 3),
-          _buildInfoRow('Phone', '${userDetails?['phone']??'phone not given'}'),
-          SizedBox(height: 3),
-          _buildInfoRow('Address', '${userDetails?['address']??'Address not updated'}', isLast: true),
-        ],
+      child: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          final user = userProvider.currentUser;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Personal Information', style: ProfileConstants.sectionTitleStyle),
+              const SizedBox(height: 8),
+              _buildInfoRow('Email', user?.email ?? 'mail not given', isFirst: true),
+              SizedBox(height: 3),
+              _buildInfoRow('Phone', user?.phone ?? 'phone not given'),
+              SizedBox(height: 3),
+              _buildInfoRow('Address', user?.address ?? 'Address not updated', isLast: true),
+            ],
+          );
+        },
       ),
     );
   }
@@ -498,30 +495,5 @@ class _ProfilePageState extends State<ProfilePage>{
       ),
       child: const Center(child: Text('Delete Account', style: ProfileConstants.deleteStyle)),
     );
-  }
-}
-Future<Map<String, dynamic>?> getUserdetails() async {
-  try {
-    // Get current Firebase user
-    final firebaseUser = FirebaseAuth.instance.currentUser;
-    print("Firebase User ID: ${firebaseUser?.uid}");
-
-    if (firebaseUser == null) {
-      print("No Firebase user found");
-      return null;
-    }
-
-    // Query Supabase using Firebase UID
-    final username = await Supabase.instance.client
-        .from('userdetails')
-        .select()
-        .eq('firebaseuid', firebaseUser.uid)
-        .single();
-    
-    print("Supabase response: $username");
-    return username;
-  } catch (e) {
-    print("Error getting username: $e");
-    return null;
   }
 }

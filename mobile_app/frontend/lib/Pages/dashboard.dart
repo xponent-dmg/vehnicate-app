@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -18,19 +18,6 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    _loadUserDetails();
-  }
-
-  Future<void> _loadUserDetails() async {
-    try {
-      final details = await getUserdetails();
-      setState(() {
-        userDetails = details;
-      });
-      print("Loaded user details: $userDetails");
-    } catch (e) {
-      print("Error loading user details: $e");
-    }
   }
 
   @override
@@ -49,9 +36,12 @@ class _DashboardPageState extends State<DashboardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _header(context),
-                Text(
-                  "Hey, ${userDetails?['username'] ?? 'Guest'} 👋",
-                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                Consumer<UserProvider>(
+                  builder:
+                      (context, userProvider, child) => Text(
+                        "Hey, $userProvider.currentUser?.name ?? 'Guest'} 👋",
+                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                      ),
                 ),
                 SizedBox(height: 24),
                 // Start Card
@@ -61,7 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Row(
                   children: [
                     // Circular Score
-                    _rpsScoreCard(userDetails?['rpsscore']?.toString() ?? '- -'),
+                    _rpsScoreCard(context),
                     SizedBox(width: 16),
                     // Car Info
                     _selectedCarCard(),
@@ -135,29 +125,6 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       ),
     );
-  }
-}
-
-Future<Map<String, dynamic>?> getUserdetails() async {
-  try {
-    // Get current Firebase user
-    final firebaseUser = FirebaseAuth.instance.currentUser;
-    print("Firebase User ID: ${firebaseUser?.uid}");
-
-    if (firebaseUser == null) {
-      print("No Firebase user found");
-      return null;
-    }
-
-    // Query Supabase using Firebase UID
-    final username =
-        await Supabase.instance.client.from('userdetails').select().eq('firebaseuid', firebaseUser.uid).single();
-
-    print("Supabase response: $username");
-    return username;
-  } catch (e) {
-    print("Error getting username: $e");
-    return null;
   }
 }
 
@@ -271,7 +238,7 @@ Widget _startCard(BuildContext context) {
   );
 }
 
-Widget _rpsScoreCard(String x) {
+Widget _rpsScoreCard(BuildContext context) {
   return Expanded(
     child: Container(
       height: 160,
@@ -288,7 +255,13 @@ Widget _rpsScoreCard(String x) {
         center: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(x, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            Consumer<UserProvider>(
+              builder:
+                  (context, value, child) => Text(
+                    value.currentUser?.rpsScore?.toString() ?? '- -',
+                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+            ),
             SizedBox(height: 2),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 4.5, vertical: 2.5),
