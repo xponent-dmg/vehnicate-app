@@ -1,30 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   // Get current user
-  User? get currentUser => _auth.currentUser;
+  firebase.User? get currentUser => _auth.currentUser;
 
   // Auth state changes stream
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<firebase.User?> get authStateChanges => _auth.authStateChanges();
 
   // Sign in with email and password
-  Future<UserCredential> signInWithEmail(String email, String password) async {
+  Future<firebase.UserCredential> signInWithEmail(String email, String password) async {
     try {
       print('Attempting email sign in for: $email');
-      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      firebase.UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
 
       // Log analytics event for successful login
       await _analytics.logLogin(loginMethod: 'email');
 
       print('Email sign in successful');
       return result;
-    } on FirebaseAuthException catch (e) {
+    } on firebase.FirebaseAuthException catch (e) {
       print('FirebaseAuthException: ${e.code} - ${e.message}');
 
       // Log analytics event for failed login
@@ -38,15 +39,15 @@ class AuthService {
   }
 
   // Sign up with email and password
-  Future<UserCredential> signUpWithEmail(String email, String password) async {
+  Future<firebase.UserCredential> signUpWithEmail(String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      firebase.UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
       // Log analytics event for successful sign up
       await _analytics.logSignUp(signUpMethod: 'email');
 
       return result;
-    } on FirebaseAuthException catch (e) {
+    } on firebase.FirebaseAuthException catch (e) {
       // Log analytics event for failed sign up
       await _analytics.logEvent(name: 'sign_up_failed', parameters: {'method': 'email', 'error_code': e.code});
 
@@ -55,7 +56,7 @@ class AuthService {
   }
 
   // Sign in with Google
-  Future<UserCredential> signInWithGoogle() async {
+  Future<firebase.UserCredential> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -67,7 +68,7 @@ class AuthService {
 
       print('Google auth tokens obtained');
       // Create a new credential
-      final credential = GoogleAuthProvider.credential(
+      final credential = firebase.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
@@ -75,12 +76,44 @@ class AuthService {
       // Once signed in, return the UserCredential
       final result = await _auth.signInWithCredential(credential);
 
+      // Create or update user in Supabase
+      if (result.user != null) {
+        try {
+          final supabase = Supabase.instance.client;
+          
+          // Check if user exists in Supabase
+          final existingUser = await supabase
+              .from('userdetails')
+              .select()
+              .eq('firebaseuid', result.user!.uid)
+              .maybeSingle();
+
+          if (existingUser == null) {
+            // Create new user in Supabase
+            await supabase.from('userdetails').insert({
+              'firebaseuid': result.user!.uid,
+              'email': result.user!.email,
+              'name': result.user!.displayName ?? 'New User',
+              'username': result.user!.displayName?.split(' ')[0] ?? 'New User',
+              'created_at': DateTime.now().toIso8601String(),
+              'role': 'User',
+            });
+            print('Created new user in Supabase');
+          } else {
+            print('User already exists in Supabase');
+          }
+        } catch (e) {
+          print('Error creating/updating Supabase user: $e');
+          // Don't throw the error as Firebase auth was successful
+        }
+      }
+
       // Log analytics event for successful Google sign in
       await _analytics.logLogin(loginMethod: 'google');
 
       print('Google sign in successful: ${result.user?.email}');
       return result;
-    } on FirebaseAuthException catch (e) {
+    } on firebase.FirebaseAuthException catch (e) {
       print('FirebaseAuthException during Google sign in: ${e.code} - ${e.message}');
 
       // Log analytics event for failed Google login
@@ -115,13 +148,13 @@ class AuthService {
   Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
+    } on firebase.FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     }
   }
 
   // Handle Firebase Auth exceptions
-  String _handleAuthException(FirebaseAuthException e) {
+  String _handleAuthException(firebase.FirebaseAuthException e) {
     print('Handling Firebase Auth Exception: ${e.code}');
     switch (e.code) {
       case 'user-not-found':

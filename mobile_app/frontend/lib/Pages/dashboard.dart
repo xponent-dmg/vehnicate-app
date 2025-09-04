@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
+// import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
 
@@ -101,7 +101,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Row(
                   children: [
                     // Circular Score
-                    _rpsScoreCard(userDetails?['rpsscore']?.toString() ?? '0'),
+                    _rpsScoreCard(userDetails?['rpsscore']?.toString() ?? '- -'),
                     SizedBox(width: 16),
                     // Car Info
                     _selectedCarCard(),
@@ -231,50 +231,50 @@ Future<Map<String, dynamic>?> getUserdetails() async {
   }
 }
 
-Widget _header(context) {
-  return Container(
-    height: 90,
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Leading section
-        SizedBox(
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: const Color.fromARGB(255, 212, 161, 9),
-                radius: 10,
-                child: Icon(FontAwesomeIcons.centSign, size: 11),
-              ),
-              const SizedBox(width: 6),
-              const Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-            ],
-          ),
-        ),
+// Widget _header(context) {
+//   return Container(
+//     height: 90,
+//     padding: const EdgeInsets.symmetric(horizontal: 20),
+//     child: Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//       children: [
+//         // Leading section
+//         SizedBox(
+//           child: Row(
+//             children: [
+//               CircleAvatar(
+//                 backgroundColor: const Color.fromARGB(255, 212, 161, 9),
+//                 radius: 10,
+//                 child: Icon(FontAwesomeIcons.centSign, size: 11),
+//               ),
+//               const SizedBox(width: 6),
+//               const Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+//             ],
+//           ),
+//         ),
 
-        // Title section
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-            Text('Calm in the Chaos', style: TextStyle(color: Colors.white70, fontSize: 11)),
-          ],
-        ),
+//         // Title section
+//         Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: const [
+//             Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+//             Text('Calm in the Chaos', style: TextStyle(color: Colors.white70, fontSize: 11)),
+//           ],
+//         ),
 
-        // Actions section
-        GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage())),
-          child: CircleAvatar(
-            radius: 22,
-            backgroundColor: Color(0xFF8E44AD),
-            child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+//         // Actions section
+//         GestureDetector(
+//           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage())),
+//           child: CircleAvatar(
+//             radius: 22,
+//             backgroundColor: Color(0xFF8E44AD),
+//             child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+//           ),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 
 Widget _textField({required String hintText, required IconData icon, required Color color}) {
   return Container(
