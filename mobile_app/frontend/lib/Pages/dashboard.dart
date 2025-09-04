@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
-   @override
+  @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
@@ -37,62 +36,23 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actionsPadding: EdgeInsets.symmetric(horizontal: 20),
-        backgroundColor: ProfileConstants.primaryBackground,
-        elevation: 0,
-        toolbarHeight: 90,
-        leadingWidth: 120,
-        leading: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: const Color.fromARGB(255, 212, 161, 9),
-                radius: 10,
-                child: Icon(FontAwesomeIcons.centSign, size: 11),
-              ),
-              SizedBox(width: 6),
-              Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-            ],
-          ),
-        ),
-        title: Column(
-          children: [
-            Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-            Text('Calm in the Chaos', style: TextStyle(color: Colors.white70, fontSize: 11)),
-          ],
-        ),
-        actions: [
-          GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage())),
-            child: CircleAvatar(
-              radius: 22,
-              backgroundColor: Color(0xFF8E44AD),
-              child: Transform.translate(offset: Offset(0, 1.2), child: Image.asset("assets/logo.png")),
-            ),
-          ),
-        ],
-      ),
       backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           // padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            // decoration: BoxDecoration(
-            //   image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-            // ),
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                    Text(
-                      "Hey, ${userDetails?['username']??'Guest'} 👋",
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600),
-                    ),
+                _header(context),
+                Text(
+                  "Hey, ${userDetails?['username'] ?? 'Guest'} 👋",
+                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                ),
                 SizedBox(height: 24),
                 // Start Card
                 _startCard(context),
@@ -167,47 +127,17 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                     ],
-                  ), 
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-
-      // Bottom Navigation Bar
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        height: 80,
-        decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.all(Radius.circular(25))),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                children: [
-                  Icon(Icons.home, color: Colors.white, size: 24),
-                  SizedBox(width: 10),
-                  Text("Home", style: ProfileConstants.labelStyle),
-                ],
-              ),
-            ),
-            Icon(Icons.location_on, color: Colors.white54, size: 24),
-            IconButton(onPressed: ()=>Navigator.pushNamed(context, "/garage"), 
-            icon: Icon(Icons.directions_car, color: Colors.white54, size: 24),
-            ),
-            IconButton(
-              onPressed: () => Navigator.pushNamed(context, "/analyze"),
-              icon: Icon(Icons.analytics, color: Colors.white54, size: 24),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
+
 Future<Map<String, dynamic>?> getUserdetails() async {
   try {
     // Get current Firebase user
@@ -220,12 +150,9 @@ Future<Map<String, dynamic>?> getUserdetails() async {
     }
 
     // Query Supabase using Firebase UID
-    final username = await Supabase.instance.client
-        .from('userdetails')
-        .select()
-        .eq('firebaseuid', firebaseUser.uid)
-        .single();
-    
+    final username =
+        await Supabase.instance.client.from('userdetails').select().eq('firebaseuid', firebaseUser.uid).single();
+
     print("Supabase response: $username");
     return username;
   } catch (e) {
@@ -234,50 +161,50 @@ Future<Map<String, dynamic>?> getUserdetails() async {
   }
 }
 
-// Widget _header(context) {
-//   return Container(
-//     height: 90,
-//     padding: const EdgeInsets.symmetric(horizontal: 20),
-//     child: Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         // Leading section
-//         SizedBox(
-//           child: Row(
-//             children: [
-//               CircleAvatar(
-//                 backgroundColor: const Color.fromARGB(255, 212, 161, 9),
-//                 radius: 10,
-//                 child: Icon(FontAwesomeIcons.centSign, size: 11),
-//               ),
-//               const SizedBox(width: 6),
-//               const Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-//             ],
-//           ),
-//         ),
+Widget _header(context) {
+  return Container(
+    height: 90,
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Leading section
+        SizedBox(
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: const Color.fromARGB(255, 212, 161, 9),
+                radius: 10,
+                child: Icon(FontAwesomeIcons.centSign, size: 11),
+              ),
+              const SizedBox(width: 6),
+              const Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+            ],
+          ),
+        ),
 
-//         // Title section
-//         Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: const [
-//             Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-//             Text('Calm in the Chaos', style: TextStyle(color: Colors.white70, fontSize: 11)),
-//           ],
-//         ),
+        // Title section
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('Calm in the Chaos', style: TextStyle(color: Colors.white70, fontSize: 11)),
+          ],
+        ),
 
-//         // Actions section
-//         GestureDetector(
-//           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage())),
-//           child: CircleAvatar(
-//             radius: 22,
-//             backgroundColor: Color(0xFF8E44AD),
-//             child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
-//           ),
-//         ),
-//       ],
-//     ),
-//   );
-// }
+        // Actions section
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, '/profile'),
+          child: CircleAvatar(
+            radius: 22,
+            backgroundColor: Color(0xFF8E44AD),
+            child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 Widget _textField({required String hintText, required IconData icon, required Color color}) {
   return Container(

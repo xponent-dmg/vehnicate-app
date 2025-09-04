@@ -255,19 +255,13 @@ class DriveAnalyzePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-              ),
-              SizedBox(width: 8),
-              Text('Drive Analysis', style: DriveAnalyzeConstants.titleStyle),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Text('Drive Analysis', style: DriveAnalyzeConstants.titleStyle),
           ),
           SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.only(left: 56),
+            padding: const EdgeInsets.only(left: 20),
             child: Text('Review your past drives and track your progress', style: DriveAnalyzeConstants.subtitleStyle),
           ),
         ],
