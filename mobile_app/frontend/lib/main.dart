@@ -22,8 +22,11 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => VehicleProvider()),
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+        ChangeNotifierProxyProvider<UserProvider, VehicleProvider>(
+          create: (_) => VehicleProvider(),
+          update: (_, userProvider, vehicleProvider) => vehicleProvider!..setUserProvider(userProvider),
+        ),
       ],
       child: const App(),
     ),

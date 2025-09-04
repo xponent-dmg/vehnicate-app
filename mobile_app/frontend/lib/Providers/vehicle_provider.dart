@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class VehicleProvider extends ChangeNotifier {
@@ -21,7 +22,17 @@ class VehicleProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   Object? get error => _error;
 
-  Future<void> loadVehicleByVehicleId(String? firebaseUuid) async {
+  UserProvider? _userProvider;
+
+  void setUserProvider(UserProvider userProvider) {
+    _userProvider = userProvider;
+    // Listen to user changes
+    _userProvider!.addListener(() {
+      loadVehicleByUserId(_userProvider!.currentUser?.firebaseUid);
+    });
+  }
+
+  Future<void> loadVehicleByUserId(String? firebaseUuid) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
