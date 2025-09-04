@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Screens/imu_collector_screen.dart';
 
@@ -157,23 +156,23 @@ class DashboardPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DriveAnalyzePage())),
-              child: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  children: [
-                    Icon(Icons.home, color: Colors.white, size: 24),
-                    SizedBox(width: 10),
-                    Text("Home", style: ProfileConstants.labelStyle),
-                  ],
-                ),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(12)),
+              child: Row(
+                children: [
+                  Icon(Icons.home, color: Colors.white, size: 24),
+                  SizedBox(width: 10),
+                  Text("Home", style: ProfileConstants.labelStyle),
+                ],
               ),
             ),
             Icon(Icons.location_on, color: Colors.white54, size: 24),
             Icon(Icons.directions_car, color: Colors.white54, size: 24),
-            Icon(Icons.person, color: Colors.white54, size: 24),
+            IconButton(
+              onPressed: () => Navigator.pushNamed(context, "/analytics"),
+              icon: Icon(Icons.analytics, color: Colors.white54, size: 24),
+            ),
           ],
         ),
       ),

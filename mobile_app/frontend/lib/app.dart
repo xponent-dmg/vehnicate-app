@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/dashboard.dart';
+import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/signup_page.dart';
@@ -35,12 +36,13 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      routes:{
-        "/login":(context)=>LoginPage(),
-        "/signup":(context)=>SignupPage(),
-        "/profile":(context)=>ProfilePage(),
-        "/dash":(context)=>DashboardPage(),
-        "/imu":(context)=>ImuCollector(),
+      routes: {
+        "/login": (context) => LoginPage(),
+        "/signup": (context) => SignupPage(),
+        "/profile": (context) => ProfilePage(),
+        "/dash": (context) => DashboardPage(),
+        "/imu": (context) => ImuCollector(),
+        "/analytics": (context) => DriveAnalyzePage(),
       },
       initialRoute: "/login",
     );
