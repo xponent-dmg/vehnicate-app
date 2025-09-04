@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
+import 'package:vehnicate_frontend/Pages/edit_profile_page.dart';
 
 import 'package:vehnicate_frontend/Pages/garage.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
@@ -48,7 +49,7 @@ class App extends StatelessWidget {
         "/imu":(context)=>ImuCollector(),
         "/garage":(context)=>GaragePage(),
         "/analyze":(context)=>DriveAnalyzePage(),
-
+        "/editdetails":(context)=>EditProfilePage(),
       },
       initialRoute: "/splash",
     );

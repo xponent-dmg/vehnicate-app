@@ -194,9 +194,11 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             Icon(Icons.location_on, color: Colors.white54, size: 24),
-            Icon(Icons.directions_car, color: Colors.white54, size: 24),
+            IconButton(onPressed: ()=>Navigator.pushNamed(context, "/garage"), 
+            icon: Icon(Icons.directions_car, color: Colors.white54, size: 24),
+            ),
             IconButton(
-              onPressed: () => Navigator.pushNamed(context, "/analytics"),
+              onPressed: () => Navigator.pushNamed(context, "/analyze"),
               icon: Icon(Icons.analytics, color: Colors.white54, size: 24),
             ),
           ],
