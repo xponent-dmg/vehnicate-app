@@ -125,14 +125,41 @@ class SupabaseService {
 
   Future<Map<String, dynamic>?> getUserdetails(String firebaseUuid) async {
     try {
-
       // Query Supabase using Firebase UID
-      final user = await Supabase.instance.client.from('userdetails').select().eq('firebaseuid', firebaseUuid).single();
+      final user = await _client.from('userdetails').select().eq('firebaseuid', firebaseUuid).single();
 
       print("Supabase response: $user");
       return user;
     } catch (e) {
       print("Error getting username: $e");
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVehicleDetails(String vehicleId) async {
+    try {
+      final vehicle = await _client.from('vehicledetails').select().eq('vehicleid', vehicleId).single();
+      return vehicle;
+    } catch (e) {
+      print("Error getting vehicle details: $e");
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getVehicleByUserId(String firebaseUuid) async {
+    try {
+      // Step 1: Get the vehicle_id from the user table
+      final userResponse = await _client.from('user').select('vehicle_id').eq('firebaseuid', firebaseUuid).single();
+
+      final vehicleId = userResponse['vehicle_id'];
+      if (vehicleId == null) return null;
+
+      // Step 2: Get vehicle details from vehicledetails table
+      final vehicleResponse = await getVehicleDetails(vehicleId);
+
+      return vehicleResponse;
+    } catch (e) {
+      print("Error getting vehicle by user id: $e");
       return null;
     }
   }
