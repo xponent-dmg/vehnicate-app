@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -75,7 +76,7 @@ class _ImuCollectorState extends State<ImuCollector> {
     // Accelerometer stream
     accelSub = accelerometerEvents.listen((event) {
       final imuData = {
-        "vehicleid": 1,
+        "vehicleid": VehicleProvider().vehicleId,
         "timesent": DateTime.now().toIso8601String(),
         "accelx": event.x,
         "accely": event.y,
@@ -157,27 +158,28 @@ class _ImuCollectorState extends State<ImuCollector> {
         return;
       }
       print("✅ User authenticated: ${user.id}");
-      
+
       print("📤 Sending ${data.length} records to Supabase...");
-      
+
       // Transform data to match database schema
-      final transformedData = data.map((item) {
-        return {
-          // Don't send dataid - let database auto-generate it
-          'vehicleid': item['vehicleid'],
-          'timesent': DateTime.parse(item['timesent']), // Convert ISO string to DateTime
-          'accelx': item['accelx'],
-          'accely': item['accely'], 
-          'accelz': item['accelz'],
-          'gyrox': item['gyrox'],
-          'gyroy': item['gyroy'],
-          'gyroz': item['gyroz'],
-          'latitude': item['latitude'],
-          'longitude': item['longitude'],
-          'speed': item['speed'],
-        };
-      }).toList();
-      
+      final transformedData =
+          data.map((item) {
+            return {
+              'vehicleid': item['vehicleid'],
+              // keep ISO string for JSON encoding
+              'timesent': item['timesent'],
+              'accelx': item['accelx'],
+              'accely': item['accely'],
+              'accelz': item['accelz'],
+              'gyrox': item['gyrox'],
+              'gyroy': item['gyroy'],
+              'gyroz': item['gyroz'],
+              'latitude': item['latitude'],
+              'longitude': item['longitude'],
+              'speed': item['speed'],
+            };
+          }).toList();
+
       print("📋 Transformed data structure: ${transformedData.isNotEmpty ? transformedData.first : 'No data'}");
 
       final response = await supabase.from('datatransmission').insert(transformedData);
@@ -188,7 +190,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print("❌ Details: ${e.details}");
       print("❌ Hint: ${e.hint}");
       print("❌ Code: ${e.code}");
-      
+
       // Show user-friendly error message
       String errorMessage = "Database error";
       if (e.code == "23503") {
@@ -196,20 +198,16 @@ class _ImuCollectorState extends State<ImuCollector> {
       } else if (e.code == "42501") {
         errorMessage = "Permission denied. Please check your login.";
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ $errorMessage'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
+        SnackBar(content: Text('❌ $errorMessage'), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
       );
-      
+
       imuBuffer.addAll(data); // retry later
     } catch (e) {
       print("❌ General error sending to Supabase: $e");
       print("Error type: ${e.runtimeType}");
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('❌ Upload failed: ${e.toString()}'),
@@ -217,7 +215,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           duration: const Duration(seconds: 3),
         ),
       );
-      
+
       imuBuffer.addAll(data); // retry later
     }
   }

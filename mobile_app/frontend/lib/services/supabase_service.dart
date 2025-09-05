@@ -133,15 +133,11 @@ class SupabaseService {
       // Query Supabase using Firebase UID
       print("Fetching user details for Firebase UID: $firebaseUuid");
       await initialize(); // Ensure client is initialized
-      
-      final response = await _client
-          .from('userdetails')
-          .select()
-          .eq('firebaseuid', firebaseUuid)
-          .maybeSingle();
+
+      final response = await _client.from('userdetails').select().eq('firebaseuid', firebaseUuid).maybeSingle();
 
       print("Supabase user details response: $response");
-      
+
       if (response == null) {
         print("No user found in Supabase for Firebase UID: $firebaseUuid");
         return null;
@@ -156,16 +152,12 @@ class SupabaseService {
     }
   }
 
-  Future<Map<String, dynamic>?> getVehicleDetails(String vehicleId) async {
+  Future<Map<String, dynamic>?> getVehicleDetails(int vehicleId) async {
     try {
       print("Fetching vehicle details for ID: $vehicleId");
       await initialize(); // Ensure client is initialized
 
-      final vehicle = await _client
-          .from('vehicledetails')
-          .select()
-          .eq('vehicleid', vehicleId)
-          .maybeSingle();
+      final vehicle = await _client.from('vehicledetails').select().eq('vehicleid', vehicleId).maybeSingle();
 
       print("Vehicle details response: $vehicle");
       return vehicle;
@@ -183,11 +175,8 @@ class SupabaseService {
       await initialize(); // Ensure client is initialized
 
       // Step 1: Get the vehicle_id from the userdetails table
-      final userResponse = await _client
-          .from('userdetails')
-          .select('vehicleid')
-          .eq('firebaseuid', firebaseUuid)
-          .maybeSingle();
+      final userResponse =
+          await _client.from('userdetails').select('vehicleid').eq('firebaseuid', firebaseUuid).maybeSingle();
 
       print("User-vehicle response: $userResponse");
 
@@ -203,7 +192,7 @@ class SupabaseService {
       }
 
       // Step 2: Get vehicle details from vehicledetails table
-      final vehicleResponse = await getVehicleDetails(vehicleId.toString());
+      final vehicleResponse = await getVehicleDetails(vehicleId);
       return vehicleResponse;
     } catch (e, stackTrace) {
       print("Error getting vehicle by user id:");

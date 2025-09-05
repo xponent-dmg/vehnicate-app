@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class VehicleProvider extends ChangeNotifier {
-  String? _vehicleId;
+  int? _vehicleId;
   String? _vehicleName;
   String? _vehicleModel;
   String? _vehicleInsurance;
@@ -13,7 +13,7 @@ class VehicleProvider extends ChangeNotifier {
   bool _isLoading = false;
   Object? _error;
 
-  String? get vehicleId => _vehicleId;
+  int? get vehicleId => _vehicleId;
   String? get vehicleName => _vehicleName;
   String? get vehicleModel => _vehicleModel;
   String? get vehicleInsurance => _vehicleInsurance;
@@ -35,17 +35,21 @@ class VehicleProvider extends ChangeNotifier {
         _setVehicle(null);
         return;
       }
+      print('VehicleProvider: Loading vehicle data with uid: ${user.uid}');
       await loadVehicleByUserId(user.uid);
+      print('VehicleProvider(listenAuth): Vehicle data loaded with data: $_vehicleId');
     });
   }
 
   Future<void> refresh() async {
     final uid = firebase.FirebaseAuth.instance.currentUser?.uid;
+    print('VehicleProvider(refresh): Loading vehicle data with uid: $uid');
     if (uid == null) {
       _setVehicle(null);
       return;
     }
     await loadVehicleByUserId(uid);
+    print('VehicleProvider(refresh): Vehicle data loaded with data: $_vehicleId');
   }
 
   Future<void> loadVehicleByUserId(String? firebaseUuid) async {
@@ -58,16 +62,15 @@ class VehicleProvider extends ChangeNotifier {
     }
     try {
       final data = await SupabaseService().getVehicleByUserId(firebaseUuid);
-      if (data != null) {
-        _setVehicle(data);
-      } else {
-        _setVehicle(null);
-      }
+      print('VehicleProvider(loadVehicleByUserId): Vehicle data loaded with data: $data');
+      _setVehicle(data);
     } catch (e) {
+      print('VehicleProvider(loadVehicleByUserId): Error loading vehicle data: $e');
       _error = e;
       _setVehicle(null);
     } finally {
       _isLoading = false;
+      print('VehicleProvider(loadVehicleByUserId): Vehicle data loaded with data: $_vehicleId');
       notifyListeners();
     }
   }
@@ -78,7 +81,7 @@ class VehicleProvider extends ChangeNotifier {
     _vehicleModel = data?['model'];
     _vehicleInsurance = data?['insurance'];
     _vehicleRegistration = data?['registration'];
-    _vehiclePUC = data?['puc'];
+    _vehiclePUC = data?['puc']?.toString();
   }
 
   @override

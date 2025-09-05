@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -12,8 +15,10 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = true;
-  Map<String, dynamic>? _userDetails;
-  Map<String, dynamic>? _vehicleDetails;
+  // Deprecated: now using providers
+  // Map<String, dynamic>? _userDetails;
+  // Map<String, dynamic>? _vehicleDetails;
+  DateTime? _pucDate;
 
   // User Details Controllers
   final _nameController = TextEditingController();
@@ -31,7 +36,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    _loadExistingData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadExistingData();
+    });
   }
 
   @override
@@ -57,30 +64,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
         return;
       }
 
-      // Fetch user details
-      final userResponse = await Supabase.instance.client
-          .from('userdetails')
-          .select('*, vehicledetails(*)')
-          .eq('firebaseuid', user.uid)
-          .single();
+      // Ensure provider data is available (trigger load if needed)
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.currentUser == null) {
+        await userProvider.loadUserByFirebaseUid(user.uid);
+      }
+
+      final vehicleProvider = context.read<VehicleProvider>();
+      if (vehicleProvider.vehicleId == null) {
+        print('VehicleProvider: Vehicle ID is null, refreshing...');
+        await vehicleProvider.refresh();
+      }
 
       setState(() {
-        _userDetails = userResponse;
-        _vehicleDetails = userResponse['vehicledetails'];
-        
-        // Populate user controllers
-        _nameController.text = _userDetails?['name'] ?? '';
-        _phoneController.text = _userDetails?['phone'] ?? '';
-        _emailController.text = _userDetails?['email'] ?? '';
-        _addressController.text = _userDetails?['address'] ?? '';
-        _usernameController.text = _userDetails?['username'] ?? '';
+        // Populate user controllers from provider
+        final appUser = userProvider.currentUser;
+        _nameController.text = appUser?.name ?? '';
+        _phoneController.text = appUser?.phone ?? '';
+        _emailController.text = appUser?.email ?? '';
+        _addressController.text = appUser?.address ?? '';
+        _usernameController.text = appUser?.username ?? '';
 
-        // Populate vehicle controllers if vehicle details exist
-        if (_vehicleDetails != null) {
-          _insuranceController.text = _vehicleDetails?['insurance'] ?? '';
-          _registrationController.text = _vehicleDetails?['registration'] ?? '';
-          _pucController.text = _vehicleDetails?['puc']?.toString().split('T')[0] ?? '';
-          _modelController.text = _vehicleDetails?['model'] ?? '';
+        // Populate vehicle controllers from provider
+        _modelController.text = vehicleProvider.vehicleModel ?? '';
+        _registrationController.text = vehicleProvider.vehicleRegistration ?? '';
+        _insuranceController.text = vehicleProvider.vehicleInsurance ?? '';
+        final pucRaw = vehicleProvider.vehiclePUC;
+        if (pucRaw != null && pucRaw.isNotEmpty) {
+          try {
+            final parsed = DateTime.parse(pucRaw);
+            _pucDate = DateTime(parsed.year, parsed.month, parsed.day);
+            _pucController.text = _formatDate(_pucDate!);
+          } catch (_) {
+            _pucController.text = pucRaw.split('T').first;
+          }
         }
 
         _isLoading = false;
@@ -99,32 +116,38 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('No authenticated user');
 
-      // First, update or create vehicle details
-      int? vehicleId = _userDetails?['vehicleid'];
-      if (_vehicleDetails == null) {
+      // First, update or create vehicle details using provider state
+      final vehicleProvider = context.read<VehicleProvider>();
+      print('EditProfilePage: Vehicle id from provider: ${vehicleProvider.vehicleId}');
+      int? vehicleId = vehicleProvider.vehicleId;
+      print('EditProfilePage: Vehicle ID: $vehicleId');
+      if (vehicleId == null) {
         // Create new vehicle record
-        final vehicleResponse = await Supabase.instance.client
-            .from('vehicledetails')
-            .insert({
-              'insurance': _insuranceController.text,
-              'registration': _registrationController.text,
-              'puc': _pucController.text,
-              'model': _modelController.text,
-            })
-            .select()
-            .single();
+        print('EditProfilePage: Creating new vehicle record');
+        final vehicleResponse =
+            await Supabase.instance.client
+                .from('vehicledetails')
+                .insert({
+                  'insurance': _insuranceController.text,
+                  'registration': _registrationController.text,
+                  'puc': _pucDate != null ? _formatDate(_pucDate!) : null,
+                  'model': _modelController.text,
+                })
+                .select()
+                .single();
         vehicleId = vehicleResponse['vehicleid'];
       } else {
         // Update existing vehicle record
+        print('EditProfilePage: Updating existing vehicle record');
         await Supabase.instance.client
             .from('vehicledetails')
             .update({
               'insurance': _insuranceController.text,
               'registration': _registrationController.text,
-              'puc': _pucController.text,
+              'puc': _pucDate != null ? _formatDate(_pucDate!) : null,
               'model': _modelController.text,
             })
-            .eq('vehicleid', _vehicleDetails!['vehicleid']);
+            .eq('vehicleid', vehicleId);
       }
 
       // Then update user details
@@ -140,15 +163,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
           })
           .eq('firebaseuid', user.uid);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
+      // Refresh providers after save
+      await Provider.of<UserProvider>(context, listen: false).refresh();
+      await Provider.of<VehicleProvider>(context, listen: false).refresh();
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!')));
       Navigator.pop(context);
     } catch (e) {
       print('Error saving changes: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile. Please try again.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to update profile. Please try again.')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -157,9 +182,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -178,19 +201,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               // User Details Section
               const Text(
                 'Personal Information',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF8E44AD),
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF8E44AD)),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your name';
@@ -201,10 +217,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a username';
@@ -215,19 +228,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Phone Number', border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -242,50 +249,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Address',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Address', border: OutlineInputBorder()),
                 maxLines: 3,
-              ),        
+              ),
               const SizedBox(height: 32),
 
               // Vehicle Details Section
               const Text(
                 'Vehicle Information',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF8E44AD),
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF8E44AD)),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _modelController,
-                decoration: const InputDecoration(
-                  labelText: 'Vehicle Model',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Vehicle Model', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _registrationController,
-                decoration: const InputDecoration(
-                  labelText: 'Registration Number',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Registration Number', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _insuranceController,
-                decoration: const InputDecoration(
-                  labelText: 'Insurance Number',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Insurance Number', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _pucController,
+                readOnly: true,
+                onTap: _pickPucDate,
                 decoration: const InputDecoration(
                   labelText: 'PUC Valid Until (YYYY-MM-DD)',
                   border: OutlineInputBorder(),
@@ -303,9 +296,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     backgroundColor: const Color(0xFF8E44AD),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text('Save Changes'),
                 ),
@@ -315,5 +306,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final String year = date.year.toString().padLeft(4, '0');
+    final String month = date.month.toString().padLeft(2, '0');
+    final String day = date.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
+  Future<void> _pickPucDate() async {
+    final DateTime initialDate = _pucDate ?? DateTime.now();
+    final DateTime firstDate = DateTime(2000);
+    final DateTime lastDate = DateTime(2100);
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _pucDate = DateTime(picked.year, picked.month, picked.day);
+        _pucController.text = _formatDate(_pucDate!);
+      });
+    }
   }
 }

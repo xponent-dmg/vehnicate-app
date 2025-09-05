@@ -303,7 +303,7 @@ Widget _selectedCarCard(BuildContext context) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          vehicleProvider.vehicleName ?? 'No vehicle',
+                          vehicleProvider.vehicleModel ?? 'No vehicle',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         Text(
