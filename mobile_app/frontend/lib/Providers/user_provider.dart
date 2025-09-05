@@ -30,18 +30,28 @@ class UserProvider extends ChangeNotifier {
   }
 
   Future<void> loadUserByFirebaseUid(String firebaseUid) async {
+    print("UserProvider: Loading user data for Firebase UID: $firebaseUid");
     _isLoading = true;
     _error = null;
     notifyListeners();
+    
     try {
+      print("UserProvider: Requesting data from SupabaseService");
       final data = await SupabaseService().getUserdetails(firebaseUid);
 
+      print("UserProvider: Received data from Supabase: $data");
       if (data != null) {
-        _setUser(AppUser.fromMap(data));
+        final user = AppUser.fromMap(data);
+        print("UserProvider: Created AppUser object: ${user.name}, ${user.email}");
+        _setUser(user);
       } else {
+        print("UserProvider: No user data received from Supabase");
         _setUser(null);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print("UserProvider: Error loading user data:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
       _error = e;
       _setUser(null);
     } finally {
