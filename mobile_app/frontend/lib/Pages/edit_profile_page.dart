@@ -20,7 +20,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _addressController = TextEditingController();
-  final _licenseController = TextEditingController();
   final _usernameController = TextEditingController();
 
   // Vehicle Details Controllers
@@ -42,7 +41,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _phoneController.dispose();
     _emailController.dispose();
     _addressController.dispose();
-    _licenseController.dispose();
     _usernameController.dispose();
     _insuranceController.dispose();
     _registrationController.dispose();
@@ -75,7 +73,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _phoneController.text = _userDetails?['phone'] ?? '';
         _emailController.text = _userDetails?['email'] ?? '';
         _addressController.text = _userDetails?['address'] ?? '';
-        _licenseController.text = _userDetails?['licensenumber'] ?? '';
         _usernameController.text = _userDetails?['username'] ?? '';
 
         // Populate vehicle controllers if vehicle details exist
@@ -138,7 +135,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             'phone': _phoneController.text,
             'email': _emailController.text,
             'address': _addressController.text,
-            'licensenumber': _licenseController.text,
             'username': _usernameController.text,
             'vehicleid': vehicleId,
           })
@@ -251,15 +247,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _licenseController,
-                decoration: const InputDecoration(
-                  labelText: 'License Number',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              ),        
               const SizedBox(height: 32),
 
               // Vehicle Details Section

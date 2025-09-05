@@ -76,7 +76,6 @@ class _ImuCollectorState extends State<ImuCollector> {
     accelSub = accelerometerEvents.listen((event) {
       final imuData = {
         "vehicleid": 1,
-        "dataid": DateTime.now().millisecondsSinceEpoch.toString(),
         "timesent": DateTime.now().toIso8601String(),
         "accelx": event.x,
         "accely": event.y,
@@ -144,22 +143,81 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   Future<void> sendToSupabase(List<Map<String, dynamic>> data) async {
     try {
-      print("Attempting to send ${data.length} records to Supabase...");
-      print("Sample data: ${data.isNotEmpty ? data.first : 'No data'}");
+      // Check if user is authenticated
+      final user = supabase.auth.currentUser;
+      if (user == null) {
+        print("❌ User not authenticated with Supabase");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Please login to upload data'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      print("✅ User authenticated: ${user.id}");
+      
+      print("📤 Sending ${data.length} records to Supabase...");
+      
+      // Transform data to match database schema
+      final transformedData = data.map((item) {
+        return {
+          // Don't send dataid - let database auto-generate it
+          'vehicleid': item['vehicleid'],
+          'timesent': DateTime.parse(item['timesent']), // Convert ISO string to DateTime
+          'accelx': item['accelx'],
+          'accely': item['accely'], 
+          'accelz': item['accelz'],
+          'gyrox': item['gyrox'],
+          'gyroy': item['gyroy'],
+          'gyroz': item['gyroz'],
+          'latitude': item['latitude'],
+          'longitude': item['longitude'],
+          'speed': item['speed'],
+        };
+      }).toList();
+      
+      print("📋 Transformed data structure: ${transformedData.isNotEmpty ? transformedData.first : 'No data'}");
 
-      final response = await supabase.from('datatransmission').insert(data);
+      final response = await supabase.from('datatransmission').insert(transformedData);
       print("✅ Successfully sent ${data.length} records to Supabase");
       print("Response: $response");
-    } catch (e) {
-      print("❌ Error sending data to Supabase: $e");
-      print("Error type: ${e.runtimeType}");
-      if (e is PostgrestException) {
-        print("PostgrestException details:");
-        print("  Code: ${e.code}");
-        print("  Message: ${e.message}");
-        print("  Details: ${e.details}");
-        print("  Hint: ${e.hint}");
+    } on PostgrestException catch (e) {
+      print("❌ PostgrestException: ${e.message}");
+      print("❌ Details: ${e.details}");
+      print("❌ Hint: ${e.hint}");
+      print("❌ Code: ${e.code}");
+      
+      // Show user-friendly error message
+      String errorMessage = "Database error";
+      if (e.code == "23503") {
+        errorMessage = "Invalid vehicle ID. Please check your vehicle settings.";
+      } else if (e.code == "42501") {
+        errorMessage = "Permission denied. Please check your login.";
       }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ $errorMessage'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      
+      imuBuffer.addAll(data); // retry later
+    } catch (e) {
+      print("❌ General error sending to Supabase: $e");
+      print("Error type: ${e.runtimeType}");
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Upload failed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      
       imuBuffer.addAll(data); // retry later
     }
   }

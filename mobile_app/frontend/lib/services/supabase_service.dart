@@ -125,41 +125,90 @@ class SupabaseService {
 
   Future<Map<String, dynamic>?> getUserdetails(String firebaseUuid) async {
     try {
-      // Query Supabase using Firebase UID
-      final user = await _client.from('userdetails').select().eq('firebaseuid', firebaseUuid).single();
+      if (firebaseUuid.isEmpty) {
+        print("Error: Firebase UID is empty");
+        return null;
+      }
 
-      print("Supabase response: $user");
-      return user;
-    } catch (e) {
-      print("Error getting username: $e");
+      // Query Supabase using Firebase UID
+      print("Fetching user details for Firebase UID: $firebaseUuid");
+      await initialize(); // Ensure client is initialized
+      
+      final response = await _client
+          .from('userdetails')
+          .select()
+          .eq('firebaseuid', firebaseUuid)
+          .maybeSingle();
+
+      print("Supabase user details response: $response");
+      
+      if (response == null) {
+        print("No user found in Supabase for Firebase UID: $firebaseUuid");
+        return null;
+      }
+
+      return response;
+    } catch (e, stackTrace) {
+      print("Error getting user details from Supabase:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
       return null;
     }
   }
 
   Future<Map<String, dynamic>?> getVehicleDetails(String vehicleId) async {
     try {
-      final vehicle = await _client.from('vehicledetails').select().eq('vehicleid', vehicleId).single();
+      print("Fetching vehicle details for ID: $vehicleId");
+      await initialize(); // Ensure client is initialized
+
+      final vehicle = await _client
+          .from('vehicledetails')
+          .select()
+          .eq('vehicleid', vehicleId)
+          .maybeSingle();
+
+      print("Vehicle details response: $vehicle");
       return vehicle;
-    } catch (e) {
-      print("Error getting vehicle details: $e");
+    } catch (e, stackTrace) {
+      print("Error getting vehicle details:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
       return null;
     }
   }
 
   Future<Map<String, dynamic>?> getVehicleByUserId(String firebaseUuid) async {
     try {
-      // Step 1: Get the vehicle_id from the user table
-      final userResponse = await _client.from('user').select('vehicle_id').eq('firebaseuid', firebaseUuid).single();
+      print("Fetching vehicle for user with Firebase UID: $firebaseUuid");
+      await initialize(); // Ensure client is initialized
 
-      final vehicleId = userResponse['vehicle_id'];
-      if (vehicleId == null) return null;
+      // Step 1: Get the vehicle_id from the userdetails table
+      final userResponse = await _client
+          .from('userdetails')
+          .select('vehicleid')
+          .eq('firebaseuid', firebaseUuid)
+          .maybeSingle();
+
+      print("User-vehicle response: $userResponse");
+
+      if (userResponse == null) {
+        print("No vehicle ID found for user: $firebaseUuid");
+        return null;
+      }
+
+      final vehicleId = userResponse['vehicleid'];
+      if (vehicleId == null) {
+        print("Vehicle ID is null for user: $firebaseUuid");
+        return null;
+      }
 
       // Step 2: Get vehicle details from vehicledetails table
-      final vehicleResponse = await getVehicleDetails(vehicleId);
-
+      final vehicleResponse = await getVehicleDetails(vehicleId.toString());
       return vehicleResponse;
-    } catch (e) {
-      print("Error getting vehicle by user id: $e");
+    } catch (e, stackTrace) {
+      print("Error getting vehicle by user id:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
       return null;
     }
   }

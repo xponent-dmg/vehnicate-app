@@ -4,6 +4,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/map_page.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
@@ -201,7 +202,7 @@ Widget _startCard(BuildContext context) {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ImuCollector()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -216,10 +217,15 @@ Widget _startCard(BuildContext context) {
               child: Icon(Icons.home, color: Colors.white, size: 20),
             ),
             SizedBox(width: 8),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-              child: Icon(Icons.add, color: Colors.white70, size: 20),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ImuCollector()));
+              },
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
+                child: Icon(Icons.sensors, color: Colors.white70, size: 20),
+              ),
             ),
             SizedBox(width: 8),
             Container(
