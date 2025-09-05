@@ -12,8 +12,9 @@ import 'package:http/http.dart' as http;
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import '../config/config.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -51,13 +52,12 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   LatLng? _toLocation;
   double _totalDistance = 0.0;
   String _estimatedTime = '';
+  int? _vehicleId;
 
   // Autocomplete state
   List<Map<String, dynamic>> _autocompleteSuggestions = [];
   bool _showAutocomplete = false;
   bool _isFromFieldActive = false;
-
-  final _vehicleId = VehicleProvider().vehicleId;
 
   // IMU data collection (similar to imu_collector_screen.dart)
   List<Map<String, dynamic>> _imuBuffer = [];
@@ -155,8 +155,21 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _showSnackBar('⏹️ Live tracking stopped', Colors.orange);
   }
 
-  void _startDataCollection() {
+  Future<void> _startDataCollection() async {
     if (_isCollectingData) return;
+
+    // Ensure we have a vehicle ID from the provider
+    final vehicleProvider = context.read<VehicleProvider>();
+    int? vid = vehicleProvider.vehicleId;
+    if (vid == null) {
+      await vehicleProvider.refresh();
+      vid = vehicleProvider.vehicleId;
+    }
+    if (vid == null) {
+      _showSnackBar('❌ No vehicle linked. Please update your profile with a vehicle.', Colors.red);
+      return;
+    }
+    _vehicleId = vid;
 
     setState(() => _isCollectingData = true);
 
@@ -177,7 +190,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     });
 
     // Accelerometer stream (exactly like imu_collector_screen.dart)
-    _accelSub = accelerometerEvents.listen((event) {
+    _accelSub = userAccelerometerEvents.listen((event) {
       final imuData = {
         "vehicleid": _vehicleId,
         "timesent": DateTime.now().toIso8601String(),
@@ -274,7 +287,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             return {
               // Don't send dataid - let database auto-generate it
               'vehicleid': item['vehicleid'],
-              // Keep as ISO8601 string to avoid JSON encoding issues
+              // Keep as RFC3339 string - Supabase/PostgREST accepts ISO8601 strings
               'timesent': item['timesent'],
               'accelx': item['accelx'],
               'accely': item['accely'],
@@ -756,7 +769,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   // App bar
                   Row(
                     children: [
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.arrow_back, color: Colors.white)),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      ),
                       const Expanded(
                         child: Text(
                           'Navigation',

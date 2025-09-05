@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -76,7 +75,7 @@ class _ImuCollectorState extends State<ImuCollector> {
     // Accelerometer stream
     accelSub = accelerometerEvents.listen((event) {
       final imuData = {
-        "vehicleid": VehicleProvider().vehicleId,
+        "vehicleid": 1,
         "timesent": DateTime.now().toIso8601String(),
         "accelx": event.x,
         "accely": event.y,
@@ -165,9 +164,9 @@ class _ImuCollectorState extends State<ImuCollector> {
       final transformedData =
           data.map((item) {
             return {
+              // Don't send dataid - let database auto-generate it
               'vehicleid': item['vehicleid'],
-              // keep ISO string for JSON encoding
-              'timesent': item['timesent'],
+              'timesent': DateTime.parse(item['timesent']), // Convert ISO string to DateTime
               'accelx': item['accelx'],
               'accely': item['accely'],
               'accelz': item['accelz'],
