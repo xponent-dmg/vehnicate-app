@@ -224,10 +224,15 @@ Widget _startCard(BuildContext context) {
               ),
             ),
             SizedBox(width: 8),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-              child: Icon(Icons.more_horiz, color: Colors.white70, size: 20),
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, "/camera");
+              },
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
+                child: Icon(Icons.camera_alt, color: Colors.white70, size: 20),
+              ),
             ),
           ],
         ),
