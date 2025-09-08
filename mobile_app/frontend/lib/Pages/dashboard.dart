@@ -3,8 +3,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
-import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
-import 'package:vehnicate_frontend/Pages/map_page.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
@@ -15,8 +13,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  Map<String, dynamic>? userDetails;
-
   @override
   void initState() {
     super.initState();
@@ -202,7 +198,7 @@ Widget _startCard(BuildContext context) {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
+                Navigator.pushNamed(context, "/map");
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -219,7 +215,7 @@ Widget _startCard(BuildContext context) {
             SizedBox(width: 8),
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ImuCollector()));
+                Navigator.pushNamed(context, "/imu");
               },
               child: Container(
                 padding: EdgeInsets.all(8),
@@ -246,6 +242,7 @@ Widget _startCard(BuildContext context) {
 }
 
 Widget _rpsScoreCard(BuildContext context) {
+  final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
   return Expanded(
     child: Container(
       height: 160,
@@ -254,7 +251,7 @@ Widget _rpsScoreCard(BuildContext context) {
       child: CircularPercentIndicator(
         radius: 60,
         lineWidth: 10,
-        percent: 0.7,
+        percent: (rpsScore ?? 0) / 100,
         backgroundColor: ProfileConstants.darkPurple,
         progressColor: Color(0xFF8E44AD),
         circularStrokeCap: CircularStrokeCap.round, // rounded ends
@@ -262,12 +259,9 @@ Widget _rpsScoreCard(BuildContext context) {
         center: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Consumer<UserProvider>(
-              builder:
-                  (context, value, child) => Text(
-                    value.currentUser?.rpsScore?.toString() ?? '- -',
-                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
+            Text(
+              rpsScore?.toString() ?? '- -',
+              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 2),
             Container(

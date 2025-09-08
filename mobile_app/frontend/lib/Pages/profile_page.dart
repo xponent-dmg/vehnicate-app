@@ -4,7 +4,6 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
-import 'package:vehnicate_frontend/Pages/login_page.dart';
 
 // Constants and Theme
 class ProfileConstants {
@@ -97,8 +96,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  Map<String, dynamic>? userDetails;
-
   @override
   void initState() {
     super.initState();
@@ -164,9 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.of(context).pop();
 
         // Navigate to login page
-        Navigator.of(
-          context,
-        ).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil("/login", (route) => false);
       }
     } catch (e) {
       // Check if widget is still mounted before using context
@@ -306,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 label: 'Streak',
                 backgroundColor: ProfileConstants.darkPurple,
               ),
-              _buildProgressIndicator(),
+              _buildProgressIndicator(context),
             ],
           ),
           const SizedBox(height: 30),
@@ -344,24 +339,23 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildProgressIndicator() {
+  Widget _buildProgressIndicator(BuildContext context) {
+    final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
     return Column(
       children: [
         CircularPercentIndicator(
           radius: 30,
           lineWidth: 8,
-          percent: 0.8,
+          percent: (rpsScore ?? 0) / 100,
           backgroundColor: ProfileConstants.darkPurple,
-          // arcBackgroundColor: ProfileConstants.darkPurple,
-          // arcType: ArcType.FULL_REVERSED,
           progressColor: ProfileConstants.accentPurple,
           circularStrokeCap: CircularStrokeCap.round, // rounded ends
           animation: true,
-          center: Text("${userDetails?['rpsscore'] ?? '50'}", style: ProfileConstants.metricValueStyle),
+          center: Text("${rpsScore ?? '50'}", style: ProfileConstants.metricValueStyle),
         ),
         SizedBox(height: 5),
         SizedBox(
-          width: 65,
+          width: 70,
           child: Text("Overall Performance", style: ProfileConstants.metricLabelStyle, textAlign: TextAlign.center),
         ),
       ],

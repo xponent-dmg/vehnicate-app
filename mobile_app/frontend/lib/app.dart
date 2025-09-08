@@ -9,6 +9,7 @@ import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
 
 class App extends StatelessWidget {
@@ -41,18 +42,24 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      routes:{
-        "/splash":(context)=>SplashPage(),
-        "/login":(context)=>LoginPage(),
-        "/signup":(context)=>SignupPage(),
-        "/profile":(context)=>ProfilePage(),
-        "/dash":(context)=>DashboardPage(),
-        "/imu":(context)=>ImuCollector(),
-        "/garage":(context)=>GaragePage(),
-        "/analyze":(context)=>DriveAnalyzePage(),
-        "/editdetails":(context)=>EditProfilePage(),
+      routes: {
+        "/splash": (context) => SplashPage(),
+        "/login": (context) => LoginPage(),
+        "/signup": (context) => SignupPage(),
+        "/profile": (context) => ProfilePage(),
+        "/dash": (context) => DashboardPage(),
+        "/imu": (context) => ImuCollector(),
+        "/garage": (context) => GaragePage(),
+        "/analyze": (context) => DriveAnalyzePage(),
+        "/editdetails": (context) => EditProfilePage(),
         "/home": (context) => Home(),
-
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == "/user-details") {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(builder: (context) => UserDetailsPage(userId: args["userId"], email: args["email"]));
+        }
+        return null;
       },
       initialRoute: "/splash",
     );

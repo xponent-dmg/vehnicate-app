@@ -3,18 +3,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import 'package:sensors_plus/sensors_plus.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../config/config.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/services/imu_service.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -34,9 +32,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   // Location and tracking
   Position? _currentPosition;
   StreamSubscription<Position>? _positionStream;
-  StreamSubscription? _accelSub;
-  StreamSubscription? _gyroSub;
-  Timer? _uploadTimer;
   Timer? _autocompleteTimer;
 
   // Map state
@@ -59,10 +54,8 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   bool _showAutocomplete = false;
   bool _isFromFieldActive = false;
 
-  // IMU data collection (similar to imu_collector_screen.dart)
-  List<Map<String, dynamic>> _imuBuffer = [];
-  final _supabase = Supabase.instance.client;
-  double? _gx, _gy, _gz;
+  // IMU service
+  final ImuService _imuService = ImuService();
 
   // Animation
   late AnimationController _pulseController;
@@ -172,176 +165,19 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _vehicleId = vid;
 
     setState(() => _isCollectingData = true);
-
-    // Show snackbar for starting collection (exactly like imu_collector_screen.dart)
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('📱 Started sensor data collection'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
+    await _imuService.start(
+      context: context,
+      vehicleId: _vehicleId!,
+      getCurrentPosition: () => _currentPosition,
+      manageLocationStream: false,
+      useUserAccelerometer: true,
+      authProvider: AuthProvider.firebase,
     );
-
-    // Gyroscope stream (exactly like imu_collector_screen.dart)
-    _gyroSub = gyroscopeEvents.listen((event) {
-      _gx = event.x;
-      _gy = event.y;
-      _gz = event.z;
-    });
-
-    // Accelerometer stream (exactly like imu_collector_screen.dart)
-    _accelSub = userAccelerometerEvents.listen((event) {
-      final imuData = {
-        "vehicleid": _vehicleId,
-        "timesent": DateTime.now().toIso8601String(),
-        "accelx": event.x,
-        "accely": event.y,
-        "accelz": event.z,
-        "gyrox": _gx ?? 0,
-        "gyroy": _gy ?? 0,
-        "gyroz": _gz ?? 0,
-        "latitude": _currentPosition?.latitude ?? 0,
-        "longitude": _currentPosition?.longitude ?? 0,
-        "speed": _currentPosition?.speed ?? 0,
-      };
-      // print("Adding IMU data to buffer: $imuData");
-      _imuBuffer.add(imuData);
-    });
-
-    // Upload buffer every 10s (exactly like imu_collector_screen.dart)
-    _uploadTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_imuBuffer.isNotEmpty) {
-        // Show snackbar for data upload
-        print("📤 Timer triggered - uploading ${_imuBuffer.length} records");
-        List<Map<String, dynamic>> temp = List.from(_imuBuffer);
-        _imuBuffer.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('📤 Uploaded ${temp.length} sensor records'),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 1),
-          ),
-        );
-        await _sendToSupabase(temp);
-      } else {
-        print("⏰ Upload timer triggered but buffer is empty");
-      }
-    });
   }
 
   void _stopDataCollection() async {
-    _accelSub?.cancel();
-    _gyroSub?.cancel();
-    _uploadTimer?.cancel();
     setState(() => _isCollectingData = false);
-
-    if (_imuBuffer.isNotEmpty) {
-      // Show snackbar for data upload
-      print("📤 Timer triggered - uploading ${_imuBuffer.length} records");
-      List<Map<String, dynamic>> temp = List.from(_imuBuffer);
-      _imuBuffer.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('📤 Uploaded ${temp.length} sensor records'),
-          backgroundColor: Colors.blue,
-          duration: const Duration(seconds: 1),
-        ),
-      );
-      await _sendToSupabase(temp);
-    } else {
-      print("buffer is empty. nothing to send and it is stopped");
-    }
-
-    // Show snackbar for stopping collection (exactly like imu_collector_screen.dart)
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('⏹️ Stopped sensor data collection'),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  Future<void> _sendToSupabase(List<Map<String, dynamic>> data) async {
-    try {
-      // Check if user is authenticated
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        print("❌ User not authenticated with Firebase");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('❌ Please login to upload data'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        return;
-      }
-      print("✅ User authenticated: ${user.uid}");
-
-      print("📤 Sending ${data.length} records to Supabase...");
-
-      // Transform data to match database schema
-      final transformedData =
-          data.map((item) {
-            return {
-              // Don't send dataid - let database auto-generate it
-              'vehicleid': item['vehicleid'],
-              // Keep as RFC3339 string - Supabase/PostgREST accepts ISO8601 strings
-              'timesent': item['timesent'],
-              'accelx': item['accelx'],
-              'accely': item['accely'],
-              'accelz': item['accelz'],
-              'gyrox': item['gyrox'],
-              'gyroy': item['gyroy'],
-              'gyroz': item['gyroz'],
-              'latitude': item['latitude'],
-              'longitude': item['longitude'],
-              'speed': item['speed'],
-            };
-          }).toList();
-
-      print("📋 Transformed data structure: ${transformedData.isNotEmpty ? transformedData.first : 'No data'}");
-
-      final response = await _supabase.from('datatransmission').insert(transformedData);
-
-      print("✅ Successfully sent ${data.length} records to Supabase");
-      print("📊 Response: $response");
-    } on PostgrestException catch (e) {
-      print("❌ PostgrestException: ${e.message}");
-      print("❌ Details: ${e.details}");
-      print("❌ Hint: ${e.hint}");
-      print("❌ Code: ${e.code}");
-
-      // Show user-friendly error message
-      String errorMessage = "Database error";
-      if (e.code == "23503") {
-        errorMessage = "Invalid vehicle ID. Please check your vehicle settings.";
-      } else if (e.code == "42501") {
-        errorMessage = "Permission denied. Please check your login.";
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ $errorMessage'), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
-      );
-
-      // Add data back to buffer for retry
-      _imuBuffer.addAll(data);
-    } catch (e) {
-      print("❌ General error sending to Supabase: $e");
-      print("Error type: ${e.runtimeType}");
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Upload failed: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-
-      // Add data back to buffer for retry
-      _imuBuffer.addAll(data);
-    }
+    await _imuService.stop(context, authProvider: AuthProvider.firebase);
   }
 
   Future<void> _searchAutocomplete(String query, bool isFromField) async {
@@ -738,9 +574,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _positionStream?.cancel();
-    _accelSub?.cancel();
-    _gyroSub?.cancel();
-    _uploadTimer?.cancel();
+    _imuService.dispose();
     _autocompleteTimer?.cancel();
     _pulseController.dispose();
     _fromController.dispose();

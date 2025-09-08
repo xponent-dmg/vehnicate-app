@@ -201,4 +201,31 @@ class SupabaseService {
       return null;
     }
   }
+
+  Future<void> updateVehicleDetails({
+    required int vehicleId,
+    required String insurance,
+    required String registration,
+    required String? puc,
+    required String model,
+  }) async {
+    try {
+      print("Updating vehicle details for ID: $vehicleId");
+      await initialize(); // Ensure client is initialized
+
+      final response =
+          await _client
+              .from('vehicledetails')
+              .update({'insurance': insurance, 'registration': registration, 'puc': puc, 'model': model})
+              .eq('vehicleid', vehicleId)
+              .select();
+
+      print("Vehicle details update response: $response");
+    } catch (e, stackTrace) {
+      print("Error updating vehicle details:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to update vehicle details: $e');
+    }
+  }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
-import 'package:vehnicate_frontend/Pages/drive_details_page.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
@@ -292,7 +291,7 @@ class DriveAnalyzePage extends StatelessWidget {
       child: ListTile(
         contentPadding: EdgeInsets.all(16),
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DriveDetailsPage(drive: drive)));
+          Navigator.pushNamed(context, "/drive-details", arguments: drive);
         },
         leading: _buildCarIcon(drive.carName),
         title: Column(
