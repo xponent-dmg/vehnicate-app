@@ -15,7 +15,7 @@ CORS(app)
 UPLOAD_FOLDER = r"D:\Vehnicate\Prototype\data\images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/upload_image', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_image():
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "No file part"}), 400

@@ -33,7 +33,7 @@ const char* SD_FILE = "/data.csv";
 const char apn[]  = "airtelgprs.com";
 const char user[] = "";
 const char pass[] = "";
-const char server[] = "a16457b53bf2.ngrok-free.app";
+const char server[] = "8b2a024a8b1b.ngrok-free.app";
 
 // --- Serial setup ---
 #define SerialMon Serial

@@ -6,7 +6,7 @@ const char* ssid = "sid";
 const char* password = "Siddhu#05";
 
 // Your ngrok URL with /upload path
-String serverName = "http://19087dfe6433.ngrok-free.app/upload";
+String serverName = "http://8b2a024a8b1b.ngrok-free.app/upload";
 
 // AI THINKER camera pin definition (hardcoded for reliability)
 #define PWDN_GPIO_NUM     32
@@ -50,7 +50,8 @@ void setup() {
   config.pin_href = HREF_GPIO_NUM;
   config.pin_pclk = PCLK_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_JPEG;
+  //config.pixel_format = PIXFORMAT_JPEG; //to take colour pictures
+  config.pixel_format = PIXFORMAT_GRAYSCALE;
   config.frame_size = FRAMESIZE_UXGA;    // Low resolution to save memory
   config.jpeg_quality = 12;              // Compression quality
   config.fb_count = 2;
@@ -143,5 +144,5 @@ void loop() {
   }
 
   esp_camera_fb_return(fb);
-  delay(5000); // Wait 5 seconds before next capture
+  delay(2000); // Wait 500 milliseconds before next capture
 }
