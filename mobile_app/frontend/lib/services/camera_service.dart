@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:gal/gal.dart';
+import 'dart:io' show Platform;
 
 class CameraService extends StatefulWidget {
   const CameraService({super.key});
@@ -9,22 +11,9 @@ class CameraService extends StatefulWidget {
 }
 
 class _CameraServiceState extends State<CameraService> {
-  CameraController? _cameraController;
-  Future<void>? _initializeCameraController;
-
-  Future<void> _initCamera() async {
-    final cameras = await availableCameras();
-    final firstCam = cameras.first;
-    _cameraController = CameraController(
-      firstCam,
-      ResolutionPreset.medium,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.yuv420,
-    );
-
-    _initializeCameraController = _cameraController?.initialize();
-    setState(() {});
-  }
+  CameraController? _controller;
+  List<CameraDescription>? _cameras;
+  bool _isReady = false;
 
   @override
   void initState() {
@@ -32,29 +21,46 @@ class _CameraServiceState extends State<CameraService> {
     _initCamera();
   }
 
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    super.dispose();
+  Future<void> _initCamera() async {
+    _cameras = await availableCameras();
+    _controller = CameraController(_cameras!.first, ResolutionPreset.medium, enableAudio: false);
+    await _controller!.initialize();
+    setState(() => _isReady = true);
+  }
+
+  Future<void> _takePicture() async {
+    if (!mounted || _controller == null || !_controller!.value.isInitialized) return;
+
+    final XFile file = await _controller!.takePicture();
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Gal.putImage(file.path);
+      print("Saved to gallery: ${file.path}");
+    } else {
+      print("Saved image (unsupported gallery platform): ${file.path}");
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Saved to Gallery")));
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isReady) return const Center(child: CircularProgressIndicator());
+
     return Scaffold(
-      appBar: AppBar(title: Text('Camera')),
-      body:
-          (_cameraController == null)
-              ? const Center(child: CircularProgressIndicator())
-              : FutureBuilder(
-                future: _initializeCameraController,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return CameraPreview(_cameraController!);
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+      appBar: AppBar(title: const Text('Capture & Save')),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          AspectRatio(aspectRatio: 1 / _controller!.value.aspectRatio, child: CameraPreview(_controller!)),
+          ElevatedButton(onPressed: _takePicture, child: const Text("📸 Take Photo")),
+        ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 }
