@@ -57,6 +57,7 @@ dependencies:
   gal: ^2.3.0
   image: ^4.2.0
   flutter_image_compress: ^2.3.0
+  file_picker: ^8.1.2
 
 dev_dependencies:
   flutter_test:
