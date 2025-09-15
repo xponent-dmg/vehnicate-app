@@ -4,6 +4,7 @@ import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/edit_profile_page.dart';
 
 import 'package:vehnicate_frontend/Pages/garage.dart';
+import 'package:vehnicate_frontend/Pages/document_upload_page.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/splash_page.dart';
@@ -60,6 +61,11 @@ class App extends StatelessWidget {
         if (settings.name == "/user-details") {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(builder: (context) => UserDetailsPage(userId: args["userId"], email: args["email"]));
+        }
+        if (settings.name == "/document-upload") {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final docType = args != null ? (args['documentType'] as String? ?? 'Document') : 'Document';
+          return MaterialPageRoute(builder: (context) => DocumentUploadPage(documentType: docType));
         }
         return null;
       },

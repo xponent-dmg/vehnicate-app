@@ -33,10 +33,10 @@ class GaragePage extends StatelessWidget {
                 Text('Vehicle Docs', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 15),
 
-                _buildDocumentTile('Registration Certificate', Icons.description),
-                _buildDocumentTile('Vehicle Insurance', Icons.car_repair),
-                _buildDocumentTile('PUC', Icons.eco),
-                _buildDocumentTile('Driving License', Icons.card_membership),
+                _buildDocumentTile(context, 'Registration Certificate', Icons.description),
+                _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
+                _buildDocumentTile(context, 'PUC', Icons.eco),
+                _buildDocumentTile(context, 'Driving License', Icons.card_membership),
               ],
             ),
           ),
@@ -64,7 +64,7 @@ class GaragePage extends StatelessWidget {
     );
   }
 
-  Widget _buildDocumentTile(String title, IconData icon) {
+  Widget _buildDocumentTile(BuildContext context, String title, IconData icon) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(10)),
@@ -73,7 +73,7 @@ class GaragePage extends StatelessWidget {
         title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
         trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
         onTap: () {
-          // Handle navigation to document details
+          Navigator.pushNamed(context, '/document-upload', arguments: {'documentType': title});
         },
       ),
     );
