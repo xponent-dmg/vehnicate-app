@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
@@ -288,10 +289,43 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
     }
 
+    // Rotate to match preview orientation
+    int rotationDegrees = 0;
+    final orientation = _cameraController?.value.deviceOrientation;
+    if (orientation != null) {
+      switch (orientation) {
+        case DeviceOrientation.portraitUp:
+          rotationDegrees = 90; // buffers are landscape by default
+          break;
+        case DeviceOrientation.landscapeLeft:
+          rotationDegrees = 0;
+          break;
+        case DeviceOrientation.portraitDown:
+          rotationDegrees = 270;
+          break;
+        case DeviceOrientation.landscapeRight:
+          rotationDegrees = 180;
+          break;
+      }
+    }
+    img.Image oriented = rotationDegrees == 0 ? gray : img.copyRotate(gray, angle: rotationDegrees);
+
+    // Mirror front camera to match preview
+    if (_cameraController?.description.lensDirection == CameraLensDirection.front) {
+      oriented = img.flipHorizontal(oriented);
+    }
+
+    // Preserve aspect ratio: scale longest side to target, keep the other side proportional
+    final int srcW = oriented.width;
+    final int srcH = oriented.height;
+    final int maxSide = _targetWidth; // use target as the max side
+    final double scale = srcW >= srcH ? maxSide / srcW : maxSide / srcH;
+    final int outW = (srcW * scale).round();
+    final int outH = (srcH * scale).round();
     final img.Image resized = img.copyResize(
-      gray,
-      width: _targetWidth,
-      height: _targetHeight,
+      oriented,
+      width: outW,
+      height: outH,
       interpolation: img.Interpolation.average,
     );
 
@@ -423,7 +457,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           // Camera Preview
           if (isCameraReady && _cameraController != null)
             Container(
-              height: 200,
+              height: 400,
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -490,54 +524,35 @@ class _ImuCollectorState extends State<ImuCollector> {
           // Control Buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
+            child: Row(
               children: [
-                ElevatedButton.icon(
-                  onPressed: isCollecting ? stopCollection : startCollection,
-                  icon: Icon(isCollecting ? Icons.stop : Icons.play_arrow),
-                  label: Text(isCollecting ? 'Stop Collection' : 'Start Collection'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isCollecting ? Colors.red : Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: isCollecting ? stopCollection : startCollection,
+                    icon: Icon(isCollecting ? Icons.stop : Icons.play_arrow),
+                    label: Text(isCollecting ? 'Stop Collection' : 'Start Collection'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCollecting ? Colors.red : Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
-                          await _uploadBatch();
-                        },
-                        icon: const Icon(Icons.upload),
-                        label: const Text('Upload Now'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
+                      await _uploadBatch();
+                    },
+                    icon: const Icon(Icons.upload),
+                    label: const Text('Upload Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: (_pendingFrames.isEmpty) ? Colors.grey : Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          print('[IMU_DEBUG][StopUploadButton] Stop Upload pressed');
-                          _batchTimer?.cancel();
-                          _showSnack('Upload timer stopped');
-                        },
-                        icon: const Icon(Icons.pause),
-                        label: const Text('Stop Upload'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
