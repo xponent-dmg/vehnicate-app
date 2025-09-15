@@ -114,7 +114,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   void stopLiveTracking() {
     _positionStream?.cancel();
     setState(() => _isTrackingLocation = false);
-    _showSnackBar('⏹️ Live tracking stopped', Colors.orange);
+    // _showSnackBar('⏹️ Live tracking stopped', Colors.orange);
   }
 
   Future<void> _startDataCollection() async {

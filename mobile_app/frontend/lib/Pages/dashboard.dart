@@ -171,21 +171,21 @@ Widget _header(context) {
   );
 }
 
-Widget _textField({required String hintText, required IconData icon, required Color color}) {
-  return Container(
-    decoration: BoxDecoration(color: ProfileConstants.primaryBackground, borderRadius: BorderRadius.circular(12)),
-    child: TextField(
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white54, fontSize: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        prefixIcon: Icon(icon, color: color, size: 17),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-      style: TextStyle(color: Colors.white),
-    ),
-  );
-}
+// Widget _textField({required String hintText, required IconData icon, required Color color}) {
+//   return Container(
+//     decoration: BoxDecoration(color: ProfileConstants.primaryBackground, borderRadius: BorderRadius.circular(12)),
+//     child: TextField(
+//       decoration: InputDecoration(
+//         hintText: hintText,
+//         hintStyle: TextStyle(color: Colors.white54, fontSize: 14),
+//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+//         prefixIcon: Icon(icon, color: color, size: 17),
+//         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+//       ),
+//       style: TextStyle(color: Colors.white),
+//     ),
+//   );
+// }
 
 Widget _startCard(BuildContext context) {
   return Container(
@@ -198,7 +198,7 @@ Widget _startCard(BuildContext context) {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, "/map");
+                Navigator.pushNamed(context, "/imu");
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -218,25 +218,25 @@ Widget _startCard(BuildContext context) {
             SizedBox(width: 8),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, "/imu");
+                Navigator.pushNamed(context, "/map");
               },
               child: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-                child: Icon(Icons.sensors, color: Colors.white70, size: 20),
+                child: Icon(Icons.map, color: Colors.white70, size: 20),
               ),
             ),
             SizedBox(width: 8),
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, "/camera");
-              },
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-                child: Icon(Icons.camera_alt, color: Colors.white70, size: 20),
-              ),
-            ),
+            // GestureDetector(
+            //   onTap: () {
+            //     Navigator.pushNamed(context, "/camera");
+            //   },
+            //   child: Container(
+            //     padding: EdgeInsets.all(8),
+            //     decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
+            //     child: Icon(Icons.camera_alt, color: Colors.white70, size: 20),
+            //   ),
+            // ),
           ],
         ),
         // SizedBox(height: 20),
