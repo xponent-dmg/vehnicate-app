@@ -203,7 +203,10 @@ Widget _startCard(BuildContext context) {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
-                child: Text('START', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                child: Text(
+                  'Start Drive',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ),
             ),
             Spacer(),
@@ -236,11 +239,11 @@ Widget _startCard(BuildContext context) {
             ),
           ],
         ),
-        SizedBox(height: 20),
-        _textField(hintText: "Current location", icon: FontAwesomeIcons.locationCrosshairs, color: Color(0xFF8E44AD)),
+        // SizedBox(height: 20),
+        // _textField(hintText: "Current location", icon: FontAwesomeIcons.locationCrosshairs, color: Color(0xFF8E44AD)),
 
-        SizedBox(height: 12),
-        _textField(hintText: 'Where to?', icon: FontAwesomeIcons.locationDot, color: Colors.white54),
+        // SizedBox(height: 12),
+        // _textField(hintText: 'Where to?', icon: FontAwesomeIcons.locationDot, color: Colors.white54),
       ],
     ),
   );

@@ -6,6 +6,7 @@ import 'package:vehnicate_frontend/Pages/edit_profile_page.dart';
 import 'package:vehnicate_frontend/Pages/garage.dart';
 import 'package:vehnicate_frontend/Pages/document_upload_page.dart';
 import 'package:vehnicate_frontend/Pages/login_page.dart';
+import 'package:vehnicate_frontend/Pages/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/signup_page.dart';
@@ -56,6 +57,7 @@ class App extends StatelessWidget {
         "/editdetails": (context) => EditProfilePage(),
         "/home": (context) => Home(),
         "/camera": (context) => CameraService(),
+        "/map": (context) => MapPage(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == "/user-details") {

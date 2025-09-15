@@ -422,62 +422,28 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(color: const Color(0xFF1a1a2e), borderRadius: BorderRadius.circular(12)),
-            child: TextField(
-              controller: _fromController,
-              focusNode: _fromFocusNode,
-              decoration: const InputDecoration(
-                hintText: "From",
-                hintStyle: TextStyle(color: Colors.white54),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIcon: Icon(FontAwesomeIcons.locationCrosshairs, color: Color(0xFF8E44AD), size: 16),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              ),
-              style: const TextStyle(color: Colors.white),
-              onChanged: (value) => _searchAutocomplete(value, true),
-              onSubmitted: (value) => _searchAndSetLocation(value, true),
-              onTap: () {
-                setState(() {
-                  _isFromFieldActive = true;
-                  if (_fromController.text.isNotEmpty) {
-                    _searchAutocomplete(_fromController.text, true);
-                  }
-                });
-              },
-            ),
+          _buildLocationTextField(
+            controller: _fromController,
+            focusNode: _fromFocusNode,
+            hintText: "From",
+            prefixIcon: FontAwesomeIcons.locationCrosshairs,
+            color: Color(0xFF8E44AD),
+            size: 16,
+            onChanged: (value) => _searchAutocomplete(value, true),
+            onSubmitted: (value) => _searchAndSetLocation(value, true),
+            isFromFieldActive: true,
           ),
           const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(color: const Color(0xFF1a1a2e), borderRadius: BorderRadius.circular(12)),
-            child: TextField(
-              controller: _toController,
-              focusNode: _toFocusNode,
-              decoration: const InputDecoration(
-                hintText: "Where to? (e.g., London, Paris, Tokyo)",
-                hintStyle: TextStyle(color: Colors.white54),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIcon: Icon(FontAwesomeIcons.locationDot, color: Colors.white54, size: 16),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              ),
-              style: const TextStyle(color: Colors.white),
-              onChanged: (value) => _searchAutocomplete(value, false),
-              onSubmitted: (value) => _searchAndSetLocation(value, false),
-              onTap: () {
-                setState(() {
-                  _isFromFieldActive = false;
-                  if (_toController.text.isNotEmpty) {
-                    _searchAutocomplete(_toController.text, false);
-                  }
-                });
-              },
-            ),
+          _buildLocationTextField(
+            controller: _toController,
+            focusNode: _toFocusNode,
+            hintText: "Where to? (e.g., London, Paris, Tokyo)",
+            prefixIcon: FontAwesomeIcons.locationDot,
+            color: Colors.white54,
+            size: 16,
+            onChanged: (value) => _searchAutocomplete(value, false),
+            onSubmitted: (value) => _searchAndSetLocation(value, false),
+            isFromFieldActive: false,
           ),
           const SizedBox(height: 16),
           if (_showAutocomplete && _autocompleteSuggestions.isNotEmpty) ...[
@@ -707,6 +673,44 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             child: const Icon(Icons.my_location, color: Colors.white),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLocationTextField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String hintText,
+    required IconData prefixIcon,
+    required Color color,
+    required double size,
+    required Function(String) onChanged,
+    required Function(String) onSubmitted,
+    required bool isFromFieldActive,
+  }) {
+    return Container(
+      decoration: BoxDecoration(color: const Color(0xFF1a1a2e), borderRadius: BorderRadius.circular(12)),
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.white54),
+          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12)), borderSide: BorderSide.none),
+          prefixIcon: Icon(prefixIcon, color: color, size: size),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+        style: const TextStyle(color: Colors.white),
+        onChanged: (value) => onChanged(value),
+        onSubmitted: (value) => onSubmitted(value),
+        onTap: () {
+          setState(() {
+            isFromFieldActive = isFromFieldActive;
+            if (controller.text.isNotEmpty) {
+              _searchAutocomplete(controller.text, isFromFieldActive);
+            }
+          });
+        },
       ),
     );
   }
