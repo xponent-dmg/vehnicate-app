@@ -432,7 +432,7 @@ class _ImuCollectorState extends State<ImuCollector> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: AspectRatio(
-                  aspectRatio: _cameraController!.value.aspectRatio,
+                  aspectRatio: 1 / _cameraController!.value.aspectRatio,
                   child: CameraPreview(_cameraController!),
                 ),
               ),
@@ -474,8 +474,8 @@ class _ImuCollectorState extends State<ImuCollector> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatCard('IMU Data', '$_imuDataCount', '$_uploadedImuCount'),
-                    _buildStatCard('Images', '$_imageDataCount', '$_uploadedImageCount'),
+                    _buildStatCard('IMU Data', '${_imuDataCount - _uploadedImuCount}', '$_uploadedImuCount'),
+                    _buildStatCard('Images', '${_imageDataCount - _uploadedImageCount}', '$_uploadedImageCount'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -492,34 +492,15 @@ class _ImuCollectorState extends State<ImuCollector> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: isCollecting ? null : startCollection,
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text('Start Collection'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: !isCollecting ? null : stopCollection,
-                        icon: const Icon(Icons.stop),
-                        label: const Text('Stop Collection'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
+                ElevatedButton.icon(
+                  onPressed: isCollecting ? stopCollection : startCollection,
+                  icon: Icon(isCollecting ? Icons.stop : Icons.play_arrow),
+                  label: Text(isCollecting ? 'Stop Collection' : 'Start Collection'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isCollecting ? Colors.red : Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
