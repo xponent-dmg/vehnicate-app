@@ -9,8 +9,11 @@ class GaragePage extends StatelessWidget {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
