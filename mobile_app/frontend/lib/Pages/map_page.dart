@@ -386,6 +386,15 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       body: SafeArea(
         child: Column(children: [_buildTopPanel(context), Expanded(child: _buildMap()), _buildBottomControls()]),
       ),
+      //TODO: Add back the FAB in production
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     _mapController.move(_currentLatLng, Config.defaultZoom);
+      //   },
+      //   backgroundColor: const Color(0xFF3d3d54),
+      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      //   child: const Icon(Icons.my_location, color: Colors.white),
+      // ),
     );
   }
 
@@ -403,7 +412,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
               ),
               const Expanded(
                 child: Text(
@@ -412,13 +421,13 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-              IconButton(
-                onPressed: _isTrackingLocation ? stopLiveTracking : startLiveTracking,
-                icon: Icon(
-                  _isTrackingLocation ? Icons.gps_fixed : Icons.gps_not_fixed,
-                  color: _isTrackingLocation ? Colors.green : Colors.white,
-                ),
-              ),
+              // IconButton(
+              //   onPressed: _isTrackingLocation ? stopLiveTracking : startLiveTracking,
+              //   icon: Icon(
+              //     _isTrackingLocation ? Icons.gps_fixed : Icons.gps_not_fixed,
+              //     color: _isTrackingLocation ? Colors.green : Colors.white,
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: 16),
@@ -428,7 +437,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             hintText: "From",
             prefixIcon: FontAwesomeIcons.locationCrosshairs,
             color: Color(0xFF8E44AD),
-            size: 16,
             onChanged: (value) => _searchAutocomplete(value, true),
             onSubmitted: (value) => _searchAndSetLocation(value, true),
             isFromFieldActive: true,
@@ -440,7 +448,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             hintText: "Where to? (e.g., London, Paris, Tokyo)",
             prefixIcon: FontAwesomeIcons.locationDot,
             color: Colors.white54,
-            size: 16,
             onChanged: (value) => _searchAutocomplete(value, false),
             onSubmitted: (value) => _searchAndSetLocation(value, false),
             isFromFieldActive: false,
@@ -683,7 +690,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     required String hintText,
     required IconData prefixIcon,
     required Color color,
-    required double size,
     required Function(String) onChanged,
     required Function(String) onSubmitted,
     required bool isFromFieldActive,
@@ -697,7 +703,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.white54),
           border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12)), borderSide: BorderSide.none),
-          prefixIcon: Icon(prefixIcon, color: color, size: size),
+          prefixIcon: Icon(prefixIcon, color: color, size: 16),
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         style: const TextStyle(color: Colors.white),
