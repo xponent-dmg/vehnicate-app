@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -138,17 +136,15 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     setState(() => _isCollectingData = true);
     await _imuService.start(
       context: context,
-      vehicleId: _vehicleId!,
       getCurrentPosition: () => _currentPosition,
       manageLocationStream: false,
       useUserAccelerometer: true,
-      authProvider: AuthProvider.firebase,
     );
   }
 
   void _stopDataCollection() async {
     setState(() => _isCollectingData = false);
-    await _imuService.stop(context, authProvider: AuthProvider.firebase);
+    await _imuService.stop(context);
   }
 
   Future<void> _searchAutocomplete(String query, bool isFromField) async {

@@ -3,11 +3,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
-
-enum AuthProvider { firebase, supabase }
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class ImuService {
   final SupabaseClient _supabase;
@@ -27,6 +26,13 @@ class ImuService {
 
   bool _isCollecting = false;
   bool get isCollecting => _isCollecting;
+
+  // Data count tracking
+  int _processedCount = 0;
+  int _uploadedCount = 0;
+
+  // Callbacks for UI updates
+  Function(int processed, int uploaded)? onDataCountUpdate;
 
   Future<void> _ensureLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -49,20 +55,23 @@ class ImuService {
 
   Future<void> start({
     required BuildContext context,
-    required int vehicleId,
     Position? Function()? getCurrentPosition,
     bool manageLocationStream = false,
     bool useUserAccelerometer = false,
-    AuthProvider authProvider = AuthProvider.firebase,
+    Function(int processed, int uploaded)? onDataCountUpdate,
   }) async {
+    print('[IMU_DEBUG][start] Called');
     if (_isCollecting) return;
 
     if (manageLocationStream) {
       await _ensureLocationPermission();
     }
 
+    final vehicleId = context.read<VehicleProvider>().vehicleId;
+    print('[IMU_DEBUG][start] Vehicle ID: $vehicleId');
     _isCollecting = true;
-
+    this.onDataCountUpdate = onDataCountUpdate;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('📱 Started sensor data collection'),
@@ -94,12 +103,14 @@ class ImuService {
           'speed': pos?.speed ?? _speed,
         };
         _imuBuffer.add(imuData);
+        _processedCount++;
+        onDataCountUpdate?.call(_processedCount, _uploadedCount);
       });
     } else {
       _accelSub = accelerometerEvents.listen((AccelerometerEvent event) {
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
         final imuData = {
-          'vehicleid': vehicleId,
+          'vehicleid': context.read<VehicleProvider>().vehicleId,
           'timesent': DateTime.now().toIso8601String(),
           'accelx': event.x,
           'accely': event.y,
@@ -112,6 +123,8 @@ class ImuService {
           'speed': pos?.speed ?? _speed,
         };
         _imuBuffer.add(imuData);
+        _processedCount++;
+        onDataCountUpdate?.call(_processedCount, _uploadedCount);
       });
     }
 
@@ -136,12 +149,15 @@ class ImuService {
             duration: const Duration(seconds: 1),
           ),
         );
-        await _sendToSupabase(context: context, data: temp, authProvider: authProvider);
+        await _sendToSupabase(context: context, data: temp);
+        _uploadedCount += temp.length;
+        onDataCountUpdate?.call(_processedCount, _uploadedCount);
       }
     });
   }
 
-  Future<void> stop(BuildContext context, {AuthProvider authProvider = AuthProvider.firebase}) async {
+  Future<void> stop(BuildContext context) async {
+    print('[IMU_DEBUG][stop] Called');
     _accelSub?.cancel();
     _gyroSub?.cancel();
     _positionSub?.cancel();
@@ -158,7 +174,9 @@ class ImuService {
           duration: const Duration(seconds: 1),
         ),
       );
-      await _sendToSupabase(context: context, data: temp, authProvider: authProvider);
+      await _sendToSupabase(context: context, data: temp);
+      _uploadedCount += temp.length;
+      onDataCountUpdate?.call(_processedCount, _uploadedCount);
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -170,38 +188,8 @@ class ImuService {
     );
   }
 
-  Future<void> _sendToSupabase({
-    required BuildContext context,
-    required List<Map<String, dynamic>> data,
-    required AuthProvider authProvider,
-  }) async {
+  Future<void> _sendToSupabase({required BuildContext context, required List<Map<String, dynamic>> data}) async {
     try {
-      if (authProvider == AuthProvider.firebase) {
-        final user = fb_auth.FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('❌ Please login to upload data'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 2),
-            ),
-          );
-          return;
-        }
-      } else {
-        final user = _supabase.auth.currentUser;
-        if (user == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('❌ Please login to upload data'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 2),
-            ),
-          );
-          return;
-        }
-      }
-
       final transformedData =
           data.map((item) {
             return {
