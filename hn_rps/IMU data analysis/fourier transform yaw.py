@@ -51,7 +51,7 @@ sum_xf,count1=0,0
 xf1=[]
 for i in range(len(xf)):
     try:
-        xf1.append(xf[i]-xf[i+1])
+        xf1.append(magnitude[i+1]-magnitude[i])
         sum_xf += (magnitude[i+1]-magnitude[i])/(xf[i+1]-xf[i])
         count1+=1
     except:
@@ -86,14 +86,14 @@ plt.grid(True)
 #plt.show()
 
 plt.subplot(1,2,2)
-plt.plot(xf,(np.exp(-1*xf*xf1))/(magnitude**magnitude))
+plt.plot(xf,(np.exp(-1*xf*xf1))/(magnitude**(magnitude)))
 plt.xlabel("frequency")
 plt.ylabel("xf/magnitude")
 plt.show()
 
 #print(((np.exp(-1*xf*xf1))/(magnitude**magnitude))[0],"testing")
-print(max((np.exp(-1*xf*xf1))/(magnitude**magnitude)),"max")
-for i in range(len((np.exp(-1*xf*xf1))/(magnitude**magnitude))):
-    if ((np.exp(-1*xf*xf1))/(magnitude**magnitude))[i]>=max((np.exp(-1*xf*xf1))/(magnitude**magnitude)):
+print(max((np.exp(-1*xf*xf1))/(magnitude**(magnitude))),"max")
+for i in range(len((np.exp(-1*xf*xf1))/(magnitude**(magnitude)))):
+    if ((np.exp(-1*xf*xf1))/(magnitude**(magnitude)))[i]>=max((np.exp(-1*xf*xf1))/(magnitude**(magnitude))):
         print(xf[i])
         break
