@@ -9,11 +9,11 @@ df = pd.read_csv(r"D:\Vehnicate\Prototype\Code\python\IMU data analysis\data res
 df.columns = ['time_ms', 'acc_x', 'acc_y', 'acc_z', 'gyro_x', 'gyro_y', 'gyro_z','Yaw']
 
 # Take only the slice of interest
-#df = df.iloc[19701:25000].copy()
+df = df.iloc[3450:4503].copy()
 #df = df.iloc[7722:10820].copy()
 #df = df.iloc[7722:10820].copy()
 #df = df.iloc[6507:7177].copy()
-df = df.iloc[13264:16200].copy()
+#df = df.iloc[13264:16200].copy()
 
 # Convert time column
 df["time_ms"] = pd.to_numeric(df["time_ms"], errors="coerce")
@@ -48,14 +48,17 @@ magnitude /= window.mean()   # compensate for Hann window loss
 print(np.mean(xf),'mean')
 sum_mag,count = 0,0
 sum_xf,count1=0,0
-xf1=[]
+xf1,xf2=[],[]
 for i in range(len(xf)):
     try:
-        xf1.append(magnitude[i+1]-magnitude[i])
+        #xf1.append(magnitude[i+1]-magnitude[i])
+        #xf2.append(magnitude[i-1]-magnitude[i])
+        xf1.append(2*magnitude[i]-magnitude[i+1]-magnitude[i-1])
         sum_xf += (magnitude[i+1]-magnitude[i])/(xf[i+1]-xf[i])
         count1+=1
     except:
         xf1.append(0)
+        #xf2.append(0)
         break
     if (xf[i]<=np.mean(xf)):
         sum_mag+=(magnitude[i])
@@ -70,7 +73,7 @@ print(sum_xf/count1,"threshold for xf")
 #magnitude = magnitude[mask]
 #xf1 = xf1[mask]
 
-a=(np.mean(xf*magnitude)/np.mean(magnitude))
+a=(np.mean(xf*magnitude))/(np.mean(magnitude))
 print((np.sqrt(np.mean(xf**2))+a)/2)
 print(np.mean(xf/np.sqrt(magnitude))*np.mean(magnitude),"this")
 
@@ -84,11 +87,14 @@ plt.ylabel("Magnitude")
 plt.title("FFT of Yaw (detrended + Hann window)")
 plt.grid(True)
 #plt.show()
-
+print(a,"a")
 plt.subplot(1,2,2)
-plt.plot(xf,(np.exp(-1*xf*xf1))/(magnitude**(magnitude)))
+#magnitude = (magnitude**magnitude)/(max(magnitude))
+print(np.mean(magnitude),"magn")
+#magnitude=np.mean(magnitude)/magnitude
+plt.plot(xf,(np.exp(1*(xf*(xf1)))/(magnitude**magnitude)))
 plt.xlabel("frequency")
-plt.ylabel("xf/magnitude")
+plt.ylabel("function")
 plt.show()
 
 #print(((np.exp(-1*xf*xf1))/(magnitude**magnitude))[0],"testing")

@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
 import numpy as np
 from scipy.fft import fft, fftfreq
+import csv
 
 # Load and slice
 df = pd.read_csv(r"D:\Vehnicate\Prototype\Code\python\IMU data analysis\data resulting from code\csv file with yaw.csv")
 df.columns = ['time_ms', 'acc_x', 'acc_y', 'acc_z', 'gyro_x', 'gyro_y', 'gyro_z','Yaw']
 
-df = df.iloc[19701:25000].copy()  # segment
+df = df.iloc[13270:16506].copy()  # segment
 #df = df.iloc[7722:10820].copy()
 #df = df.iloc[6507:7177].copy()
 #df = df.iloc[13264:16200].copy()
@@ -33,6 +34,7 @@ def butter_lowpass_filter(data, cutoff, fs, order=4):
 
 
 # --- FFT with detrending + window ---
+#print(df_resampled["time_ms"],"hello")
 y = df_resampled["Yaw"].values
 N = len(y)
 T = 1.0 / fs
@@ -107,9 +109,26 @@ for i in range(len(function)):
         break
 
 
-#cutoff = 0.404 # Hz (adjust this for yaw smoothing)
+#cutoff = 0.04 # Hz (adjust this for yaw smoothing)
 df_resampled["filtered"] = butter_lowpass_filter(df_resampled["Yaw"].values, cutoff, fs)
 #print(np.mean(df_resampled["Yaw"]))
+
+time = list(np.array(df_resampled.index.total_seconds()))
+yaw = list(np.array(df_resampled["filtered"]))
+data=[]
+columns = ['time_ms','filtered yaw']
+data.append(columns)
+for i in range(len(time)):
+    l = []
+    l.append(time[i]*1000)
+    l.append(yaw[i])
+    data.append(l)
+
+with open(r"D:\Vehnicate\Prototype\Code\python\IMU data analysis\data resulting from code\filtered yaw.csv", "a", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(data)
+    
+
 
 # Plot
 plt.figure(figsize=(10,5))

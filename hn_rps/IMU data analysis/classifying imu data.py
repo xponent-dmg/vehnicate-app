@@ -127,6 +127,12 @@ while not end:
 #print(Chunks)
 
 
+
+#############################################################################
+
+#############################################################################
+
+
 L=len(df['time_ms'])
 Chunks_lanes={}
 # **merging 2 arc chunks to together form potential lane change**
@@ -186,7 +192,7 @@ initial = 0
 for i in Chunks:
     #approximating the road curvature wrt time
     initYaw = df['Yaw'][initial]
-    #if df['Yaw'][Chunks[i]]-initYaw > 
+    #if df['Yaw'][Chunks[i]]-initYaw >
     l=[]
     l.append(i)
     l.append(Chunks[i])
@@ -254,9 +260,9 @@ plt.legend()
 for i in Chunks:
     plt.plot(df['time_ms'][i],df['Yaw'][i],marker='o',color='green')
     plt.plot(df['time_ms'][Chunks[i]],df['Yaw'][Chunks[i]],marker='o',color='red')
-for i in Chunks_lanes:
-    plt.plot(df['time_ms'][i],df['Yaw'][i],marker='o',color='blue')
-    plt.plot(df['time_ms'][Chunks_lanes[i]],df['Yaw'][Chunks_lanes[i]],marker='o',color='yellow')
+#for i in Chunks_lanes:
+    #plt.plot(df['time_ms'][i],df['Yaw'][i],marker='o',color='blue')
+    #plt.plot(df['time_ms'][Chunks_lanes[i]],df['Yaw'][Chunks_lanes[i]],marker='o',color='yellow')
 plt.grid(True)
 plt.tight_layout()
 plt.show()
