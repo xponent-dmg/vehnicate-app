@@ -11,7 +11,7 @@ import cv2
 model = YOLO(r"C:\Users\pragy\Downloads\new-best.pt")
 
 
-video_path = r"C:\Users\pragy\prototype\ml_models\assets\30thJuly_trial.mp4"
+video_path = r"C:\Users\pragy\prototype\ml_models\assets\cumta_demo_video.mp4"
 cap = cv2.VideoCapture(video_path)
 
 save_output = True
@@ -38,7 +38,14 @@ while cap.isOpened():
     )
     annotated_frame = results[0].plot() 
 
+    target_width = width // 2
+    target_height = height // 2
+
+# Resize the annotated frame
+    resized_frame = cv2.resize(annotated_frame, (target_width, target_height))
+
     cv2.imshow('YOLOv8 Video Detection', annotated_frame)
+    cv2.imshow('YOLOv8 Video Detection', resized_frame)
 
     if save_output:
         out.write(annotated_frame)

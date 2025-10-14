@@ -10,7 +10,7 @@ height, width = img.shape[:2]
 
 results = model.predict(
         source=img,
-        imgsz=(width, height),  
+        imgsz=(height,width),  
         rect=True               
     )
 
