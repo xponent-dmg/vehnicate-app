@@ -15,10 +15,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int selectedIndex = 0;
   final GlobalKey<MapPageState> _mapPageKey = GlobalKey<MapPageState>();
+  late final PageController _pageController;
 
   List<Color> colors = [Colors.purple, Colors.pink, Colors.amber[600]!, Colors.teal];
   void onTabChange(int index) {
     setState(() => selectedIndex = index);
+    _pageController.animateToPage(index, duration: const Duration(milliseconds: 250), curve: Curves.ease);
     if (index == 1) {
       _mapPageKey.currentState?.startLiveTracking();
     } else {
@@ -27,11 +29,32 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: selectedIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: selectedIndex,
-        children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() => selectedIndex = index);
+          if (index == 1) {
+            _mapPageKey.currentState?.startLiveTracking();
+          } else {
+            _mapPageKey.currentState?.stopLiveTracking();
+          }
+        },
+        // children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
+        children: [DashboardPage(), DashboardPage(), GaragePage(), DriveAnalyzePage()],
       ),
       bottomNavigationBar: GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
     );

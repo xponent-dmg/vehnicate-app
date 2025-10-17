@@ -2,11 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  static const String _prefsIsLoggedInKey = 'is_logged_in';
+  static const String _prefsUidKey = 'uid';
+  static const String _prefsEmailKey = 'email';
 
   // Get current user
   firebase.User? get currentUser => _auth.currentUser;
@@ -22,6 +26,11 @@ class AuthService {
 
       // Log analytics event for successful login
       await _analytics.logLogin(loginMethod: 'email');
+
+      // Persist login state
+      if (result.user != null) {
+        await _persistLogin(result.user!);
+      }
 
       print('Email sign in successful');
       return result;
@@ -45,6 +54,11 @@ class AuthService {
 
       // Log analytics event for successful sign up
       await _analytics.logSignUp(signUpMethod: 'email');
+
+      // Persist login state
+      if (result.user != null) {
+        await _persistLogin(result.user!);
+      }
 
       return result;
     } on firebase.FirebaseAuthException catch (e) {
@@ -80,13 +94,10 @@ class AuthService {
       if (result.user != null) {
         try {
           final supabase = Supabase.instance.client;
-          
+
           // Check if user exists in Supabase
-          final existingUser = await supabase
-              .from('userdetails')
-              .select()
-              .eq('firebaseuid', result.user!.uid)
-              .maybeSingle();
+          final existingUser =
+              await supabase.from('userdetails').select().eq('firebaseuid', result.user!.uid).maybeSingle();
 
           if (existingUser == null) {
             // Create new user in Supabase
@@ -110,6 +121,11 @@ class AuthService {
 
       // Log analytics event for successful Google sign in
       await _analytics.logLogin(loginMethod: 'google');
+
+      // Persist login state
+      if (result.user != null) {
+        await _persistLogin(result.user!);
+      }
 
       print('Google sign in successful: ${result.user?.email}');
       return result;
@@ -138,6 +154,9 @@ class AuthService {
       print('Google sign out completed');
       await _auth.signOut();
       print('Firebase auth sign out completed');
+
+      // Clear persisted login state
+      await _clearPersistedLogin();
     } catch (e) {
       print('SignOut error: $e'); // Debug print
       throw Exception('Failed to sign out: $e');
@@ -183,6 +202,33 @@ class AuthService {
         return 'An account already exists with a different sign-in method.';
       default:
         return 'An error occurred: ${e.message ?? e.code}';
+    }
+  }
+
+  Future<void> _persistLogin(firebase.User user) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_prefsIsLoggedInKey, true);
+      await prefs.setString(_prefsUidKey, user.uid);
+      final email = user.email;
+      if (email != null) {
+        await prefs.setString(_prefsEmailKey, email);
+      }
+    } catch (e) {
+      // Non-fatal: do not block login flow on prefs failure
+      print('Persist login failed: $e');
+    }
+  }
+
+  Future<void> _clearPersistedLogin() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_prefsIsLoggedInKey);
+      await prefs.remove(_prefsUidKey);
+      await prefs.remove(_prefsEmailKey);
+    } catch (e) {
+      // Non-fatal
+      print('Clearing persisted login failed: $e');
     }
   }
 }
