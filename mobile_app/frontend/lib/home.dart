@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/dashboard.dart';
-import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
-import 'package:vehnicate_frontend/Pages/garage.dart';
-import 'package:vehnicate_frontend/Pages/map_page.dart';
+import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
+import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
+import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
+import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
 
 class Home extends StatefulWidget {

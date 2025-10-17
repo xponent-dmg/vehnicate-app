@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:vehnicate_frontend/Pages/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 class GnavBar extends StatelessWidget {
   GnavBar({super.key, required this.selectedIndex, required this.onTabChange});

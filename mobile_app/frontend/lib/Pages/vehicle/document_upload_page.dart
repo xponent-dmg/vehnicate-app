@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 // ignore: unused_import
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 

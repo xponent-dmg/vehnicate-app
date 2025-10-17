@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/dashboard.dart';
-import 'package:vehnicate_frontend/Pages/drive_analyze_page.dart';
-import 'package:vehnicate_frontend/Pages/edit_profile_page.dart';
+import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
+import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
+import 'package:vehnicate_frontend/Pages/profile/edit_profile_page.dart';
 
-import 'package:vehnicate_frontend/Pages/garage.dart';
-import 'package:vehnicate_frontend/Pages/document_upload_page.dart';
-import 'package:vehnicate_frontend/Pages/login_page.dart';
-import 'package:vehnicate_frontend/Pages/map_page.dart';
-import 'package:vehnicate_frontend/Pages/profile_page.dart';
-import 'package:vehnicate_frontend/Pages/splash_page.dart';
-import 'package:vehnicate_frontend/Pages/signup_page.dart';
-import 'package:vehnicate_frontend/Pages/imu_collector_screen.dart';
-import 'package:vehnicate_frontend/Pages/user_details_page.dart';
+import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
+import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
+import 'package:vehnicate_frontend/Pages/auth/login_page.dart';
+import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
+import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
+import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
+import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
+import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
 import 'package:vehnicate_frontend/services/camera_service.dart';
 

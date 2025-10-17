@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Pages/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
