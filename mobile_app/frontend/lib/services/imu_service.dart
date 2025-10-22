@@ -16,10 +16,12 @@ class ImuService {
   final List<Map<String, dynamic>> _imuBuffer = [];
   StreamSubscription? _accelSub;
   StreamSubscription? _gyroSub;
+  StreamSubscription? _magSub;
   StreamSubscription<Position>? _positionSub;
   Timer? _uploadTimer;
 
   double? _gx, _gy, _gz;
+  double? _mx, _my, _mz;
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _speed = 0.0;
@@ -86,6 +88,13 @@ class ImuService {
       _gz = event.z;
     });
 
+    // Magnetometer subscription
+    _magSub = magnetometerEvents.listen((MagnetometerEvent event) {
+      _mx = event.x;
+      _my = event.y;
+      _mz = event.z;
+    });
+
     if (useUserAccelerometer) {
       _accelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
@@ -98,6 +107,9 @@ class ImuService {
           'gyrox': _gx ?? 0,
           'gyroy': _gy ?? 0,
           'gyroz': _gz ?? 0,
+          'magx': _mx ?? 0,
+          'magy': _my ?? 0,
+          'magz': _mz ?? 0,
           'latitude': pos?.latitude ?? _latitude,
           'longitude': pos?.longitude ?? _longitude,
           'speed': pos?.speed ?? _speed,
@@ -118,6 +130,9 @@ class ImuService {
           'gyrox': _gx ?? 0,
           'gyroy': _gy ?? 0,
           'gyroz': _gz ?? 0,
+          'magx': _mx ?? 0,
+          'magy': _my ?? 0,
+          'magz': _mz ?? 0,
           'latitude': pos?.latitude ?? _latitude,
           'longitude': pos?.longitude ?? _longitude,
           'speed': pos?.speed ?? _speed,
@@ -160,6 +175,7 @@ class ImuService {
     print('[IMU_DEBUG][stop] Called');
     _accelSub?.cancel();
     _gyroSub?.cancel();
+    _magSub?.cancel();
     _positionSub?.cancel();
     _uploadTimer?.cancel();
     _isCollecting = false;
@@ -201,6 +217,9 @@ class ImuService {
               'gyrox': item['gyrox'],
               'gyroy': item['gyroy'],
               'gyroz': item['gyroz'],
+              'magx': item['magx'],
+              'magy': item['magy'],
+              'magz': item['magz'],
               'latitude': item['latitude'],
               'longitude': item['longitude'],
               'speed': item['speed'],
@@ -234,6 +253,7 @@ class ImuService {
   void dispose() {
     _accelSub?.cancel();
     _gyroSub?.cancel();
+    _magSub?.cancel();
     _positionSub?.cancel();
     _uploadTimer?.cancel();
   }
