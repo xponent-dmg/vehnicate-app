@@ -17,11 +17,13 @@ class ImuService {
   StreamSubscription? _accelSub;
   StreamSubscription? _gyroSub;
   StreamSubscription? _magSub;
+  StreamSubscription? _userAccelSub;
   StreamSubscription<Position>? _positionSub;
   Timer? _uploadTimer;
 
   double? _gx, _gy, _gz;
   double? _mx, _my, _mz;
+  double? _uax, _uay, _uaz;
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _speed = 0.0;
@@ -95,6 +97,13 @@ class ImuService {
       _mz = event.z;
     });
 
+    // User-accelerometer subscription (acceleration without gravity)
+    _userAccelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      _uax = event.x;
+      _uay = event.y;
+      _uaz = event.z;
+    });
+
     if (useUserAccelerometer) {
       _accelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
@@ -110,6 +119,9 @@ class ImuService {
           'magx': _mx ?? 0,
           'magy': _my ?? 0,
           'magz': _mz ?? 0,
+          'useraccelx': _uax ?? 0,
+          'useraccely': _uay ?? 0,
+          'useraccelz': _uaz ?? 0,
           'latitude': pos?.latitude ?? _latitude,
           'longitude': pos?.longitude ?? _longitude,
           'speed': pos?.speed ?? _speed,
@@ -133,6 +145,9 @@ class ImuService {
           'magx': _mx ?? 0,
           'magy': _my ?? 0,
           'magz': _mz ?? 0,
+          'useraccelx': _uax ?? 0,
+          'useraccely': _uay ?? 0,
+          'useraccelz': _uaz ?? 0,
           'latitude': pos?.latitude ?? _latitude,
           'longitude': pos?.longitude ?? _longitude,
           'speed': pos?.speed ?? _speed,
@@ -176,6 +191,7 @@ class ImuService {
     _accelSub?.cancel();
     _gyroSub?.cancel();
     _magSub?.cancel();
+    _userAccelSub?.cancel();
     _positionSub?.cancel();
     _uploadTimer?.cancel();
     _isCollecting = false;
@@ -220,6 +236,9 @@ class ImuService {
               'magx': item['magx'],
               'magy': item['magy'],
               'magz': item['magz'],
+              'useraccelx': item['useraccelx'],
+              'useraccely': item['useraccely'],
+              'useraccelz': item['useraccelz'],
               'latitude': item['latitude'],
               'longitude': item['longitude'],
               'speed': item['speed'],
@@ -254,6 +273,7 @@ class ImuService {
     _accelSub?.cancel();
     _gyroSub?.cancel();
     _magSub?.cancel();
+    _userAccelSub?.cancel();
     _positionSub?.cancel();
     _uploadTimer?.cancel();
   }
