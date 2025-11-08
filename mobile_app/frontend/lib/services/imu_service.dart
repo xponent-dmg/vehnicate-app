@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/services/background_service.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuService {
   final SupabaseClient _supabase;
@@ -79,10 +81,17 @@ class ImuService {
     print('[IMU_DEBUG][start] Vehicle ID: $vehicleId');
     _isCollecting = true;
     this.onDataCountUpdate = onDataCountUpdate;
+    
+    // Enable wakelock to keep device awake during data collection
+    await WakelockPlus.enable();
+    
+    // Start background service
+    await BackgroundServiceManager.startService();
+    
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('📱 Started sensor data collection'),
+        content: Text('📱 Started sensor data collection (background mode enabled)'),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       ),
@@ -214,6 +223,10 @@ class ImuService {
     _uploadTimer?.cancel();
     _isCollecting = false;
     _lastSampleTime = null; // Reset throttle timer
+    
+    // Disable wakelock and stop background service
+    await WakelockPlus.disable();
+    await BackgroundServiceManager.stopService();
 
     if (_imuBuffer.isNotEmpty) {
       final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
