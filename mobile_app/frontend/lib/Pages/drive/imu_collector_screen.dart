@@ -42,7 +42,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   // Camera processing state
   int _lastProcessedMs = 0;
-  static const int _throttleMs = 333; // ~3 fps
+  static const int _throttleMs = 20; // ~50ps
   late Directory _cacheDir;
   late Directory _framesDir;
   final List<_FrameRecord> _pendingFrames = <_FrameRecord>[];
