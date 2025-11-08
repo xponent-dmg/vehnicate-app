@@ -31,6 +31,10 @@ class ImuService {
   bool _isCollecting = false;
   bool get isCollecting => _isCollecting;
 
+  // Throttling: Only collect data at 3 samples per second (every ~333ms)
+  DateTime? _lastSampleTime;
+  static const int _sampleIntervalMs = 333; // ~3 samples per second
+
   // Data count tracking
   int _processedCount = 0;
   int _uploadedCount = 0;
@@ -106,6 +110,13 @@ class ImuService {
 
     if (useUserAccelerometer) {
       _accelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+        // Throttle to 3 samples per second
+        final now = DateTime.now();
+        if (_lastSampleTime != null && now.difference(_lastSampleTime!).inMilliseconds < _sampleIntervalMs) {
+          return; // Skip this event
+        }
+        _lastSampleTime = now;
+
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
         final imuData = {
           'vehicleid': vehicleId,
@@ -132,6 +143,13 @@ class ImuService {
       });
     } else {
       _accelSub = accelerometerEvents.listen((AccelerometerEvent event) {
+        // Throttle to 3 samples per second
+        final now = DateTime.now();
+        if (_lastSampleTime != null && now.difference(_lastSampleTime!).inMilliseconds < _sampleIntervalMs) {
+          return; // Skip this event
+        }
+        _lastSampleTime = now;
+
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
         final imuData = {
           'vehicleid': context.read<VehicleProvider>().vehicleId,
@@ -195,6 +213,7 @@ class ImuService {
     _positionSub?.cancel();
     _uploadTimer?.cancel();
     _isCollecting = false;
+    _lastSampleTime = null; // Reset throttle timer
 
     if (_imuBuffer.isNotEmpty) {
       final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
