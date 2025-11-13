@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/services/background_service.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuService {
   final SupabaseClient _supabase;
@@ -16,16 +18,24 @@ class ImuService {
   final List<Map<String, dynamic>> _imuBuffer = [];
   StreamSubscription? _accelSub;
   StreamSubscription? _gyroSub;
+  StreamSubscription? _magSub;
+  StreamSubscription? _userAccelSub;
   StreamSubscription<Position>? _positionSub;
   Timer? _uploadTimer;
 
   double? _gx, _gy, _gz;
+  double? _mx, _my, _mz;
+  double? _uax, _uay, _uaz;
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _speed = 0.0;
 
   bool _isCollecting = false;
   bool get isCollecting => _isCollecting;
+
+  // Throttling: Only collect data at 3 samples per second (every ~333ms)
+  DateTime? _lastSampleTime;
+  static const int _sampleIntervalMs = 333; // ~3 samples per second
 
   // Data count tracking
   int _processedCount = 0;
@@ -71,10 +81,17 @@ class ImuService {
     print('[IMU_DEBUG][start] Vehicle ID: $vehicleId');
     _isCollecting = true;
     this.onDataCountUpdate = onDataCountUpdate;
+    
+    // Enable wakelock to keep device awake during data collection
+    await WakelockPlus.enable();
+    
+    // Start background service
+    await BackgroundServiceManager.startService();
+    
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('📱 Started sensor data collection'),
+        content: Text('📱 Started sensor data collection (background mode enabled)'),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
       ),
@@ -86,8 +103,29 @@ class ImuService {
       _gz = event.z;
     });
 
+    // Magnetometer subscription
+    _magSub = magnetometerEvents.listen((MagnetometerEvent event) {
+      _mx = event.x;
+      _my = event.y;
+      _mz = event.z;
+    });
+
+    // User-accelerometer subscription (acceleration without gravity)
+    _userAccelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      _uax = event.x;
+      _uay = event.y;
+      _uaz = event.z;
+    });
+
     if (useUserAccelerometer) {
       _accelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+        // Throttle to 3 samples per second
+        final now = DateTime.now();
+        if (_lastSampleTime != null && now.difference(_lastSampleTime!).inMilliseconds < _sampleIntervalMs) {
+          return; // Skip this event
+        }
+        _lastSampleTime = now;
+
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
         final imuData = {
           'vehicleid': vehicleId,
@@ -98,6 +136,12 @@ class ImuService {
           'gyrox': _gx ?? 0,
           'gyroy': _gy ?? 0,
           'gyroz': _gz ?? 0,
+          'magx': _mx ?? 0,
+          'magy': _my ?? 0,
+          'magz': _mz ?? 0,
+          'useraccelx': _uax ?? 0,
+          'useraccely': _uay ?? 0,
+          'useraccelz': _uaz ?? 0,
           'latitude': pos?.latitude ?? _latitude,
           'longitude': pos?.longitude ?? _longitude,
           'speed': pos?.speed ?? _speed,
@@ -108,6 +152,13 @@ class ImuService {
       });
     } else {
       _accelSub = accelerometerEvents.listen((AccelerometerEvent event) {
+        // Throttle to 3 samples per second
+        final now = DateTime.now();
+        if (_lastSampleTime != null && now.difference(_lastSampleTime!).inMilliseconds < _sampleIntervalMs) {
+          return; // Skip this event
+        }
+        _lastSampleTime = now;
+
         final Position? pos = getCurrentPosition != null ? getCurrentPosition() : null;
         final imuData = {
           'vehicleid': context.read<VehicleProvider>().vehicleId,
@@ -118,6 +169,12 @@ class ImuService {
           'gyrox': _gx ?? 0,
           'gyroy': _gy ?? 0,
           'gyroz': _gz ?? 0,
+          'magx': _mx ?? 0,
+          'magy': _my ?? 0,
+          'magz': _mz ?? 0,
+          'useraccelx': _uax ?? 0,
+          'useraccely': _uay ?? 0,
+          'useraccelz': _uaz ?? 0,
           'latitude': pos?.latitude ?? _latitude,
           'longitude': pos?.longitude ?? _longitude,
           'speed': pos?.speed ?? _speed,
@@ -160,9 +217,16 @@ class ImuService {
     print('[IMU_DEBUG][stop] Called');
     _accelSub?.cancel();
     _gyroSub?.cancel();
+    _magSub?.cancel();
+    _userAccelSub?.cancel();
     _positionSub?.cancel();
     _uploadTimer?.cancel();
     _isCollecting = false;
+    _lastSampleTime = null; // Reset throttle timer
+    
+    // Disable wakelock and stop background service
+    await WakelockPlus.disable();
+    await BackgroundServiceManager.stopService();
 
     if (_imuBuffer.isNotEmpty) {
       final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
@@ -201,6 +265,12 @@ class ImuService {
               'gyrox': item['gyrox'],
               'gyroy': item['gyroy'],
               'gyroz': item['gyroz'],
+              'magx': item['magx'],
+              'magy': item['magy'],
+              'magz': item['magz'],
+              'useraccelx': item['useraccelx'],
+              'useraccely': item['useraccely'],
+              'useraccelz': item['useraccelz'],
               'latitude': item['latitude'],
               'longitude': item['longitude'],
               'speed': item['speed'],
@@ -234,6 +304,8 @@ class ImuService {
   void dispose() {
     _accelSub?.cancel();
     _gyroSub?.cancel();
+    _magSub?.cancel();
+    _userAccelSub?.cancel();
     _positionSub?.cancel();
     _uploadTimer?.cancel();
   }

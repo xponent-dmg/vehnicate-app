@@ -44,7 +44,7 @@ class _CameraServiceState extends State<CameraService> {
   static const int _targetWidth = 224;
   static const int _targetHeight = 224;
   static const int _webpQuality = 70; // aim ~10-20KB
-  static const int _batchIntervalSeconds = 10;
+  // static const int _batchIntervalSeconds = 10;
   static const int _batchSize = 30; // ~10s * 3fps
 
   // Supabase config

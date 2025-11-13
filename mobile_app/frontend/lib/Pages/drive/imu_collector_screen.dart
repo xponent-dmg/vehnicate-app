@@ -42,7 +42,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   // Camera processing state
   int _lastProcessedMs = 0;
-  static const int _throttleMs = 333; // ~3 fps
+  static const int _throttleMs = 20; // ~50ps
   late Directory _cacheDir;
   late Directory _framesDir;
   final List<_FrameRecord> _pendingFrames = <_FrameRecord>[];
@@ -446,12 +446,54 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   Widget build(BuildContext context) {
     print('[IMU_DEBUG][build] Building widget');
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("IMU + Camera Data Collector"),
-        backgroundColor: Colors.deepPurple[600],
-        foregroundColor: Colors.white,
-      ),
+    return PopScope(
+      canPop: !isCollecting,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) {
+          return;
+        }
+        
+        // Show confirmation dialog if collection is active
+        if (isCollecting) {
+          final shouldPop = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Stop Data Collection?'),
+                content: const Text(
+                  'Data transmission is currently active. Going back will stop the transmission. Do you want to continue?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                    child: const Text('Stop & Go Back'),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (shouldPop == true && mounted) {
+            stopCollection();
+            if (mounted) {
+              Navigator.of(context).pop();
+            }
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("IMU + Camera Data Collector"),
+          backgroundColor: Colors.deepPurple[600],
+          foregroundColor: Colors.white,
+        ),
       body: Column(
         children: [
           // Camera Preview
@@ -589,7 +631,8 @@ class _ImuCollectorState extends State<ImuCollector> {
           ),
         ],
       ),
-    );
+      ), // Close Scaffold
+    ); // Close PopScope
   }
 
   Widget _buildStatCard(String title, String processed, String uploaded) {
