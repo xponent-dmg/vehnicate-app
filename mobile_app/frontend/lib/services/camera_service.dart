@@ -7,6 +7,8 @@ import 'package:image/image.dart' as img;
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 // A single, production-ready widget that:
 // - Streams camera frames at low resolution
@@ -44,15 +46,19 @@ class _CameraServiceState extends State<CameraService> {
   static const int _targetWidth = 224;
   static const int _targetHeight = 224;
   static const int _webpQuality = 70; // aim ~10-20KB
-  // static const int _batchIntervalSeconds = 10;
-  static const int _batchSize = 30; // ~10s * 3fps
+  static const int _batchIntervalSeconds = 5;
 
   // Supabase config
   final SupabaseClient _supabase = Supabase.instance.client;
-  final String _bucketName = 'vehicle_ride_img'; // TODO: set your bucket name
-  final String _imageTable = 'image_data'; // TODO: set your table name
-  final String _deviceId = 'dummy-device-id'; // TODO: inject real device id
+  final String _bucketName = 'vehicle_ride_img';
+  final String _imageTable = 'image_data';
   final String _currentImuBatchId = 'imu-batch-dummy'; // TODO: integrate with your IMU batch id source
+
+  // Get vehicle ID dynamically from provider
+  String _getVehicleId() {
+    final vehicleId = context.read<VehicleProvider>().vehicleId;
+    return vehicleId?.toString() ?? 'unknown';
+  }
 
   // UI counters
   int _processedCount = 0;
@@ -68,7 +74,6 @@ class _CameraServiceState extends State<CameraService> {
     try {
       await _prepareCacheDirs();
       await _initCamera();
-      // _startBatchTimer();
     } catch (e, st) {
       debugPrint('Init error: $e\n$st');
       _showSnack('Init failed: $e');
@@ -89,7 +94,7 @@ class _CameraServiceState extends State<CameraService> {
           filePath: file.path,
           timestampMs: _extractTimestampFromFilename(file.path) ?? DateTime.now().millisecondsSinceEpoch,
           imuBatchId: _currentImuBatchId,
-          deviceId: _deviceId,
+          deviceId: _getVehicleId(),
         ),
       );
     }
@@ -115,12 +120,12 @@ class _CameraServiceState extends State<CameraService> {
     // Don't auto-start the image stream - wait for user to click start button
   }
 
-  // void _startBatchTimer() {
-  //   _batchTimer?.cancel();
-  //   _batchTimer = Timer.periodic(const Duration(seconds: _batchIntervalSeconds), (_) {
-  //     _uploadBatch();
-  //   });
-  // }
+  void _startBatchTimer() {
+    _batchTimer?.cancel();
+    _batchTimer = Timer.periodic(const Duration(seconds: _batchIntervalSeconds), (_) async {
+      await _uploadBatch();
+    });
+  }
 
   void _onCameraImage(CameraImage cameraImage) async {
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -134,7 +139,7 @@ class _CameraServiceState extends State<CameraService> {
       final String filePath = await _saveLocally(webpBytes, now);
 
       _pendingFrames.add(
-        _FrameRecord(filePath: filePath, timestampMs: now, imuBatchId: _currentImuBatchId, deviceId: _deviceId),
+        _FrameRecord(filePath: filePath, timestampMs: now, imuBatchId: _currentImuBatchId, deviceId: _getVehicleId()),
       );
 
       _processedCount++;
@@ -214,11 +219,12 @@ class _CameraServiceState extends State<CameraService> {
   Future<void> _uploadBatch() async {
     if (_pendingFrames.isEmpty) return;
 
-    final int count = _pendingFrames.length < _batchSize ? _pendingFrames.length : _batchSize;
-    final List<_FrameRecord> batch = List<_FrameRecord>.from(_pendingFrames.take(count));
+    // Upload all pending frames (no artificial limit)
+    final List<_FrameRecord> batch = List<_FrameRecord>.from(_pendingFrames);
     if (batch.isEmpty) return;
 
     debugPrint('Uploading batch: ${batch.length} frames');
+    _showSnack('📤 Uploading ${batch.length} frames...');
     try {
       // 1) Upload images to Supabase Storage
       final List<Map<String, dynamic>> rows = <Map<String, dynamic>>[];
@@ -229,12 +235,18 @@ class _CameraServiceState extends State<CameraService> {
 
         final String publicUrl = _supabase.storage.from(_bucketName).getPublicUrl(storagePath);
 
+        final vehicleIdStr = _getVehicleId();
+        final vehicleId = int.tryParse(vehicleIdStr);
+        if (vehicleId == null) {
+          debugPrint('Invalid vehicle ID: $vehicleIdStr, skipping frame');
+          continue;
+        }
+
         rows.add({
           // id: leave out to use DEFAULT gen (UUID) on DB side
           'timestamp': DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toUtc().toIso8601String(),
           'file_url': publicUrl,
-          'vehicle_id': 8,
-          // Add more fields as needed (e.g., device_id, imu_batch_id) if your schema supports it
+          'vehicle_id': vehicleId,
           'device_id': rec.deviceId,
           'imu_batch_id': rec.imuBatchId,
         });
@@ -258,16 +270,35 @@ class _CameraServiceState extends State<CameraService> {
         }
       }
       debugPrint('Batch upload complete. Uploaded so far: $_uploadedCount');
+      _showSnack('✅ Uploaded ${batch.length} frames successfully');
+    } on PostgrestException catch (e) {
+      // Handle specific Postgres errors
+      if (e.code == '23505') {
+        // Unique violation - duplicate record, safe to remove from queue
+        debugPrint('Duplicate records detected (${e.code}), removing from queue');
+        for (int i = 0; i < batch.length; i++) {
+          final _FrameRecord rec = batch[i];
+          try {
+            _pendingFrames.remove(rec);
+            final f = File(rec.filePath);
+            if (await f.exists()) {
+              await f.delete();
+            }
+          } catch (cleanupErr) {
+            debugPrint('Cleanup error after duplicate: $cleanupErr');
+          }
+        }
+        _showSnack('Skipped duplicate records');
+      } else {
+        // Other database errors - leave files in cache for retry
+        debugPrint('Database error (${e.code}): ${e.message}\n${e.details}');
+        _showSnack('Upload failed: ${e.message}');
+      }
     } catch (e, st) {
       // Leave files in cache for retry on next tick
       debugPrint('Batch upload error: $e\n$st');
       _showSnack('Upload failed: $e');
     }
-  }
-
-  Future<void> _stopUploads() async {
-    _batchTimer?.cancel();
-    _showSnack('Uploads stopped');
   }
 
   Future<void> _clearCache() async {
@@ -364,7 +395,9 @@ class _CameraServiceState extends State<CameraService> {
                           : () async {
                             try {
                               await _controller?.startImageStream(_onCameraImage);
+                              _startBatchTimer();
                               setState(() => _isStreaming = true);
+                              _showSnack('📱 Started camera streaming (auto-upload every ${_batchIntervalSeconds}s)');
                             } catch (e) {
                               debugPrint('Start stream error: $e');
                               _showSnack('Start stream error: $e');
@@ -380,7 +413,9 @@ class _CameraServiceState extends State<CameraService> {
                           : () async {
                             try {
                               await _controller?.stopImageStream();
+                              _batchTimer?.cancel();
                               setState(() => _isStreaming = false);
+                              _showSnack('⏹️ Stopped camera streaming');
                             } catch (e) {
                               debugPrint('Stop stream error: $e');
                               _showSnack('Stop stream error: $e');
@@ -394,25 +429,14 @@ class _CameraServiceState extends State<CameraService> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await _uploadBatch();
-                  },
-                  child: const Text('Upload Now'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _stopUploads();
-                  },
-                  child: const Text('Stop Upload'),
-                ),
-              ],
+            child: ElevatedButton(
+              onPressed: () async {
+                await _uploadBatch();
+              },
+              child: const Text('Upload Now (Manual)'),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
               await _clearCache();

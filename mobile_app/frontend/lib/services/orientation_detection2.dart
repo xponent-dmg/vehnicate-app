@@ -1,11 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:motion_sensors/motion_sensors.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vector_math/vector_math_64.dart';
-
-
 
 class OrientationDetection2 extends StatefulWidget {
   const OrientationDetection2({super.key});
@@ -38,49 +36,53 @@ class _OrientationDetection2State extends State<OrientationDetection2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Vehicle Orientation")),
-        body: Center(
-          child: data == null
-              ? const Text("Waiting for sensor data…")
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Roll  : ${data!.roll.toStringAsFixed(2)}°"),
-                    Text("Pitch : ${data!.pitch.toStringAsFixed(2)}°"),
-                    Text("Yaw   : ${data!.yaw.toStringAsFixed(2)}°"),
-                    const SizedBox(height: 20),
-                    const Text("Rotation Matrix (phone → vehicle):"),
-                    Text(data!.rotationMatrix.toString()),
-                  ],
-                ),
-        ),
+      appBar: AppBar(title: const Text("Vehicle Orientation")),
+      body: Center(
+        child: data == null
+            ? const Text("Waiting for sensor data…")
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Roll  : ${data!.roll.toStringAsFixed(2)}°"),
+                  Text("Pitch : ${data!.pitch.toStringAsFixed(2)}°"),
+                  Text("Yaw   : ${data!.yaw.toStringAsFixed(2)}°"),
+                  const SizedBox(height: 20),
+                  const Text("Rotation Matrix (phone → vehicle):"),
+                  Text(data!.rotationMatrix.toString()),
+                ],
+              ),
+      ),
     );
   }
 }
 
-
-
 class VehicleOrientationService {
-  // Streams
-  final _vehicleOrientationController = StreamController<VehicleOrientation>.broadcast();
-  Stream<VehicleOrientation> get vehicleOrientationStream => _vehicleOrientationController.stream;
+  // Output stream
+  final _vehicleOrientationController =
+      StreamController<VehicleOrientation>.broadcast();
+  Stream<VehicleOrientation> get vehicleOrientationStream =>
+      _vehicleOrientationController.stream;
 
-  StreamSubscription? _orientationSub;
+  // Sensor subscriptions
+  StreamSubscription<AccelerometerEvent>? _accelSub;
+  StreamSubscription<MagnetometerEvent>? _magSub;
 
-  // -------------------------
-  // Mounting orientation
-  // -------------------------
-  // Assuming phone is held vertically on dashboard:
+  // Latest sensor samples
+  Vector3? _gravity; // low-pass filtered accelerometer (approximates gravity)
+  Vector3? _mag;     // low-pass filtered magnetometer
+
+  // Throttle
+  DateTime _lastEmit = DateTime.fromMillisecondsSinceEpoch(0);
+  final Duration _emitInterval = const Duration(milliseconds: 50);
+
+  // Mounting matrix (phone → vehicle)
   // Phone X → Vehicle Y
   // Phone Y → Vehicle Z
   // Phone Z → Vehicle X
   //
-  // This becomes a fixed matrix:
-  //
   // [ 0  0  1 ]   Phone Z -> Vehicle X
   // [ 1  0  0 ]   Phone X -> Vehicle Y
   // [ 0  1  0 ]   Phone Y -> Vehicle Z
-  //
   final Matrix3 R_mount = Matrix3(
     0, 0, 1,
     1, 0, 0,
@@ -88,92 +90,122 @@ class VehicleOrientationService {
   );
 
   void start() {
-    // 50ms update interval (in microseconds, per motion_sensors API)
-    motionSensors.absoluteOrientationUpdateInterval = 50000;
+    // Low-pass parameters
+    const double alphaAccel = 0.90; // higher = smoother gravity
+    const double alphaMag = 0.90;
 
-    _orientationSub = motionSensors.absoluteOrientation.listen((event) {
-      // motion_sensors AbsoluteOrientationEvent provides yaw, pitch, roll in radians
-      // Build phone-frame rotation matrix using Z-Y-X (yaw-pitch-roll) convention
-      final Matrix3 R_phone = _eulerToMatrix(event.roll, event.pitch, event.yaw);
+    _accelSub = accelerometerEvents.listen((e) {
+      // Low-pass filter accelerometer to approximate gravity vector
+      final a = Vector3(e.x, e.y, e.z);
+      _gravity = _lowPass(_gravity, a, alphaAccel);
 
-      // Convert phone → vehicle frame
-      final Matrix3 R_vehicle = R_mount * R_phone;
+      _maybeEmit();
+    });
 
-      // Convert to roll, pitch, yaw (degrees) in the vehicle frame
-      final angles = _matrixToEuler(R_vehicle);
+    _magSub = magnetometerEvents.listen((e) {
+      final m = Vector3(e.x, e.y, e.z);
+      _mag = _lowPass(_mag, m, alphaMag);
 
-      // Add to stream
-      _vehicleOrientationController.add(
-        VehicleOrientation(
-          roll: angles.roll,
-          pitch: angles.pitch,
-          yaw: angles.yaw,
-          rotationMatrix: R_vehicle,
-        ),
-      );
+      _maybeEmit();
     });
   }
 
   void stop() {
-    _orientationSub?.cancel();
+    _accelSub?.cancel();
+    _magSub?.cancel();
     _vehicleOrientationController.close();
   }
 
-  // ----------------------------------------------------------
-  // Euler (roll, pitch, yaw in radians, X-Y-Z) → Matrix3 using R = Rz(yaw) * Ry(pitch) * Rx(roll)
-  // ----------------------------------------------------------
-  Matrix3 _eulerToMatrix(double roll, double pitch, double yaw) {
-    final cr = cos(roll);
-    final sr = sin(roll);
-    final cp = cos(pitch);
-    final sp = sin(pitch);
-    final cy = cos(yaw);
-    final sy = sin(yaw);  
-
-    // Row-major elements
-    final m00 = cy * cp;
-    final m01 = cy * sp * sr - sy * cr;
-    final m02 = cy * sp * cr + sy * sr;
-
-    final m10 = sy * cp;
-    final m11 = sy * sp * sr + cy * cr;
-    final m12 = sy * sp * cr - cy * sr;
-
-    final m20 = -sp;
-    final m21 = cp * sr;
-    final m22 = cp * cr;
-
-    final m = Matrix3.zero();
-    // Matrix3 stores values in column-major order
-    m.setEntry(0, 0, m00); m.setEntry(0, 1, m01); m.setEntry(0, 2, m02);
-    m.setEntry(1, 0, m10); m.setEntry(1, 1, m11); m.setEntry(1, 2, m12);
-    m.setEntry(2, 0, m20); m.setEntry(2, 1, m21); m.setEntry(2, 2, m22);
-    return m;
+  Vector3 _lowPass(Vector3? prev, Vector3 input, double alpha) {
+    if (prev == null) return input;
+    return Vector3(
+      alpha * prev.x + (1 - alpha) * input.x,
+      alpha * prev.y + (1 - alpha) * input.y,
+      alpha * prev.z + (1 - alpha) * input.z,
+    );
   }
 
-  // ----------------------------------------------------------
-  // Matrix → Euler angles (roll, pitch, yaw)
-  // ----------------------------------------------------------
+  void _maybeEmit() {
+    // Need both gravity and magnetometer samples
+    if (_gravity == null || _mag == null) return;
+
+    final now = DateTime.now();
+    if (now.difference(_lastEmit) < _emitInterval) return;
+    _lastEmit = now;
+
+    final R_phone = _computeRotationMatrixFromAccelMag(_gravity!, _mag!);
+    if (R_phone == null) return; // degenerate case (e.g., zero field)
+
+    // Map phone → vehicle
+    final R_vehicle = R_mount * R_phone;
+
+    // Extract Euler angles (degrees) from vehicle rotation
+    final angles = _matrixToEuler(R_vehicle);
+
+    _vehicleOrientationController.add(
+      VehicleOrientation(
+        roll: angles.roll,
+        pitch: angles.pitch,
+        yaw: angles.yaw,
+        rotationMatrix: R_vehicle,
+      ),
+    );
+  }
+
+  // Build phone→world rotation matrix using tilt-compensated compass
+  // World axes: East (row 0), North (row 1), Up (row 2)
+  Matrix3? _computeRotationMatrixFromAccelMag(Vector3 accel, Vector3 mag) {
+    // Normalize gravity (Up approximates gravity direction sign; on most devices
+    // accelerometer at rest points upward ~ +9.8 so Up ≈ normalize(accel))
+    final g = accel.clone();
+    if (g.length2 == 0) return null;
+    g.normalize();
+
+    // Compute East = mag × g
+    final E = mag.clone()..cross(g);
+    final eLen2 = E.length2;
+    if (eLen2 < 1e-12) return null;
+    E.scale(1 / sqrt(eLen2));
+
+    // North = g × E
+    final N = g.clone()..cross(E);
+    final nLen2 = N.length2;
+    if (nLen2 < 1e-12) return null;
+    N.scale(1 / sqrt(nLen2));
+
+    final U = g; // Up
+
+    // Compose rotation matrix R (device → world), rows: E; N; U
+    final R = Matrix3.zero();
+    // row 0 = East
+    R.setEntry(0, 0, E.x); R.setEntry(0, 1, E.y); R.setEntry(0, 2, E.z);
+    // row 1 = North
+    R.setEntry(1, 0, N.x); R.setEntry(1, 1, N.y); R.setEntry(1, 2, N.z);
+    // row 2 = Up
+    R.setEntry(2, 0, U.x); R.setEntry(2, 1, U.y); R.setEntry(2, 2, U.z);
+
+    return R;
+  }
+
+  // Matrix → Euler angles (roll, pitch, yaw) using Z-Y-X convention
   EulerAngles _matrixToEuler(Matrix3 m) {
-    // Extract row-major elements via entry(row, col)
     final m00 = m.entry(0, 0);
     final m10 = m.entry(1, 0), m11 = m.entry(1, 1), m12 = m.entry(1, 2);
     final m20 = m.entry(2, 0), m21 = m.entry(2, 1), m22 = m.entry(2, 2);
 
-    // Using Z-Y-X (yaw-pitch-roll) decomposition
     final sy = -m20; // sin(pitch)
     final cy = sqrt(max(0.0, 1 - sy * sy));
 
     double roll, pitch, yaw;
     if (cy > 1e-6) {
-      roll  = atan2(m21, m22); // around X
-      pitch = asin(sy);        // around Y
-      yaw   = atan2(m10, m00); // around Z
+      roll = atan2(m21, m22); // X
+      pitch = asin(sy);       // Y
+      yaw = atan2(m10, m00);  // Z
     } else {
-      // Gimbal lock: pitch ~ ±90°
-      roll  = atan2(-m12, m11);
+      // Gimbal lock
+      roll = atan2(-m12, m11);
       pitch = asin(sy);
-      yaw   = 0.0;
+      yaw = 0.0;
     }
 
     return EulerAngles(
@@ -183,10 +215,6 @@ class VehicleOrientationService {
     );
   }
 }
-
-// ----------------------------------------------------------
-// Data classes
-// ----------------------------------------------------------
 
 class VehicleOrientation {
   final double roll;   // degrees
