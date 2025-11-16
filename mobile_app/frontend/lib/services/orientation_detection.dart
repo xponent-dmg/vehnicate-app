@@ -116,20 +116,20 @@ class _OrientationDetectorState extends State<OrientationDetector> {
       if (absPitch > absRoll) {
         // Pitch is dominant (phone is tilted forward/backward, Z-axis tilt)
         if (_pitch > THRESHOLD_PITCH_ROLL) {
-          _downDirection = 'Top Edge (Camera Side)';
-          _upDirection = 'Bottom Edge (Charging Port)';
+          _downDirection = 'Left Edge';
+          _upDirection = 'Right Edge';
         } else if (_pitch < -THRESHOLD_PITCH_ROLL) {
-          _downDirection = 'Bottom Edge (Charging Port)';
-          _upDirection = 'Top Edge (Camera Side)';
+          _downDirection = 'Right Edge';
+          _upDirection = 'Left Edge';
         }
       } else {
         // Roll is dominant (phone is tilted side-to-side, Y-axis tilt)
         if (_roll > THRESHOLD_PITCH_ROLL) {
-          _downDirection = 'Right Edge';
-          _upDirection = 'Left Edge';
+          _downDirection = 'Bottom Edge';
+          _upDirection = 'Top Edge';
         } else if (_roll < -THRESHOLD_PITCH_ROLL) {
-          _downDirection = 'Left Edge';
-          _upDirection = 'Right Edge';
+          _downDirection = 'Top Edge';
+          _upDirection = 'Bottom Edge';
         }
       }
     }
@@ -195,7 +195,7 @@ class _OrientationDetectorState extends State<OrientationDetector> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
         Text(direction, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
       ],
     );
@@ -225,7 +225,7 @@ class _OrientationDetectorState extends State<OrientationDetector> {
         const SizedBox(height: 10),
         const Text(
           '*Note: This method uses the Accelerometer only. For accurate Left/Right/North/South relative to the Earth (true "world-frame" directions), a full Sensor Fusion implementation using the Magnetometer and Gyroscope is required.',
-          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.white70),
+          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.black),
         ),
       ],
     );
@@ -237,7 +237,7 @@ class _OrientationDetectorState extends State<OrientationDetector> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16, color: Colors.white)),
+          Text(label, style: const TextStyle(fontSize: 16, color: Colors.black)),
           Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.lightBlueAccent)),
         ],
      )

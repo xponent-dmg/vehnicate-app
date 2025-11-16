@@ -35,7 +35,7 @@ class ImuService {
 
   // Throttling: Only collect data at 3 samples per second (every ~333ms)
   DateTime? _lastSampleTime;
-  static const int _sampleIntervalMs = 333; // ~3 samples per second
+  static const int _sampleIntervalMs = 20; // ~50 samples per second
 
   // Data count tracking
   int _processedCount = 0;

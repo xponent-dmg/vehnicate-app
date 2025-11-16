@@ -5,6 +5,7 @@ import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
 import 'package:vehnicate_frontend/services/orientation_detection.dart';
+import 'package:vehnicate_frontend/services/orientation_detection2.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -55,7 +56,7 @@ class _HomeState extends State<Home> {
           }
         },
         // children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
-        children: [DashboardPage(), OrientationDetector(), GaragePage(), DriveAnalyzePage()],
+        children: [DashboardPage(), OrientationDetection2(), GaragePage(), DriveAnalyzePage()],
       ),
       bottomNavigationBar: GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
     );
