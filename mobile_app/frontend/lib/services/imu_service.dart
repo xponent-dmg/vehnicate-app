@@ -33,9 +33,10 @@ class ImuService {
   bool _isCollecting = false;
   bool get isCollecting => _isCollecting;
 
-  // Throttling: Only collect data at 3 samples per second (every ~333ms)
+  // Throttling: Only collect data at 50 samples per second (every ~20ms)
   DateTime? _lastSampleTime;
-  static const int _sampleIntervalMs = 333; // ~3 samples per second
+  static const int _sampleIntervalMs = 20; // ~50 samples per second
+  static const Duration _sensorInterval = Duration(milliseconds: 20); // Set sensor sampling rate
 
   // Data count tracking
   int _processedCount = 0;
@@ -97,32 +98,39 @@ class ImuService {
       ),
     );
 
-    _gyroSub = gyroscopeEvents.listen((GyroscopeEvent event) {
+    _gyroSub = gyroscopeEventStream(samplingPeriod: _sensorInterval).listen((GyroscopeEvent event) {
       _gx = event.x;
       _gy = event.y;
       _gz = event.z;
     });
 
     // Magnetometer subscription
-    _magSub = magnetometerEvents.listen((MagnetometerEvent event) {
+    _magSub = magnetometerEventStream(samplingPeriod: _sensorInterval).listen((MagnetometerEvent event) {
       _mx = event.x;
       _my = event.y;
       _mz = event.z;
     });
 
     // User-accelerometer subscription (acceleration without gravity)
-    _userAccelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+    _userAccelSub = userAccelerometerEventStream(samplingPeriod: _sensorInterval).listen((UserAccelerometerEvent event) {
       _uax = event.x;
       _uay = event.y;
       _uaz = event.z;
     });
 
     if (useUserAccelerometer) {
-      _accelSub = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-        // Throttle to 3 samples per second
+      _accelSub = userAccelerometerEventStream(samplingPeriod: _sensorInterval).listen((UserAccelerometerEvent event) {
+        // Throttle to 50 samples per second
         final now = DateTime.now();
-        if (_lastSampleTime != null && now.difference(_lastSampleTime!).inMilliseconds < _sampleIntervalMs) {
-          return; // Skip this event
+        if (_lastSampleTime != null) {
+          final elapsed = now.difference(_lastSampleTime!).inMilliseconds;
+          if (elapsed < _sampleIntervalMs) {
+            return; // Skip this event
+          }
+          // Debug: log actual sampling rate every 50 samples
+          if (_processedCount > 0 && _processedCount % 50 == 0) {
+            print('[IMU_DEBUG] Actual interval: ${elapsed}ms (target: ${_sampleIntervalMs}ms), Rate: ${(1000 / elapsed).toStringAsFixed(1)} Hz');
+          }
         }
         _lastSampleTime = now;
 
@@ -151,11 +159,18 @@ class ImuService {
         onDataCountUpdate?.call(_processedCount, _uploadedCount);
       });
     } else {
-      _accelSub = accelerometerEvents.listen((AccelerometerEvent event) {
-        // Throttle to 3 samples per second
+      _accelSub = accelerometerEventStream(samplingPeriod: _sensorInterval).listen((AccelerometerEvent event) {
+        // Throttle to 50 samples per second
         final now = DateTime.now();
-        if (_lastSampleTime != null && now.difference(_lastSampleTime!).inMilliseconds < _sampleIntervalMs) {
-          return; // Skip this event
+        if (_lastSampleTime != null) {
+          final elapsed = now.difference(_lastSampleTime!).inMilliseconds;
+          if (elapsed < _sampleIntervalMs) {
+            return; // Skip this event
+          }
+          // Debug: log actual sampling rate every 50 samples
+          if (_processedCount > 0 && _processedCount % 50 == 0) {
+            print('[IMU_DEBUG] Actual interval: ${elapsed}ms (target: ${_sampleIntervalMs}ms), Rate: ${(1000 / elapsed).toStringAsFixed(1)} Hz');
+          }
         }
         _lastSampleTime = now;
 
