@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -50,7 +49,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   // Camera config
   static const int _targetWidth = 224;
-  static const int _targetHeight = 224;
+  // static const int _targetHeight = 224;
   static const int _webpQuality = 70;
   static const int _batchIntervalSeconds = 10;
   static const int _batchSize = 30;
