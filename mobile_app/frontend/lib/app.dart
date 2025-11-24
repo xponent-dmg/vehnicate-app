@@ -13,7 +13,6 @@ import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
-import 'package:vehnicate_frontend/services/camera_service.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -56,7 +55,6 @@ class App extends StatelessWidget {
         "/analyze": (context) => DriveAnalyzePage(),
         "/editdetails": (context) => EditProfilePage(),
         "/home": (context) => Home(),
-        "/camera": (context) => CameraService(),
         "/map": (context) => MapPage(),
       },
       onGenerateRoute: (settings) {

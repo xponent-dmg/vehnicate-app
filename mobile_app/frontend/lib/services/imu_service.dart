@@ -7,8 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/services/background_service.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuService {
   final SupabaseClient _supabase;
@@ -82,13 +80,7 @@ class ImuService {
     print('[IMU_DEBUG][start] Vehicle ID: $vehicleId');
     _isCollecting = true;
     this.onDataCountUpdate = onDataCountUpdate;
-    
-    // Enable wakelock to keep device awake during data collection
-    await WakelockPlus.enable();
-    
-    // Start background service
-    await BackgroundServiceManager.startService();
-    
+
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -112,7 +104,9 @@ class ImuService {
     });
 
     // User-accelerometer subscription (acceleration without gravity)
-    _userAccelSub = userAccelerometerEventStream(samplingPeriod: _sensorInterval).listen((UserAccelerometerEvent event) {
+    _userAccelSub = userAccelerometerEventStream(samplingPeriod: _sensorInterval).listen((
+      UserAccelerometerEvent event,
+    ) {
       _uax = event.x;
       _uay = event.y;
       _uaz = event.z;
@@ -129,7 +123,9 @@ class ImuService {
           }
           // Debug: log actual sampling rate every 50 samples
           if (_processedCount > 0 && _processedCount % 50 == 0) {
-            print('[IMU_DEBUG] Actual interval: ${elapsed}ms (target: ${_sampleIntervalMs}ms), Rate: ${(1000 / elapsed).toStringAsFixed(1)} Hz');
+            print(
+              '[IMU_DEBUG] Actual interval: ${elapsed}ms (target: ${_sampleIntervalMs}ms), Rate: ${(1000 / elapsed).toStringAsFixed(1)} Hz',
+            );
           }
         }
         _lastSampleTime = now;
@@ -169,7 +165,9 @@ class ImuService {
           }
           // Debug: log actual sampling rate every 50 samples
           if (_processedCount > 0 && _processedCount % 50 == 0) {
-            print('[IMU_DEBUG] Actual interval: ${elapsed}ms (target: ${_sampleIntervalMs}ms), Rate: ${(1000 / elapsed).toStringAsFixed(1)} Hz');
+            print(
+              '[IMU_DEBUG] Actual interval: ${elapsed}ms (target: ${_sampleIntervalMs}ms), Rate: ${(1000 / elapsed).toStringAsFixed(1)} Hz',
+            );
           }
         }
         _lastSampleTime = now;
@@ -238,10 +236,6 @@ class ImuService {
     _uploadTimer?.cancel();
     _isCollecting = false;
     _lastSampleTime = null; // Reset throttle timer
-    
-    // Disable wakelock and stop background service
-    await WakelockPlus.disable();
-    await BackgroundServiceManager.stopService();
 
     if (_imuBuffer.isNotEmpty) {
       final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
@@ -315,7 +309,6 @@ class ImuService {
       _imuBuffer.addAll(data);
     }
   }
-
   void dispose() {
     _accelSub?.cancel();
     _gyroSub?.cancel();

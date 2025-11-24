@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:camera/camera.dart';
-import 'package:image/image.dart' as img;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -11,7 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // - Throttles to ~2 fps (configurable)
 // - Buffers to /cache and uploads every 10s to Supabase (storage + metadata)
 // - Provides basic retry by keeping files in cache until upload succeeds
-class CameraService {
+class CameraServiceRGB {
   CameraController? _controller;
   bool _isReady = false;
   bool _isStreaming = false;
@@ -173,33 +173,27 @@ class CameraService {
 
       final int originalSize = await file.length();
 
-      // Read bytes
-      final Uint8List bytes = await file.readAsBytes();
+      // Compress and resize using flutter_image_compress
+      // We want RGB, so we just compress the JPEG
+      final Uint8List? compressedBytes = await FlutterImageCompress.compressWithFile(
+        file.path,
+        minWidth: 512,
+        minHeight: 512,
+        quality: 75,
+        format: CompressFormat.jpeg,
+      );
 
-      // Decode image
-      img.Image? image = img.decodeImage(bytes);
-      if (image == null) {
-        debugPrint('Failed to decode image');
+      if (compressedBytes == null) {
+        debugPrint('Compression failed');
         return;
       }
 
-      // Resize to 512x512 (maintain aspect ratio if needed, but here forcing or fitting)
-      // Let's use copyResize which handles aspect ratio if we only provide width or height,
-      // or both to force. Let's fit to 512 width.
-      img.Image resized = img.copyResize(image, width: 512);
-
-      // Convert to grayscale
-      img.Image grayscale = img.grayscale(resized);
-
-      // Encode to JPG with reduced quality
-      final Uint8List processedBytes = img.encodeJpg(grayscale, quality: 70);
-
       debugPrint(
-        'Original size: ${(originalSize / 1024).toStringAsFixed(2)} KB, Processed size: ${(processedBytes.length / 1024).toStringAsFixed(2)} KB',
+        'Original size: ${(originalSize / 1024).toStringAsFixed(2)} KB, Compressed size: ${(compressedBytes.length / 1024).toStringAsFixed(2)} KB',
       );
 
       // Save processed file
-      final String newPath = await _saveLocally(processedBytes, now);
+      final String newPath = await _saveLocally(compressedBytes, now);
 
       _pendingFrames.add(
         _FrameRecord(
