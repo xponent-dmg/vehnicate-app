@@ -53,9 +53,9 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
 
     setState(() {
       if (_isListening) {
-        _sensorService.stopListening();
+        _sensorService.stop(context);
       } else {
-        _sensorService.startListening();
+        _sensorService.start(context: context);
       }
       _isListening = !_isListening;
     });

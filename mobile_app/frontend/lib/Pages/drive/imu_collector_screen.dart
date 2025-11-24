@@ -8,7 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
-import 'package:vehnicate_frontend/services/imu_service.dart';
+import 'package:vehnicate_frontend/services/sensor_service.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -18,7 +18,7 @@ class ImuCollector extends StatefulWidget {
 }
 
 class _ImuCollectorState extends State<ImuCollector> {
-  final ImuService _imuService = ImuService();
+  final SensorService _sensorService = SensorService();
   final CameraServiceRGB _cameraService = CameraServiceRGB();
   final supabase = Supabase.instance.client;
 
@@ -106,13 +106,10 @@ class _ImuCollectorState extends State<ImuCollector> {
     try {
       print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
 
-      // Start IMU collection
-      await _imuService.start(
+      // Start Sensor collection
+      await _sensorService.start(
         context: context,
-        manageLocationStream: true,
-        useUserAccelerometer: false,
         onDataCountUpdate: (processed, uploaded) {
-          // print('[IMU_DEBUG][startCollection] onDataCountUpdate: processed=$processed, uploaded=$uploaded');
           if (mounted) {
             setState(() {
               _imuDataCount = processed;
@@ -144,8 +141,8 @@ class _ImuCollectorState extends State<ImuCollector> {
     try {
       print('[IMU_DEBUG][stopCollection] ⏹️ Stopping data collection...');
 
-      // Stop IMU collection
-      _imuService.stop(context);
+      // Stop Sensor collection
+      await _sensorService.stop(context);
 
       // Stop camera streaming
       await _cameraService.stopStreaming();
@@ -177,7 +174,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   void dispose() {
     print('[IMU_DEBUG][dispose] Called');
     _cameraService.dispose();
-    _imuService.dispose();
+    _sensorService.dispose();
     super.dispose();
   }
 
