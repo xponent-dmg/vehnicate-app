@@ -72,7 +72,7 @@ class VehnicateSensorManager(
 
     private var isRunning = false
     private var lastUpdateTime = 0L
-    private val UPDATE_INTERVAL_MS = 50  // Update at ~20 Hz
+    private val UPDATE_INTERVAL_MS = 20  // Update at ~50 Hz
 
     /**
      * Starts listening to all sensors and location updates.
