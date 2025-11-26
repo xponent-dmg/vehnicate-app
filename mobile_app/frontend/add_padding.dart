@@ -37,6 +37,6 @@ void main() async {
   await paddedFile.writeAsBytes(img.encodePng(newImage));
   
   print('✓ Created padded icon: ${paddedFile.path}');
-  print('  Original size: ${originalWidth}x${originalHeight}');
-  print('  New size: ${newWidth}x${newHeight}');
+  print('  Original size: ${originalWidth}x$originalHeight');
+  print('  New size: ${newWidth}x$newHeight');
 }

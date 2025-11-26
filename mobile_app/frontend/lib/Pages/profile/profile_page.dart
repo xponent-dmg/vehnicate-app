@@ -387,13 +387,16 @@ class _ProfilePageState extends State<ProfilePage> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(
-          width: ProfileConstants.avatarSize,
-          height: ProfileConstants.avatarSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: const DecorationImage(image: AssetImage("assets/logo.png"), fit: BoxFit.cover),
-            boxShadow: const [BoxShadow(color: ProfileConstants.lightPurple, blurRadius: 4, offset: Offset(0, -2))],
+        Hero(
+          tag: 'profile-avatar',
+          child: Container(
+            width: ProfileConstants.avatarSize,
+            height: ProfileConstants.avatarSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: const DecorationImage(image: AssetImage("assets/logo.png"), fit: BoxFit.cover),
+              boxShadow: const [BoxShadow(color: ProfileConstants.lightPurple, blurRadius: 4, offset: Offset(0, -2))],
+            ),
           ),
         ),
         Positioned(
@@ -483,15 +486,18 @@ class _ProfilePageState extends State<ProfilePage> {
     final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
     return Column(
       children: [
-        CircularPercentIndicator(
-          radius: 30,
-          lineWidth: 8,
-          percent: (rpsScore ?? 0) / 100,
-          backgroundColor: ProfileConstants.darkPurple,
-          progressColor: ProfileConstants.accentPurple,
-          circularStrokeCap: CircularStrokeCap.round, // rounded ends
-          animation: true,
-          center: Text("${rpsScore ?? '--'}", style: ProfileConstants.metricValueStyle),
+        Hero(
+          tag: 'rps-score-indicator',
+          child: CircularPercentIndicator(
+            radius: 30,
+            lineWidth: 8,
+            percent: (rpsScore ?? 0) / 100,
+            backgroundColor: ProfileConstants.darkPurple,
+            progressColor: ProfileConstants.accentPurple,
+            circularStrokeCap: CircularStrokeCap.round, // rounded ends
+            animation: true,
+            center: Text("${rpsScore ?? '--'}", style: ProfileConstants.metricValueStyle),
+          ),
         ),
         SizedBox(height: 5),
         SizedBox(

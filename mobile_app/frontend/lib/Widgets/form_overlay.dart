@@ -37,140 +37,161 @@ class FormOverlay {
     final formKey = GlobalKey<FormState>();
     bool isSubmitting = false;
 
-    showDialog(
+    showGeneralDialog(
       context: context,
       barrierDismissible: !isSubmitting,
-      builder: (BuildContext dialogContext) {
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              child: Container(
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
-                decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
-                padding: EdgeInsets.all(24),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              title,
-                              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                            if (!isSubmitting)
-                              IconButton(
-                                icon: Icon(Icons.close, color: Colors.white70),
-                                onPressed: () => Navigator.of(dialogContext).pop(),
-                              ),
-                          ],
-                        ),
-                        SizedBox(height: 16),
-
-                        // Form fields
-                        ...fields.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final field = entry.value;
-                          return Column(
+            return Center(
+              child: Dialog(
+                backgroundColor: Colors.transparent,
+                child: Container(
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+                  decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
+                  padding: EdgeInsets.all(24),
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              if (index > 0) SizedBox(height: 16),
-                              field.type == FormFieldType.date
-                                  ? _buildDateField(
-                                    context: context,
-                                    controller: field.controller,
-                                    label: field.label,
-                                    hint: field.hint,
-                                    icon: field.icon,
-                                    isRequired: field.isRequired,
-                                    setState: setState,
-                                  )
-                                  : _buildTextField(
-                                    controller: field.controller,
-                                    label: field.label,
-                                    hint: field.hint,
-                                    icon: field.icon,
-                                    isRequired: field.isRequired,
-                                  ),
+                              Text(
+                                title,
+                                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              if (!isSubmitting)
+                                IconButton(
+                                  icon: Icon(Icons.close, color: Colors.white70),
+                                  onPressed: () => Navigator.of(buildContext).pop(),
+                                ),
                             ],
-                          );
-                        }).toList(),
-
-                        SizedBox(height: 24),
-
-                        // Submit button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed:
-                                isSubmitting
-                                    ? null
-                                    : () async {
-                                      if (!formKey.currentState!.validate()) {
-                                        return;
-                                      }
-
-                                      setState(() {
-                                        isSubmitting = true;
-                                      });
-
-                                      try {
-                                        await onSubmit();
-
-                                        // Close dialog
-                                        Navigator.of(dialogContext).pop();
-
-                                        // Call success callback
-                                        if (onSuccess != null) {
-                                          onSuccess();
-                                        }
-                                      } catch (e) {
-                                        // Call error callback
-                                        if (onError != null) {
-                                          onError(e);
-                                        }
-                                      } finally {
-                                        if (context.mounted) {
-                                          setState(() {
-                                            isSubmitting = false;
-                                          });
-                                        }
-                                      }
-                                    },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF8E44AD),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              disabledBackgroundColor: Color(0xFF8E44AD).withOpacity(0.5),
-                            ),
-                            child:
-                                isSubmitting
-                                    ? SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                      ),
-                                    )
-                                    : Text(
-                                      submitButtonText,
-                                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 16),
+
+                          // Form fields
+                          ...fields.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final field = entry.value;
+                            return Column(
+                              children: [
+                                if (index > 0) SizedBox(height: 16),
+                                field.type == FormFieldType.date
+                                    ? _buildDateField(
+                                      context: context,
+                                      controller: field.controller,
+                                      label: field.label,
+                                      hint: field.hint,
+                                      icon: field.icon,
+                                      isRequired: field.isRequired,
+                                      setState: setState,
+                                    )
+                                    : _buildTextField(
+                                      controller: field.controller,
+                                      label: field.label,
+                                      hint: field.hint,
+                                      icon: field.icon,
+                                      isRequired: field.isRequired,
+                                    ),
+                              ],
+                            );
+                          }),
+
+                          SizedBox(height: 24),
+
+                          // Submit button
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed:
+                                  isSubmitting
+                                      ? null
+                                      : () async {
+                                        if (!formKey.currentState!.validate()) {
+                                          return;
+                                        }
+
+                                        setState(() {
+                                          isSubmitting = true;
+                                        });
+
+                                        try {
+                                          await onSubmit();
+
+                                          // Close dialog
+                                          Navigator.of(buildContext).pop();
+
+                                          // Call success callback
+                                          if (onSuccess != null) {
+                                            onSuccess();
+                                          }
+                                        } catch (e) {
+                                          // Call error callback
+                                          if (onError != null) {
+                                            onError(e);
+                                          }
+                                        } finally {
+                                          if (context.mounted) {
+                                            setState(() {
+                                              isSubmitting = false;
+                                            });
+                                          }
+                                        }
+                                      },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF8E44AD),
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                disabledBackgroundColor: Color(0xFF8E44AD).withOpacity(0.5),
+                              ),
+                              child:
+                                  isSubmitting
+                                      ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      )
+                                      : Text(
+                                        submitButtonText,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             );
           },
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        // Scale + Fade animation
+        const curve = Curves.easeOutCubic;
+
+        var scaleTween = Tween<double>(begin: 0.85, end: 1.0).chain(CurveTween(curve: curve));
+        var fadeTween = Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
+
+        return ScaleTransition(
+          scale: animation.drive(scaleTween),
+          child: FadeTransition(opacity: animation.drive(fadeTween), child: child),
         );
       },
     );

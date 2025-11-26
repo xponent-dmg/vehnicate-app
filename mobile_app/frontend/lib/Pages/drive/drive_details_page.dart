@@ -15,7 +15,7 @@ class DriveDetailsPage extends StatefulWidget {
 }
 
 class _DriveDetailsPageState extends State<DriveDetailsPage> {
-  PageController _chartController = PageController();
+  final PageController _chartController = PageController();
   int _currentChartIndex = 0;
 
   @override
@@ -103,7 +103,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('${widget.drive.avgScore.toStringAsFixed(1)}', style: DriveDetailsConstants.metricValueStyle),
+          Text(widget.drive.avgScore.toStringAsFixed(1), style: DriveDetailsConstants.metricValueStyle),
           SizedBox(width: 4),
           Icon(trendIcon, color: trendColor, size: 16),
         ],

@@ -12,6 +12,7 @@ import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
+import 'package:vehnicate_frontend/services/page_transitions.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -43,30 +44,63 @@ class App extends StatelessWidget {
           ),
         ),
       ),
-      routes: {
-        "/splash": (context) => SplashPage(),
-        "/login": (context) => LoginPage(),
-        "/signup": (context) => SignupPage(),
-        "/profile": (context) => ProfilePage(),
-        "/dash": (context) => DashboardPage(),
-        "/imu": (context) => ImuCollector(),
-        "/garage": (context) => GaragePage(),
-        "/analyze": (context) => DriveAnalyzePage(),
-        "/editdetails": (context) => EditProfilePage(),
-        "/home": (context) => Home(),
-        "/map": (context) => MapPage(),
-      },
       onGenerateRoute: (settings) {
-        if (settings.name == "/user-details") {
-          final args = settings.arguments as Map<String, dynamic>;
-          return MaterialPageRoute(builder: (context) => UserDetailsPage(userId: args["userId"], email: args["email"]));
+        // Apply custom transitions to all routes
+        switch (settings.name) {
+          // Splash and Auth - Fade transition (clean and simple)
+          case "/splash":
+            return PageTransitions.fade(SplashPage());
+          case "/login":
+            return PageTransitions.fade(LoginPage());
+          case "/signup":
+            return PageTransitions.slideFromRight(SignupPage());
+
+          // Profile - Fade + Slide Up (elegant)
+          case "/profile":
+            return PageTransitions.fadeSlideUp(ProfilePage());
+
+          // Dashboard - Fade (quick and clean)
+          case "/dash":
+            return PageTransitions.fade(DashboardPage());
+
+          // IMU Collector - Slide from Bottom (modal-style)
+          case "/imu":
+            return PageTransitions.slideFromBottom(ImuCollector());
+
+          // Garage - Scale + Fade (emphasis)
+          case "/garage":
+            return PageTransitions.scaleFade(GaragePage());
+
+          // Drive Analyze - Slide from Right (forward navigation)
+          case "/analyze":
+            return PageTransitions.slideFromRight(DriveAnalyzePage());
+
+          // Edit Details - Fade + Slide Up (form-like)
+          case "/editdetails":
+            return PageTransitions.fadeSlideUp(EditProfilePage());
+
+          // Home - Fade (neutral)
+          case "/home":
+            return PageTransitions.fade(Home());
+
+          // Map - Scale + Fade (focus on map)
+          case "/map":
+            return PageTransitions.scaleFade(MapPage());
+
+          // User Details with arguments
+          case "/user-details":
+            final args = settings.arguments as Map<String, dynamic>;
+            return PageTransitions.slideFromRight(UserDetailsPage(userId: args["userId"], email: args["email"]));
+
+          // Document Upload with arguments
+          case "/document-upload":
+            final args = settings.arguments as Map<String, dynamic>?;
+            final docType = args != null ? (args['documentType'] as String? ?? 'Document') : 'Document';
+            return PageTransitions.slideFromBottom(DocumentUploadPage(documentType: docType));
+
+          default:
+            return null;
         }
-        if (settings.name == "/document-upload") {
-          final args = settings.arguments as Map<String, dynamic>?;
-          final docType = args != null ? (args['documentType'] as String? ?? 'Document') : 'Document';
-          return MaterialPageRoute(builder: (context) => DocumentUploadPage(documentType: docType));
-        }
-        return null;
       },
       initialRoute: "/splash",
     );

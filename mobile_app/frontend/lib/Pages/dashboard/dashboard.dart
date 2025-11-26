@@ -397,10 +397,13 @@ Widget _header(context) {
         // Actions section
         GestureDetector(
           onTap: () => Navigator.pushNamed(context, '/profile'),
-          child: CircleAvatar(
-            radius: 22,
-            backgroundColor: Color(0xFF8E44AD),
-            child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+          child: Hero(
+            tag: 'profile-avatar',
+            child: CircleAvatar(
+              radius: 22,
+              backgroundColor: Color(0xFF8E44AD),
+              child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+            ),
           ),
         ),
       ],
