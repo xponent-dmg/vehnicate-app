@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -28,7 +30,7 @@ class CameraServiceRGB {
 
   // Config
   static const int _batchIntervalSeconds = 10;
-  static const int _batchSize = 30;
+  static const int _batchSize = 10;
 
   // Supabase config
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -171,29 +173,52 @@ class CameraServiceRGB {
       final XFile file = await _controller!.takePicture();
       final int now = DateTime.now().millisecondsSinceEpoch;
 
-      final int originalSize = await file.length();
+      // Capture values to pass to isolate
+      final String rawPath = file.path;
+      final String framesDirPath = _framesDir.path;
+      final String deviceId = _deviceId ?? 'unknown';
+      final RootIsolateToken? rootIsolateToken = RootIsolateToken.instance;
 
-      // Compress and resize using flutter_image_compress
-      // We want RGB, so we just compress the JPEG
-      final Uint8List? compressedBytes = await FlutterImageCompress.compressWithFile(
-        file.path,
-        minWidth: 512,
-        minHeight: 512,
-        quality: 75,
-        format: CompressFormat.jpeg,
-      );
-
-      if (compressedBytes == null) {
-        debugPrint('Compression failed');
+      if (rootIsolateToken == null) {
+        debugPrint('RootIsolateToken is null');
         return;
       }
 
-      debugPrint(
-        'Original size: ${(originalSize / 1024).toStringAsFixed(2)} KB, Compressed size: ${(compressedBytes.length / 1024).toStringAsFixed(2)} KB',
-      );
+      final String? newPath = await Isolate.run(() async {
+        // Initialize background isolate
+        BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
 
-      // Save processed file
-      final String newPath = await _saveLocally(compressedBytes, now);
+        final int originalSize = await File(rawPath).length();
+
+        // 1. Compress and resize using flutter_image_compress (Native, fast)
+        final Uint8List? compressedBytes = await FlutterImageCompress.compressWithFile(
+          rawPath,
+          minWidth: 512,
+          minHeight: 512,
+          quality: 70,
+          format: CompressFormat.jpeg,
+        );
+
+        if (compressedBytes == null) {
+          debugPrint('Compression failed');
+          return null;
+        }
+
+        debugPrint(
+          'Original: ${(originalSize / 1024).toStringAsFixed(2)} KB, '
+          'RGB Compressed: ${(compressedBytes.length / 1024).toStringAsFixed(2)} KB, ',
+        );
+
+        // 2. Save locally
+        final String fileName = 'frame_${now}_$deviceId.jpg';
+        final String fullPath = '$framesDirPath/$fileName';
+        final File newFile = File(fullPath);
+        await newFile.writeAsBytes(compressedBytes, flush: true);
+
+        return fullPath;
+      });
+
+      if (newPath == null) return;
 
       _pendingFrames.add(
         _FrameRecord(
@@ -215,15 +240,6 @@ class CameraServiceRGB {
     } catch (e) {
       debugPrint('Frame capture error: $e');
     }
-  }
-
-  Future<String> _saveLocally(Uint8List bytes, int timestampMs) async {
-    final devId = _deviceId ?? 'unknown';
-    final String fileName = 'frame_${timestampMs}_$devId.jpg';
-    final String fullPath = '${_framesDir.path}/$fileName';
-    final File file = File(fullPath);
-    await file.writeAsBytes(bytes, flush: true);
-    return fullPath;
   }
 
   Future<void> uploadBatch() async {
@@ -251,6 +267,7 @@ class CameraServiceRGB {
         }
 
         if (finalVehicleId == null) {
+          debugPrint('Skipping frame: Invalid vehicle ID (raw: ${rec.vehicleId}, stored: $_vehicleId)');
           _pendingFrames.remove(rec);
           await f.delete().catchError((_) => f);
           continue;
@@ -265,7 +282,7 @@ class CameraServiceRGB {
           'timestamp': DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal().toIso8601String(),
           'file_url': publicUrl,
           'vehicle_id': finalVehicleId,
-          'device_id': rec.deviceId,
+          // 'device_id': rec.deviceId, // Removed from schema
           'imu_batch_id': rec.imuBatchId,
         });
         recordsForInsert.add(rec);

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class GaragePage extends StatelessWidget {
   const GaragePage({super.key});
@@ -8,39 +11,54 @@ class GaragePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                // Header with welcome text
-                Text(
-                  'Welcome to your Garage,',
-                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 35),
+        child: LiquidPullToRefresh(
+          onRefresh: () async {
+            // Assuming VehicleProvider is defined and has a refresh method
+            // and that this widget is within a Provider scope.
+            // If not, you might need to adjust how VehicleProvider is accessed.
+            await Provider.of<VehicleProvider>(context, listen: false).refresh();
+          },
+          color: Colors.black,
+          backgroundColor: Colors.purple,
+          showChildOpacityTransition: false,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  // Header with welcome text
+                  Text(
+                    'Welcome to your Garage,',
+                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 35),
 
-                // Statistics Cards
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
-                ),
-                const SizedBox(height: 30),
+                  // Statistics Cards
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
+                  ),
+                  const SizedBox(height: 30),
 
-                // Vehicle Documentation Section
-                Text('Vehicle Docs', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 15),
+                  // Vehicle Documentation Section
+                  Text(
+                    'Vehicle Docs',
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 15),
 
-                _buildDocumentTile(context, 'Registration Certificate', Icons.description),
-                _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
-                _buildDocumentTile(context, 'PUC', Icons.eco),
-                _buildDocumentTile(context, 'Driving License', Icons.card_membership),
-              ],
+                  _buildDocumentTile(context, 'Registration Certificate', Icons.description),
+                  _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
+                  _buildDocumentTile(context, 'PUC', Icons.eco),
+                  _buildDocumentTile(context, 'Driving License', Icons.card_membership),
+                ],
+              ),
             ),
           ),
         ),

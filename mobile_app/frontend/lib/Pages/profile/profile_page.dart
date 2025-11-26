@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -100,22 +101,31 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: 25),
-          child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-            ),
-            child: Column(
-              children: [
-                _buildHeader(context),
-                _buildProfileSection(context),
-                _buildStatsSection(),
-                const SizedBox(height: 14),
-                _buildPersonalInfoSection(context),
-                const SizedBox(height: 30),
-                _buildSettingsSection(),
-              ],
+        child: LiquidPullToRefresh(
+          onRefresh: () async {
+            await Provider.of<UserProvider>(context, listen: false).refresh();
+          },
+          color: ProfileConstants.primaryBackground,
+          backgroundColor: ProfileConstants.accentPurple,
+          showChildOpacityTransition: false,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.only(bottom: 25),
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
+              ),
+              child: Column(
+                children: [
+                  _buildHeader(context),
+                  _buildProfileSection(context),
+                  _buildStatsSection(),
+                  const SizedBox(height: 14),
+                  _buildPersonalInfoSection(context),
+                  const SizedBox(height: 30),
+                  _buildSettingsSection(),
+                ],
+              ),
             ),
           ),
         ),

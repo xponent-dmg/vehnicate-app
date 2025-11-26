@@ -4,10 +4,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:vehnicate_frontend/services/sensor_service.dart';
 import '../../config/config.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/services/imu_service.dart';
 import 'package:vehnicate_frontend/services/map_service.dart';
 
 class MapPage extends StatefulWidget {
@@ -51,7 +51,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   bool _isFromFieldActive = false;
 
   // IMU service
-  final ImuService _imuService = ImuService();
+  final SensorService _imuService = SensorService();
   final MapService _mapService = const MapService();
 
   // Animation
@@ -134,12 +134,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _vehicleId = vid;
 
     setState(() => _isCollectingData = true);
-    await _imuService.start(
-      context: context,
-      getCurrentPosition: () => _currentPosition,
-      manageLocationStream: false,
-      useUserAccelerometer: true,
-    );
+    await _imuService.start(context: context);
   }
 
   void _stopDataCollection() async {

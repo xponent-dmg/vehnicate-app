@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 
@@ -242,7 +243,29 @@ class DriveAnalyzePage extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
           ),
-          child: Column(children: [_buildHeader(context), Expanded(child: _buildDrivesList())]),
+          child: LiquidPullToRefresh(
+            onRefresh: () async {
+              // Simulate network delay
+              await Future.delayed(Duration(seconds: 1));
+            },
+            color: DriveAnalyzeConstants.primaryBackground,
+            backgroundColor: DriveAnalyzeConstants.accentPurple,
+            showChildOpacityTransition: false,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: _dummyDrives.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _buildHeader(context);
+                }
+                final drive = _dummyDrives[index - 1];
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
+                  child: _buildDriveCard(context, drive),
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -265,17 +288,6 @@ class DriveAnalyzePage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDrivesList() {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding),
-      itemCount: _dummyDrives.length,
-      itemBuilder: (context, index) {
-        final drive = _dummyDrives[index];
-        return Padding(padding: EdgeInsets.only(bottom: 12), child: _buildDriveCard(context, drive));
-      },
     );
   }
 

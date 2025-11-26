@@ -271,7 +271,7 @@ class CameraService {
           'timestamp': DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal().toIso8601String(),
           'file_url': publicUrl,
           'vehicle_id': finalVehicleId,
-          'device_id': rec.deviceId,
+          // 'device_id': rec.deviceId, // Removed from schema
           'imu_batch_id': rec.imuBatchId,
         });
         recordsForInsert.add(rec);

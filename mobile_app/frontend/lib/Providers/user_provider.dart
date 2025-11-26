@@ -34,7 +34,7 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       print("UserProvider: Requesting data from SupabaseService");
       final data = await SupabaseService().getUserdetails(firebaseUid);
@@ -45,8 +45,30 @@ class UserProvider extends ChangeNotifier {
         print("UserProvider: Created AppUser object: ${user.name}, ${user.email}");
         _setUser(user);
       } else {
-        print("UserProvider: No user data received from Supabase");
-        _setUser(null);
+        print("UserProvider: No user data received from Supabase. Attempting to create...");
+        final currentUser = firebase.FirebaseAuth.instance.currentUser;
+        if (currentUser != null && currentUser.uid == firebaseUid) {
+          await SupabaseService().createSupabaseUser(
+            uid: currentUser.uid,
+            email: currentUser.email ?? '',
+            displayName: currentUser.displayName,
+          );
+
+          // Retry fetch
+          print("UserProvider: Retrying data fetch after creation...");
+          final retryData = await SupabaseService().getUserdetails(firebaseUid);
+          if (retryData != null) {
+            final user = AppUser.fromMap(retryData);
+            print("UserProvider: Created AppUser object after retry: ${user.name}");
+            _setUser(user);
+          } else {
+            print("UserProvider: Still no user data after creation attempt");
+            _setUser(null);
+          }
+        } else {
+          print("UserProvider: Current Firebase user does not match requested UID or is null");
+          _setUser(null);
+        }
       }
     } catch (e, stackTrace) {
       print("UserProvider: Error loading user data:");

@@ -5,7 +5,6 @@ class AppUser {
   final String username;
   final String? phone;
   final String? address;
-  final int? vehicleId;
   final int? rpsScore;
 
   const AppUser({
@@ -15,7 +14,6 @@ class AppUser {
     required this.username,
     this.phone,
     this.address,
-    this.vehicleId,
     this.rpsScore,
   });
 
@@ -27,7 +25,6 @@ class AppUser {
       username: (map['username'] ?? '') as String,
       phone: map['phone'] as String?,
       address: map['address'] as String?,
-      vehicleId: (map['vehicleid'] as num?)?.toInt(),
       rpsScore: (map['rpsscore'] as num?)?.toInt(),
     );
   }
@@ -40,7 +37,6 @@ class AppUser {
       'username': username,
       'phone': phone,
       'address': address,
-      'vehicleid': vehicleId,
       'rpsscore': rpsScore,
     }..removeWhere((key, value) => value == null);
   }
@@ -53,7 +49,6 @@ class AppUser {
     String? username,
     String? phone,
     String? address,
-    int? vehicleId,
     int? rpsScore,
   }) {
     return AppUser(
@@ -63,7 +58,6 @@ class AppUser {
       username: username ?? this.username,
       phone: phone ?? this.phone,
       address: address ?? this.address,
-      vehicleId: vehicleId ?? this.vehicleId,
       rpsScore: rpsScore ?? this.rpsScore,
     );
   }

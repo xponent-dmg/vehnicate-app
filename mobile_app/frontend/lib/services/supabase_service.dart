@@ -174,25 +174,11 @@ class SupabaseService {
       print("Fetching vehicle for user with Firebase UID: $firebaseUuid");
       await initialize(); // Ensure client is initialized
 
-      // Step 1: Get the vehicle_id from the userdetails table
-      final userResponse =
-          await _client.from('userdetails').select('vehicleid').eq('firebaseuid', firebaseUuid).maybeSingle();
+      // Step 1: Get the vehicle details directly from vehicledetails table using firebaseuid
+      final vehicleResponse =
+          await _client.from('vehicledetails').select().eq('firebaseuid', firebaseUuid).maybeSingle();
 
-      print("User-vehicle response: $userResponse");
-
-      if (userResponse == null) {
-        print("No vehicle ID found for user: $firebaseUuid");
-        return null;
-      }
-
-      final vehicleId = userResponse['vehicleid'];
-      if (vehicleId == null) {
-        print("Vehicle ID is null for user: $firebaseUuid");
-        return null;
-      }
-
-      // Step 2: Get vehicle details from vehicledetails table
-      final vehicleResponse = await getVehicleDetails(vehicleId);
+      print("Vehicle details response: $vehicleResponse");
       return vehicleResponse;
     } catch (e, stackTrace) {
       print("Error getting vehicle by user id:");
@@ -226,6 +212,40 @@ class SupabaseService {
       print("Error: $e");
       print("Stack trace: $stackTrace");
       throw Exception('Failed to update vehicle details: $e');
+    }
+  }
+
+  Future<void> createSupabaseUser({required String uid, required String email, String? displayName}) async {
+    try {
+      print('Ensuring Supabase client is initialized...');
+      await initialize();
+
+      // Check if user exists
+      final existingUser = await _client.from('userdetails').select().eq('firebaseuid', uid).maybeSingle();
+
+      if (existingUser != null) {
+        print('User already exists in Supabase: $uid');
+        return;
+      }
+
+      print('Creating new user in Supabase for UID: $uid');
+      final name = displayName ?? 'New User';
+      final username = name.split(' ')[0];
+
+      await _client.from('userdetails').insert({
+        'firebaseuid': uid,
+        'email': email,
+        'name': name,
+        'username': username,
+        'created_at': DateTime.now().toIso8601String(),
+        'role': 'User',
+      });
+
+      print('Successfully created user in Supabase');
+    } catch (e, stackTrace) {
+      print('Error creating Supabase user: $e');
+      print('Stack trace: $stackTrace');
+      // Don't rethrow, just log. The subsequent fetch will fail if this failed.
     }
   }
 }

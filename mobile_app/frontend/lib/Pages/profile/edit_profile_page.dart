@@ -132,6 +132,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   'registration': _registrationController.text,
                   'puc': _pucDate != null ? _formatDate(_pucDate!) : null,
                   'model': _modelController.text,
+                  'firebaseuid': user.uid,
                 })
                 .select()
                 .single();
@@ -159,7 +160,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             'email': _emailController.text,
             'address': _addressController.text,
             'username': _usernameController.text,
-            'vehicleid': vehicleId,
           })
           .eq('firebaseuid', user.uid);
 

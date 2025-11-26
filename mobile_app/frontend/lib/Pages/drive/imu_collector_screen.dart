@@ -24,6 +24,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   // Collection state
   bool isCollecting = false;
+  bool isStopping = false;
 
   // Data collection state
   int _imuDataCount = 0;
@@ -103,6 +104,12 @@ class _ImuCollectorState extends State<ImuCollector> {
     print('[IMU_DEBUG][startCollection] Called');
     if (isCollecting) return;
 
+    final vehicleId = context.read<VehicleProvider>().vehicleId;
+    if (vehicleId == null) {
+      _showSnack('Error: No vehicle selected. Please go to Garage and select a vehicle.');
+      return;
+    }
+
     try {
       print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
 
@@ -120,7 +127,6 @@ class _ImuCollectorState extends State<ImuCollector> {
       );
 
       // Start camera streaming
-      final vehicleId = context.read<VehicleProvider>().vehicleId;
       await _cameraService.startStreaming(
         vehicleId: vehicleId.toString(), // Ensure string
         deviceId: _deviceId,
@@ -138,21 +144,34 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   void stopCollection() async {
     print('[IMU_DEBUG][stopCollection] Called');
+    if (isStopping) return;
+
+    setState(() {
+      isStopping = true;
+    });
+
     try {
       print('[IMU_DEBUG][stopCollection] ⏹️ Stopping data collection...');
 
-      // Stop Sensor collection
-      await _sensorService.stop(context);
+      // Stop Sensor collection and Camera streaming in parallel
+      await Future.wait([_sensorService.stop(context), _cameraService.stopStreaming()]);
 
-      // Stop camera streaming
-      await _cameraService.stopStreaming();
-
-      setState(() => isCollecting = false);
+      if (mounted) {
+        setState(() {
+          isCollecting = false;
+          isStopping = false;
+        });
+      }
       print('[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully');
       _showSnack('Data collection stopped!');
     } catch (e) {
       print('[IMU_DEBUG][stopCollection] ❌ Stop collection error: $e');
       _showSnack('Error stopping collection: $e');
+      if (mounted) {
+        setState(() {
+          isStopping = false;
+        });
+      }
     }
   }
 
@@ -304,9 +323,18 @@ class _ImuCollectorState extends State<ImuCollector> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: isCollecting ? stopCollection : startCollection,
-                      icon: Icon(isCollecting ? Icons.stop : Icons.play_arrow),
-                      label: Text(isCollecting ? 'Stop Collection' : 'Start Collection'),
+                      onPressed:
+                          (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
+                      icon:
+                          isStopping
+                              ? Container(
+                                width: 24,
+                                height: 24,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                              )
+                              : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
+                      label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isCollecting ? Colors.red : Colors.green,
                         foregroundColor: Colors.white,
