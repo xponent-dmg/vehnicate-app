@@ -248,4 +248,34 @@ class SupabaseService {
       // Don't rethrow, just log. The subsequent fetch will fail if this failed.
     }
   }
+
+  Future<void> createVehicle({
+    required String firebaseUid,
+    required String model,
+    required String registration,
+    required String insurance,
+    String? puc,
+  }) async {
+    try {
+      print('Creating vehicle for user with Firebase UID: $firebaseUid');
+      await initialize(); // Ensure client is initialized
+
+      final response =
+          await _client.from('vehicledetails').insert({
+            'firebaseuid': firebaseUid,
+            'model': model,
+            'registration': registration,
+            'insurance': insurance,
+            'puc': puc,
+            'created_at': DateTime.now().toLocal().toIso8601String(),
+          }).select();
+
+      print('Vehicle creation response: $response');
+    } catch (e, stackTrace) {
+      print('Error creating vehicle:');
+      print('Error: $e');
+      print('Stack trace: $stackTrace');
+      throw Exception('Failed to create vehicle: $e');
+    }
+  }
 }
