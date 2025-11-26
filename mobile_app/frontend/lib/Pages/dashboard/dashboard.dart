@@ -8,6 +8,7 @@ import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/reveal_text.dart';
 import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
+import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -21,12 +22,10 @@ class _DashboardPageState extends State<DashboardPage> {
   Key _greetingKey = UniqueKey();
 
   // Form controllers for add vehicle
-  final _formKey = GlobalKey<FormState>();
   final _vehicleModelController = TextEditingController();
   final _registrationController = TextEditingController();
   final _insuranceController = TextEditingController();
   final _pucDateController = TextEditingController();
-  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -175,292 +174,85 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _showAddVehicleOverlay(BuildContext context) {
-    showDialog(
+    FormOverlay.show(
       context: context,
-      barrierDismissible: !_isSubmitting,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              child: Container(
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
-                decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
-                padding: EdgeInsets.all(24),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Add Vehicle',
-                              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                            if (!_isSubmitting)
-                              IconButton(
-                                icon: Icon(Icons.close, color: Colors.white70),
-                                onPressed: () => Navigator.of(dialogContext).pop(),
-                              ),
-                          ],
-                        ),
-                        SizedBox(height: 16),
-                        _buildTextField(
-                          controller: _vehicleModelController,
-                          label: 'Model',
-                          hint: 'e.g., Honda City',
-                          icon: Icons.car_rental,
-                        ),
-                        SizedBox(height: 16),
-                        _buildTextField(
-                          controller: _registrationController,
-                          label: 'Registration Number',
-                          hint: 'e.g., KA01AB1234',
-                          icon: Icons.confirmation_number,
-                        ),
-                        SizedBox(height: 16),
-                        _buildTextField(
-                          controller: _insuranceController,
-                          label: 'Insurance Number',
-                          hint: 'e.g., INS123456789',
-                          icon: Icons.shield,
-                        ),
-                        SizedBox(height: 16),
-                        _buildDateField(
-                          controller: _pucDateController,
-                          label: 'PUC Date',
-                          hint: 'Select date',
-                          icon: Icons.calendar_today,
-                        ),
-                        SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isSubmitting ? null : () => _submitVehicle(dialogContext, setState),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF8E44AD),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              disabledBackgroundColor: Color(0xFF8E44AD).withOpacity(0.5),
-                            ),
-                            child:
-                                _isSubmitting
-                                    ? SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                      ),
-                                    )
-                                    : Text(
-                                      'Add Vehicle',
-                                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+      title: 'Add Vehicle',
+      fields: [
+        FormFieldConfig(
+          label: 'Model',
+          hint: 'e.g., Honda City',
+          icon: Icons.car_rental,
+          controller: _vehicleModelController,
+        ),
+        FormFieldConfig(
+          label: 'Registration Number',
+          hint: 'e.g., KA01AB1234',
+          icon: Icons.confirmation_number,
+          controller: _registrationController,
+        ),
+        FormFieldConfig(
+          label: 'Insurance Number',
+          hint: 'e.g., INS123456789',
+          icon: Icons.shield,
+          controller: _insuranceController,
+        ),
+        FormFieldConfig(
+          label: 'PUC Date',
+          hint: 'Select date',
+          icon: Icons.calendar_today,
+          controller: _pucDateController,
+          type: FormFieldType.date,
+        ),
+      ],
+      submitButtonText: 'Add Vehicle',
+      onSubmit: () async {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          throw Exception('User not logged in');
+        }
+
+        await SupabaseService().createVehicle(
+          firebaseUid: user.uid,
+          model: _vehicleModelController.text.trim(),
+          registration: _registrationController.text.trim(),
+          insurance: _insuranceController.text.trim(),
+          puc: _pucDateController.text.trim().isEmpty ? null : _pucDateController.text.trim(),
         );
+
+        // Refresh vehicle data
+        if (mounted) {
+          await Provider.of<VehicleProvider>(context, listen: false).refresh();
+        }
+
+        // Clear form
+        _vehicleModelController.clear();
+        _registrationController.clear();
+        _insuranceController.clear();
+        _pucDateController.clear();
+      },
+      onSuccess: () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Vehicle added successfully!'),
+              backgroundColor: Color(0xFF8E44AD),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to add vehicle: ${error.toString()}'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       },
     );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool isRequired = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label + (isRequired ? ' *' : ''),
-          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          style: TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.white38),
-            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
-            filled: true,
-            fillColor: Color(0xFF3d3d54),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red, width: 2),
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          validator:
-              isRequired
-                  ? (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'This field is required';
-                    }
-                    return null;
-                  }
-                  : null,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool isRequired = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label + (isRequired ? ' *' : ''),
-          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          style: TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.white38),
-            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
-            filled: true,
-            fillColor: Color(0xFF3d3d54),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red, width: 2),
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          validator:
-              isRequired
-                  ? (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'This field is required';
-                    }
-                    return null;
-                  }
-                  : null,
-          readOnly: true,
-          onTap: () async {
-            final DateTime? picked = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2101),
-            );
-            if (picked != null) {
-              setState(() {
-                _pucDateController.text = picked.toIso8601String().split('T')[0];
-              });
-            }
-          },
-        ),
-      ],
-    );
-  }
-
-  Future<void> _submitVehicle(BuildContext dialogContext, StateSetter setState) async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception('User not logged in');
-      }
-
-      await SupabaseService().createVehicle(
-        firebaseUid: user.uid,
-        model: _vehicleModelController.text.trim(),
-        registration: _registrationController.text.trim(),
-        insurance: _insuranceController.text.trim(),
-        puc: _pucDateController.text.trim().isEmpty ? null : _pucDateController.text.trim(),
-      );
-
-      // Refresh vehicle data
-      if (mounted) {
-        await Provider.of<VehicleProvider>(context, listen: false).refresh();
-      }
-
-      _vehicleModelController.clear();
-      _registrationController.clear();
-      _insuranceController.clear();
-      _pucDateController.clear();
-
-      // Close dialog
-      Navigator.of(dialogContext).pop();
-
-      // Show success message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Vehicle added successfully!'),
-            backgroundColor: Color(0xFF8E44AD),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error adding vehicle: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add vehicle: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
   }
 
   Widget _selectedCarCard(BuildContext context) {
@@ -497,7 +289,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             Column(
                               children: [
                                 Icon(Icons.swap_horiz_rounded, color: Colors.white),
-                                Text('30 km', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                Text('0 km', style: TextStyle(color: Colors.white70, fontSize: 12)),
                               ],
                             ),
                           ],

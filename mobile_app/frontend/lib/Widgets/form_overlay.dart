@@ -1,0 +1,304 @@
+import 'package:flutter/material.dart';
+
+/// Enum to define the type of form field
+enum FormFieldType { text, date }
+
+/// Configuration for a single form field
+class FormFieldConfig {
+  final String label;
+  final String hint;
+  final IconData icon;
+  final bool isRequired;
+  final TextEditingController controller;
+  final FormFieldType type;
+
+  FormFieldConfig({
+    required this.label,
+    required this.hint,
+    required this.icon,
+    this.isRequired = true,
+    required this.controller,
+    this.type = FormFieldType.text,
+  });
+}
+
+/// Reusable form overlay widget
+class FormOverlay {
+  /// Show the form overlay dialog
+  static void show({
+    required BuildContext context,
+    required String title,
+    required List<FormFieldConfig> fields,
+    required String submitButtonText,
+    required Future<void> Function() onSubmit,
+    VoidCallback? onSuccess,
+    Function(dynamic error)? onError,
+  }) {
+    final formKey = GlobalKey<FormState>();
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: !isSubmitting,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+                decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
+                padding: EdgeInsets.all(24),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            if (!isSubmitting)
+                              IconButton(
+                                icon: Icon(Icons.close, color: Colors.white70),
+                                onPressed: () => Navigator.of(dialogContext).pop(),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+
+                        // Form fields
+                        ...fields.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final field = entry.value;
+                          return Column(
+                            children: [
+                              if (index > 0) SizedBox(height: 16),
+                              field.type == FormFieldType.date
+                                  ? _buildDateField(
+                                    context: context,
+                                    controller: field.controller,
+                                    label: field.label,
+                                    hint: field.hint,
+                                    icon: field.icon,
+                                    isRequired: field.isRequired,
+                                    setState: setState,
+                                  )
+                                  : _buildTextField(
+                                    controller: field.controller,
+                                    label: field.label,
+                                    hint: field.hint,
+                                    icon: field.icon,
+                                    isRequired: field.isRequired,
+                                  ),
+                            ],
+                          );
+                        }).toList(),
+
+                        SizedBox(height: 24),
+
+                        // Submit button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed:
+                                isSubmitting
+                                    ? null
+                                    : () async {
+                                      if (!formKey.currentState!.validate()) {
+                                        return;
+                                      }
+
+                                      setState(() {
+                                        isSubmitting = true;
+                                      });
+
+                                      try {
+                                        await onSubmit();
+
+                                        // Close dialog
+                                        Navigator.of(dialogContext).pop();
+
+                                        // Call success callback
+                                        if (onSuccess != null) {
+                                          onSuccess();
+                                        }
+                                      } catch (e) {
+                                        // Call error callback
+                                        if (onError != null) {
+                                          onError(e);
+                                        }
+                                      } finally {
+                                        if (context.mounted) {
+                                          setState(() {
+                                            isSubmitting = false;
+                                          });
+                                        }
+                                      }
+                                    },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF8E44AD),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              disabledBackgroundColor: Color(0xFF8E44AD).withOpacity(0.5),
+                            ),
+                            child:
+                                isSubmitting
+                                    ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                    : Text(
+                                      submitButtonText,
+                                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Build a text field
+  static Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    bool isRequired = true,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label + (isRequired ? ' *' : ''),
+          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.white38),
+            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
+            filled: true,
+            fillColor: Color(0xFF3d3d54),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red, width: 2),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          validator:
+              isRequired
+                  ? (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'This field is required';
+                    }
+                    return null;
+                  }
+                  : null,
+        ),
+      ],
+    );
+  }
+
+  /// Build a date picker field
+  static Widget _buildDateField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required StateSetter setState,
+    bool isRequired = true,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label + (isRequired ? ' *' : ''),
+          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.white38),
+            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
+            filled: true,
+            fillColor: Color(0xFF3d3d54),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red, width: 2),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          validator:
+              isRequired
+                  ? (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'This field is required';
+                    }
+                    return null;
+                  }
+                  : null,
+          readOnly: true,
+          onTap: () async {
+            final DateTime? picked = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2101),
+            );
+            if (picked != null) {
+              setState(() {
+                controller.text = picked.toIso8601String().split('T')[0];
+              });
+            }
+          },
+        ),
+      ],
+    );
+  }
+}

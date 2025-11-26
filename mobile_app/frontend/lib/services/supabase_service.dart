@@ -100,15 +100,27 @@ class SupabaseService {
   }
 
   // Update user profile
-  Future<void> updateUserProfile({required String userId, required String fullName, required String username}) async {
+  Future<void> updateUserProfile({
+    required String userId,
+    required String fullName,
+    required String username,
+    String? phone,
+    String? address,
+  }) async {
     try {
       print('Updating profile for user with Firebase UID: $userId');
+
+      // Build update map with only non-null values
+      final Map<String, dynamic> updateData = {'name': fullName, 'username': username};
+
+      if (phone != null) updateData['phone'] = phone;
+      if (address != null) updateData['address'] = address;
 
       // Update only the specified fields while maintaining the firebaseuid
       final response =
           await _client
               .from('userdetails')
-              .update({'name': fullName, 'username': username})
+              .update(updateData)
               .eq('firebaseuid', userId) // Use firebaseuid to find the correct record
               .select();
 
