@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import '../models/sensor_data.dart';
+import '../Widgets/custom_snackbar.dart';
 
 /// Service for managing sensor data streaming from native platform.
 class SensorService {
@@ -39,17 +40,16 @@ class SensorService {
     if (_isCollecting) return;
 
     final vehicleId = context.read<VehicleProvider>().vehicleId;
+    if (vehicleId == null) {
+      CustomSnackBar.showError(context, 'No vehicle selected! Please go to Garage and select a vehicle.');
+      return;
+    }
+
     _isCollecting = true;
     this.onDataCountUpdate = onDataCountUpdate;
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('📱 Started sensor data collection (platform channel)'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      CustomSnackBar.showSuccess(context, '📱 Started sensor data collection');
     }
 
     _subscription = _eventChannel.receiveBroadcastStream().listen(
@@ -110,13 +110,7 @@ class SensorService {
         final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
         _imuBuffer.clear();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('📤 Uploaded ${temp.length} sensor records'),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 1),
-          ),
-        );
+        CustomSnackBar.showInfo(context, '📤 Uploaded ${temp.length} sensor records');
 
         await _sendToSupabase(context: context, data: temp);
         _uploadedCount += temp.length;
@@ -138,13 +132,7 @@ class SensorService {
       _imuBuffer.clear();
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('📤 Uploaded ${temp.length} sensor records'),
-            backgroundColor: Colors.blue,
-            duration: const Duration(seconds: 1),
-          ),
-        );
+        CustomSnackBar.showInfo(context, '📤 Uploaded ${temp.length} sensor records');
       }
 
       await _sendToSupabase(context: context, data: temp);
@@ -153,13 +141,7 @@ class SensorService {
     }
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('⏹️ Stopped sensor data collection'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      CustomSnackBar.showWarning(context, '⏹️ Stopped sensor data collection');
     }
   }
 
@@ -175,22 +157,14 @@ class SensorService {
         errorMessage = 'Permission denied. Please check your login.';
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ $errorMessage'), backgroundColor: Colors.red, duration: const Duration(seconds: 3)),
-        );
+        CustomSnackBar.showError(context, '❌ $errorMessage');
       }
       // Re-add failed data to buffer? Or just log it?
       // Original code re-added it, so we will too.
       _imuBuffer.addAll(data);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Upload failed: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        CustomSnackBar.showError(context, '❌ Upload failed: ${e.toString()}');
       }
       _imuBuffer.addAll(data);
     }

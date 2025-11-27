@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/models/sensor_data.dart';
 import 'package:vehnicate_frontend/services/location_permission_service.dart';
 import 'dart:math' as math;
@@ -39,6 +42,11 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
   }
 
   void _toggleSensorStream() async {
+    final vehicleId = context.read<VehicleProvider>().vehicleId;
+    if (vehicleId == null) {
+      CustomSnackBar.showError(context, 'No vehicle selected! Please go to Garage and select a vehicle.');
+      return;
+    }
     if (!_isListening) {
       // Request location permission before starting
       final status = await _locationService.requestLocationAccess();

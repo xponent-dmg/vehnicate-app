@@ -389,7 +389,7 @@ class DriveAnalyzePage extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('$score.toStringAsFixed(1)', style: DriveAnalyzeConstants.scoreStyle),
+        Text(score.toStringAsFixed(1), style: DriveAnalyzeConstants.scoreStyle),
         SizedBox(width: 4),
         Icon(trendIcon, color: trendColor, size: 14),
       ],

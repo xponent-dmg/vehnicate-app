@@ -82,19 +82,19 @@ class VehnicateSensorManager(
         
         // Start IMU sensors
         accelerometer?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_GAME)
+            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
         }
         
         linearAcceleration?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_GAME)
+            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
         }
         
         gyroscope?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_GAME)
+            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
         }
         
         magnetometer?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_GAME)
+            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
         }
         
         // Start location updates if permission granted

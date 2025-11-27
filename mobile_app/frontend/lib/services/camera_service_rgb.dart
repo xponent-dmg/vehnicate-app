@@ -45,6 +45,7 @@ class CameraServiceRGB {
   // Stats
   int _processedCount = 0;
   int _uploadedCount = 0;
+  bool _isUploading = false;
   VoidCallback? onStatsUpdated;
 
   // Public getters
@@ -124,7 +125,7 @@ class CameraServiceRGB {
 
     try {
       _startCaptureTimer();
-      _startBatchTimer();
+      // _startBatchTimer();
       _isStreaming = true;
       print('📱 Started RGB camera capture (auto-upload every ${_batchIntervalSeconds}s)');
     } catch (e) {
@@ -142,6 +143,11 @@ class CameraServiceRGB {
       _isStreaming = false;
       print('⏹️ Stopped RGB camera capture');
 
+      // Wait for any ongoing upload to finish before triggering the final one
+      while (_isUploading) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
       // Try one last upload
       await uploadBatch();
     } catch (e) {
@@ -157,12 +163,12 @@ class CameraServiceRGB {
     });
   }
 
-  void _startBatchTimer() {
-    _batchTimer?.cancel();
-    _batchTimer = Timer.periodic(const Duration(seconds: _batchIntervalSeconds), (_) async {
-      await uploadBatch();
-    });
-  }
+  // void _startBatchTimer() {
+  //   _batchTimer?.cancel();
+  //   _batchTimer = Timer.periodic(const Duration(seconds: _batchIntervalSeconds), (_) async {
+  //     await uploadBatch();
+  //   });
+  // }
 
   Future<void> _captureFrame() async {
     if (_controller == null || !_controller!.value.isInitialized || _controller!.value.isTakingPicture) {
@@ -244,6 +250,12 @@ class CameraServiceRGB {
 
   Future<void> uploadBatch() async {
     if (_pendingFrames.isEmpty) return;
+    if (_isUploading) {
+      debugPrint('Upload already in progress, skipping this trigger.');
+      return;
+    }
+
+    _isUploading = true;
 
     final List<_FrameRecord> batch = List<_FrameRecord>.from(_pendingFrames);
     if (batch.isEmpty) return;
@@ -282,7 +294,6 @@ class CameraServiceRGB {
           'timestamp': DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal().toIso8601String(),
           'file_url': publicUrl,
           'vehicle_id': finalVehicleId,
-          // 'device_id': rec.deviceId, // Removed from schema
           'imu_batch_id': rec.imuBatchId,
         });
         recordsForInsert.add(rec);
@@ -324,6 +335,8 @@ class CameraServiceRGB {
       }
     } catch (e, st) {
       debugPrint('Batch upload error: $e\n$st');
+    } finally {
+      _isUploading = false;
     }
   }
 

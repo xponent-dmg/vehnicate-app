@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
 import 'package:vehnicate_frontend/services/sensor_service.dart';
 
@@ -34,10 +35,6 @@ class _ImuCollectorState extends State<ImuCollector> {
   final String _deviceId = 'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
   final String _currentImuBatchId = 'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
 
-  // SnackBar throttle
-  DateTime? _lastSnackAt;
-  static const int _snackDebounceMs = 2000;
-
   @override
   void initState() {
     super.initState();
@@ -58,7 +55,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_initAll] ✅ IMU Collector initialized successfully');
     } catch (e, st) {
       print('[IMU_DEBUG][_initAll] ❌ Init error: $e\n$st');
-      _showSnack('Initialization failed: $e');
+      CustomSnackBar.showError(context, 'Initialization failed: $e');
     }
   }
 
@@ -70,7 +67,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_initCamera] 📷 Camera service initialized successfully');
     } catch (e) {
       print('[IMU_DEBUG][_initCamera] ❌ Camera init error: $e');
-      _showSnack('Camera initialization failed: $e');
+      CustomSnackBar.showError(context, 'Camera initialization failed: $e');
     }
   }
 
@@ -96,7 +93,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_initLocation] 📍 Location permissions granted');
     } catch (e) {
       print('[IMU_DEBUG][_initLocation] ❌ Location init error: $e');
-      _showSnack('Location initialization failed: $e');
+      CustomSnackBar.showError(context, 'Location initialization failed: $e');
     }
   }
 
@@ -106,7 +103,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
-      _showSnack('Error: No vehicle selected. Please go to Garage and select a vehicle.');
+      CustomSnackBar.showError(context, 'Error: No vehicle selected. Please go to Garage and select a vehicle.');
       return;
     }
 
@@ -135,10 +132,10 @@ class _ImuCollectorState extends State<ImuCollector> {
 
       setState(() => isCollecting = true);
       print('[IMU_DEBUG][startCollection] ✅ Data collection started successfully');
-      _showSnack('Data collection started!');
+      // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
-      _showSnack('Failed to start collection: $e');
+      // CustomSnackBar.showError(context, 'Failed to start collection: $e');
     }
   }
 
@@ -163,30 +160,16 @@ class _ImuCollectorState extends State<ImuCollector> {
         });
       }
       print('[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully');
-      _showSnack('Data collection stopped!');
+      // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
     } catch (e) {
       print('[IMU_DEBUG][stopCollection] ❌ Stop collection error: $e');
-      _showSnack('Error stopping collection: $e');
+      // CustomSnackBar.showError(context, 'Error stopping collection: $e');
       if (mounted) {
         setState(() {
           isStopping = false;
         });
       }
     }
-  }
-
-  void _showSnack(String message) {
-    print('[IMU_DEBUG][_showSnack] $message');
-    final DateTime now = DateTime.now();
-    if (_lastSnackAt != null && now.difference(_lastSnackAt!).inMilliseconds < _snackDebounceMs) {
-      print('[IMU_DEBUG][_showSnack] Snack throttled');
-      return;
-    }
-    _lastSnackAt = now;
-    if (!mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -348,7 +331,7 @@ class _ImuCollectorState extends State<ImuCollector> {
                       onPressed: () async {
                         print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
                         await _cameraService.uploadBatch();
-                        _showSnack('Upload triggered');
+                        CustomSnackBar.showSuccess(context, 'Upload triggered');
                       },
                       icon: const Icon(Icons.upload),
                       label: const Text('Upload Now'),
