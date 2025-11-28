@@ -86,9 +86,8 @@ class SensorService {
             'useraccelz': packet.raw.Az,
             'latitude': packet.location.latitude,
             'longitude': packet.location.longitude,
-            'pitch': packet.angles.theta,
-            'roll': packet.angles.phi,
-            'yaw': 0.0, // Yaw not available in angles, setting to 0.0
+            'speed': packet.location.speed,
+            'bearing': packet.location.bearing,
           };
           _imuBuffer.add(imuData);
           _processedCount++;

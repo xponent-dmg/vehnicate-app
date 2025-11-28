@@ -4,7 +4,6 @@ import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/models/sensor_data.dart';
 import 'package:vehnicate_frontend/services/location_permission_service.dart';
-import 'dart:math' as math;
 
 import 'package:vehnicate_frontend/services/sensor_service.dart';
 
@@ -207,18 +206,6 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
           _buildRawDataSection(packet.raw),
           const SizedBox(height: 24),
 
-          // Conversion Angles Section
-          _buildSectionHeader('Conversion Angles', Colors.purple),
-          const SizedBox(height: 12),
-          _buildAnglesSection(packet.angles),
-          const SizedBox(height: 24),
-
-          // Converted Data Section
-          _buildSectionHeader('Converted Data (Vehicle Coordinates)', Colors.green),
-          const SizedBox(height: 12),
-          _buildConvertedDataSection(packet.converted),
-          const SizedBox(height: 24),
-
           // Location Data Section
           _buildSectionHeader('Location / GPS Data', Colors.orange),
           const SizedBox(height: 12),
@@ -302,72 +289,6 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
           _buildValueRow('Mx', raw.Mx, 'µT', Colors.indigo[300]!),
           _buildValueRow('My', raw.My, 'µT', Colors.indigo[400]!),
           _buildValueRow('Mz', raw.Mz, 'µT', Colors.indigo[500]!),
-        ]),
-      ],
-    );
-  }
-
-  Widget _buildAnglesSection(ConversionAngles angles) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.purple.withValues(alpha: 0.2), Colors.deepPurple.withValues(alpha: 0.2)],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.purple.withValues(alpha: 0.5), width: 1),
-      ),
-      child: Column(
-        children: [
-          _buildAngleDisplay('θ (theta)', angles.theta, angles.thetaDegrees),
-          const SizedBox(height: 16),
-          _buildAngleDisplay('φ (phi)', angles.phi, angles.phiDegrees),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAngleDisplay(String label, double radians, double degrees) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.purple)),
-        ),
-        Expanded(
-          flex: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${radians.toStringAsFixed(3)} rad',
-                style: const TextStyle(fontSize: 14, color: Colors.white, fontFamily: 'monospace'),
-              ),
-              Text(
-                '${degrees.toStringAsFixed(2)}°',
-                style: TextStyle(fontSize: 12, color: Colors.purple[200], fontFamily: 'monospace'),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(width: 60, height: 60, child: CustomPaint(painter: AngleIndicatorPainter(radians, Colors.purple))),
-      ],
-    );
-  }
-
-  Widget _buildConvertedDataSection(ConvertedData converted) {
-    return Column(
-      children: [
-        _buildSensorCard('Converted Acceleration (Vehicle Frame)', Colors.green, [
-          _buildValueRow('AX', converted.AX, 'm/s²', Colors.green[300]!),
-          _buildValueRow('AY', converted.AY, 'm/s²', Colors.green[400]!),
-          _buildValueRow('AZ', converted.AZ, 'm/s²', Colors.green[500]!),
-        ]),
-        const SizedBox(height: 12),
-        _buildSensorCard('Converted Gyroscope (Vehicle Frame)', Colors.lightGreen, [
-          _buildValueRow('GX', converted.GX, 'deg/s', Colors.lightGreen[300]!),
-          _buildValueRow('GY', converted.GY, 'deg/s', Colors.lightGreen[400]!),
-          _buildValueRow('GZ', converted.GZ, 'deg/s', Colors.lightGreen[500]!),
         ]),
       ],
     );
@@ -486,58 +407,5 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
         ],
       ),
     );
-  }
-}
-
-/// Custom painter for angle indicator
-class AngleIndicatorPainter extends CustomPainter {
-  final double angle;
-  final Color color;
-
-  AngleIndicatorPainter(this.angle, this.color);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 4;
-
-    // Draw circle
-    final circlePaint =
-        Paint()
-          ..color = color.withValues(alpha: 0.2)
-          ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, circlePaint);
-
-    // Draw border
-    final borderPaint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
-    canvas.drawCircle(center, radius, borderPaint);
-
-    // Draw angle line
-    final linePaint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3;
-
-    final endX = center.dx + radius * math.cos(angle - math.pi / 2);
-    final endY = center.dy + radius * math.sin(angle - math.pi / 2);
-
-    canvas.drawLine(center, Offset(endX, endY), linePaint);
-
-    // Draw center dot
-    final dotPaint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 3, dotPaint);
-  }
-
-  @override
-  bool shouldRepaint(AngleIndicatorPainter oldDelegate) {
-    return oldDelegate.angle != angle;
   }
 }

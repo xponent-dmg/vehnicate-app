@@ -209,23 +209,26 @@ class VehnicateSensorManager(
                 Mz = Mz
             )
 
-            // STATIC CALIBRATION: Calculate roll and pitch from gravity
-            val angles = MathUtils.calculateStaticAngles(ax, ay, az)
+            // Skip static calibration/rotation as requested
+            // Just pass raw values (Ax, Ay, Az are linear accel, Gx, Gy, Gz are gyro in deg/s)
+            val AX = Ax
+            val AY = Ay
+            val AZ = Az
+            val GX = Gx
+            val GY = Gy
+            val GZ = Gz
             
-            // Build rotation matrix (roll + pitch only, no yaw)
-            val R = MathUtils.buildStaticRotationMatrix(angles.phi, angles.theta)
-            
-            // Apply rotation to linear acceleration (without gravity)
-            val (AX, AY, AZ) = MathUtils.rotateAccel(Ax, Ay, Az, R)
-            
-            // Apply rotation to gyroscope
-            val (GX, GY, GZ) = MathUtils.rotateGyro(Gx, Gy, Gz, R)
+            // Use 0 for angles since we aren't calculating them
 
-            // Create converted data
-            val convertedData = ConvertedData(AX, AY, AZ, GX, GY, GZ)
+            // Create converted data with speed and bearing from latestLocation
+            val convertedData = ConvertedData(
+                AX, AY, AZ, GX, GY, GZ,
+                latestLocation.speed,
+                latestLocation.bearing
+            )
 
             // Create and send packet with location
-            val packet = SensorPacket(rawData, convertedData, angles, latestLocation)
+            val packet = SensorPacket(rawData, convertedData, latestLocation)
             onDataCallback(packet)
         } catch (e: Exception) {
             // Log error but don't crash

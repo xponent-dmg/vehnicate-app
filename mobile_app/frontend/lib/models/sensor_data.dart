@@ -56,6 +56,8 @@ class ConvertedData {
   final double GX; // Converted gyroscope X in deg/s
   final double GY; // Converted gyroscope Y in deg/s
   final double GZ; // Converted gyroscope Z in deg/s
+  final double speed; // Speed in m/s
+  final double bearing; // Bearing in degrees
 
   ConvertedData({
     required this.AX,
@@ -64,6 +66,8 @@ class ConvertedData {
     required this.GX,
     required this.GY,
     required this.GZ,
+    this.speed = 0.0,
+    this.bearing = 0.0,
   });
 
   factory ConvertedData.fromMap(Map<dynamic, dynamic> map) {
@@ -74,26 +78,10 @@ class ConvertedData {
       GX: (map['GX'] as num).toDouble(),
       GY: (map['GY'] as num).toDouble(),
       GZ: (map['GZ'] as num).toDouble(),
+      speed: (map['speed'] as num?)?.toDouble() ?? 0.0,
+      bearing: (map['bearing'] as num?)?.toDouble() ?? 0.0,
     );
   }
-}
-
-/// Data model for conversion angles.
-class ConversionAngles {
-  final double theta; // Theta angle in radians
-  final double phi; // Phi angle in radians
-
-  ConversionAngles({required this.theta, required this.phi});
-
-  factory ConversionAngles.fromMap(Map<dynamic, dynamic> map) {
-    return ConversionAngles(theta: (map['theta'] as num).toDouble(), phi: (map['phi'] as num).toDouble());
-  }
-
-  /// Get theta in degrees
-  double get thetaDegrees => theta * 180 / 3.14159265359;
-
-  /// Get phi in degrees
-  double get phiDegrees => phi * 180 / 3.14159265359;
 }
 
 /// Data model for location/GPS data.
@@ -134,23 +122,15 @@ class SensorPacket {
   final int timestamp;
   final RawSensorData raw;
   final ConvertedData converted;
-  final ConversionAngles angles;
   final LocationData location;
 
-  SensorPacket({
-    required this.timestamp,
-    required this.raw,
-    required this.converted,
-    required this.angles,
-    required this.location,
-  });
+  SensorPacket({required this.timestamp, required this.raw, required this.converted, required this.location});
 
   factory SensorPacket.fromMap(Map<dynamic, dynamic> map) {
     return SensorPacket(
       timestamp: map['timestamp'] as int,
       raw: RawSensorData.fromMap(map['raw'] as Map<dynamic, dynamic>),
       converted: ConvertedData.fromMap(map['converted'] as Map<dynamic, dynamic>),
-      angles: ConversionAngles.fromMap(map['angles'] as Map<dynamic, dynamic>),
       location: LocationData.fromMap(map['location'] as Map<dynamic, dynamic>),
     );
   }
