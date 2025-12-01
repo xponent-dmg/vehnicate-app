@@ -171,7 +171,6 @@ class CameraServiceRGB {
 
     try {
       final XFile file = await _controller!.takePicture();
-      final int now = DateTime.now().millisecondsSinceEpoch;
 
       // Capture values to pass to isolate
       final String rawPath = file.path;
@@ -189,6 +188,8 @@ class CameraServiceRGB {
         BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
 
         final int originalSize = await File(rawPath).length();
+        
+        final int now = DateTime.now().millisecondsSinceEpoch;
 
         // 1. Compress and resize using flutter_image_compress (Native, fast)
         final Uint8List? compressedBytes = await FlutterImageCompress.compressWithFile(
@@ -220,10 +221,12 @@ class CameraServiceRGB {
 
       if (newPath == null) return;
 
+      final int timestamp = _extractTimestampFromFilename(newPath) ?? DateTime.now().millisecondsSinceEpoch;
+      
       _pendingFrames.add(
         _FrameRecord(
           filePath: newPath,
-          timestampMs: now,
+          timestampMs: timestamp,
           imuBatchId: _imuBatchId ?? 'unknown_batch',
           deviceId: _deviceId ?? 'unknown_device',
           vehicleId: _vehicleId ?? 'unknown_vehicle',

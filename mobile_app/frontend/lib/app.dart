@@ -22,7 +22,7 @@ class App extends StatelessWidget {
     print('📱 Building App widget...');
 
     return MaterialApp(
-      title: 'Vehnicate',
+      title: 'vehnicate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
