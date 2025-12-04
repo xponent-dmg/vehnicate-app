@@ -30,6 +30,10 @@ class _ImuCollectorState extends State<ImuCollector> {
   int _imuDataCount = 0;
   int _uploadedImuCount = 0;
 
+  // Time tracking
+  DateTime? _driveStartTime;
+  DateTime? _driveEndTime;
+
   // Config
   final String _deviceId = 'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
   final String _currentImuBatchId = 'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
@@ -113,6 +117,10 @@ class _ImuCollectorState extends State<ImuCollector> {
     try {
       print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
 
+      // Capture start time
+      _driveStartTime = DateTime.now();
+      print('[IMU_DEBUG][startCollection] 📅 Drive started at: $_driveStartTime');
+
       // Start Sensor collection
       await _sensorService.start(
         context: context,
@@ -139,6 +147,7 @@ class _ImuCollectorState extends State<ImuCollector> {
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
       _showSnack('Failed to start collection: $e');
+      _driveStartTime = null; // Reset if failed
     }
   }
 
@@ -153,8 +162,17 @@ class _ImuCollectorState extends State<ImuCollector> {
     try {
       print('[IMU_DEBUG][stopCollection] ⏹️ Stopping data collection...');
 
+      // Capture end time
+      _driveEndTime = DateTime.now();
+      print('[IMU_DEBUG][stopCollection] 📅 Drive ended at: $_driveEndTime');
+
       // Stop Sensor collection and Camera streaming in parallel
       await Future.wait([_sensorService.stop(context), _cameraService.stopStreaming()]);
+
+      // Send start and end times to backend
+      if (_driveStartTime != null && _driveEndTime != null) {
+        await _saveDriveSession();
+      }
 
       if (mounted) {
         setState(() {
@@ -172,6 +190,36 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
+    }
+  }
+
+  Future<void> _saveDriveSession() async {
+    try {
+      final vehicleId = context.read<VehicleProvider>().vehicleId;
+      if (vehicleId == null || _driveStartTime == null || _driveEndTime == null) {
+        print('[IMU_DEBUG][_saveDriveSession] ⚠️ Missing required data');
+        return;
+      }
+
+      final duration = _driveEndTime!.difference(_driveStartTime!);
+      
+      print('[IMU_DEBUG][_saveDriveSession] 💾 Saving drive session...');
+      print('[IMU_DEBUG][_saveDriveSession] Start: $_driveStartTime');
+      print('[IMU_DEBUG][_saveDriveSession] End: $_driveEndTime');
+      print('[IMU_DEBUG][_saveDriveSession] Duration: ${duration.inMinutes} minutes');
+
+      // Save to your existing trips table
+      await supabase.from('trips').insert({
+        'vehicleid': vehicleId,
+        'starttime': _driveStartTime!.toIso8601String(),
+        'endtime': _driveEndTime!.toIso8601String(),
+        'distance': 0.0, // You can calculate actual distance if you have GPS data
+      });
+
+      print('[IMU_DEBUG][_saveDriveSession] ✅ Drive session saved successfully to trips table');
+    } catch (e) {
+      print('[IMU_DEBUG][_saveDriveSession] ❌ Error saving drive session: $e');
+      _showSnack('Warning: Failed to save drive session times');
     }
   }
 
