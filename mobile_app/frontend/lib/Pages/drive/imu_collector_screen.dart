@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
 import 'package:vehnicate_frontend/services/sensor_service.dart';
 
@@ -38,10 +39,6 @@ class _ImuCollectorState extends State<ImuCollector> {
   final String _deviceId = 'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
   final String _currentImuBatchId = 'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
 
-  // SnackBar throttle
-  DateTime? _lastSnackAt;
-  static const int _snackDebounceMs = 2000;
-
   @override
   void initState() {
     super.initState();
@@ -62,7 +59,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_initAll] ✅ IMU Collector initialized successfully');
     } catch (e, st) {
       print('[IMU_DEBUG][_initAll] ❌ Init error: $e\n$st');
-      _showSnack('Initialization failed: $e');
+      CustomSnackBar.showError(context, 'Initialization failed: $e');
     }
   }
 
@@ -74,7 +71,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_initCamera] 📷 Camera service initialized successfully');
     } catch (e) {
       print('[IMU_DEBUG][_initCamera] ❌ Camera init error: $e');
-      _showSnack('Camera initialization failed: $e');
+      CustomSnackBar.showError(context, 'Camera initialization failed: $e');
     }
   }
 
@@ -100,7 +97,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_initLocation] 📍 Location permissions granted');
     } catch (e) {
       print('[IMU_DEBUG][_initLocation] ❌ Location init error: $e');
-      _showSnack('Location initialization failed: $e');
+      CustomSnackBar.showError(context, 'Location initialization failed: $e');
     }
   }
 
@@ -110,7 +107,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
-      _showSnack('Error: No vehicle selected. Please go to Garage and select a vehicle.');
+      CustomSnackBar.showError(context, 'Error: No vehicle selected. Please go to Garage and select a vehicle.');
       return;
     }
 
@@ -143,11 +140,12 @@ class _ImuCollectorState extends State<ImuCollector> {
 
       setState(() => isCollecting = true);
       print('[IMU_DEBUG][startCollection] ✅ Data collection started successfully');
-      _showSnack('Data collection started!');
+      // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
       _showSnack('Failed to start collection: $e');
       _driveStartTime = null; // Reset if failed
+      // CustomSnackBar.showError(context, 'Failed to start collection: $e');
     }
   }
 
@@ -181,10 +179,10 @@ class _ImuCollectorState extends State<ImuCollector> {
         });
       }
       print('[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully');
-      _showSnack('Data collection stopped!');
+      // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
     } catch (e) {
       print('[IMU_DEBUG][stopCollection] ❌ Stop collection error: $e');
-      _showSnack('Error stopping collection: $e');
+      // CustomSnackBar.showError(context, 'Error stopping collection: $e');
       if (mounted) {
         setState(() {
           isStopping = false;
@@ -393,6 +391,51 @@ class _ImuCollectorState extends State<ImuCollector> {
               color: const Color(0xFF765FD1).withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
+            // Control Buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed:
+                          (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
+                      icon:
+                          isStopping
+                              ? Container(
+                                width: 24,
+                                height: 24,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                              )
+                              : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
+                      label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isCollecting ? Colors.red : Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
+                        await _cameraService.uploadBatch();
+                        CustomSnackBar.showSuccess(context, 'Upload triggered');
+                      },
+                      icon: const Icon(Icons.upload),
+                      label: const Text('Upload Now'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

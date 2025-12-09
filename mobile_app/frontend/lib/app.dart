@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
+import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/edit_profile_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
@@ -12,6 +13,7 @@ import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
+import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/services/page_transitions.dart';
 
 class App extends StatelessWidget {
@@ -53,7 +55,7 @@ class App extends StatelessWidget {
           case "/login":
             return PageTransitions.fade(LoginPage());
           case "/signup":
-            return PageTransitions.slideFromRight(SignupPage());
+            return PageTransitions.fade(SignupPage());
 
           // Profile - Fade + Slide Up (elegant)
           case "/profile":
@@ -97,6 +99,11 @@ class App extends StatelessWidget {
             final args = settings.arguments as Map<String, dynamic>?;
             final docType = args != null ? (args['documentType'] as String? ?? 'Document') : 'Document';
             return PageTransitions.slideFromBottom(DocumentUploadPage(documentType: docType));
+
+          case "/drive-details":
+            final args = settings.arguments as Drive?;
+            final drive = args != null ? (args as Drive?) : null;
+            return PageTransitions.slideFromRight(DriveDetailsPage(drive: drive!));
 
           default:
             return null;

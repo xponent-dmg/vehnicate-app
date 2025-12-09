@@ -15,7 +15,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: Duration(milliseconds: 2000), vsync: this);
+    _controller = AnimationController(duration: Duration(milliseconds: 1500), vsync: this);
     _animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -80,7 +80,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
               Transform.translate(
                 offset: Offset(0, MediaQuery.of(context).size.height / 3),
                 child: Text(
-                  "vehnicate@2025",
+                  "Vehnicate@2025",
                   style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255), fontSize: 14),
                 ),
               ),

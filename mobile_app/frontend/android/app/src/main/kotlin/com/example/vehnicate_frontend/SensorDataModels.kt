@@ -41,15 +41,9 @@ data class ConvertedData(
     val AZ: Float,                    // Converted acceleration Z in m/s²
     val GX: Float,                    // Converted gyroscope X in deg/s
     val GY: Float,                    // Converted gyroscope Y in deg/s
-    val GZ: Float                     // Converted gyroscope Z in deg/s
-)
-
-/**
- * Data class representing the calculated conversion angles.
- */
-data class ConversionAngles(
-    val theta: Float,                 // Theta angle in radians
-    val phi: Float                    // Phi angle in radians
+    val GZ: Float,                    // Converted gyroscope Z in deg/s
+    val speed: Float = 0f,            // Speed in m/s
+    val bearing: Float = 0f           // Bearing in degrees
 )
 
 /**
@@ -66,13 +60,12 @@ data class LocationData(
 )
 
 /**
- * Complete sensor data packet containing raw data, converted data, angles, and location.
+ * Complete sensor data packet containing raw data, converted data, and location.
  * This is the data structure sent to Flutter via the event channel.
  */
 data class SensorPacket(
     val raw: RawSensorData,
     val converted: ConvertedData,
-    val angles: ConversionAngles,
     val location: LocationData = LocationData()
 ) {
     /**
@@ -101,11 +94,9 @@ data class SensorPacket(
                 "AZ" to converted.AZ,
                 "GX" to converted.GX,
                 "GY" to converted.GY,
-                "GZ" to converted.GZ
-            ),
-            "angles" to mapOf(
-                "theta" to angles.theta,
-                "phi" to angles.phi
+                "GZ" to converted.GZ,
+                "speed" to converted.speed,
+                "bearing" to converted.bearing
             ),
             "location" to mapOf(
                 "latitude" to location.latitude,

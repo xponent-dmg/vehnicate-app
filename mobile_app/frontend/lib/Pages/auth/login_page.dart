@@ -39,10 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       await AuthService().signInWithEmail(_emailController.text.trim(), _passwordController.text);
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context, "/home",
-          (route)=>false
-          );
+        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -62,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
       await AuthService().signInWithGoogle();
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, "/home",(route)=>false);
+        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -224,10 +221,7 @@ class _LoginPageState extends State<LoginPage> {
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
-                                : Text(
-                                  'Sign in',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                ),
+                                : Text('Sign in', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       ),
                     ),
 
@@ -237,16 +231,13 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                         "Don't have an account? ",
-                          style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                        ),
+                        Text("Don't have an account? ", style: TextStyle(color: Colors.white.withOpacity(0.7))),
                         GestureDetector(
                           onTap: () {
                             Navigator.pushNamed(context, "/signup");
                           },
                           child: Text(
-                           'Sign up',
+                            'Sign up',
                             style: const TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
                           ),
                         ),
@@ -304,25 +295,25 @@ class _LoginPageState extends State<LoginPage> {
                         ),
 
                         // Skip Sign In (temp)
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.1),
-                            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                "/home",
-                                (route)=>false,
-                              );
-                            },
-                            icon: Icon(FontAwesomeIcons.forwardStep, color: Colors.white, size: 24),
-                          ),
-                        ),
+                        // Container(
+                        //   width: 60,
+                        //   height: 60,
+                        //   decoration: BoxDecoration(
+                        //     shape: BoxShape.circle,
+                        //     color: Colors.white.withOpacity(0.1),
+                        //     border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                        //   ),
+                        //   child: IconButton(
+                        //     onPressed: () {
+                        //       Navigator.pushNamedAndRemoveUntil(
+                        //         context,
+                        //         "/home",
+                        //         (route)=>false,
+                        //       );
+                        //     },
+                        //     icon: Icon(FontAwesomeIcons.forwardStep, color: Colors.white, size: 24),
+                        //   ),
+                        // ),
                       ],
                     ),
 
