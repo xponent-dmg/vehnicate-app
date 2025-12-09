@@ -291,159 +291,226 @@ class _ImuCollectorState extends State<ImuCollector> {
           backgroundColor: Colors.deepPurple[600],
           foregroundColor: Colors.white,
         ),
-        body: Column(
-          children: [
-            // Camera Preview
-            if (_cameraService.isReady && _cameraService.controller != null)
-              Container(
-                height: 400,
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.deepPurple, width: 2),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: AspectRatio(
-                    aspectRatio: 1 / _cameraService.controller!.value.aspectRatio,
-                    child: CameraPreview(_cameraService.controller!),
-                  ),
-                ),
-              )
-            else
-              Container(
-                height: 200,
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.grey[300],
-                  border: Border.all(color: Colors.deepPurple, width: 2),
-                ),
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.camera_alt, size: 48, color: Colors.grey),
-                      SizedBox(height: 8),
-                      Text('Camera not ready', style: TextStyle(color: Colors.grey)),
-                    ],
-                  ),
-                ),
-              ),
-
-            // Statistics Display
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.deepPurple[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.deepPurple[200]!),
-              ),
-              child: Column(
-                children: [
-                  const Text('Data Collection Statistics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatCard('IMU Data', '${_imuDataCount - _uploadedImuCount}', '$_uploadedImuCount'),
-                      _buildStatCard(
-                        'Images',
-                        '${_cameraService.processedCount - _cameraService.uploadedCount}',
-                        '${_cameraService.uploadedCount}',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pending Images: ${_cameraService.pendingFramesCount}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-
-            // Control Buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed:
-                          (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
-                      icon:
-                          isStopping
-                              ? Container(
-                                width: 24,
-                                height: 24,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                              )
-                              : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
-                      label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isCollecting ? Colors.red : Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
-                        await _cameraService.uploadBatch();
-                        _showSnack('Upload triggered');
-                      },
-                      icon: const Icon(Icons.upload),
-                      label: const Text('Upload Now'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : Colors.blue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const Spacer(),
-
-            // Status Indicator
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isCollecting ? Colors.green[100] : Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: isCollecting ? Colors.green : Colors.grey, width: 1),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isCollecting ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                    color: isCollecting ? Colors.green : Colors.grey,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isCollecting ? 'Data Collection Active' : 'Data Collection Stopped',
-                    style: TextStyle(
-                      color: isCollecting ? Colors.green[800] : Colors.grey[600],
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        body: OrientationBuilder(
+          builder: (context, orientation) {
+            if (orientation == Orientation.landscape) {
+              return _buildLandscapeLayout();
+            } else {
+              return _buildPortraitLayout();
+            }
+          },
         ),
       ), // Close Scaffold
     ); // Close PopScope
+  }
+
+  Widget _buildPortraitLayout() {
+    return Column(
+      children: [
+        // Camera Preview
+        _buildCameraPreview(height: 400, isLandscape: false),
+
+        // Statistics Display
+        _buildStatisticsCard(),
+
+        // Control Buttons
+        _buildControlButtons(),
+
+        const Spacer(),
+
+        // Status Indicator
+        _buildStatusIndicator(),
+      ],
+    );
+  }
+
+  Widget _buildLandscapeLayout() {
+    return Row(
+      children: [
+        // Left side: Camera Preview
+        Expanded(
+          flex: 3,
+          child: Column(
+            children: [
+              Expanded(child: _buildCameraPreview(isLandscape: true)),
+              _buildStatusIndicator(),
+            ],
+          ),
+        ),
+        
+        // Right side: Statistics and Controls
+        Expanded(
+          flex: 2,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildStatisticsCard(),
+                const SizedBox(height: 12),
+                _buildControlButtons(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCameraPreview({double? height, bool isLandscape = false}) {
+    if (_cameraService.isReady && _cameraService.controller != null) {
+      // Use reciprocal aspect ratio for landscape mode
+      final aspectRatio = isLandscape 
+          ? _cameraService.controller!.value.aspectRatio 
+          : 1 / _cameraService.controller!.value.aspectRatio;
+      
+      return Container(
+        height: height,
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.deepPurple, width: 2),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: AspectRatio(
+            aspectRatio: aspectRatio,
+            child: CameraPreview(_cameraService.controller!),
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        height: height ?? 200,
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey[300],
+          border: Border.all(color: Colors.deepPurple, width: 2),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.camera_alt, size: 48, color: Colors.grey),
+              SizedBox(height: 8),
+              Text('Camera not ready', style: TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildStatisticsCard() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.deepPurple[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.deepPurple[200]!),
+      ),
+      child: Column(
+        children: [
+          const Text('Data Collection Statistics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatCard('IMU Data', '${_imuDataCount - _uploadedImuCount}', '$_uploadedImuCount'),
+              _buildStatCard(
+                'Images',
+                '${_cameraService.processedCount - _cameraService.uploadedCount}',
+                '${_cameraService.uploadedCount}',
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pending Images: ${_cameraService.pendingFramesCount}',
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildControlButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed:
+                  (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
+              icon:
+                  isStopping
+                      ? Container(
+                        width: 24,
+                        height: 24,
+                        padding: const EdgeInsets.all(2.0),
+                        child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                      )
+                      : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
+              label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isCollecting ? Colors.red : Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
+                await _cameraService.uploadBatch();
+                _showSnack('Upload triggered');
+              },
+              icon: const Icon(Icons.upload),
+              label: const Text('Upload Now'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusIndicator() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isCollecting ? Colors.green[100] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: isCollecting ? Colors.green : Colors.grey, width: 1),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isCollecting ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+            color: isCollecting ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            isCollecting ? 'Data Collection Active' : 'Data Collection Stopped',
+            style: TextStyle(
+              color: isCollecting ? Colors.green[800] : Colors.grey[600],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStatCard(String title, String processed, String uploaded) {
