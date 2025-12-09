@@ -67,7 +67,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                 animation: _animation,
                 builder: (context, child) {
                   return Text(
-                    _showFinalText ? "Vehnicate" : "Vehicle + Communicate",
+                    _showFinalText ? "vehnicate" : "vehicles+communicate",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,

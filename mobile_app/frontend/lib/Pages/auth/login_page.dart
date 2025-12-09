@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Logo and Title
                     const Text(
-                      'Vehnicate',
+                      'vehnicate',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

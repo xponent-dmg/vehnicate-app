@@ -385,7 +385,7 @@ Widget _header(context) {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             RevealText(
               'Calm in the Chaos',
               style: TextStyle(color: Colors.white70, fontSize: 11),
