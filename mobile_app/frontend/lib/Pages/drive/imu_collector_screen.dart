@@ -286,10 +286,12 @@ class _ImuCollectorState extends State<ImuCollector> {
         }
       },
       child: Scaffold(
+        backgroundColor: const Color(0xFF01010D),
         appBar: AppBar(
           title: const Text("IMU + Camera Data Collector"),
-          backgroundColor: Colors.deepPurple[600],
+          backgroundColor: const Color(0xFF0E0E1A),
           foregroundColor: Colors.white,
+          elevation: 0,
         ),
         body: OrientationBuilder(
           builder: (context, orientation) {
@@ -305,55 +307,71 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   Widget _buildPortraitLayout() {
-    return Column(
-      children: [
-        // Camera Preview
-        _buildCameraPreview(height: 400, isLandscape: false),
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/bg-image.png"),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Column(
+        children: [
+          // Camera Preview
+          _buildCameraPreview(height: 400, isLandscape: false),
 
-        // Statistics Display
-        _buildStatisticsCard(),
+          // Statistics Display
+          _buildStatisticsCard(),
 
-        // Control Buttons
-        _buildControlButtons(),
+          // Control Buttons
+          _buildControlButtons(),
 
-        const Spacer(),
+          const Spacer(),
 
-        // Status Indicator
-        _buildStatusIndicator(),
-      ],
+          // Status Indicator
+          _buildStatusIndicator(),
+        ],
+      ),
     );
   }
 
   Widget _buildLandscapeLayout() {
-    return Row(
-      children: [
-        // Left side: Camera Preview
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              Expanded(child: _buildCameraPreview(isLandscape: true)),
-              _buildStatusIndicator(),
-            ],
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/bg-image.png"),
+          fit: BoxFit.cover,
         ),
-        
-        // Right side: Statistics and Controls
-        Expanded(
-          flex: 2,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(8),
+      ),
+      child: Row(
+        children: [
+          // Left side: Camera Preview
+          Expanded(
+            flex: 3,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildStatisticsCard(),
-                const SizedBox(height: 12),
-                _buildControlButtons(),
+                Expanded(child: _buildCameraPreview(isLandscape: true)),
+                _buildStatusIndicator(),
               ],
             ),
           ),
-        ),
-      ],
+          
+          // Right side: Statistics and Controls
+          Expanded(
+            flex: 2,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildStatisticsCard(),
+                  const SizedBox(height: 12),
+                  _buildControlButtons(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -369,7 +387,14 @@ class _ImuCollectorState extends State<ImuCollector> {
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.deepPurple, width: 2),
+          border: Border.all(color: const Color(0xFF765FD1), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF765FD1).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
@@ -385,16 +410,16 @@ class _ImuCollectorState extends State<ImuCollector> {
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: Colors.grey[300],
-          border: Border.all(color: Colors.deepPurple, width: 2),
+          color: const Color(0xFF0E0E1A),
+          border: Border.all(color: const Color(0xFF765FD1), width: 2),
         ),
         child: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.camera_alt, size: 48, color: Colors.grey),
+              Icon(Icons.camera_alt, size: 48, color: Colors.white38),
               SizedBox(height: 8),
-              Text('Camera not ready', style: TextStyle(color: Colors.grey)),
+              Text('Camera not ready', style: TextStyle(color: Colors.white60)),
             ],
           ),
         ),
@@ -407,13 +432,20 @@ class _ImuCollectorState extends State<ImuCollector> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.deepPurple[50],
+        color: const Color(0xFF0E0E1A),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.deepPurple[200]!),
+        border: Border.all(color: const Color(0xFF765FD1).withOpacity(0.3)),
       ),
       child: Column(
         children: [
-          const Text('Data Collection Statistics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'Data Collection Statistics',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -429,7 +461,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           const SizedBox(height: 8),
           Text(
             'Pending Images: ${_cameraService.pendingFramesCount}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            style: const TextStyle(fontSize: 14, color: Colors.white60),
           ),
         ],
       ),
@@ -456,9 +488,12 @@ class _ImuCollectorState extends State<ImuCollector> {
                       : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
               label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isCollecting ? Colors.red : Colors.green,
+                backgroundColor: isCollecting ? const Color(0xFFF24E1E) : const Color(0xFF4CAF50),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -473,9 +508,12 @@ class _ImuCollectorState extends State<ImuCollector> {
               icon: const Icon(Icons.upload),
               label: const Text('Upload Now'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : Colors.blue,
+                backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : const Color(0xFF765FD1),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -489,22 +527,25 @@ class _ImuCollectorState extends State<ImuCollector> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isCollecting ? Colors.green[100] : Colors.grey[100],
+        color: isCollecting ? const Color(0xFF4CAF50).withOpacity(0.2) : const Color(0xFF0E0E1A),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isCollecting ? Colors.green : Colors.grey, width: 1),
+        border: Border.all(
+          color: isCollecting ? const Color(0xFF4CAF50) : Colors.white24,
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             isCollecting ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-            color: isCollecting ? Colors.green : Colors.grey,
+            color: isCollecting ? const Color(0xFF4CAF50) : Colors.white38,
           ),
           const SizedBox(width: 8),
           Text(
             isCollecting ? 'Data Collection Active' : 'Data Collection Stopped',
             style: TextStyle(
-              color: isCollecting ? Colors.green[800] : Colors.grey[600],
+              color: isCollecting ? const Color(0xFF4CAF50) : Colors.white60,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -517,10 +558,20 @@ class _ImuCollectorState extends State<ImuCollector> {
     // print('[IMU_DEBUG][_buildStatCard] $title: processed=$processed, uploaded=$uploaded');
     return Column(
       children: [
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(title, style: const TextStyle(fontSize: 12, color: Colors.white60)),
         const SizedBox(height: 4),
-        Text(processed, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text('Uploaded: $uploaded', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(
+          processed,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          'Uploaded: $uploaded',
+          style: const TextStyle(fontSize: 10, color: Colors.white38),
+        ),
       ],
     );
   }
