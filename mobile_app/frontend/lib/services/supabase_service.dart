@@ -227,6 +227,56 @@ class SupabaseService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchDrives(int vehicleId) async {
+    try {
+      print('Fetching drives for vehicle ID: $vehicleId');
+      await initialize();
+
+      // Query 'trips' table directly
+      final response = await _client
+          .from('trips')
+          .select()
+          .eq('vehicleid', vehicleId)
+          .order('starttime', ascending: false);
+
+      print('Drives fetched: ${response.length}');
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e, stackTrace) {
+      print('Error fetching drives: $e');
+      print('Stack trace: $stackTrace');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchDriveData({
+    required int vehicleId,
+    required DateTime startTime,
+    required DateTime endTime,
+  }) async {
+    try {
+      print('Fetching drive data for vehicle $vehicleId');
+      print('Data Time Range: ${startTime.toLocal()} to ${endTime.toLocal()}');
+      await initialize();
+
+      // Query 'datatransmission' table for sensor data within the time range
+      final response = await _client
+          .from('datatransmission')
+          .select()
+          .eq('vehicleid', vehicleId)
+          .gte('timesent', startTime.toIso8601String())
+          .lte('timesent', endTime.toIso8601String())
+          .order('timesent', ascending: true)
+          .limit(50000);
+
+      print('Drive data points fetched: ${response.length}');
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e, stackTrace) {
+      print('Error fetching drive data: $e');
+      print('Stack trace: $stackTrace');
+      return [];
+    }
+  }
+
   Future<void> createSupabaseUser({required String uid, required String email, String? displayName}) async {
     try {
       print('Ensuring Supabase client is initialized...');
@@ -288,6 +338,62 @@ class SupabaseService {
       print('Error: $e');
       print('Stack trace: $stackTrace');
       throw Exception('Failed to create vehicle: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchDriveEvents({
+    required int vehicleId,
+    required DateTime startTime,
+    required DateTime endTime,
+  }) async {
+    try {
+      print('Fetching drive events for vehicle $vehicleId');
+      print('Events Time Range: ${startTime.toLocal()} to ${endTime.toLocal()}');
+      await initialize();
+
+      final response = await _client
+          .from('driving_events')
+          .select()
+          .eq('vehicle_id', vehicleId)
+          .gte('timestamp', startTime.toIso8601String())
+          .lte('timestamp', endTime.toIso8601String())
+          .order('timestamp', ascending: true);
+
+      print('Events fetched: ${response.length}');
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e, stackTrace) {
+      print('Error fetching drive events: $e');
+      print('Stack trace: $stackTrace');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchDriveRoute({
+    required int vehicleId,
+    required DateTime startTime,
+    required DateTime endTime,
+  }) async {
+    try {
+      print('Fetching drive route for vehicle $vehicleId');
+      print('Route Time Range (d/m/y): ${startTime.toLocal()} to ${endTime.toLocal()}');
+      await initialize();
+
+      final response = await _client.rpc(
+        'get_clean_route',
+        params: {
+          'vehicle_id_input': vehicleId,
+          'start_time_input': startTime.toIso8601String(),
+          'end_time_input': endTime.toIso8601String(),
+        },
+      );
+
+      print('Route points fetched (unique/cleaned): ${response.length}');
+      // RPC returns a list directly typically, but we cast for safety
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e, stackTrace) {
+      print('Error fetching drive route: $e');
+      print('Stack trace: $stackTrace');
+      return [];
     }
   }
 }
