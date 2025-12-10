@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
+import 'package:intl/intl.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
@@ -66,174 +69,6 @@ class DriveAnalyzeConstants {
 class DriveAnalyzePage extends StatelessWidget {
   const DriveAnalyzePage({super.key});
 
-  // Dummy data for drives
-  static final List<Drive> _dummyDrives = [
-    Drive(
-      id: '1',
-      carName: 'Tesla Model 3',
-      date: DateTime(2024, 8, 28),
-      distance: 15.3,
-      avgScore: 87.5,
-      scoreTrend: 'up',
-      duration: Duration(minutes: 32),
-      improvementPercent: 12.5,
-      harshBrakes: 2,
-      harshAccelerations: 1,
-      avgSpeed: 28.7,
-      scorePoints: [
-        ScorePoint(time: 0, score: 85),
-        ScorePoint(time: 5, score: 88),
-        ScorePoint(time: 10, score: 86),
-        ScorePoint(time: 15, score: 90),
-        ScorePoint(time: 20, score: 87),
-        ScorePoint(time: 25, score: 89),
-        ScorePoint(time: 30, score: 88),
-      ],
-      speedPoints: [
-        SpeedPoint(time: 0, speed: 0),
-        SpeedPoint(time: 5, speed: 35),
-        SpeedPoint(time: 10, speed: 42),
-        SpeedPoint(time: 15, speed: 25),
-        SpeedPoint(time: 20, speed: 38),
-        SpeedPoint(time: 25, speed: 30),
-        SpeedPoint(time: 30, speed: 15),
-      ],
-      eventPoints: [
-        EventPoint(time: 8, type: 'brake', intensity: 7.2),
-        EventPoint(time: 18, type: 'acceleration', intensity: 6.8),
-        EventPoint(time: 24, type: 'brake', intensity: 8.1),
-      ],
-    ),
-    Drive(
-      id: '2',
-      carName: 'Honda Civic',
-      date: DateTime(2024, 8, 26),
-      distance: 22.1,
-      avgScore: 72.8,
-      scoreTrend: 'down',
-      duration: Duration(minutes: 45),
-      improvementPercent: -8.3,
-      harshBrakes: 5,
-      harshAccelerations: 3,
-      avgSpeed: 29.5,
-      scorePoints: [
-        ScorePoint(time: 0, score: 78),
-        ScorePoint(time: 10, score: 75),
-        ScorePoint(time: 20, score: 70),
-        ScorePoint(time: 30, score: 68),
-        ScorePoint(time: 40, score: 72),
-      ],
-      speedPoints: [
-        SpeedPoint(time: 0, speed: 0),
-        SpeedPoint(time: 10, speed: 40),
-        SpeedPoint(time: 20, speed: 32),
-        SpeedPoint(time: 30, speed: 45),
-        SpeedPoint(time: 40, speed: 20),
-      ],
-      eventPoints: [
-        EventPoint(time: 5, type: 'acceleration', intensity: 8.5),
-        EventPoint(time: 12, type: 'brake', intensity: 9.1),
-        EventPoint(time: 18, type: 'brake', intensity: 7.8),
-        EventPoint(time: 25, type: 'acceleration', intensity: 8.2),
-        EventPoint(time: 32, type: 'brake', intensity: 8.9),
-        EventPoint(time: 38, type: 'acceleration', intensity: 7.5),
-        EventPoint(time: 42, type: 'brake', intensity: 8.3),
-      ],
-    ),
-    Drive(
-      id: '3',
-      carName: 'BMW X5',
-      date: DateTime(2024, 8, 24),
-      distance: 8.7,
-      avgScore: 91.2,
-      scoreTrend: 'up',
-      duration: Duration(minutes: 18),
-      improvementPercent: 15.7,
-      harshBrakes: 0,
-      harshAccelerations: 1,
-      avgSpeed: 29.0,
-      scorePoints: [
-        ScorePoint(time: 0, score: 89),
-        ScorePoint(time: 5, score: 92),
-        ScorePoint(time: 10, score: 90),
-        ScorePoint(time: 15, score: 93),
-      ],
-      speedPoints: [
-        SpeedPoint(time: 0, speed: 0),
-        SpeedPoint(time: 5, speed: 30),
-        SpeedPoint(time: 10, speed: 35),
-        SpeedPoint(time: 15, speed: 25),
-      ],
-      eventPoints: [EventPoint(time: 12, type: 'acceleration', intensity: 6.2)],
-    ),
-    Drive(
-      id: '4',
-      carName: 'Toyota Camry',
-      date: DateTime(2024, 8, 22),
-      distance: 34.5,
-      avgScore: 79.3,
-      scoreTrend: 'stable',
-      duration: Duration(minutes: 65),
-      improvementPercent: 2.1,
-      harshBrakes: 3,
-      harshAccelerations: 2,
-      avgSpeed: 31.8,
-      scorePoints: [
-        ScorePoint(time: 0, score: 80),
-        ScorePoint(time: 15, score: 78),
-        ScorePoint(time: 30, score: 81),
-        ScorePoint(time: 45, score: 77),
-        ScorePoint(time: 60, score: 80),
-      ],
-      speedPoints: [
-        SpeedPoint(time: 0, speed: 0),
-        SpeedPoint(time: 15, speed: 35),
-        SpeedPoint(time: 30, speed: 40),
-        SpeedPoint(time: 45, speed: 28),
-        SpeedPoint(time: 60, speed: 15),
-      ],
-      eventPoints: [
-        EventPoint(time: 10, type: 'brake', intensity: 7.5),
-        EventPoint(time: 22, type: 'acceleration', intensity: 7.8),
-        EventPoint(time: 35, type: 'brake', intensity: 8.0),
-        EventPoint(time: 48, type: 'acceleration', intensity: 7.2),
-        EventPoint(time: 55, type: 'brake', intensity: 7.9),
-      ],
-    ),
-    Drive(
-      id: '5',
-      carName: 'Audi A4',
-      date: DateTime(2024, 8, 20),
-      distance: 12.8,
-      avgScore: 84.6,
-      scoreTrend: 'up',
-      duration: Duration(minutes: 28),
-      improvementPercent: 9.4,
-      harshBrakes: 1,
-      harshAccelerations: 2,
-      avgSpeed: 27.4,
-      scorePoints: [
-        ScorePoint(time: 0, score: 82),
-        ScorePoint(time: 7, score: 85),
-        ScorePoint(time: 14, score: 83),
-        ScorePoint(time: 21, score: 87),
-        ScorePoint(time: 28, score: 85),
-      ],
-      speedPoints: [
-        SpeedPoint(time: 0, speed: 0),
-        SpeedPoint(time: 7, speed: 32),
-        SpeedPoint(time: 14, speed: 38),
-        SpeedPoint(time: 21, speed: 25),
-        SpeedPoint(time: 28, speed: 10),
-      ],
-      eventPoints: [
-        EventPoint(time: 9, type: 'acceleration', intensity: 7.1),
-        EventPoint(time: 16, type: 'brake', intensity: 7.6),
-        EventPoint(time: 23, type: 'acceleration', intensity: 6.9),
-      ],
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -243,28 +78,33 @@ class DriveAnalyzePage extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
           ),
-          child: LiquidPullToRefresh(
-            onRefresh: () async {
-              // Simulate network delay
-              await Future.delayed(Duration(seconds: 1));
+          child: Consumer<VehicleProvider>(
+            builder: (context, vehicleProvider, child) {
+              final drives = vehicleProvider.drives;
+              return LiquidPullToRefresh(
+                onRefresh: () async {
+                  await vehicleProvider.loadDrives();
+                },
+                color: DriveAnalyzeConstants.primaryBackground,
+                backgroundColor: DriveAnalyzeConstants.accentPurple,
+                showChildOpacityTransition: false,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: drives.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return _buildHeader(context);
+                    }
+                    final drive = drives[index - 1];
+                    // We can pass the car name from the provider, as all drives are for this vehicle
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
+                      child: _buildDriveCard(context, drive, vehicleProvider.vehicleName ?? 'Unknown Car'),
+                    );
+                  },
+                ),
+              );
             },
-            color: DriveAnalyzeConstants.primaryBackground,
-            backgroundColor: DriveAnalyzeConstants.accentPurple,
-            showChildOpacityTransition: false,
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: _dummyDrives.length + 1,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return _buildHeader(context);
-                }
-                final drive = _dummyDrives[index - 1];
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
-                  child: _buildDriveCard(context, drive),
-                );
-              },
-            ),
           ),
         ),
       ),
@@ -291,7 +131,9 @@ class DriveAnalyzePage extends StatelessWidget {
     );
   }
 
-  Widget _buildDriveCard(BuildContext context, Drive drive) {
+  Widget _buildDriveCard(BuildContext context, Drive drive, String carName) {
+    final duration = drive.endTime.difference(drive.startTime);
+
     return Container(
       decoration: BoxDecoration(
         color: DriveAnalyzeConstants.cardBackground,
@@ -305,13 +147,13 @@ class DriveAnalyzePage extends StatelessWidget {
         onTap: () {
           Navigator.pushNamed(context, "/drive-details", arguments: drive);
         },
-        leading: _buildCarIcon(drive.carName),
+        leading: _buildCarIcon(carName),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(drive.carName, style: DriveAnalyzeConstants.carNameStyle),
+            Text(carName, style: DriveAnalyzeConstants.carNameStyle),
             SizedBox(height: 4),
-            Text(_formatDate(drive.date), style: DriveAnalyzeConstants.dateStyle),
+            Text(_formatDate(drive.startTime), style: DriveAnalyzeConstants.dateStyle),
           ],
         ),
         subtitle: Padding(
@@ -320,7 +162,7 @@ class DriveAnalyzePage extends StatelessWidget {
             children: [
               _buildMetric(icon: FontAwesomeIcons.road, value: '${drive.distance.toStringAsFixed(1)} km'),
               SizedBox(width: 16),
-              _buildMetric(icon: FontAwesomeIcons.clock, value: _formatDuration(drive.duration)),
+              _buildMetric(icon: FontAwesomeIcons.clock, value: _formatDuration(duration)),
             ],
           ),
         ),
@@ -328,8 +170,9 @@ class DriveAnalyzePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
-            SizedBox(height: 4),
+            // Score handling removed for now as per new schema
+            // _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
+            // SizedBox(height: 4),
             Icon(Icons.arrow_forward_ios, color: DriveAnalyzeConstants.accentPurple, size: 16),
           ],
         ),
@@ -368,6 +211,7 @@ class DriveAnalyzePage extends StatelessWidget {
     );
   }
 
+  /*
   Widget _buildScoreDisplay(double score, String trend) {
     Color trendColor;
     IconData trendIcon;
@@ -395,9 +239,10 @@ class DriveAnalyzePage extends StatelessWidget {
       ],
     );
   }
+  */
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    return DateFormat('dd MMM yyyy, HH:mm').format(date);
   }
 
   String _formatDuration(Duration duration) {
@@ -411,3 +256,4 @@ class DriveAnalyzePage extends StatelessWidget {
     }
   }
 }
+

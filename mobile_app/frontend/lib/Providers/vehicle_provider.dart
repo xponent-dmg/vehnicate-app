@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
+import 'package:vehnicate_frontend/models/drive_model.dart';
 
 class VehicleProvider extends ChangeNotifier {
   int? _vehicleId;
@@ -13,6 +14,10 @@ class VehicleProvider extends ChangeNotifier {
   bool _isLoading = false;
   Object? _error;
 
+  List<Drive> _drives = [];
+  List<Drive> get drives => _drives;
+
+  // Existing vehicle data
   int? get vehicleId => _vehicleId;
   String? get vehicleName => _vehicleName;
   String? get vehicleModel => _vehicleModel;
@@ -33,11 +38,17 @@ class VehicleProvider extends ChangeNotifier {
     _authSub = firebase.FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user == null) {
         _setVehicle(null);
+        _drives = [];
         return;
       }
       print('VehicleProvider: Loading vehicle data with uid: ${user.uid}');
       await loadVehicleByUserId(user.uid);
       print('VehicleProvider(listenAuth): Vehicle data loaded with data: $_vehicleId');
+
+      // Load drives after vehicle is loaded
+      if (_vehicleId != null) {
+        await loadDrives();
+      }
     });
   }
 
@@ -46,10 +57,15 @@ class VehicleProvider extends ChangeNotifier {
     print('VehicleProvider(refresh): Loading vehicle data with uid: $uid');
     if (uid == null) {
       _setVehicle(null);
+      _drives = [];
       return;
     }
     await loadVehicleByUserId(uid);
     print('VehicleProvider(refresh): Vehicle data loaded with data: $_vehicleId');
+
+    if (_vehicleId != null) {
+      await loadDrives();
+    }
   }
 
   Future<void> loadVehicleByUserId(String? firebaseUuid) async {
@@ -69,8 +85,31 @@ class VehicleProvider extends ChangeNotifier {
       _error = e;
       _setVehicle(null);
     } finally {
+      // Don't set loading false here if we are going to load drives next,
+      // but in this flow we do it sequentially in listenAuth/refresh.
+      // So we can set it false here, but loadDrives will set it true again.
       _isLoading = false;
       print('VehicleProvider(loadVehicleByUserId): Vehicle data loaded with data: $_vehicleId');
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadDrives() async {
+    if (_vehicleId == null) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      print('VehicleProvider: Loading drives for vehicle $_vehicleId');
+      final drivesData = await SupabaseService().fetchDrives(_vehicleId!);
+      _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
+      print('VehicleProvider: Loaded ${_drives.length} drives');
+    } catch (e) {
+      print('VehicleProvider: Error loading drives: $e');
+      _error = e;
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
