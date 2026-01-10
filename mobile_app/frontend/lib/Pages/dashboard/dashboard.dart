@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -362,21 +364,46 @@ class _DashboardPageState extends State<DashboardPage> {
 Widget _header(context) {
   return Container(
     height: 90,
-    padding: const EdgeInsets.symmetric(horizontal: 20),
+    padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Title section
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-            RevealText(
-              'Calm in the Chaos',
-              style: TextStyle(color: Colors.white70, fontSize: 11),
-              duration: Duration(milliseconds: 2000),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 5),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Color(0xFF8E44AD).withAlpha(51),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFF8E44AD), width: 1),
+              ),
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                      RevealText(
+                        'calm in the chaos',
+                        style: TextStyle(color: Colors.white70, fontSize: 10),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
 
         // Actions section
@@ -395,7 +422,6 @@ Widget _header(context) {
     ),
   );
 }
-
 // Widget _textField({required String hintText, required IconData icon, required Color color}) {
 //   return Container(
 //     decoration: BoxDecoration(color: ProfileConstants.primaryBackground, borderRadius: BorderRadius.circular(12)),
