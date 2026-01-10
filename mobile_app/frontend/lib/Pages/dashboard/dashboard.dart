@@ -77,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     builder: (context, userProvider, child) {
                       if (!userProvider.isLoading && userProvider.currentUser != null) {
                         return TypewriterText(
-                          "Hey ${userProvider.currentUser?.name} 👋🏻",
+                          "Hey ${userProvider.currentUser?.name}",
                           key: _greetingKey,
                           style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
                         );
@@ -366,21 +366,6 @@ Widget _header(context) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Leading section
-        SizedBox(
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: const Color.fromARGB(255, 212, 161, 9),
-                radius: 10,
-                child: Icon(FontAwesomeIcons.centSign, size: 11),
-              ),
-              const SizedBox(width: 6),
-              const Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-            ],
-          ),
-        ),
-
         // Title section
         Column(
           mainAxisAlignment: MainAxisAlignment.center,

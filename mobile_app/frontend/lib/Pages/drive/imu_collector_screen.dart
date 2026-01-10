@@ -23,6 +23,9 @@ class _ImuCollectorState extends State<ImuCollector> {
   final CameraServiceRGB _cameraService = CameraServiceRGB();
   final supabase = Supabase.instance.client;
 
+  DateTime? _lastSnackAt;
+  final int _snackDebounceMs = 2000; // 2 seconds debounce for snackbars
+
   // Collection state
   bool isCollecting = false;
   bool isStopping = false;
@@ -391,51 +394,6 @@ class _ImuCollectorState extends State<ImuCollector> {
               color: const Color(0xFF765FD1).withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
-            // Control Buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed:
-                          (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
-                      icon:
-                          isStopping
-                              ? Container(
-                                width: 24,
-                                height: 24,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                              )
-                              : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
-                      label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isCollecting ? Colors.red : Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
-                        await _cameraService.uploadBatch();
-                        CustomSnackBar.showSuccess(context, 'Upload triggered');
-                      },
-                      icon: const Icon(Icons.upload),
-                      label: const Text('Upload Now'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : Colors.blue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
