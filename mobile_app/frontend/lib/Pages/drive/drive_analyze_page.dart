@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
@@ -77,13 +77,12 @@ class DriveAnalyzePage extends StatelessWidget {
         child: Consumer<VehicleProvider>(
           builder: (context, vehicleProvider, child) {
             final drives = vehicleProvider.drives;
-            return LiquidPullToRefresh(
+            return RefreshIndicator(
               onRefresh: () async {
                 await vehicleProvider.loadDrives();
               },
-              color: DriveAnalyzeConstants.primaryBackground,
-              backgroundColor: DriveAnalyzeConstants.accentPurple,
-              showChildOpacityTransition: false,
+              color: DriveAnalyzeConstants.accentPurple,
+              backgroundColor: DriveAnalyzeConstants.cardBackground,
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: drives.length + 1,

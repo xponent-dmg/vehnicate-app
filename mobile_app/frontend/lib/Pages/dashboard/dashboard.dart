@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
@@ -47,7 +47,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
-        child: LiquidPullToRefresh(
+        child: RefreshIndicator(
           onRefresh: () async {
             await Future.wait([
               Provider.of<UserProvider>(context, listen: false).refresh(),
@@ -59,9 +59,8 @@ class _DashboardPageState extends State<DashboardPage> {
               });
             }
           },
-          color: ProfileConstants.primaryBackground,
-          backgroundColor: Color(0xFF8E44AD),
-          showChildOpacityTransition: false,
+          color: Color(0xFF8E44AD),
+          backgroundColor: ProfileConstants.cardBackground,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),

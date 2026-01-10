@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class GaragePage extends StatelessWidget {
   const GaragePage({super.key});
@@ -11,16 +10,15 @@ class GaragePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: LiquidPullToRefresh(
+        child: RefreshIndicator(
           onRefresh: () async {
             // Assuming VehicleProvider is defined and has a refresh method
             // and that this widget is within a Provider scope.
             // If not, you might need to adjust how VehicleProvider is accessed.
             await Provider.of<VehicleProvider>(context, listen: false).refresh();
           },
-          color: Colors.black,
-          backgroundColor: Colors.purple,
-          showChildOpacityTransition: false,
+          color: Colors.purple,
+          backgroundColor: Color(0xFF1E1E1E),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
