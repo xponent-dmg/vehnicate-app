@@ -382,6 +382,15 @@ Widget _header(context) {
               ),
               child: Row(
                 children: [
+                    ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      "assets/vehnicate_logo_padded.png",
+                      height: 32,
+                      width: 32,
+                    ),
+                    ),
+                    SizedBox(width: 10),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -389,7 +398,7 @@ Widget _header(context) {
                       Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
                       RevealText(
                         'calm in the chaos',
-                        style: TextStyle(color: Colors.white70, fontSize: 10),
+                        style: TextStyle(color: Colors.white70, fontSize: 11),
                         duration: Duration(milliseconds: 2000),
                       ),
                     ],
