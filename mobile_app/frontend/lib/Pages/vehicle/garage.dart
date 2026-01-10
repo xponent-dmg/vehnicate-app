@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 
 class GaragePage extends StatelessWidget {
@@ -8,7 +9,7 @@ class GaragePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
