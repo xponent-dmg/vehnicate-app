@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -77,7 +79,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     builder: (context, userProvider, child) {
                       if (!userProvider.isLoading && userProvider.currentUser != null) {
                         return TypewriterText(
-                          "Hey ${userProvider.currentUser?.name} 👋🏻",
+                          "Hey ${userProvider.currentUser?.name}",
                           key: _greetingKey,
                           style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
                         );
@@ -362,36 +364,55 @@ class _DashboardPageState extends State<DashboardPage> {
 Widget _header(context) {
   return Container(
     height: 90,
-    padding: const EdgeInsets.symmetric(horizontal: 20),
+    padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Leading section
-        SizedBox(
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: const Color.fromARGB(255, 212, 161, 9),
-                radius: 10,
-                child: Icon(FontAwesomeIcons.centSign, size: 11),
-              ),
-              const SizedBox(width: 6),
-              const Text('657', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-            ],
-          ),
-        ),
-
         // Title section
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-            RevealText(
-              'Calm in the Chaos',
-              style: TextStyle(color: Colors.white70, fontSize: 11),
-              duration: Duration(milliseconds: 2000),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 5),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Color(0xFF8E44AD).withAlpha(51),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFF8E44AD), width: 1),
+              ),
+              child: Row(
+                children: [
+                    ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      "assets/vehnicate_logo_padded.png",
+                      height: 32,
+                      width: 32,
+                    ),
+                    ),
+                    SizedBox(width: 10),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                      RevealText(
+                        'calm in the chaos',
+                        style: TextStyle(color: Colors.white70, fontSize: 11),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
 
         // Actions section
@@ -410,7 +431,6 @@ Widget _header(context) {
     ),
   );
 }
-
 // Widget _textField({required String hintText, required IconData icon, required Color color}) {
 //   return Container(
 //     decoration: BoxDecoration(color: ProfileConstants.primaryBackground, borderRadius: BorderRadius.circular(12)),

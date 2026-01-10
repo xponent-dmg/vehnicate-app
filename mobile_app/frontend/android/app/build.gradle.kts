@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.vehnicate.app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "26.3.11579264"
+    // ndkVersion = "26.3.11579264"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -26,7 +26,7 @@ android {
         applicationId = "com.vehnicate.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -47,5 +47,5 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    implementation("com.google.android.gms:play-services-location:21.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }

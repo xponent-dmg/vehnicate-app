@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Calm in the Chaos',
+                      'calm in the chaos',
                       style: TextStyle(fontSize: 16, color: Colors.white70, letterSpacing: 0.5),
                     ),
 

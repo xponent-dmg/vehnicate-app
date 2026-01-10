@@ -80,7 +80,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
               Transform.translate(
                 offset: Offset(0, MediaQuery.of(context).size.height / 3),
                 child: Text(
-                  "Vehnicate@2025",
+                  "vehnicate@2025",
                   style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255), fontSize: 14),
                 ),
               ),
