@@ -314,21 +314,16 @@ class _ProfilePageState extends State<ProfilePage> {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.only(bottom: 25),
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-              ),
-              child: Column(
-                children: [
-                  _buildHeader(context),
-                  _buildProfileSection(context),
-                  _buildStatsSection(),
-                  const SizedBox(height: 14),
-                  _buildPersonalInfoSection(context),
-                  const SizedBox(height: 30),
-                  _buildSettingsSection(),
-                ],
-              ),
+            child: Column(
+              children: [
+                _buildHeader(context),
+                _buildProfileSection(context),
+                _buildStatsSection(),
+                const SizedBox(height: 14),
+                _buildPersonalInfoSection(context),
+                const SizedBox(height: 30),
+                _buildSettingsSection(),
+              ],
             ),
           ),
         ),

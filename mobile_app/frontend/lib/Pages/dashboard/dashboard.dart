@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
@@ -65,109 +64,104 @@ class _DashboardPageState extends State<DashboardPage> {
           showChildOpacityTransition: false,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            // padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _header(context),
-                  Consumer<UserProvider>(
-                    builder: (context, userProvider, child) {
-                      if (!userProvider.isLoading && userProvider.currentUser != null) {
-                        return TypewriterText(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _header(context),
+                SizedBox(height: 24),
+                Consumer<UserProvider>(
+                  builder: (context, userProvider, child) {
+                    if (!userProvider.isLoading && userProvider.currentUser != null) {
+                      return Padding(
+                        padding: EdgeInsets.only(left: 8, right: 8),
+                        child: TypewriterText(
                           "Hey ${userProvider.currentUser?.name}",
                           key: _greetingKey,
                           style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  SizedBox(height: 24),
-                  // Start Card
-                  _startCard(context),
-                  SizedBox(height: 24),
-                  // Score and Car Info
-                  Row(
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+                SizedBox(height: 24),
+                // Start Card
+                _startCard(context),
+                SizedBox(height: 24),
+                // Score and Car Info
+                Row(
+                  children: [
+                    // Circular Score
+                    _rpsScoreCard(context),
+                    SizedBox(width: 16),
+                    // Car Info
+                    _selectedCarCard(context),
+                  ],
+                ),
+                SizedBox(height: 24),
+                // Weekly Challenge
+                Container(
+                  decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Circular Score
-                      _rpsScoreCard(context),
-                      SizedBox(width: 16),
-                      // Car Info
-                      _selectedCarCard(context),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Drive smoothly',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF8E44AD).withAlpha(51),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Color(0xFF8E44AD), width: 1),
+                            ),
+                            child: Text(
+                              'Weekly',
+                              style: TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w500, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Maintain constant acceleration for 50 km',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Reward: 500 points', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          Text('50%', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Container(
+                        height: 6,
+                        decoration: BoxDecoration(color: Color(0xFF3d3d54), borderRadius: BorderRadius.circular(3)),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.5 * 0.5, // 50% of available width
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: Color(0xFF8E44AD),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  SizedBox(height: 24),
-                  // Weekly Challenge
-                  Container(
-                    decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Drive smoothly',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF8E44AD).withAlpha(51),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Color(0xFF8E44AD), width: 1),
-                              ),
-                              child: Text(
-                                'Weekly',
-                                style: TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w500, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          'Maintain constant acceleration for 50 km',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                        SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Reward: 500 points', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                            Text(
-                              '50%',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12),
-                        Container(
-                          height: 6,
-                          decoration: BoxDecoration(color: Color(0xFF3d3d54), borderRadius: BorderRadius.circular(3)),
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.5 * 0.5, // 50% of available width
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF8E44AD),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -338,20 +332,6 @@ class _DashboardPageState extends State<DashboardPage> {
                         SizedBox(height: 16),
                         Text('Tap to add your vehicle', style: TextStyle(color: Colors.white54, fontSize: 11)),
                         SizedBox(height: 8),
-                        // GestureDetector(
-                        //   onTap: () => _showAddVehicleOverlay(context),
-                        //   child: Container(
-                        //     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        //     decoration: BoxDecoration(
-                        //       color: Color(0xFF8E44AD),
-                        //       borderRadius: BorderRadius.circular(20),
-                        //     ),
-                        //     child: Text(
-                        //       'Add Now',
-                        //       style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     ),
           );
@@ -382,20 +362,19 @@ Widget _header(context) {
               ),
               child: Row(
                 children: [
-                    ClipRRect(
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      "assets/vehnicate_logo_padded.png",
-                      height: 32,
-                      width: 32,
-                    ),
-                    ),
-                    SizedBox(width: 10),
+                    child: Image.asset("assets/vehnicate_logo_padded.png", height: 32, width: 32),
+                  ),
+                  SizedBox(width: 10),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                      Text(
+                        'vehnicate',
+                        style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                      ),
                       RevealText(
                         'calm in the chaos',
                         style: TextStyle(color: Colors.white70, fontSize: 11),
@@ -404,11 +383,7 @@ Widget _header(context) {
                     ],
                   ),
                   SizedBox(width: 12),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 24),
                 ],
               ),
             ),

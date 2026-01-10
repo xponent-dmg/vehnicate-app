@@ -88,82 +88,76 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
       backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            height: MediaQuery.of(context).size.height / 1.8,
-            decoration: const BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/bg-image.png'), fit: BoxFit.fitWidth),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Upload ${widget.documentType}',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Upload ${widget.documentType}',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                       ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text('Select a document file to upload', style: ProfileConstants.sectionTitleStyle),
+              const SizedBox(height: 8),
+              const Text('Supported: PDF, JPG, PNG, HEIC', style: ProfileConstants.labelStyle),
+              const SizedBox(height: 16),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: const Color(0xFF2d2d44), borderRadius: BorderRadius.circular(16)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
+                          child: const Icon(Icons.insert_drive_file, color: Colors.white),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _fileName ?? 'No file selected',
+                            style: ProfileConstants.valueStyle,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _isPicking ? null : _pickFile,
+                          icon: const Icon(Icons.folder_open),
+                          label: const Text('Choose File'),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: _selectedFile == null ? null : _uploadFile,
+                          icon: const Icon(Icons.cloud_upload),
+                          label: const Text('Upload'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Text('Select a document file to upload', style: ProfileConstants.sectionTitleStyle),
-                const SizedBox(height: 8),
-                const Text('Supported: PDF, JPG, PNG, HEIC', style: ProfileConstants.labelStyle),
-                const SizedBox(height: 16),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: const Color(0xFF2d2d44), borderRadius: BorderRadius.circular(16)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: const BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-                            child: const Icon(Icons.insert_drive_file, color: Colors.white),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _fileName ?? 'No file selected',
-                              style: ProfileConstants.valueStyle,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: _isPicking ? null : _pickFile,
-                            icon: const Icon(Icons.folder_open),
-                            label: const Text('Choose File'),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton.icon(
-                            onPressed: _selectedFile == null ? null : _uploadFile,
-                            icon: const Icon(Icons.cloud_upload),
-                            label: const Text('Upload'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

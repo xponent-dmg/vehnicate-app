@@ -23,42 +23,34 @@ class GaragePage extends StatelessWidget {
           showChildOpacityTransition: false,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  // Header with welcome text
-                  Text(
-                    'Welcome to your Garage,',
-                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 35),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                // Header with welcome text
+                Text(
+                  'Welcome to your Garage,',
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 35),
 
-                  // Statistics Cards
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
-                  ),
-                  const SizedBox(height: 30),
+                // Statistics Cards
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
+                ),
+                const SizedBox(height: 30),
 
-                  // Vehicle Documentation Section
-                  Text(
-                    'Vehicle Docs',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 15),
+                // Vehicle Documentation Section
+                Text('Vehicle Docs', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 15),
 
-                  _buildDocumentTile(context, 'Registration Certificate', Icons.description),
-                  _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
-                  _buildDocumentTile(context, 'PUC', Icons.eco),
-                  _buildDocumentTile(context, 'Driving License', Icons.card_membership),
-                ],
-              ),
+                _buildDocumentTile(context, 'Registration Certificate', Icons.description),
+                _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
+                _buildDocumentTile(context, 'PUC', Icons.eco),
+                _buildDocumentTile(context, 'Driving License', Icons.card_membership),
+              ],
             ),
           ),
         ),

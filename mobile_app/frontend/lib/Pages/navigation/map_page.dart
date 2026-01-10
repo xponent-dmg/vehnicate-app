@@ -43,6 +43,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   LatLng? _toLocation;
   double _totalDistance = 0.0;
   String _estimatedTime = '';
+  // ignore: unused_field
   int? _vehicleId;
 
   // Autocomplete state

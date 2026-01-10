@@ -98,32 +98,27 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
     return Scaffold(
       backgroundColor: DriveDetailsConstants.primaryBackground,
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-          ),
-          child: Column(
-            children: [
-              _buildHeader(context, vehicleName),
-              Expanded(
-                child:
-                    _isLoading
-                        ? Center(child: CircularProgressIndicator(color: DriveDetailsConstants.accentPurple))
-                        : SingleChildScrollView(
-                          padding: EdgeInsets.only(bottom: 24),
-                          child: Column(
-                            children: [
-                              _buildMapSection(),
-                              SizedBox(height: 24),
-                              _buildChartsSection(),
-                              SizedBox(height: 24),
-                              _buildMetricsGrid(),
-                            ],
-                          ),
+        child: Column(
+          children: [
+            _buildHeader(context, vehicleName),
+            Expanded(
+              child:
+                  _isLoading
+                      ? Center(child: CircularProgressIndicator(color: DriveDetailsConstants.accentPurple))
+                      : SingleChildScrollView(
+                        padding: EdgeInsets.only(bottom: 24),
+                        child: Column(
+                          children: [
+                            _buildMapSection(),
+                            SizedBox(height: 24),
+                            _buildChartsSection(),
+                            SizedBox(height: 24),
+                            _buildMetricsGrid(),
+                          ],
                         ),
-              ),
-            ],
-          ),
+                      ),
+            ),
+          ],
         ),
       ),
     );

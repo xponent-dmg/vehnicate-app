@@ -74,38 +74,33 @@ class DriveAnalyzePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: DriveAnalyzeConstants.primaryBackground,
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-          ),
-          child: Consumer<VehicleProvider>(
-            builder: (context, vehicleProvider, child) {
-              final drives = vehicleProvider.drives;
-              return LiquidPullToRefresh(
-                onRefresh: () async {
-                  await vehicleProvider.loadDrives();
+        child: Consumer<VehicleProvider>(
+          builder: (context, vehicleProvider, child) {
+            final drives = vehicleProvider.drives;
+            return LiquidPullToRefresh(
+              onRefresh: () async {
+                await vehicleProvider.loadDrives();
+              },
+              color: DriveAnalyzeConstants.primaryBackground,
+              backgroundColor: DriveAnalyzeConstants.accentPurple,
+              showChildOpacityTransition: false,
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: drives.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _buildHeader(context);
+                  }
+                  final drive = drives[index - 1];
+                  // We can pass the car name from the provider, as all drives are for this vehicle
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
+                    child: _buildDriveCard(context, drive, vehicleProvider.vehicleName ?? 'Unknown Car'),
+                  );
                 },
-                color: DriveAnalyzeConstants.primaryBackground,
-                backgroundColor: DriveAnalyzeConstants.accentPurple,
-                showChildOpacityTransition: false,
-                child: ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: drives.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return _buildHeader(context);
-                    }
-                    final drive = drives[index - 1];
-                    // We can pass the car name from the provider, as all drives are for this vehicle
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
-                      child: _buildDriveCard(context, drive, vehicleProvider.vehicleName ?? 'Unknown Car'),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -256,4 +251,3 @@ class DriveAnalyzePage extends StatelessWidget {
     }
   }
 }
-

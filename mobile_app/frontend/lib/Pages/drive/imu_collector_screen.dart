@@ -295,15 +295,15 @@ class _ImuCollectorState extends State<ImuCollector> {
       children: [
         // Camera Preview
         _buildCameraPreview(height: 400, isLandscape: false),
-    
+
         // Statistics Display
         _buildStatisticsCard(),
-    
+
         // Control Buttons
         _buildControlButtons(),
-    
+
         const Spacer(),
-    
+
         // Status Indicator
         _buildStatusIndicator(),
       ],
@@ -312,9 +312,6 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   Widget _buildLandscapeLayout() {
     return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.cover),
-      ),
       child: Row(
         children: [
           // Left side: Camera Preview
