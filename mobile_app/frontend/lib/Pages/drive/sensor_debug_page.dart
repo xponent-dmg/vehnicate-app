@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/models/sensor_data.dart';
@@ -87,9 +88,9 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E21),
+      backgroundColor: ProfileConstants.primaryBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D1E33),
+        backgroundColor: ProfileConstants.primaryBackground,
         elevation: 0,
         title: const Text(
           'Sensor Debug',

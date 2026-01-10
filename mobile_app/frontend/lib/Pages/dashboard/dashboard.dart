@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -71,7 +72,22 @@ class _DashboardPageState extends State<DashboardPage> {
                 SizedBox(height: 24),
                 Consumer<UserProvider>(
                   builder: (context, userProvider, child) {
-                    if (!userProvider.isLoading && userProvider.currentUser != null) {
+                    if (userProvider.isLoading) {
+                      return Padding(
+                        padding: EdgeInsets.only(left: 8, right: 8),
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey.withValues(alpha: 0.2),
+                          highlightColor: Colors.white,
+                          loop: 5,
+                          child: Container(
+                            width: 200,
+                            height: 30,
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      );
+                    }
+                    if (userProvider.currentUser != null) {
                       return Padding(
                         padding: EdgeInsets.only(left: 8, right: 8),
                         child: TypewriterText(
