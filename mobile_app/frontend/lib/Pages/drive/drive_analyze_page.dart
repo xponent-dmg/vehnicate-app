@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
@@ -79,38 +79,32 @@ class DriveAnalyzePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: DriveAnalyzeConstants.primaryBackground,
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-          ),
-          child: Consumer<VehicleProvider>(
-            builder: (context, vehicleProvider, child) {
-              final drives = vehicleProvider.drives;
-              return LiquidPullToRefresh(
-                onRefresh: () async {
-                  await vehicleProvider.loadDrives();
+        child: Consumer<VehicleProvider>(
+          builder: (context, vehicleProvider, child) {
+            final drives = vehicleProvider.drives;
+            return RefreshIndicator(
+              onRefresh: () async {
+                await vehicleProvider.loadDrives();
+              },
+              color: DriveAnalyzeConstants.accentPurple,
+              backgroundColor: DriveAnalyzeConstants.cardBackground,
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: drives.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _buildHeader(context);
+                  }
+                  final drive = drives[index - 1];
+                  // We can pass the car name from the provider, as all drives are for this vehicle
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
+                    child: _buildDriveCard(context, drive, vehicleProvider.vehicleName ?? 'Unknown Car'),
+                  );
                 },
-                color: DriveAnalyzeConstants.primaryBackground,
-                backgroundColor: DriveAnalyzeConstants.accentPurple,
-                showChildOpacityTransition: false,
-                child: ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: drives.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return _buildHeader(context);
-                    }
-                    final drive = drives[index - 1];
-                    // We can pass the car name from the provider, as all drives are for this vehicle
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
-                      child: _buildDriveCard(context, drive, vehicleProvider.vehicleName ?? 'Unknown Car'),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

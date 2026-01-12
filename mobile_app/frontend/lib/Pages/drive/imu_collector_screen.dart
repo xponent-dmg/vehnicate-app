@@ -308,41 +308,27 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   Widget _buildPortraitLayout() {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/bg-image.png"),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Column(
-        children: [
-          // Camera Preview
-          _buildCameraPreview(height: 400, isLandscape: false),
+    return Column(
+      children: [
+        // Camera Preview
+        _buildCameraPreview(height: 400, isLandscape: false),
 
-          // Statistics Display
-          _buildStatisticsCard(),
+        // Statistics Display
+        _buildStatisticsCard(),
 
-          // Control Buttons
-          _buildControlButtons(),
+        // Control Buttons
+        _buildControlButtons(),
 
-          const Spacer(),
+        const Spacer(),
 
-          // Status Indicator
-          _buildStatusIndicator(),
-        ],
-      ),
+        // Status Indicator
+        _buildStatusIndicator(),
+      ],
     );
   }
 
   Widget _buildLandscapeLayout() {
     return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/bg-image.png"),
-          fit: BoxFit.cover,
-        ),
-      ),
       child: Row(
         children: [
           // Left side: Camera Preview

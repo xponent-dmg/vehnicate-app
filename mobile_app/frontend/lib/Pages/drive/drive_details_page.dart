@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/Pages/drive/constants/drive_constants.dart';
@@ -21,13 +22,14 @@ class DriveDetailsPage extends StatefulWidget {
   State<DriveDetailsPage> createState() => _DriveDetailsPageState();
 }
 
-class _DriveDetailsPageState extends State<DriveDetailsPage> {
+class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProviderStateMixin {
   final PageController _chartController = PageController();
   int _currentChartIndex = 0;
   bool _isLoading = true;
   List<SensorDataPoint> _sensorData = [];
   List<LatLng> _routePoints = [];
   List<DriveEvent> _events = [];
+  final MapController _mapController = MapController();
 
   @override
   void initState() {
@@ -98,32 +100,27 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
     return Scaffold(
       backgroundColor: DriveDetailsConstants.primaryBackground,
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-          ),
-          child: Column(
-            children: [
-              _buildHeader(context, vehicleName),
-              Expanded(
-                child:
-                    _isLoading
-                        ? Center(child: CircularProgressIndicator(color: DriveDetailsConstants.accentPurple))
-                        : SingleChildScrollView(
-                          padding: EdgeInsets.only(bottom: 24),
-                          child: Column(
-                            children: [
-                              _buildMapSection(),
-                              SizedBox(height: 24),
-                              _buildChartsSection(),
-                              SizedBox(height: 24),
-                              _buildMetricsGrid(),
-                            ],
-                          ),
+        child: Column(
+          children: [
+            _buildHeader(context, vehicleName),
+            Expanded(
+              child:
+                  _isLoading
+                      ? Center(child: CircularProgressIndicator(color: DriveDetailsConstants.accentPurple))
+                      : SingleChildScrollView(
+                        padding: EdgeInsets.only(bottom: 24),
+                        child: Column(
+                          children: [
+                            _buildMapSection(),
+                            SizedBox(height: 24),
+                            _buildChartsSection(),
+                            SizedBox(height: 24),
+                            _buildMetricsGrid(),
+                          ],
                         ),
-              ),
-            ],
-          ),
+                      ),
+            ),
+          ],
         ),
       ),
     );
@@ -181,7 +178,39 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Route Preview", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              IconButton(onPressed: _showRouteDebugLogs, icon: Icon(Icons.bug_report, color: Colors.white54, size: 20)),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: _showRouteDebugLogs,
+                    icon: Icon(Icons.bug_report, color: Colors.white54, size: 20),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      if (_routePoints.isEmpty) return;
+
+                      LatLng targetCenter;
+                      double targetZoom;
+
+                      if (_routePoints.length > 1) {
+                        final bounds = LatLngBounds.fromPoints(_routePoints);
+                        // constraints used to calculate center/zoom
+                        final fitted = CameraFit.bounds(
+                          bounds: bounds,
+                          padding: const EdgeInsets.all(50.0),
+                        ).fit(_mapController.camera);
+                        targetCenter = fitted.center;
+                        targetZoom = fitted.zoom;
+                      } else {
+                        targetCenter = _routePoints.first;
+                        targetZoom = 15.0;
+                      }
+
+                      _animatedMapMove(targetCenter, targetZoom, 0.0);
+                    },
+                    icon: Icon(Icons.fit_screen_rounded, color: Colors.white54, size: 20),
+                  ),
+                ],
+              ),
             ],
           ),
           SizedBox(height: 8),
@@ -429,6 +458,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
     if (uniquePath.isEmpty) return SizedBox();
 
     return FlutterMap(
+      mapController: _mapController,
       options: MapOptions(
         // Use standard center for single point, CameraFit for paths
         initialCenter: uniquePath.length == 1 ? uniquePath.first : const LatLng(0, 0),
@@ -439,12 +469,18 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
                 : null,
       ),
       children: [
-        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
-        PolylineLayer(polylines: [Polyline(points: uniquePath, strokeWidth: 4.0, color: Colors.blue)]),
+        TileLayer(
+          urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          subdomains: ['a', 'b', 'c', 'd'],
+          userAgentPackageName: 'com.vehnicate.app',
+        ),
+        PolylineLayer(
+          polylines: [Polyline(points: uniquePath, strokeWidth: 4.0, color: DriveDetailsConstants.accentPurple)],
+        ),
         MarkerLayer(
           markers: [
             Marker(point: uniquePath.first, child: const Icon(Icons.circle, color: Colors.green, size: 15)),
-            Marker(point: uniquePath.last, child: const Icon(Icons.stop_circle, color: Colors.red, size: 20)),
+            Marker(point: uniquePath.last, child: const Icon(Icons.circle_sharp, color: Colors.orange, size: 17)),
             // Event Markers
             ..._events.map(
               (e) => Marker(
@@ -615,5 +651,32 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
             ],
           ),
     );
+  }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom, double destRotation) {
+    // Create some variables to hold the current state
+    final latTween = Tween<double>(begin: _mapController.camera.center.latitude, end: destLocation.latitude);
+    final lngTween = Tween<double>(begin: _mapController.camera.center.longitude, end: destLocation.longitude);
+    final zoomTween = Tween<double>(begin: _mapController.camera.zoom, end: destZoom);
+    final rotateTween = Tween<double>(begin: _mapController.camera.rotation, end: destRotation);
+
+    final controller = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
+    final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
+
+    controller.addListener(() {
+      _mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
+      _mapController.rotate(rotateTween.evaluate(animation));
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
   }
 }

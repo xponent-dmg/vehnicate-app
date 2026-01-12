@@ -2,11 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/user_provider.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:vehnicate_frontend/Widgets/reveal_text.dart';
-import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 
 class GaragePage extends StatelessWidget {
   const GaragePage({super.key});
@@ -14,62 +11,47 @@ class GaragePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ProfileConstants.primaryBackground,
       body: SafeArea(
-        child: LiquidPullToRefresh(
+        child: RefreshIndicator(
           onRefresh: () async {
             // Assuming VehicleProvider is defined and has a refresh method
             // and that this widget is within a Provider scope.
             // If not, you might need to adjust how VehicleProvider is accessed.
             await Provider.of<VehicleProvider>(context, listen: false).refresh();
           },
-          color: Colors.black,
-          backgroundColor: Colors.purple,
-          showChildOpacityTransition: false,
+          color: Colors.purple,
+          backgroundColor: Color(0xFF1E1E1E),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage("assets/bg-image.png"), fit: BoxFit.fitHeight),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                   _header(context),
-                  Consumer<UserProvider>(
-                    builder: (context, userProvider, child) {
-                        if (!userProvider.isLoading && userProvider.currentUser != null) {
-                        final firstName = userProvider.currentUser?.name?.split(' ').first ?? '';
-                        return TypewriterText(
-                          "Hey $firstName, welcome to your garage",
-                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  SizedBox(height: 24),
-                  // Statistics Cards
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
-                  ),
-                  const SizedBox(height: 30),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                // Header with welcome text
+                Text(
+                  'Welcome to your Garage,',
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 35),
 
-                  // Vehicle Documentation Section
-                  Text(
-                    'Vehicle Docs',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 15),
+                // Statistics Cards
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [_buildStatCard('647', 'Miles Travelled'), _buildStatCard('753', 'Credits Earned')],
+                ),
+                const SizedBox(height: 30),
 
-                  _buildDocumentTile(context, 'Registration Certificate', Icons.description),
-                  _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
-                  _buildDocumentTile(context, 'PUC', Icons.eco),
-                  _buildDocumentTile(context, 'Driving License', Icons.card_membership),
-                ],
-              ),
+                // Vehicle Documentation Section
+                Text('Vehicle Docs', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 15),
+
+                _buildDocumentTile(context, 'Registration Certificate', Icons.description),
+                _buildDocumentTile(context, 'Vehicle Insurance', Icons.car_repair),
+                _buildDocumentTile(context, 'PUC', Icons.eco),
+                _buildDocumentTile(context, 'Driving License', Icons.card_membership),
+              ],
             ),
           ),
         ),

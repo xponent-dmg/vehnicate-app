@@ -43,6 +43,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   LatLng? _toLocation;
   double _totalDistance = 0.0;
   String _estimatedTime = '';
+  // ignore: unused_field
   int? _vehicleId;
 
   // Autocomplete state
@@ -617,9 +618,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          subdomains: ['a', 'b', 'c', 'd'],
           userAgentPackageName: 'com.vehnicate.app',
-          maxZoom: Config.maxZoom,
         ),
         if (_routePoints.isNotEmpty)
           PolylineLayer(
