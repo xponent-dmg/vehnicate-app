@@ -55,7 +55,7 @@ class _HomeState extends State<Home> {
           }
         },
         // children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
-        children: [DashboardPage(), SensorDebugPage(), GaragePage(), DriveAnalyzePage()],
+        children: [DashboardPage(), MapPage(), GaragePage(), DriveAnalyzePage()],
       ),
       bottomNavigationBar: GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
     );
