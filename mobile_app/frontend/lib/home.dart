@@ -54,8 +54,8 @@ class _HomeState extends State<Home> {
             _mapPageKey.currentState?.stopLiveTracking();
           }
         },
-        // children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
-        children: [DashboardPage(), MapPage(), GaragePage(), DriveAnalyzePage()],
+        children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
+        // children: [DashboardPage(), MapPage(), GaragePage(), DriveAnalyzePage()],
       ),
       bottomNavigationBar: GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
     );
