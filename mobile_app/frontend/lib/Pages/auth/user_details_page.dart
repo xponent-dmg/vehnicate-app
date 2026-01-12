@@ -177,7 +177,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                           elevation: 0,
-                          splashFactory: InkRipple.splashFactory,
                         ),
                         child:
                             _isLoading

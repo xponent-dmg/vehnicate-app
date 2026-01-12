@@ -451,19 +451,14 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> {
                 point: LatLng(e.latitude, e.longitude),
                 height: 20,
                 width: 20,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => _showEventDetails(e),
-                    customBorder: CircleBorder(),
-                    splashColor: Colors.white.withOpacity(0.5),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: _getEventColor(e.type),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
-                      ),
+                child: GestureDetector(
+                  onTap: () => _showEventDetails(e),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _getEventColor(e.type),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
                     ),
                   ),
                 ),

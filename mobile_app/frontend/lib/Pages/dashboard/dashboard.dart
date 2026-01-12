@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
@@ -77,9 +76,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   _header(context),
                   Consumer<UserProvider>(
                     builder: (context, userProvider, child) {
-                      if (!userProvider.isLoading && userProvider.currentUser != null) {
+                        if (!userProvider.isLoading && userProvider.currentUser != null) {
+                        final firstName = userProvider.currentUser?.name?.split(' ').first ?? '';
                         return TypewriterText(
-                          "Hey ${userProvider.currentUser?.name}",
+                          "Hey $firstName, welcome to vehnicate",
                           key: _greetingKey,
                           style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
                         );

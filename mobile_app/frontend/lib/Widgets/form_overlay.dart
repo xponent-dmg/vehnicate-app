@@ -151,7 +151,6 @@ class FormOverlay {
                                 padding: EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 disabledBackgroundColor: Color(0xFF8E44AD).withOpacity(0.5),
-                                splashFactory: InkRipple.splashFactory,
                               ),
                               child:
                                   isSubmitting

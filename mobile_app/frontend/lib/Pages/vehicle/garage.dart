@@ -1,7 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:vehnicate_frontend/Widgets/reveal_text.dart';
+import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 
 class GaragePage extends StatelessWidget {
   const GaragePage({super.key});
@@ -31,14 +36,20 @@ class GaragePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
-                  // Header with welcome text
-                  Text(
-                    'Welcome to your Garage,',
-                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                   _header(context),
+                  Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                        if (!userProvider.isLoading && userProvider.currentUser != null) {
+                        final firstName = userProvider.currentUser?.name?.split(' ').first ?? '';
+                        return TypewriterText(
+                          "Hey $firstName, welcome to your garage",
+                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
-                  const SizedBox(height: 35),
-
+                  SizedBox(height: 24),
                   // Statistics Cards
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -99,4 +110,82 @@ class GaragePage extends StatelessWidget {
       ),
     );
   }
+}
+
+
+Widget _header(context) {
+  return Container(
+    height: 90,
+    padding: const EdgeInsets.symmetric(horizontal: 5),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Title section
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 5),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Color(0xFF8E44AD).withAlpha(51),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFF8E44AD), width: 1),
+              ),
+              child: Row(
+                children: [
+                    ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      "assets/vehnicate_logo_padded.png",
+                      height: 32,
+                      width: 32,
+                    ),
+                    ),
+                    SizedBox(width: 10),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                      RevealText(
+                        'calm in the chaos',
+                        style: TextStyle(color: Colors.white70, fontSize: 11),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Actions section
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, '/profile'),
+            customBorder: CircleBorder(),
+            splashColor: Color(0xFF8E44AD).withOpacity(0.4),
+            highlightColor: Color(0xFF8E44AD).withOpacity(0.2),
+            child: Hero(
+              tag: 'profile-avatar',
+              child: CircleAvatar(
+                radius: 22,
+                backgroundColor: Color(0xFF8E44AD),
+                child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

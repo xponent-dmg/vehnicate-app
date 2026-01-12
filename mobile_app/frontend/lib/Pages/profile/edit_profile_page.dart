@@ -297,7 +297,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    splashFactory: InkRipple.splashFactory,
                   ),
                   child: const Text('Save Changes'),
                 ),
