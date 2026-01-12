@@ -495,6 +495,7 @@ class _ImuCollectorState extends State<ImuCollector> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                splashFactory: InkRipple.splashFactory,
               ),
             ),
           ),
@@ -515,6 +516,7 @@ class _ImuCollectorState extends State<ImuCollector> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                splashFactory: InkRipple.splashFactory,
               ),
             ),
           ),

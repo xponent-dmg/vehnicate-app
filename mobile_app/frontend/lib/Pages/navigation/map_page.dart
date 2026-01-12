@@ -554,6 +554,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF8E44AD),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    splashFactory: InkRipple.splashFactory,
                   ),
                 ),
               ),
@@ -565,6 +566,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3d3d54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  splashFactory: InkRipple.splashFactory,
                 ),
               ),
             ],
@@ -655,6 +657,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 backgroundColor: _isCollectingData ? Colors.red : const Color(0xFF8E44AD),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
+                splashFactory: InkRipple.splashFactory,
               ),
             ),
           ),
@@ -667,6 +670,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               backgroundColor: const Color(0xFF3d3d54),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.all(12),
+              splashFactory: InkRipple.splashFactory,
             ),
             child: const Icon(Icons.my_location, color: Colors.white),
           ),
