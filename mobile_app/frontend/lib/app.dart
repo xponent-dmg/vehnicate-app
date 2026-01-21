@@ -31,6 +31,8 @@ class App extends StatelessWidget {
         primaryColor: Colors.deepPurple,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.light),
+        splashColor: Colors.deepPurple.withOpacity(0.3),
+        highlightColor: Colors.deepPurple.withOpacity(0.1),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.deepPurple[600],
           foregroundColor: Colors.white,
@@ -43,6 +45,17 @@ class App extends StatelessWidget {
             backgroundColor: Colors.deepPurple[600],
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            splashFactory: InkRipple.splashFactory,
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            splashFactory: InkRipple.splashFactory,
+          ),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: IconButton.styleFrom(
+            splashFactory: InkRipple.splashFactory,
           ),
         ),
       ),

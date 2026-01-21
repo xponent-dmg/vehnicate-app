@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
@@ -90,4 +92,82 @@ class GaragePage extends StatelessWidget {
       ),
     );
   }
+}
+
+
+Widget _header(context) {
+  return Container(
+    height: 90,
+    padding: const EdgeInsets.symmetric(horizontal: 5),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Title section
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 5),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Color(0xFF8E44AD).withAlpha(51),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFF8E44AD), width: 1),
+              ),
+              child: Row(
+                children: [
+                    ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      "assets/vehnicate_logo_padded.png",
+                      height: 32,
+                      width: 32,
+                    ),
+                    ),
+                    SizedBox(width: 10),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('vehnicate', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                      RevealText(
+                        'calm in the chaos',
+                        style: TextStyle(color: Colors.white70, fontSize: 11),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Actions section
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, '/profile'),
+            customBorder: CircleBorder(),
+            splashColor: Color(0xFF8E44AD).withOpacity(0.4),
+            highlightColor: Color(0xFF8E44AD).withOpacity(0.2),
+            child: Hero(
+              tag: 'profile-avatar',
+              child: CircleAvatar(
+                radius: 22,
+                backgroundColor: Color(0xFF8E44AD),
+                child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
