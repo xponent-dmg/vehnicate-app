@@ -3,7 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/reveal_text.dart';
+import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 
 class GaragePage extends StatelessWidget {
   const GaragePage({super.key});
@@ -28,11 +31,18 @@ class GaragePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
-                // Header with welcome text
-                Text(
-                  'Welcome to your Garage,',
-                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  _header(context),
+                Consumer<UserProvider>(
+                  builder: (context, userProvider, child) {
+                      if (!userProvider.isLoading && userProvider.currentUser != null) {
+                      final firstName = userProvider.currentUser?.name?.split(' ').first ?? '';
+                      return TypewriterText(
+                        "Hey $firstName, welcome to your garage",
+                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
                 const SizedBox(height: 35),
 
