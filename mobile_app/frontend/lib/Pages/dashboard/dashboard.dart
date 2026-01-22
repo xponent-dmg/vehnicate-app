@@ -319,20 +319,15 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(height: 6),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => _showAddVehicleOverlay(context),
-                            borderRadius: BorderRadius.circular(10),
-                            splashColor: Color(0xFF8E44AD).withOpacity(0.4),
-                            highlightColor: Color(0xFF8E44AD).withOpacity(0.2),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF8E44AD).withAlpha(51),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Color(0xFF8E44AD), width: 1),
-                              ),
+                        GestureDetector(
+                          onTap: () => _showAddVehicleOverlay(context),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF8E44AD).withAlpha(51),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Color(0xFF8E44AD), width: 1),
+                            ),
                             child: Column(
                               children: [
                                 Row(
@@ -348,7 +343,6 @@ class _DashboardPageState extends State<DashboardPage> {
                               ],
                             ),
                           ),
-                        ),
                         ),
                         SizedBox(height: 16),
                         Text('Tap to add your vehicle', style: TextStyle(color: Colors.white54, fontSize: 11)),
@@ -412,20 +406,14 @@ Widget _header(context) {
         ),
 
         // Actions section
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => Navigator.pushNamed(context, '/profile'),
-            customBorder: CircleBorder(),
-            splashColor: Color(0xFF8E44AD).withOpacity(0.4),
-            highlightColor: Color(0xFF8E44AD).withOpacity(0.2),
-            child: Hero(
-              tag: 'profile-avatar',
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: Color(0xFF8E44AD),
-                child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
-              ),
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, '/profile'),
+          child: Hero(
+            tag: 'profile-avatar',
+            child: CircleAvatar(
+              radius: 22,
+              backgroundColor: Color(0xFF8E44AD),
+              child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
             ),
           ),
         ),
@@ -458,22 +446,16 @@ Widget _startCard(BuildContext context) {
       children: [
         Row(
           children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, "/imu");
-                },
-                borderRadius: BorderRadius.circular(25),
-                splashColor: Colors.white.withOpacity(0.3),
-                highlightColor: Colors.white.withOpacity(0.1),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
-                  child: Text(
-                    'Start Drive',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, "/imu");
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
+                child: Text(
+                  'Start Drive',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),
@@ -484,20 +466,14 @@ Widget _startCard(BuildContext context) {
               child: Icon(Icons.home, color: Colors.white, size: 20),
             ),
             SizedBox(width: 8),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, "/map");
-                },
-                customBorder: CircleBorder(),
-                splashColor: Colors.white.withOpacity(0.3),
-                highlightColor: Colors.white.withOpacity(0.1),
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-                  child: Icon(Icons.map, color: Colors.white70, size: 20),
-                ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, "/map");
+              },
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
+                child: Icon(Icons.map, color: Colors.white70, size: 20),
               ),
             ),
             SizedBox(width: 8),

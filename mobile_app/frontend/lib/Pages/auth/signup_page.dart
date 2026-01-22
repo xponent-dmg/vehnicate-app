@@ -186,7 +186,6 @@ class _SignupPageState extends State<SignupPage> {
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                           elevation: 0,
-                          splashFactory: InkRipple.splashFactory,
                         ),
                         child:
                             _isLoading
@@ -206,21 +205,13 @@ class _SignupPageState extends State<SignupPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('Already have an account? ', style: TextStyle(color: Colors.white70)),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            borderRadius: BorderRadius.circular(4),
-                            splashColor: Color(0xFF8E44AD).withOpacity(0.3),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                              child: const Text(
-                                'Sign in',
-                                style: TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
-                              ),
-                            ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Sign in',
+                            style: TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
