@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/header.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:intl/intl.dart';
 
@@ -85,42 +86,19 @@ class DriveAnalyzePage extends StatelessWidget {
               backgroundColor: DriveAnalyzeConstants.cardBackground,
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: drives.length + 1,
+                itemCount: drives.length,
                 itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _buildHeader(context);
-                  }
-                  final drive = drives[index - 1];
+                  final drive = drives[index];
                   // We can pass the car name from the provider, as all drives are for this vehicle
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
-                    child: _buildDriveCard(context, drive, vehicleProvider.vehicleName ?? 'Unknown Car'),
+                    child: _buildDriveCard(context, drive, vehicleProvider.vehicleModel ?? 'Unknown Car'),
                   );
                 },
               ),
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Text('Drive Analysis', style: DriveAnalyzeConstants.titleStyle),
-          ),
-          SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Text('Review your past drives and track your progress', style: DriveAnalyzeConstants.subtitleStyle),
-          ),
-        ],
       ),
     );
   }

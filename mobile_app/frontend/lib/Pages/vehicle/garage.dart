@@ -26,13 +26,6 @@ class GaragePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
-                // Header with welcome text
-                Text(
-                  'Welcome to your Garage,',
-                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 35),
 
                 // Statistics Cards
                 Row(
