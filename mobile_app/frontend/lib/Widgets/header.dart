@@ -28,7 +28,7 @@ class _HeaderState extends State<Header> {
   Widget build(BuildContext context) {
     return Container(
       height: 90,
-      margin: const EdgeInsets.only(top: 10,bottom:15, left: 20, right: 20),
+      margin: const EdgeInsets.only(top: 10, bottom: 15, left: 20, right: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
