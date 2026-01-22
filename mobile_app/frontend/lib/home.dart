@@ -5,6 +5,8 @@ import 'package:vehnicate_frontend/Pages/drive/sensor_debug_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
+import 'package:vehnicate_frontend/Widgets/header.dart';
+import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -41,21 +43,47 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  String _getPageName(int index) {
+    switch (index) {
+      case 0:
+        return 'vehnicate';
+      case 1:
+        return 'navigation';
+      case 2:
+        return 'your garage';
+      case 3:
+        return 'analytics';
+      default:
+        return 'vehnicate';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() => selectedIndex = index);
-          if (index == 1) {
-            _mapPageKey.currentState?.startLiveTracking();
-          } else {
-            _mapPageKey.currentState?.stopLiveTracking();
-          }
-        },
-        children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
-        // children: [DashboardPage(), MapPage(), GaragePage(), DriveAnalyzePage()],
+      backgroundColor: ProfileConstants.primaryBackground,
+      body: Column(
+        children: [
+          SafeArea(bottom: false, child: Header(pageName: _getPageName(selectedIndex), pageIndex: selectedIndex)),
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() => selectedIndex = index);
+                  if (index == 1) {
+                    _mapPageKey.currentState?.startLiveTracking();
+                  } else {
+                    _mapPageKey.currentState?.stopLiveTracking();
+                  }
+                },
+                children: [DashboardPage(), SensorDebugPage(), GaragePage(), DriveAnalyzePage()],
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
     );

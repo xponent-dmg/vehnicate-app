@@ -89,32 +89,6 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ProfileConstants.primaryBackground,
-      appBar: AppBar(
-        backgroundColor: ProfileConstants.primaryBackground,
-        elevation: 0,
-        title: const Text(
-          'Sensor Debug',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _isListening ? Colors.green : Colors.red,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  _isListening ? 'ACTIVE' : 'INACTIVE',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
       body: StreamBuilder<SensorPacket>(
         stream: _sensorService.sensorStream,
         builder: (context, snapshot) {

@@ -210,7 +210,6 @@ class _LoginPageState extends State<LoginPage> {
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                           elevation: 0,
-                          splashFactory: InkRipple.splashFactory,
                         ),
                         child:
                             _isLoading
@@ -233,21 +232,13 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Don't have an account? ", style: TextStyle(color: Colors.white.withOpacity(0.7))),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pushNamed(context, "/signup");
-                            },
-                            borderRadius: BorderRadius.circular(4),
-                            splashColor: Color(0xFF8E44AD).withOpacity(0.3),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                              child: Text(
-                                'Sign up',
-                                style: const TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
-                              ),
-                            ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, "/signup");
+                          },
+                          child: Text(
+                            'Sign up',
+                            style: const TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -277,23 +268,17 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         // Google Sign In
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _isLoading ? null : _googleSignIn,
-                            customBorder: CircleBorder(),
-                            splashColor: Colors.white.withOpacity(0.3),
-                            highlightColor: Colors.white.withOpacity(0.1),
-                            child: Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withOpacity(0.1),
-                                border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-                              ),
-                              child: const Icon(FontAwesomeIcons.google, color: Colors.white, size: 24),
+                        GestureDetector(
+                          onTap: _isLoading ? null : _googleSignIn,
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withOpacity(0.1),
+                              border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
                             ),
+                            child: const Icon(FontAwesomeIcons.google, color: Colors.white, size: 24),
                           ),
                         ),
 

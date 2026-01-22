@@ -23,9 +23,6 @@ class _ImuCollectorState extends State<ImuCollector> {
   final CameraServiceRGB _cameraService = CameraServiceRGB();
   final supabase = Supabase.instance.client;
 
-  DateTime? _lastSnackAt;
-  final int _snackDebounceMs = 2000; // 2 seconds debounce for snackbars
-
   // Collection state
   bool isCollecting = false;
   bool isStopping = false;
@@ -146,7 +143,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
-      _showSnack('Failed to start collection: $e');
+      CustomSnackBar.showError(context, 'Failed to start collection: $e');
       _driveStartTime = null; // Reset if failed
       // CustomSnackBar.showError(context, 'Failed to start collection: $e');
     }
@@ -203,7 +200,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
 
       final duration = _driveEndTime!.difference(_driveStartTime!);
-      
+
       print('[IMU_DEBUG][_saveDriveSession] 💾 Saving drive session...');
       print('[IMU_DEBUG][_saveDriveSession] Start: $_driveStartTime');
       print('[IMU_DEBUG][_saveDriveSession] End: $_driveEndTime');
@@ -220,22 +217,8 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_saveDriveSession] ✅ Drive session saved successfully to trips table');
     } catch (e) {
       print('[IMU_DEBUG][_saveDriveSession] ❌ Error saving drive session: $e');
-      _showSnack('Warning: Failed to save drive session times');
+      CustomSnackBar.showWarning(context, 'Warning: Failed to save drive session times');
     }
-  }
-
-  void _showSnack(String message) {
-    print('[IMU_DEBUG][_showSnack] $message');
-    final DateTime now = DateTime.now();
-    if (_lastSnackAt != null && now.difference(_lastSnackAt!).inMilliseconds < _snackDebounceMs) {
-      print('[IMU_DEBUG][_showSnack] Snack throttled');
-      return;
-    }
-    _lastSnackAt = now;
-    if (!mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -334,14 +317,9 @@ class _ImuCollectorState extends State<ImuCollector> {
           // Left side: Camera Preview
           Expanded(
             flex: 3,
-            child: Column(
-              children: [
-                Expanded(child: _buildCameraPreview(isLandscape: true)),
-                _buildStatusIndicator(),
-              ],
-            ),
+            child: Column(children: [Expanded(child: _buildCameraPreview(isLandscape: true)), _buildStatusIndicator()]),
           ),
-          
+
           // Right side: Statistics and Controls
           Expanded(
             flex: 2,
@@ -349,11 +327,7 @@ class _ImuCollectorState extends State<ImuCollector> {
               padding: const EdgeInsets.all(8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildStatisticsCard(),
-                  const SizedBox(height: 12),
-                  _buildControlButtons(),
-                ],
+                children: [_buildStatisticsCard(), const SizedBox(height: 12), _buildControlButtons()],
               ),
             ),
           ),
@@ -365,10 +339,9 @@ class _ImuCollectorState extends State<ImuCollector> {
   Widget _buildCameraPreview({double? height, bool isLandscape = false}) {
     if (_cameraService.isReady && _cameraService.controller != null) {
       // Use reciprocal aspect ratio for landscape mode
-      final aspectRatio = isLandscape 
-          ? _cameraService.controller!.value.aspectRatio 
-          : 1 / _cameraService.controller!.value.aspectRatio;
-      
+      final aspectRatio =
+          isLandscape ? _cameraService.controller!.value.aspectRatio : 1 / _cameraService.controller!.value.aspectRatio;
+
       return Container(
         height: height,
         margin: const EdgeInsets.all(8),
@@ -376,19 +349,12 @@ class _ImuCollectorState extends State<ImuCollector> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFF765FD1), width: 2),
           boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF765FD1).withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
+            BoxShadow(color: const Color(0xFF765FD1).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2)),
           ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: AspectRatio(
-            aspectRatio: aspectRatio,
-            child: CameraPreview(_cameraService.controller!),
-          ),
+          child: AspectRatio(aspectRatio: aspectRatio, child: CameraPreview(_cameraService.controller!)),
         ),
       );
     } else {
@@ -427,11 +393,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         children: [
           const Text(
             'Data Collection Statistics',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 12),
           Row(
@@ -462,8 +424,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         children: [
           Expanded(
             child: ElevatedButton.icon(
-              onPressed:
-                  (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
+              onPressed: (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
               icon:
                   isStopping
                       ? Container(
@@ -478,9 +439,7 @@ class _ImuCollectorState extends State<ImuCollector> {
                 backgroundColor: isCollecting ? const Color(0xFFF24E1E) : const Color(0xFF4CAF50),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -490,7 +449,7 @@ class _ImuCollectorState extends State<ImuCollector> {
               onPressed: () async {
                 print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
                 await _cameraService.uploadBatch();
-                _showSnack('Upload triggered');
+                CustomSnackBar.showSuccess(context, 'Upload triggered');
               },
               icon: const Icon(Icons.upload),
               label: const Text('Upload Now'),
@@ -498,9 +457,7 @@ class _ImuCollectorState extends State<ImuCollector> {
                 backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : const Color(0xFF765FD1),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -516,10 +473,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       decoration: BoxDecoration(
         color: isCollecting ? const Color(0xFF4CAF50).withOpacity(0.2) : const Color(0xFF0E0E1A),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isCollecting ? const Color(0xFF4CAF50) : Colors.white24,
-          width: 1,
-        ),
+        border: Border.all(color: isCollecting ? const Color(0xFF4CAF50) : Colors.white24, width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -547,18 +501,8 @@ class _ImuCollectorState extends State<ImuCollector> {
       children: [
         Text(title, style: const TextStyle(fontSize: 12, color: Colors.white60)),
         const SizedBox(height: 4),
-        Text(
-          processed,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          'Uploaded: $uploaded',
-          style: const TextStyle(fontSize: 10, color: Colors.white38),
-        ),
+        Text(processed, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+        Text('Uploaded: $uploaded', style: const TextStyle(fontSize: 10, color: Colors.white38)),
       ],
     );
   }

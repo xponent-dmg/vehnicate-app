@@ -1,16 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
-
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/reveal_text.dart';
-import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -21,7 +20,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  Key _greetingKey = UniqueKey();
 
   // Form controllers for add vehicle
   final _vehicleModelController = TextEditingController();
@@ -54,11 +52,6 @@ class _DashboardPageState extends State<DashboardPage> {
               Provider.of<UserProvider>(context, listen: false).refresh(),
               Provider.of<VehicleProvider>(context, listen: false).refresh(),
             ]);
-            if (mounted) {
-              setState(() {
-                _greetingKey = UniqueKey();
-              });
-            }
           },
           color: Color(0xFF8E44AD),
           backgroundColor: ProfileConstants.cardBackground,
@@ -88,14 +81,12 @@ class _DashboardPageState extends State<DashboardPage> {
                       );
                     }
                     if (userProvider.currentUser != null) {
-                      final firstName = userProvider.currentUser?.name.split(' ').first ?? '';
                       return Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8),
-                      child: TypewriterText(
-                        "Hey $firstName, welcome to vehnicate",
-                        key: _greetingKey,
-                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
-                      ),
+                        padding: EdgeInsets.only(left: 8, right: 8),
+                        child: TypewriterText(
+                          "Hey ${userProvider.currentUser?.name}, welcome to vehnicate",
+                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                        ),
                       );
                     }
                     return const SizedBox.shrink();
@@ -323,31 +314,33 @@ class _DashboardPageState extends State<DashboardPage> {
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(10),
                             onTap: () => _showAddVehicleOverlay(context),
-                            child: Ink(
+                            borderRadius: BorderRadius.circular(10),
+                            splashColor: Color(0xFF8E44AD).withOpacity(0.4),
+                            highlightColor: Color(0xFF8E44AD).withOpacity(0.2),
+                            child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Color(0xFF8E44AD).withAlpha(51),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: Color(0xFF8E44AD), width: 1),
                               ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.add_circle_outline, color: Colors.white),
-                                      SizedBox(width: 6),
-                                      Text(
-                                        'Add Vehicle',
-                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.add_circle_outline, color: Colors.white),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Add Vehicle',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
+                        ),
                         ),
                         SizedBox(height: 16),
                         Text('Tap to add your vehicle', style: TextStyle(color: Colors.white54, fontSize: 11)),
@@ -416,6 +409,8 @@ Widget _header(context) {
           child: InkWell(
             onTap: () => Navigator.pushNamed(context, '/profile'),
             customBorder: CircleBorder(),
+            splashColor: Color(0xFF8E44AD).withOpacity(0.4),
+            highlightColor: Color(0xFF8E44AD).withOpacity(0.2),
             child: Hero(
               tag: 'profile-avatar',
               child: CircleAvatar(
@@ -458,11 +453,13 @@ Widget _startCard(BuildContext context) {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(25),
                 onTap: () {
                   Navigator.pushNamed(context, "/imu");
                 },
-                child: Ink(
+                borderRadius: BorderRadius.circular(25),
+                splashColor: Colors.white.withOpacity(0.3),
+                highlightColor: Colors.white.withOpacity(0.1),
+                child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
                   child: Text(
@@ -482,11 +479,13 @@ Widget _startCard(BuildContext context) {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                customBorder: CircleBorder(),
                 onTap: () {
                   Navigator.pushNamed(context, "/map");
                 },
-                child: Ink(
+                customBorder: CircleBorder(),
+                splashColor: Colors.white.withOpacity(0.3),
+                highlightColor: Colors.white.withOpacity(0.1),
+                child: Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
                   child: Icon(Icons.map, color: Colors.white70, size: 20),
