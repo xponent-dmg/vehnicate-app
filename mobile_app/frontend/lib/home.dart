@@ -43,13 +43,28 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  String _getPageName(int index) {
+    switch (index) {
+      case 0:
+        return 'vehnicate';
+      case 1:
+        return 'navigation';
+      case 2:
+        return 'your garage';
+      case 3:
+        return 'analytics';
+      default:
+        return 'vehnicate';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ProfileConstants.primaryBackground,
       body: Column(
         children: [
-          const SafeArea(bottom: false, child: Header()),
+          SafeArea(bottom: false, child: Header(pageName: _getPageName(selectedIndex), pageIndex: selectedIndex)),
           Expanded(
             child: MediaQuery.removePadding(
               context: context,
@@ -64,7 +79,6 @@ class _HomeState extends State<Home> {
                     _mapPageKey.currentState?.stopLiveTracking();
                   }
                 },
-                // children: [DashboardPage(), MapPage(key: _mapPageKey), GaragePage(), DriveAnalyzePage()],
                 children: [DashboardPage(), SensorDebugPage(), GaragePage(), DriveAnalyzePage()],
               ),
             ),
