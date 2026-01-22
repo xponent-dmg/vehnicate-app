@@ -320,28 +320,32 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(height: 6),
-                        GestureDetector(
-                          onTap: () => _showAddVehicleOverlay(context),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Color(0xFF8E44AD).withAlpha(51),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Color(0xFF8E44AD), width: 1),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.add_circle_outline, color: Colors.white),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Add Vehicle',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: () => _showAddVehicleOverlay(context),
+                            child: Ink(
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Color(0xFF8E44AD).withAlpha(51),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Color(0xFF8E44AD), width: 1),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.add_circle_outline, color: Colors.white),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Add Vehicle',
+                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -407,14 +411,18 @@ Widget _header(context) {
         ),
 
         // Actions section
-        GestureDetector(
-          onTap: () => Navigator.pushNamed(context, '/profile'),
-          child: Hero(
-            tag: 'profile-avatar',
-            child: CircleAvatar(
-              radius: 22,
-              backgroundColor: Color(0xFF8E44AD),
-              child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.pushNamed(context, '/profile'),
+            customBorder: CircleBorder(),
+            child: Hero(
+              tag: 'profile-avatar',
+              child: CircleAvatar(
+                radius: 22,
+                backgroundColor: Color(0xFF8E44AD),
+                child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+              ),
             ),
           ),
         ),
@@ -447,16 +455,20 @@ Widget _startCard(BuildContext context) {
       children: [
         Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, "/imu");
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
-                child: Text(
-                  'Start Drive',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(25),
+                onTap: () {
+                  Navigator.pushNamed(context, "/imu");
+                },
+                child: Ink(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(color: Color(0xFF8E44AD), borderRadius: BorderRadius.circular(25)),
+                  child: Text(
+                    'Start Drive',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
               ),
             ),
@@ -467,14 +479,18 @@ Widget _startCard(BuildContext context) {
               child: Icon(Icons.home, color: Colors.white, size: 20),
             ),
             SizedBox(width: 8),
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, "/map");
-              },
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-                child: Icon(Icons.map, color: Colors.white70, size: 20),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                customBorder: CircleBorder(),
+                onTap: () {
+                  Navigator.pushNamed(context, "/map");
+                },
+                child: Ink(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
+                  child: Icon(Icons.map, color: Colors.white70, size: 20),
+                ),
               ),
             ),
             SizedBox(width: 8),

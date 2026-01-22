@@ -142,47 +142,53 @@ class DriveAnalyzePage extends StatelessWidget {
   Widget _buildDriveCard(BuildContext context, Drive drive, String carName) {
     final duration = drive.endTime.difference(drive.startTime);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: DriveAnalyzeConstants.cardBackground,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
-        boxShadow: [
-          BoxShadow(color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1), blurRadius: 8, offset: Offset(0, 2)),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(16),
         onTap: () {
           Navigator.pushNamed(context, "/drive-details", arguments: drive);
         },
-        leading: _buildCarIcon(carName),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(carName, style: DriveAnalyzeConstants.carNameStyle),
-            SizedBox(height: 4),
-            Text(_formatDate(drive.startTime), style: DriveAnalyzeConstants.dateStyle),
-          ],
-        ),
-        subtitle: Padding(
-          padding: EdgeInsets.only(top: 8),
-          child: Row(
-            children: [
-              _buildMetric(icon: FontAwesomeIcons.road, value: '${drive.distance.toStringAsFixed(1)} km'),
-              SizedBox(width: 16),
-              _buildMetric(icon: FontAwesomeIcons.clock, value: _formatDuration(duration)),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: DriveAnalyzeConstants.cardBackground,
+            borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
+            boxShadow: [
+              BoxShadow(color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1), blurRadius: 8, offset: Offset(0, 2)),
             ],
           ),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            // Score handling removed for now as per new schema
-            // _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
-            // SizedBox(height: 4),
-            Icon(Icons.arrow_forward_ios, color: DriveAnalyzeConstants.accentPurple, size: 16),
-          ],
+          child: ListTile(
+            contentPadding: EdgeInsets.all(16),
+            leading: _buildCarIcon(carName),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(carName, style: DriveAnalyzeConstants.carNameStyle),
+                SizedBox(height: 4),
+                Text(_formatDate(drive.startTime), style: DriveAnalyzeConstants.dateStyle),
+              ],
+            ),
+            subtitle: Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Row(
+                children: [
+                  _buildMetric(icon: FontAwesomeIcons.road, value: '${drive.distance.toStringAsFixed(1)} km'),
+                  SizedBox(width: 16),
+                  _buildMetric(icon: FontAwesomeIcons.clock, value: _formatDuration(duration)),
+                ],
+              ),
+            ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Score handling removed for now as per new schema
+                // _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
+                // SizedBox(height: 4),
+                Icon(Icons.arrow_forward_ios, color: DriveAnalyzeConstants.accentPurple, size: 16),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -70,35 +70,48 @@ class GaragePage extends StatelessWidget {
   }
 
   Widget _buildStatCard(String value, String label) {
-    return Container(
-      width: 150,
-      padding: EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Color(0xFF1E1E1E),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.purple.withOpacity(0.3)),
-      ),
-      child: Column(
-        children: [
-          Text(value, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-          SizedBox(height: 5),
-          Text(label, style: TextStyle(color: Colors.grey, fontSize: 14)),
-        ],
+        onTap: () {},
+        child: Ink(
+          width: 150,
+          padding: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.purple.withOpacity(0.3)),
+          ),
+          child: Column(
+            children: [
+              Text(value, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5),
+              Text(label, style: TextStyle(color: Colors.grey, fontSize: 14)),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildDocumentTile(BuildContext context, String title, IconData icon) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.purple),
-        title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
-        trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
         onTap: () {
           Navigator.pushNamed(context, '/document-upload', arguments: {'documentType': title});
         },
+        child: Ink(
+          padding: EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(10)),
+          child: ListTile(
+            leading: Icon(icon, color: Colors.purple),
+            title: Text(title, style: TextStyle(color: Colors.white, fontSize: 16)),
+            trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+          ),
+        ),
       ),
     );
   }
