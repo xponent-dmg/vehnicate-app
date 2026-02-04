@@ -347,19 +347,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildLogoutButton(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () => _showLogoutDialog(context),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            border: Border.all(color: ProfileConstants.logoutRed),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Text('Log out', style: ProfileConstants.logoutStyle),
+    return GestureDetector(
+      onTap: () => _showLogoutDialog(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: ProfileConstants.logoutRed),
+          borderRadius: BorderRadius.circular(10),
         ),
+        child: const Text('Log out', style: ProfileConstants.logoutStyle),
       ),
     );
   }
@@ -541,13 +537,9 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(height: 3),
           _buildSettingRow('Dark Mode', true),
           SizedBox(height: 3),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(0),
-              onTap: () => _showUpdateVehicleOverlay(context),
-              child: _buildInfoRow('Update Vehicle Details', '', isLast: false),
-            ),
+          GestureDetector(
+            onTap: () => _showUpdateVehicleOverlay(context),
+            child: _buildInfoRow('Update Vehicle Details', '', isLast: false),
           ),
           SizedBox(height: 3),
           _buildDeleteAccountRow(),

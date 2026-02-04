@@ -106,22 +106,19 @@ class DriveAnalyzePage extends StatelessWidget {
   Widget _buildDriveCard(BuildContext context, Drive drive, String carName) {
     final duration = drive.endTime.difference(drive.startTime);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
-        onTap: () {
-          Navigator.pushNamed(context, "/drive-details", arguments: drive);
-        },
-        child: Ink(
-          decoration: BoxDecoration(
-            color: DriveAnalyzeConstants.cardBackground,
-            borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
-            boxShadow: [
-              BoxShadow(color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1), blurRadius: 8, offset: Offset(0, 2)),
-            ],
-          ),
-          child: ListTile(
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, "/drive-details", arguments: drive);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: DriveAnalyzeConstants.cardBackground,
+          borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
+          boxShadow: [
+            BoxShadow(color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1), blurRadius: 8, offset: Offset(0, 2)),
+          ],
+        ),
+        child: ListTile(
             contentPadding: EdgeInsets.all(16),
             leading: _buildCarIcon(carName),
             title: Column(
