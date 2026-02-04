@@ -61,39 +61,6 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _header(context),
-                SizedBox(height: 24),
-                Consumer<UserProvider>(
-                  builder: (context, userProvider, child) {
-                    if (userProvider.isLoading) {
-                      return Padding(
-                        padding: EdgeInsets.only(left: 8, right: 8),
-                        child: Shimmer.fromColors(
-                          baseColor: Colors.grey.withValues(alpha: 0.2),
-                          highlightColor: Colors.white,
-                          loop: 5,
-                          child: Container(
-                            width: 200,
-                            height: 30,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                          ),
-                        ),
-                      );
-                    }
-                    if (userProvider.currentUser != null) {
-                      return Padding(
-                        padding: EdgeInsets.only(left: 8, right: 8),
-                        child: TypewriterText(
-                          "Hey ${userProvider.currentUser?.name}, welcome to vehnicate",
-                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-                SizedBox(height: 24),
-                // Start Card
                 _startCard(context),
                 SizedBox(height: 24),
                 // Score and Car Info
