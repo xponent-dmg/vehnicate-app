@@ -31,7 +31,10 @@ class _SignupPageState extends State<SignupPage> {
       final supabaseService = SupabaseService();
       await supabaseService.initialize();
 
-      final userCred = await AuthService().signUpWithEmail(_emailController.text.trim(), _passwordController.text);
+      final userCred = await AuthService().signUpWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
       // Register user in Supabase
 
       print('Registering user in Supabase...');
@@ -47,12 +50,17 @@ class _SignupPageState extends State<SignupPage> {
           context,
           "/user-details",
           (route) => false,
-          arguments: {"userId": userCred.user!.uid, "email": _emailController.text.trim()},
+          arguments: {
+            "userId": userCred.user!.uid,
+            "email": _emailController.text.trim(),
+          },
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -94,7 +102,11 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(height: 8),
                     const Text(
                       'Create your account',
-                      style: TextStyle(fontSize: 16, color: Colors.white70, letterSpacing: 0.5),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                     const SizedBox(height: 60),
                     Container(
@@ -108,22 +120,32 @@ class _SignupPageState extends State<SignupPage> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'Email address',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                          prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withOpacity(0.6)),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: Colors.transparent,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
                           // Add email format validation
-                          final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          final emailRegExp = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          );
                           if (!emailRegExp.hasMatch(value)) {
                             return 'Please enter a valid email address';
                           }
@@ -143,11 +165,18 @@ class _SignupPageState extends State<SignupPage> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'Password',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                          prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withOpacity(0.6)),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.lock_outline,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.white.withOpacity(0.6),
                             ),
                             onPressed: () {
@@ -162,7 +191,10 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                           filled: true,
                           fillColor: Colors.transparent,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -184,7 +216,9 @@ class _SignupPageState extends State<SignupPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF8E44AD),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                           elevation: 0,
                         ),
                         child:
@@ -194,24 +228,38 @@ class _SignupPageState extends State<SignupPage> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
-                                : const Text('Sign up', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                : const Text(
+                                  'Sign up',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Already have an account? ', style: TextStyle(color: Colors.white70)),
+                        const Text(
+                          'Already have an account? ',
+                          style: TextStyle(color: Colors.white70),
+                        ),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context);
                           },
                           child: const Text(
                             'Sign in',
-                            style: TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Color(0xFF8E44AD),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],

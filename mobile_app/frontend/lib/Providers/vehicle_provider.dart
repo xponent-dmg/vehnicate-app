@@ -3,27 +3,28 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
+import 'package:vehnicate_frontend/models/vehicle_model.dart';
 
 class VehicleProvider extends ChangeNotifier {
-  int? _vehicleId;
-  String? _vehicleName;
-  String? _vehicleModel;
-  String? _vehicleInsurance;
-  String? _vehicleRegistration;
-  String? _vehiclePUC;
+  List<Vehicle> _vehicles = [];
+  Vehicle? _selectedVehicle;
   bool _isLoading = false;
   Object? _error;
 
   List<Drive> _drives = [];
   List<Drive> get drives => _drives;
 
-  // Existing vehicle data
-  int? get vehicleId => _vehicleId;
-  String? get vehicleName => _vehicleName;
-  String? get vehicleModel => _vehicleModel;
-  String? get vehicleInsurance => _vehicleInsurance;
-  String? get vehicleRegistration => _vehicleRegistration;
-  String? get vehiclePUC => _vehiclePUC;
+  List<Vehicle> get vehicles => _vehicles;
+  Vehicle? get selectedVehicle => _selectedVehicle;
+
+  // Convenience getters for backward compatibility or easy access
+  int? get vehicleId => _selectedVehicle?.id;
+  String? get vehicleName => _selectedVehicle?.name;
+  String? get vehicleModel => _selectedVehicle?.model;
+  String? get vehicleInsurance => _selectedVehicle?.insurance;
+  String? get vehicleRegistration => _selectedVehicle?.registration;
+  String? get vehiclePUC => _selectedVehicle?.puc;
+
   bool get isLoading => _isLoading;
   Object? get error => _error;
 
@@ -35,18 +36,20 @@ class VehicleProvider extends ChangeNotifier {
 
   void _listenAuth() {
     _authSub?.cancel();
-    _authSub = firebase.FirebaseAuth.instance.authStateChanges().listen((user) async {
+    _authSub = firebase.FirebaseAuth.instance.authStateChanges().listen((
+      user,
+    ) async {
       if (user == null) {
-        _setVehicle(null);
+        _vehicles = [];
+        _selectedVehicle = null;
         _drives = [];
         return;
       }
-      print('VehicleProvider: Loading vehicle data with uid: ${user.uid}');
+      print('VehicleProvider: Loading vehicles for uid: ${user.uid}');
       await loadVehicleByUserId(user.uid);
-      print('VehicleProvider(listenAuth): Vehicle data loaded with data: $_vehicleId');
 
-      // Load drives after vehicle is loaded
-      if (_vehicleId != null) {
+      // Load drives if we have a selected vehicle
+      if (_selectedVehicle != null) {
         await loadDrives();
       }
     });
@@ -56,14 +59,14 @@ class VehicleProvider extends ChangeNotifier {
     final uid = firebase.FirebaseAuth.instance.currentUser?.uid;
     print('VehicleProvider(refresh): Loading vehicle data with uid: $uid');
     if (uid == null) {
-      _setVehicle(null);
+      _vehicles = [];
+      _selectedVehicle = null;
       _drives = [];
       return;
     }
     await loadVehicleByUserId(uid);
-    print('VehicleProvider(refresh): Vehicle data loaded with data: $_vehicleId');
 
-    if (_vehicleId != null) {
+    if (_selectedVehicle != null) {
       await loadDrives();
     }
   }
@@ -72,37 +75,63 @@ class VehicleProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
+
     if (firebaseUuid == null) {
-      _setVehicle(null);
+      _vehicles = [];
+      _selectedVehicle = null;
+      _isLoading = false;
+      notifyListeners();
       return;
     }
+
     try {
-      final data = await SupabaseService().getVehicleByUserId(firebaseUuid);
-      print('VehicleProvider(loadVehicleByUserId): Vehicle data loaded with data: $data');
-      _setVehicle(data);
+      final data = await SupabaseService().getVehiclesByUserId(firebaseUuid);
+      _vehicles = data.map((json) => Vehicle.fromJson(json)).toList();
+      print(
+        'VehicleProvider(loadVehicleByUserId): Loaded ${_vehicles.length} vehicles',
+      );
+
+      // Auto-select first vehicle if none selected or selection invalid
+      if (_vehicles.isNotEmpty) {
+        if (_selectedVehicle == null ||
+            !_vehicles.any((v) => v.id == _selectedVehicle!.id)) {
+          _selectedVehicle = _vehicles.first;
+        }
+      } else {
+        _selectedVehicle = null;
+      }
     } catch (e) {
-      print('VehicleProvider(loadVehicleByUserId): Error loading vehicle data: $e');
+      print('VehicleProvider(loadVehicleByUserId): Error loading vehicles: $e');
       _error = e;
-      _setVehicle(null);
+      _vehicles = [];
+      _selectedVehicle = null;
     } finally {
-      // Don't set loading false here if we are going to load drives next,
-      // but in this flow we do it sequentially in listenAuth/refresh.
-      // So we can set it false here, but loadDrives will set it true again.
       _isLoading = false;
-      print('VehicleProvider(loadVehicleByUserId): Vehicle data loaded with data: $_vehicleId');
       notifyListeners();
     }
   }
 
+  void selectVehicle(Vehicle vehicle) {
+    if (_selectedVehicle?.id != vehicle.id) {
+      _selectedVehicle = vehicle;
+      notifyListeners();
+      loadDrives(); // Reload drives for new vehicle
+    }
+  }
+
   Future<void> loadDrives() async {
-    if (_vehicleId == null) return;
+    if (_selectedVehicle == null) return;
 
     _isLoading = true;
     notifyListeners();
 
     try {
-      print('VehicleProvider: Loading drives for vehicle $_vehicleId');
-      final drivesData = await SupabaseService().fetchDrives(_vehicleId!);
+      print(
+        'VehicleProvider: Loading drives for vehicle ${_selectedVehicle!.id}',
+      );
+      final drivesData = await SupabaseService().fetchDrives(
+        _selectedVehicle!.id,
+      );
       _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
       print('VehicleProvider: Loaded ${_drives.length} drives');
     } catch (e) {
@@ -112,15 +141,6 @@ class VehicleProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  void _setVehicle(Map<String, dynamic>? data) {
-    _vehicleId = data?['vehicleid'];
-    _vehicleName = data?['name'];
-    _vehicleModel = data?['model'];
-    _vehicleInsurance = data?['insurance'];
-    _vehicleRegistration = data?['registration'];
-    _vehiclePUC = data?['puc']?.toString();
   }
 
   @override

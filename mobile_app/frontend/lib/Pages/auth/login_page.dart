@@ -36,14 +36,19 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await AuthService().signInWithEmail(_emailController.text.trim(), _passwordController.text);
+      await AuthService().signInWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
 
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
       }
     } finally {
       if (mounted) {
@@ -63,7 +68,9 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
       }
     } finally {
       if (mounted) {
@@ -111,7 +118,11 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     const Text(
                       'calm in the chaos',
-                      style: TextStyle(fontSize: 16, color: Colors.white70, letterSpacing: 0.5),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                        letterSpacing: 0.5,
+                      ),
                     ),
 
                     const SizedBox(height: 60),
@@ -128,15 +139,23 @@ class _LoginPageState extends State<LoginPage> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'Email address',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                          prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withOpacity(0.6)),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: Colors.transparent,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -164,11 +183,18 @@ class _LoginPageState extends State<LoginPage> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'Password',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                          prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withOpacity(0.6)),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.lock_outline,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.white.withOpacity(0.6),
                             ),
                             onPressed: () {
@@ -183,7 +209,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           filled: true,
                           fillColor: Colors.transparent,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -208,7 +237,9 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF8E44AD),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                           elevation: 0,
                         ),
                         child:
@@ -218,10 +249,18 @@ class _LoginPageState extends State<LoginPage> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
-                                : Text('Sign in', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                : Text(
+                                  'Sign in',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                       ),
                     ),
 
@@ -231,14 +270,22 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Don't have an account? ", style: TextStyle(color: Colors.white.withOpacity(0.7))),
+                        Text(
+                          "Don't have an account? ",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ),
                         GestureDetector(
                           onTap: () {
                             Navigator.pushNamed(context, "/signup");
                           },
                           child: Text(
                             'Sign up',
-                            style: const TextStyle(color: Color(0xFF8E44AD), fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              color: Color(0xFF8E44AD),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -249,15 +296,28 @@ class _LoginPageState extends State<LoginPage> {
                     // Divider
                     Row(
                       children: [
-                        Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.3))),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             'or connect with',
-                            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.6),
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                        Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.3))),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                        ),
                       ],
                     ),
 
@@ -276,9 +336,16 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white.withOpacity(0.1),
-                              border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
                             ),
-                            child: const Icon(FontAwesomeIcons.google, color: Colors.white, size: 24),
+                            child: const Icon(
+                              FontAwesomeIcons.google,
+                              color: Colors.white,
+                              size: 24,
+                            ),
                           ),
                         ),
 
@@ -289,9 +356,16 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white.withOpacity(0.1),
-                            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1,
+                            ),
                           ),
-                          child: const Icon(FontAwesomeIcons.apple, color: Colors.white, size: 24),
+                          child: const Icon(
+                            FontAwesomeIcons.apple,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
 
                         // Skip Sign In (temp)

@@ -57,7 +57,10 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: ProfileConstants.cardBackground,
           elevation: 5,
           title: Text("Confirm Logout", style: ProfileConstants.nameStyle),
-          content: Text("Are you sure you want to logout of this account?", style: ProfileConstants.labelStyle),
+          content: Text(
+            "Are you sure you want to logout of this account?",
+            style: ProfileConstants.labelStyle,
+          ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
@@ -90,7 +93,9 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: Color(0xFF8E44AD)),
+                  CircularProgressIndicator(
+                    color: Theme.of(context).primaryColor,
+                  ),
                   SizedBox(width: 20),
                   Text('Logging out...', style: TextStyle(color: Colors.white)),
                 ],
@@ -109,7 +114,9 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.of(context).pop();
 
         // Navigate to login page
-        Navigator.of(context).pushNamedAndRemoveUntil("/login", (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil("/login", (route) => false);
       }
     } catch (e) {
       // Check if widget is still mounted before using context
@@ -118,9 +125,12 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.of(context).pop();
 
         // Show error message
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to logout: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to logout: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -139,7 +149,12 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       title: 'Edit Profile',
       fields: [
-        FormFieldConfig(label: 'Name', hint: 'Enter your full name', icon: Icons.person, controller: _nameController),
+        FormFieldConfig(
+          label: 'Name',
+          hint: 'Enter your full name',
+          icon: Icons.person,
+          controller: _nameController,
+        ),
         FormFieldConfig(
           label: 'Username',
           hint: 'Enter your username',
@@ -172,8 +187,14 @@ class _ProfilePageState extends State<ProfilePage> {
           userId: firebaseUser.uid,
           fullName: _nameController.text.trim(),
           username: _usernameController.text.trim(),
-          phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-          address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+          phone:
+              _phoneController.text.trim().isEmpty
+                  ? null
+                  : _phoneController.text.trim(),
+          address:
+              _addressController.text.trim().isEmpty
+                  ? null
+                  : _addressController.text.trim(),
         );
 
         // Refresh user data
@@ -186,7 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Profile updated successfully!'),
-              backgroundColor: Color(0xFF8E44AD),
+              backgroundColor: Theme.of(context).primaryColor,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -207,12 +228,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _showUpdateVehicleOverlay(BuildContext context) {
-    final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
+    final vehicleProvider = Provider.of<VehicleProvider>(
+      context,
+      listen: false,
+    );
 
     if (vehicleProvider.vehicleId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No vehicle found to update. Please add a vehicle first.'),
+          content: Text(
+            'No vehicle found to update. Please add a vehicle first.',
+          ),
           backgroundColor: Colors.orange,
           behavior: SnackBarBehavior.floating,
         ),
@@ -266,7 +292,10 @@ class _ProfilePageState extends State<ProfilePage> {
           model: _vehicleModelController.text.trim(),
           registration: _registrationController.text.trim(),
           insurance: _insuranceController.text.trim(),
-          puc: _pucDateController.text.trim().isEmpty ? null : _pucDateController.text.trim(),
+          puc:
+              _pucDateController.text.trim().isEmpty
+                  ? null
+                  : _pucDateController.text.trim(),
         );
 
         // Refresh vehicle data
@@ -279,7 +308,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Vehicle updated successfully!'),
-              backgroundColor: Color(0xFF8E44AD),
+              backgroundColor: Theme.of(context).primaryColor,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -302,27 +331,29 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProfileConstants.primaryBackground,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await Provider.of<UserProvider>(context, listen: false).refresh();
-          },
-          color: ProfileConstants.accentPurple,
-          backgroundColor: ProfileConstants.cardBackground,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: 25),
-            child: Column(
-              children: [
-                _buildHeader(context),
-                _buildProfileSection(context),
-                _buildStatsSection(),
-                const SizedBox(height: 14),
-                _buildPersonalInfoSection(context),
-                const SizedBox(height: 30),
-                _buildSettingsSection(),
-              ],
+      body: Container(
+        decoration: BoxDecoration(gradient: ProfileConstants.gradient),
+        child: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await Provider.of<UserProvider>(context, listen: false).refresh();
+            },
+            color: ProfileConstants.accentPurple,
+            backgroundColor: ProfileConstants.cardBackground,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.only(bottom: 25),
+              child: Column(
+                children: [
+                  _buildHeader(context),
+                  _buildProfileSection(context),
+                  _buildStatsSection(),
+                  const SizedBox(height: 14),
+                  _buildPersonalInfoSection(context),
+                  const SizedBox(height: 30),
+                  _buildSettingsSection(),
+                ],
+              ),
             ),
           ),
         ),
@@ -370,7 +401,10 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 16),
             Text(user?.name ?? 'Guest', style: ProfileConstants.nameStyle),
             const SizedBox(height: 4),
-            Text('@${user?.username ?? 'Guest'}', style: ProfileConstants.usernameStyle),
+            Text(
+              '@${user?.username ?? 'Guest'}',
+              style: ProfileConstants.usernameStyle,
+            ),
           ],
         );
       },
@@ -388,8 +422,17 @@ class _ProfilePageState extends State<ProfilePage> {
             height: ProfileConstants.avatarSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              image: const DecorationImage(image: AssetImage("assets/logo.png"), fit: BoxFit.cover),
-              boxShadow: const [BoxShadow(color: ProfileConstants.lightPurple, blurRadius: 4, offset: Offset(0, -2))],
+              image: const DecorationImage(
+                image: AssetImage("assets/logo.png"),
+                fit: BoxFit.cover,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).primaryColor.withAlpha(200),
+                  blurRadius: 4,
+                  offset: Offset(0, -2),
+                ),
+              ],
             ),
           ),
         ),
@@ -421,7 +464,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 value: 0,
                 unit: 'km',
                 label: 'Covered',
-                backgroundColor: ProfileConstants.darkPurple,
+                backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
               ),
               _buildStatMetric(
                 icon: FontAwesomeIcons.fire,
@@ -429,7 +472,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 value: 0,
                 unit: 'days',
                 label: 'Streak',
-                backgroundColor: ProfileConstants.darkPurple,
+                backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
               ),
               _buildProgressIndicator(context),
             ],
@@ -437,7 +480,10 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 30),
           Container(
             height: 2,
-            decoration: BoxDecoration(color: ProfileConstants.dividerColor, borderRadius: BorderRadius.circular(67)),
+            decoration: BoxDecoration(
+              color: ProfileConstants.dividerColor,
+              borderRadius: BorderRadius.circular(67),
+            ),
           ),
         ],
       ),
@@ -457,9 +503,19 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           width: ProfileConstants.metricCircleSize,
           height: ProfileConstants.metricCircleSize,
-          decoration: BoxDecoration(color: backgroundColor, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            shape: BoxShape.circle,
+          ),
           child: Center(
-            child: Icon(icon, color: (value > 0) ? iconColor : const Color.fromARGB(255, 218, 218, 218), size: 32),
+            child: Icon(
+              icon,
+              color:
+                  (value > 0)
+                      ? iconColor
+                      : const Color.fromARGB(255, 218, 218, 218),
+              size: 32,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -471,7 +527,14 @@ class _ProfilePageState extends State<ProfilePage> {
             style: ProfileConstants.metricLabelStyle,
           ),
         ),
-        SizedBox(width: 64, child: Text(label, textAlign: TextAlign.center, style: ProfileConstants.metricLabelStyle)),
+        SizedBox(
+          width: 64,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: ProfileConstants.metricLabelStyle,
+          ),
+        ),
       ],
     );
   }
@@ -486,17 +549,24 @@ class _ProfilePageState extends State<ProfilePage> {
             radius: 30,
             lineWidth: 8,
             percent: (rpsScore ?? 0) / 100,
-            backgroundColor: ProfileConstants.darkPurple,
-            progressColor: ProfileConstants.accentPurple,
+            backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+            progressColor: Theme.of(context).primaryColor,
             circularStrokeCap: CircularStrokeCap.round, // rounded ends
             animation: true,
-            center: Text("${rpsScore ?? '--'}", style: ProfileConstants.metricValueStyle),
+            center: Text(
+              "${rpsScore ?? '--'}",
+              style: ProfileConstants.metricValueStyle,
+            ),
           ),
         ),
         SizedBox(height: 5),
         SizedBox(
           width: 70,
-          child: Text("Overall Performance", style: ProfileConstants.metricLabelStyle, textAlign: TextAlign.center),
+          child: Text(
+            "Overall Performance",
+            style: ProfileConstants.metricLabelStyle,
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );
@@ -511,13 +581,24 @@ class _ProfilePageState extends State<ProfilePage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Personal Information', style: ProfileConstants.sectionTitleStyle),
+              const Text(
+                'Personal Information',
+                style: ProfileConstants.sectionTitleStyle,
+              ),
               const SizedBox(height: 8),
-              _buildInfoRow('Email', user?.email ?? 'mail not given', isFirst: true),
+              _buildInfoRow(
+                'Email',
+                user?.email ?? 'mail not given',
+                isFirst: true,
+              ),
               SizedBox(height: 3),
               _buildInfoRow('Phone', user?.phone ?? 'phone not given'),
               SizedBox(height: 3),
-              _buildInfoRow('Address', user?.address ?? 'Address not updated', isLast: true),
+              _buildInfoRow(
+                'Address',
+                user?.address ?? 'Address not updated',
+                isLast: true,
+              ),
             ],
           );
         },
@@ -548,7 +629,12 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isFirst = false, bool isLast = false}) {
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
     return Container(
       height: ProfileConstants.cardHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -558,7 +644,9 @@ class _ProfilePageState extends State<ProfilePage> {
           topLeft: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
           topRight: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
           bottomLeft: Radius.circular(isLast ? ProfileConstants.cardRadius : 0),
-          bottomRight: Radius.circular(isLast ? ProfileConstants.cardRadius : 0),
+          bottomRight: Radius.circular(
+            isLast ? ProfileConstants.cardRadius : 0,
+          ),
         ),
       ),
       child: Row(
@@ -578,7 +666,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildSettingRow(String label, bool isEnabled, {bool isFirst = false}) {
+  Widget _buildSettingRow(
+    String label,
+    bool isEnabled, {
+    bool isFirst = false,
+  }) {
     return Container(
       height: ProfileConstants.cardHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -591,7 +683,10 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(label, style: ProfileConstants.labelStyle), _buildToggleSwitch(isEnabled)],
+        children: [
+          Text(label, style: ProfileConstants.labelStyle),
+          _buildToggleSwitch(isEnabled),
+        ],
       ),
     );
   }
@@ -600,7 +695,10 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       width: 38,
       height: 20,
-      decoration: BoxDecoration(color: ProfileConstants.darkPurple, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withAlpha(70),
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Align(
         alignment: isEnabled ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
@@ -608,7 +706,7 @@ class _ProfilePageState extends State<ProfilePage> {
           height: 14,
           margin: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
-            color: isEnabled ? ProfileConstants.accentPurple : Colors.grey,
+            color: isEnabled ? Theme.of(context).primaryColor : Colors.grey,
             shape: BoxShape.circle,
           ),
         ),
@@ -627,7 +725,9 @@ class _ProfilePageState extends State<ProfilePage> {
           bottomRight: Radius.circular(ProfileConstants.cardRadius),
         ),
       ),
-      child: const Center(child: Text('Delete Account', style: ProfileConstants.deleteStyle)),
+      child: const Center(
+        child: Text('Delete Account', style: ProfileConstants.deleteStyle),
+      ),
     );
   }
 }

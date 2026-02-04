@@ -73,7 +73,7 @@ class DriveAnalyzePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DriveAnalyzeConstants.primaryBackground,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Consumer<VehicleProvider>(
           builder: (context, vehicleProvider, child) {
@@ -91,8 +91,15 @@ class DriveAnalyzePage extends StatelessWidget {
                   final drive = drives[index];
                   // We can pass the car name from the provider, as all drives are for this vehicle
                   return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: DriveAnalyzeConstants.horizontalPadding, vertical: 6),
-                    child: _buildDriveCard(context, drive, vehicleProvider.vehicleModel ?? 'Unknown Car'),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: DriveAnalyzeConstants.horizontalPadding,
+                      vertical: 6,
+                    ),
+                    child: _buildDriveCard(
+                      context,
+                      drive,
+                      vehicleProvider.vehicleModel ?? 'Unknown Car',
+                    ),
                   );
                 },
               ),
@@ -111,7 +118,11 @@ class DriveAnalyzePage extends StatelessWidget {
         color: DriveAnalyzeConstants.cardBackground,
         borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
         boxShadow: [
-          BoxShadow(color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: ListTile(
@@ -125,16 +136,25 @@ class DriveAnalyzePage extends StatelessWidget {
           children: [
             Text(carName, style: DriveAnalyzeConstants.carNameStyle),
             SizedBox(height: 4),
-            Text(_formatDate(drive.startTime), style: DriveAnalyzeConstants.dateStyle),
+            Text(
+              _formatDate(drive.startTime),
+              style: DriveAnalyzeConstants.dateStyle,
+            ),
           ],
         ),
         subtitle: Padding(
           padding: EdgeInsets.only(top: 8),
           child: Row(
             children: [
-              _buildMetric(icon: FontAwesomeIcons.road, value: '${drive.distance.toStringAsFixed(1)} km'),
+              _buildMetric(
+                icon: FontAwesomeIcons.road,
+                value: '${drive.distance.toStringAsFixed(1)} km',
+              ),
               SizedBox(width: 16),
-              _buildMetric(icon: FontAwesomeIcons.clock, value: _formatDuration(duration)),
+              _buildMetric(
+                icon: FontAwesomeIcons.clock,
+                value: _formatDuration(duration),
+              ),
             ],
           ),
         ),
@@ -145,7 +165,11 @@ class DriveAnalyzePage extends StatelessWidget {
             // Score handling removed for now as per new schema
             // _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
             // SizedBox(height: 4),
-            Icon(Icons.arrow_forward_ios, color: DriveAnalyzeConstants.accentPurple, size: 16),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: DriveAnalyzeConstants.accentPurple,
+              size: 16,
+            ),
           ],
         ),
       ),
@@ -167,7 +191,10 @@ class DriveAnalyzePage extends StatelessWidget {
     return Container(
       width: 48,
       height: 48,
-      decoration: BoxDecoration(color: DriveAnalyzeConstants.darkPurple, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: DriveAnalyzeConstants.darkPurple,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Icon(icon, color: DriveAnalyzeConstants.accentPurple, size: 24),
     );
   }

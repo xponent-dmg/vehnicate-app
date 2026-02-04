@@ -18,7 +18,8 @@ class SensorDebugPage extends StatefulWidget {
 
 class _SensorDebugPageState extends State<SensorDebugPage> {
   final SensorService _sensorService = SensorService();
-  final LocationPermissionService _locationService = LocationPermissionService();
+  final LocationPermissionService _locationService =
+      LocationPermissionService();
   bool _isListening = false;
   bool _locationPermissionGranted = false;
 
@@ -44,7 +45,10 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
   void _toggleSensorStream() async {
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
-      CustomSnackBar.showError(context, 'No vehicle selected! Please go to Garage and select a vehicle.');
+      CustomSnackBar.showError(
+        context,
+        'No vehicle selected! Please go to Garage and select a vehicle.',
+      );
       return;
     }
     if (!_isListening) {
@@ -75,12 +79,20 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
       builder:
           (context) => AlertDialog(
             backgroundColor: const Color(0xFF1D1E33),
-            title: const Text('Location Services Disabled', style: TextStyle(color: Colors.white)),
+            title: const Text(
+              'Location Services Disabled',
+              style: TextStyle(color: Colors.white),
+            ),
             content: const Text(
               'Location services are disabled. To use GPS features, please enable location services in your device settings.',
               style: TextStyle(color: Colors.white70),
             ),
-            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
     );
   }
@@ -88,7 +100,7 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProfileConstants.primaryBackground,
+      backgroundColor: Colors.transparent,
       body: StreamBuilder<SensorPacket>(
         stream: _sensorService.sensorStream,
         builder: (context, snapshot) {
@@ -125,10 +137,17 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
           const SizedBox(height: 20),
           Text(
             'Sensor Stream Inactive',
-            style: TextStyle(fontSize: 20, color: Colors.grey[600], fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 10),
-          Text('Press START to begin streaming', style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+          Text(
+            'Press START to begin streaming',
+            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+          ),
         ],
       ),
     );
@@ -141,7 +160,10 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
         children: [
           CircularProgressIndicator(color: Colors.blue),
           SizedBox(height: 20),
-          Text('Initializing sensors...', style: TextStyle(fontSize: 16, color: Colors.white70)),
+          Text(
+            'Initializing sensors...',
+            style: TextStyle(fontSize: 16, color: Colors.white70),
+          ),
         ],
       ),
     );
@@ -154,11 +176,22 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
         children: [
           const Icon(Icons.error_outline, size: 80, color: Colors.red),
           const SizedBox(height: 20),
-          Text('Error', style: TextStyle(fontSize: 20, color: Colors.red[300], fontWeight: FontWeight.bold)),
+          Text(
+            'Error',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.red[300],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(error, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+            child: Text(
+              error,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
           ),
         ],
       ),
@@ -176,7 +209,10 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
           const SizedBox(height: 16),
 
           // Raw Sensor Data Section
-          _buildSectionHeader('Raw Sensor Data (Phone Coordinates)', Colors.blue),
+          _buildSectionHeader(
+            'Raw Sensor Data (Phone Coordinates)',
+            Colors.blue,
+          ),
           const SizedBox(height: 12),
           _buildRawDataSection(packet.raw),
           const SizedBox(height: 24),
@@ -208,7 +244,10 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Timestamp', style: TextStyle(fontSize: 12, color: Colors.white54)),
+              const Text(
+                'Timestamp',
+                style: TextStyle(fontSize: 12, color: Colors.white54),
+              ),
               Text(
                 '${dateTime.hour}:${dateTime.minute}:${dateTime.second}.${dateTime.millisecond}',
                 style: const TextStyle(
@@ -231,10 +270,20 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
         Container(
           width: 4,
           height: 24,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
         const SizedBox(width: 12),
-        Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
       ],
     );
   }
@@ -248,11 +297,15 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
           _buildValueRow('az', raw.az, 'm/s²', Colors.blue[500]!),
         ]),
         const SizedBox(height: 12),
-        _buildSensorCard('Linear Acceleration (without gravity)', Colors.lightBlue, [
-          _buildValueRow('Ax', raw.Ax, 'm/s²', Colors.lightBlue[300]!),
-          _buildValueRow('Ay', raw.Ay, 'm/s²', Colors.lightBlue[400]!),
-          _buildValueRow('Az', raw.Az, 'm/s²', Colors.lightBlue[500]!),
-        ]),
+        _buildSensorCard(
+          'Linear Acceleration (without gravity)',
+          Colors.lightBlue,
+          [
+            _buildValueRow('Ax', raw.Ax, 'm/s²', Colors.lightBlue[300]!),
+            _buildValueRow('Ay', raw.Ay, 'm/s²', Colors.lightBlue[400]!),
+            _buildValueRow('Az', raw.Az, 'm/s²', Colors.lightBlue[500]!),
+          ],
+        ),
         const SizedBox(height: 12),
         _buildSensorCard('Gyroscope', Colors.cyan, [
           _buildValueRow('Gx', raw.Gx, 'deg/s', Colors.cyan[300]!),
@@ -276,7 +329,10 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
         decoration: BoxDecoration(
           color: const Color(0xFF1D1E33),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 1),
+          border: Border.all(
+            color: Colors.orange.withValues(alpha: 0.3),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
@@ -288,11 +344,17 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
                 children: [
                   Text(
                     'Location Unavailable',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange[300]),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange[300],
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _locationPermissionGranted ? 'Waiting for GPS fix...' : 'Location permission not granted',
+                    _locationPermissionGranted
+                        ? 'Waiting for GPS fix...'
+                        : 'Location permission not granted',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],
@@ -313,14 +375,28 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
         const SizedBox(height: 12),
         _buildSensorCard('GPS Movement', Colors.deepOrange, [
           _buildValueRow('Spd', location.speed, 'm/s', Colors.deepOrange[300]!),
-          _buildValueRow('Bear', location.bearing, '°', Colors.deepOrange[400]!),
-          _buildValueRow('Acc', location.accuracy, 'm', Colors.deepOrange[500]!),
+          _buildValueRow(
+            'Bear',
+            location.bearing,
+            '°',
+            Colors.deepOrange[400]!,
+          ),
+          _buildValueRow(
+            'Acc',
+            location.accuracy,
+            'm',
+            Colors.deepOrange[500]!,
+          ),
         ]),
       ],
     );
   }
 
-  Widget _buildSensorCard(String title, MaterialColor color, List<Widget> children) {
+  Widget _buildSensorCard(
+    String title,
+    MaterialColor color,
+    List<Widget> children,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -335,7 +411,14 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
             children: [
               Icon(Icons.sensors, color: color, size: 18),
               const SizedBox(width: 8),
-              Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -354,14 +437,22 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
             width: 40,
             child: Text(
               label,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color, fontFamily: 'monospace'),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: color,
+                fontFamily: 'monospace',
+              ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(6)),
+              decoration: BoxDecoration(
+                color: Colors.black26,
+                borderRadius: BorderRadius.circular(6),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -374,7 +465,10 @@ class _SensorDebugPageState extends State<SensorDebugPage> {
                       fontFamily: 'monospace',
                     ),
                   ),
-                  Text(unit, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                  Text(
+                    unit,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
                 ],
               ),
             ),

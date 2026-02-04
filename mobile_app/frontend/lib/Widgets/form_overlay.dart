@@ -43,15 +43,24 @@ class FormOverlay {
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+      pageBuilder: (
+        BuildContext buildContext,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+      ) {
         return StatefulBuilder(
           builder: (context, setState) {
             return Center(
               child: Dialog(
                 backgroundColor: Colors.transparent,
                 child: Container(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
-                  decoration: BoxDecoration(color: Color(0xFF2d2d44), borderRadius: BorderRadius.circular(20)),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF2d2d44),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   padding: EdgeInsets.all(24),
                   child: SingleChildScrollView(
                     child: Form(
@@ -66,12 +75,20 @@ class FormOverlay {
                             children: [
                               Text(
                                 title,
-                                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               if (!isSubmitting)
                                 IconButton(
-                                  icon: Icon(Icons.close, color: Colors.white70),
-                                  onPressed: () => Navigator.of(buildContext).pop(),
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: Colors.white70,
+                                  ),
+                                  onPressed:
+                                      () => Navigator.of(buildContext).pop(),
                                 ),
                             ],
                           ),
@@ -95,6 +112,7 @@ class FormOverlay {
                                       setState: setState,
                                     )
                                     : _buildTextField(
+                                      context: context,
                                       controller: field.controller,
                                       label: field.label,
                                       hint: field.hint,
@@ -147,10 +165,14 @@ class FormOverlay {
                                         }
                                       },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF8E44AD),
+                                backgroundColor: Theme.of(context).primaryColor,
                                 padding: EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                disabledBackgroundColor: Color(0xFF8E44AD).withOpacity(0.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                disabledBackgroundColor: Theme.of(
+                                  context,
+                                ).primaryColor.withOpacity(0.5),
                               ),
                               child:
                                   isSubmitting
@@ -159,7 +181,10 @@ class FormOverlay {
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
                                         ),
                                       )
                                       : Text(
@@ -186,12 +211,21 @@ class FormOverlay {
         // Scale + Fade animation
         const curve = Curves.easeOutCubic;
 
-        var scaleTween = Tween<double>(begin: 0.85, end: 1.0).chain(CurveTween(curve: curve));
-        var fadeTween = Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
+        var scaleTween = Tween<double>(
+          begin: 0.85,
+          end: 1.0,
+        ).chain(CurveTween(curve: curve));
+        var fadeTween = Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: curve));
 
         return ScaleTransition(
           scale: animation.drive(scaleTween),
-          child: FadeTransition(opacity: animation.drive(fadeTween), child: child),
+          child: FadeTransition(
+            opacity: animation.drive(fadeTween),
+            child: child,
+          ),
         );
       },
     );
@@ -199,6 +233,7 @@ class FormOverlay {
 
   /// Build a text field
   static Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String label,
     required String hint,
@@ -210,7 +245,11 @@ class FormOverlay {
       children: [
         Text(
           label + (isRequired ? ' *' : ''),
-          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         SizedBox(height: 8),
         TextFormField(
@@ -219,14 +258,27 @@ class FormOverlay {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: Colors.white38),
-            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
+            prefixIcon: Icon(
+              icon,
+              color: Theme.of(context).primaryColor,
+              size: 20,
+            ),
             filled: true,
             fillColor: Color(0xFF3d3d54),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -267,7 +319,11 @@ class FormOverlay {
       children: [
         Text(
           label + (isRequired ? ' *' : ''),
-          style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         SizedBox(height: 8),
         TextFormField(
@@ -279,8 +335,14 @@ class FormOverlay {
             prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
             filled: true,
             fillColor: Color(0xFF3d3d54),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
