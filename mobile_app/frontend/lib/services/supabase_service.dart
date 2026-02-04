@@ -289,17 +289,17 @@ class SupabaseService {
       print('Data Time Range: ${startTime.toLocal()} to ${endTime.toLocal()}');
       await initialize();
 
-      // Query 'datatransmission' table for sensor data within the time range
-      final response = await _client
-          .from('datatransmission')
-          .select()
-          .eq('vehicleid', vehicleId)
-          .gte('timesent', startTime.toIso8601String())
-          .lte('timesent', endTime.toIso8601String())
-          .order('timesent', ascending: true)
-          .limit(50000);
+      // Call Supabase RPC function to bypass client-side row limits
+      final response = await _client.rpc(
+        'get_drive_data',
+        params: {
+          '_vehicle_id': vehicleId,
+          '_start_time': startTime.toIso8601String(),
+          '_end_time': endTime.toIso8601String(),
+        },
+      );
 
-      print('Drive data points fetched: ${response.length}');
+      print('Drive data points fetched via RPC: ${response.length}');
       return List<Map<String, dynamic>>.from(response);
     } catch (e, stackTrace) {
       print('Error fetching drive data: $e');
