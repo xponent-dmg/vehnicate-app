@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/Pages/drive/constants/drive_constants.dart';
@@ -22,7 +21,8 @@ class DriveDetailsPage extends StatefulWidget {
   State<DriveDetailsPage> createState() => _DriveDetailsPageState();
 }
 
-class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProviderStateMixin {
+class _DriveDetailsPageState extends State<DriveDetailsPage>
+    with TickerProviderStateMixin {
   final PageController _chartController = PageController();
   int _currentChartIndex = 0;
   bool _isLoading = true;
@@ -56,7 +56,11 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
         endTime: widget.drive.endTime,
       );
 
-      final results = await Future.wait([dataFuture, eventsFuture, routeFuture]);
+      final results = await Future.wait([
+        dataFuture,
+        eventsFuture,
+        routeFuture,
+      ]);
       final data = results[0];
       final eventsData = results[1];
       final routeData = results[2];
@@ -65,7 +69,14 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
 
       // Route points come pre-filtered (lat/long != 0) with lat, lng columns from Supabase
       final route =
-          routeData.map((e) => LatLng((e['latitude'] as num).toDouble(), (e['longitude'] as num).toDouble())).toList();
+          routeData
+              .map(
+                (e) => LatLng(
+                  (e['latitude'] as num).toDouble(),
+                  (e['longitude'] as num).toDouble(),
+                ),
+              )
+              .toList();
 
       final events = eventsData.map((e) => DriveEvent.fromJson(e)).toList();
 
@@ -95,7 +106,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final vehicleName = Provider.of<VehicleProvider>(context).vehicleName ?? 'Vehicle';
+    final vehicleName =
+        Provider.of<VehicleProvider>(context).vehicleName ?? 'Vehicle';
 
     return Scaffold(
       backgroundColor: DriveDetailsConstants.primaryBackground,
@@ -106,7 +118,11 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
             Expanded(
               child:
                   _isLoading
-                      ? Center(child: CircularProgressIndicator(color: DriveDetailsConstants.accentPurple))
+                      ? Center(
+                        child: CircularProgressIndicator(
+                          color: DriveDetailsConstants.accentPurple,
+                        ),
+                      )
                       : SingleChildScrollView(
                         padding: EdgeInsets.only(bottom: 24),
                         child: Column(
@@ -128,7 +144,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
 
   Widget _buildHeader(BuildContext context, String vehicleName) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: DriveDetailsConstants.horizontalPadding, vertical: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: DriveDetailsConstants.horizontalPadding,
+        vertical: 16,
+      ),
       child: Row(
         children: [
           IconButton(
@@ -141,7 +160,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(vehicleName, style: DriveDetailsConstants.titleStyle),
-                Text(_formatDate(widget.drive.startTime), style: DriveDetailsConstants.subtitleStyle),
+                Text(
+                  _formatDate(widget.drive.startTime),
+                  style: DriveDetailsConstants.subtitleStyle,
+                ),
               ],
             ),
           ),
@@ -154,22 +176,33 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
     if (_routePoints.isEmpty) {
       return Container(
         height: 200,
-        margin: EdgeInsets.symmetric(horizontal: DriveDetailsConstants.horizontalPadding),
+        margin: EdgeInsets.symmetric(
+          horizontal: DriveDetailsConstants.horizontalPadding,
+        ),
         decoration: BoxDecoration(
           color: DriveDetailsConstants.cardBackground,
           borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
         ),
-        child: Center(child: Text("No GPS data available for this trip", style: DriveDetailsConstants.subtitleStyle)),
+        child: Center(
+          child: Text(
+            "No GPS data available for this trip",
+            style: DriveDetailsConstants.subtitleStyle,
+          ),
+        ),
       );
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: DriveDetailsConstants.horizontalPadding),
+      margin: EdgeInsets.symmetric(
+        horizontal: DriveDetailsConstants.horizontalPadding,
+      ),
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: DriveDetailsConstants.cardBackground,
         borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
-        border: Border.all(color: DriveDetailsConstants.accentPurple.withOpacity(0.3)),
+        border: Border.all(
+          color: DriveDetailsConstants.accentPurple.withOpacity(0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,12 +210,22 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Route Preview", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Text(
+                "Route Preview",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Row(
                 children: [
                   IconButton(
                     onPressed: _showRouteDebugLogs,
-                    icon: Icon(Icons.bug_report, color: Colors.white54, size: 20),
+                    icon: Icon(
+                      Icons.bug_report,
+                      color: Colors.white54,
+                      size: 20,
+                    ),
                   ),
                   IconButton(
                     onPressed: () {
@@ -207,7 +250,11 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
 
                       _animatedMapMove(targetCenter, targetZoom, 0.0);
                     },
-                    icon: Icon(Icons.fit_screen_rounded, color: Colors.white54, size: 20),
+                    icon: Icon(
+                      Icons.fit_screen_rounded,
+                      color: Colors.white54,
+                      size: 20,
+                    ),
                   ),
                 ],
               ),
@@ -217,16 +264,27 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
           Container(
             height: 300,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
+              borderRadius: BorderRadius.circular(
+                DriveDetailsConstants.cardRadius,
+              ),
               border: Border.all(color: Colors.white10),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
+              borderRadius: BorderRadius.circular(
+                DriveDetailsConstants.cardRadius,
+              ),
               child: _routePreviewWidget(_routePoints),
             ),
           ),
           SizedBox(height: 12),
-          Text("Event Legend", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(
+            "Event Legend",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
           SizedBox(height: 8),
           _buildMapLegend(),
         ],
@@ -241,7 +299,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
       children: [
         // Chart indicators
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: DriveDetailsConstants.horizontalPadding),
+          padding: EdgeInsets.symmetric(
+            horizontal: DriveDetailsConstants.horizontalPadding,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(2, (index) {
@@ -251,7 +311,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentChartIndex == index ? DriveDetailsConstants.accentPurple : Colors.white30,
+                  color:
+                      _currentChartIndex == index
+                          ? DriveDetailsConstants.accentPurple
+                          : Colors.white30,
                 ),
               );
             }),
@@ -270,8 +333,14 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
               });
             },
             children: [
-              _buildChartCard(title: 'Acceleration (m/s²)', chart: _buildSensorChart(isAccel: true)),
-              _buildChartCard(title: 'Gyroscope (rad/s)', chart: _buildSensorChart(isAccel: false)),
+              _buildChartCard(
+                title: 'Acceleration (m/s²)',
+                chart: _buildSensorChart(isAccel: true),
+              ),
+              _buildChartCard(
+                title: 'Gyroscope (rad/s)',
+                chart: _buildSensorChart(isAccel: false),
+              ),
             ],
           ),
         ),
@@ -281,13 +350,19 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
 
   Widget _buildChartCard({required String title, required Widget chart}) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: DriveDetailsConstants.horizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: DriveDetailsConstants.horizontalPadding,
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: DriveDetailsConstants.cardBackground,
           borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
           boxShadow: [
-            BoxShadow(color: DriveDetailsConstants.lightPurple.withOpacity(0.1), blurRadius: 8, offset: Offset(0, 2)),
+            BoxShadow(
+              color: DriveDetailsConstants.lightPurple.withOpacity(0.1),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
           ],
         ),
         child: Padding(
@@ -309,8 +384,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
     // Downsample if too many points to avoid lag
     // Downsample if too many points to avoid lag
     List<SensorDataPoint> displayData = _sensorData;
-    if (_sensorData.length > 200) {
-      final step = _sensorData.length ~/ 100;
+    // Increase the threshold - 100 is too low for sensors
+    if (_sensorData.length > 1000) {
+      final step = _sensorData.length ~/ 500;
       displayData = [];
       for (int i = 0; i < _sensorData.length; i += step) {
         displayData.add(_sensorData[i]);
@@ -321,14 +397,27 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: 1),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          // drawHorizontalLine: false,
+          horizontalInterval: 5,
+        ),
         titlesData: FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
         rangeAnnotations: RangeAnnotations(
           verticalRangeAnnotations:
               _events.map((e) {
-                final startDiff = e.timestamp.difference(widget.drive.startTime).inSeconds.toDouble();
-                final endDiff = e.endTimestamp.difference(widget.drive.startTime).inSeconds.toDouble();
+                final startDiff =
+                    e.timestamp
+                        .difference(widget.drive.startTime)
+                        .inSeconds
+                        .toDouble();
+                final endDiff =
+                    e.endTimestamp
+                        .difference(widget.drive.startTime)
+                        .inSeconds
+                        .toDouble();
                 return VerticalRangeAnnotation(
                   x1: startDiff,
                   x2: endDiff,
@@ -337,25 +426,45 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
               }).toList(),
         ),
         lineBarsData: [
-          _buildLine(displayData, (p) => isAccel ? p.accelX : p.gyroX, Colors.red),
-          _buildLine(displayData, (p) => isAccel ? p.accelY : p.gyroY, Colors.green),
-          _buildLine(displayData, (p) => isAccel ? p.accelZ : p.gyroZ, Colors.blue),
+          _buildLine(
+            displayData,
+            (p) => isAccel ? p.accelX : p.gyroX,
+            Colors.red,
+          ),
+          _buildLine(
+            displayData,
+            (p) => isAccel ? p.accelY : p.gyroY,
+            Colors.green,
+          ),
+          _buildLine(
+            displayData,
+            (p) => isAccel ? p.accelZ : p.gyroZ,
+            Colors.blue,
+          ),
         ],
       ),
     );
   }
 
-  LineChartBarData _buildLine(List<SensorDataPoint> data, double Function(SensorDataPoint) selector, Color color) {
+  LineChartBarData _buildLine(
+    List<SensorDataPoint> data,
+    double Function(SensorDataPoint) selector,
+    Color color,
+  ) {
     return LineChartBarData(
       spots:
           data.map((d) {
             // Use relative time in seconds from start
-            final diff = d.timeSent.difference(widget.drive.startTime).inSeconds.toDouble();
+            final diff =
+                d.timeSent
+                    .difference(widget.drive.startTime)
+                    .inSeconds
+                    .toDouble();
             return FlSpot(diff, selector(d));
           }).toList(),
       isCurved: false, // Fixed: removed curves to reduce messiness
       color: color,
-      barWidth: 2,
+      barWidth: 1.2,
       dotData: FlDotData(show: false),
     );
   }
@@ -365,10 +474,14 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
     final avgSpeed =
         duration.inHours > 0
             ? widget.drive.distance / duration.inHours
-            : (duration.inMinutes > 0 ? widget.drive.distance / (duration.inMinutes / 60) : 0.0);
+            : (duration.inMinutes > 0
+                ? widget.drive.distance / (duration.inMinutes / 60)
+                : 0.0);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: DriveDetailsConstants.horizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: DriveDetailsConstants.horizontalPadding,
+      ),
       child: Column(
         children: [
           Row(
@@ -407,7 +520,11 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
     );
   }
 
-  Widget _buildMetricItem({required IconData icon, required String label, required String value}) {
+  Widget _buildMetricItem({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -461,26 +578,47 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
       mapController: _mapController,
       options: MapOptions(
         // Use standard center for single point, CameraFit for paths
-        initialCenter: uniquePath.length == 1 ? uniquePath.first : const LatLng(0, 0),
+        initialCenter:
+            uniquePath.length == 1 ? uniquePath.first : const LatLng(0, 0),
         initialZoom: uniquePath.length == 1 ? 15.0 : 13.0,
         initialCameraFit:
             uniquePath.length > 1
-                ? CameraFit.bounds(bounds: LatLngBounds.fromPoints(uniquePath), padding: const EdgeInsets.all(50.0))
+                ? CameraFit.bounds(
+                  bounds: LatLngBounds.fromPoints(uniquePath),
+                  padding: const EdgeInsets.all(50.0),
+                )
                 : null,
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          urlTemplate:
+              'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
           subdomains: ['a', 'b', 'c', 'd'],
           userAgentPackageName: 'com.vehnicate.app',
         ),
         PolylineLayer(
-          polylines: [Polyline(points: uniquePath, strokeWidth: 4.0, color: DriveDetailsConstants.accentPurple)],
+          polylines: [
+            Polyline(
+              points: uniquePath,
+              strokeWidth: 4.0,
+              color: DriveDetailsConstants.accentPurple,
+            ),
+          ],
         ),
         MarkerLayer(
           markers: [
-            Marker(point: uniquePath.first, child: const Icon(Icons.circle, color: Colors.green, size: 15)),
-            Marker(point: uniquePath.last, child: const Icon(Icons.circle_sharp, color: Colors.orange, size: 17)),
+            Marker(
+              point: uniquePath.first,
+              child: const Icon(Icons.circle, color: Colors.green, size: 15),
+            ),
+            Marker(
+              point: uniquePath.last,
+              child: const Icon(
+                Icons.circle_sharp,
+                color: Colors.orange,
+                size: 17,
+              ),
+            ),
             // Event Markers
             ..._events.map(
               (e) => Marker(
@@ -494,7 +632,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
                       color: _getEventColor(e.type),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 4),
+                      ],
                     ),
                   ),
                 ),
@@ -541,7 +681,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
             backgroundColor: DriveDetailsConstants.cardBackground,
             title: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: _getEventColor(event.type)),
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: _getEventColor(event.type),
+                ),
                 SizedBox(width: 8),
                 Text(
                   event.type.replaceAll('_', ' ').toUpperCase(),
@@ -553,9 +696,18 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Source: ${event.source}', style: DriveDetailsConstants.metricLabelStyle),
-                Text('Severity: ${event.severity}', style: DriveDetailsConstants.metricLabelStyle),
-                Text('Confidence: ${(event.confidence * 100).toInt()}%', style: DriveDetailsConstants.metricLabelStyle),
+                Text(
+                  'Source: ${event.source}',
+                  style: DriveDetailsConstants.metricLabelStyle,
+                ),
+                Text(
+                  'Severity: ${event.severity}',
+                  style: DriveDetailsConstants.metricLabelStyle,
+                ),
+                Text(
+                  'Confidence: ${(event.confidence * 100).toInt()}%',
+                  style: DriveDetailsConstants.metricLabelStyle,
+                ),
                 Text(
                   'Time: ${DateFormat('HH:mm:ss').format(event.timestamp.toLocal())}',
                   style: DriveDetailsConstants.metricLabelStyle,
@@ -565,7 +717,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Close', style: TextStyle(color: DriveDetailsConstants.accentPurple)),
+                child: Text(
+                  'Close',
+                  style: TextStyle(color: DriveDetailsConstants.accentPurple),
+                ),
               ),
             ],
           ),
@@ -577,15 +732,23 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
     final presentTypes = _events.map((e) => e.type).toSet().toList();
 
     // Always include Start/End
-    final List<MapEntry<String, Color>> legendItems = [MapEntry('Start', Colors.green), MapEntry('End', Colors.red)];
+    final List<MapEntry<String, Color>> legendItems = [
+      MapEntry('Start', Colors.green),
+      MapEntry('End', Colors.red),
+    ];
 
     // Add event types
     for (var type in presentTypes) {
-      legendItems.add(MapEntry(type.replaceAll('_', ' ').toUpperCase(), _getEventColor(type)));
+      legendItems.add(
+        MapEntry(type.replaceAll('_', ' ').toUpperCase(), _getEventColor(type)),
+      );
     }
 
     if (presentTypes.isEmpty && legendItems.length == 2) {
-      return Text("No events detected in this drive.", style: TextStyle(color: Colors.white54, fontSize: 12));
+      return Text(
+        "No events detected in this drive.",
+        style: TextStyle(color: Colors.white54, fontSize: 12),
+      );
     }
 
     return Wrap(
@@ -596,9 +759,19 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(width: 10, height: 10, decoration: BoxDecoration(color: e.value, shape: BoxShape.circle)),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: e.value,
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 SizedBox(width: 6),
-                Text(e.key, style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  e.key,
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ],
             );
           }).toList(),
@@ -611,7 +784,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
       builder:
           (context) => AlertDialog(
             backgroundColor: DriveDetailsConstants.cardBackground,
-            title: Text("Route Data (${_routePoints.length} points)", style: DriveDetailsConstants.titleStyle),
+            title: Text(
+              "Route Data (${_routePoints.length} points)",
+              style: DriveDetailsConstants.titleStyle,
+            ),
             content: Container(
               width: double.maxFinite,
               height: 400,
@@ -635,7 +811,11 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
                         ),
                         Text(
                           "[${p.latitude.toStringAsFixed(6)}, ${p.longitude.toStringAsFixed(6)}]",
-                          style: TextStyle(color: Colors.white70, fontFamily: 'monospace', fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -646,22 +826,47 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text("Close", style: TextStyle(color: DriveDetailsConstants.accentPurple)),
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: DriveDetailsConstants.accentPurple),
+                ),
               ),
             ],
           ),
     );
   }
 
-  void _animatedMapMove(LatLng destLocation, double destZoom, double destRotation) {
+  void _animatedMapMove(
+    LatLng destLocation,
+    double destZoom,
+    double destRotation,
+  ) {
     // Create some variables to hold the current state
-    final latTween = Tween<double>(begin: _mapController.camera.center.latitude, end: destLocation.latitude);
-    final lngTween = Tween<double>(begin: _mapController.camera.center.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: _mapController.camera.zoom, end: destZoom);
-    final rotateTween = Tween<double>(begin: _mapController.camera.rotation, end: destRotation);
+    final latTween = Tween<double>(
+      begin: _mapController.camera.center.latitude,
+      end: destLocation.latitude,
+    );
+    final lngTween = Tween<double>(
+      begin: _mapController.camera.center.longitude,
+      end: destLocation.longitude,
+    );
+    final zoomTween = Tween<double>(
+      begin: _mapController.camera.zoom,
+      end: destZoom,
+    );
+    final rotateTween = Tween<double>(
+      begin: _mapController.camera.rotation,
+      end: destRotation,
+    );
 
-    final controller = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
-    final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
+    final controller = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    final Animation<double> animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOutCubic,
+    );
 
     controller.addListener(() {
       _mapController.move(
@@ -672,7 +877,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage> with TickerProvider
     });
 
     animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         controller.dispose();
       }
     });

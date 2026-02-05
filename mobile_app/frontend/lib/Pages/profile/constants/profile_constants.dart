@@ -11,6 +11,13 @@ class ProfileConstants {
   static const Color deleteRed = Color(0xA5FF0000);
   static const Color dividerColor = Color(0x33B0A4AD);
 
+  static const LinearGradient gradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [0, 0.8, 1],
+    colors: [Colors.black, Color(0xFF191B33), Color(0xFF292D54)],
+  );
+
   // Text Styles
   static const TextStyle nameStyle = TextStyle(
     color: Colors.white,

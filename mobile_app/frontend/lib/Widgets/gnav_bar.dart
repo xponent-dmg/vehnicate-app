@@ -6,20 +6,29 @@ class GnavBar extends StatelessWidget {
   GnavBar({super.key, required this.selectedIndex, required this.onTabChange});
   final int selectedIndex;
   final Function(int) onTabChange;
-  final List<Color> colors = [Colors.purple, Colors.pink, Colors.amber[600]!, Colors.teal];
+  // final List<Color> colors = [
+  //   Colors.purple,
+  //   Colors.pink,
+  //   Colors.amber[600]!,
+  //   Colors.teal,
+  // ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: ProfileConstants.cardBackground,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 17),
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22.47),
+        color: ProfileConstants.cardBackground,
+      ),
       child: GNav(
         gap: 8,
         color: Colors.grey[800],
-        activeColor: colors[selectedIndex],
+        activeColor: Theme.of(context).primaryColor,
         iconSize: 24,
-        tabBackgroundColor: colors[selectedIndex].withAlpha(30),
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        tabBackgroundColor: Theme.of(context).primaryColor.withAlpha(30),
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 14),
         tabs: [
           GButton(icon: Icons.home, text: 'Home'),
           GButton(icon: Icons.location_on, text: 'Location'),

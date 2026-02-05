@@ -10,7 +10,11 @@ class SupabaseService {
   late SupabaseClient _client;
 
   // Register user in Supabase
-  Future<void> registerUser({required String uid, required String email, required String password}) async {
+  Future<void> registerUser({
+    required String uid,
+    required String email,
+    required String password,
+  }) async {
     try {
       print('Ensuring Supabase client is initialized...');
       await initialize();
@@ -47,7 +51,9 @@ class SupabaseService {
           print('Supabase auth response: ${authResponse.toString()}');
 
           if (authResponse.user?.id != null) {
-            print('Updating user record with Supabase ID: ${authResponse.user!.id}');
+            print(
+              'Updating user record with Supabase ID: ${authResponse.user!.id}',
+            );
             try {
               final updateResponse =
                   await _client
@@ -111,7 +117,10 @@ class SupabaseService {
       print('Updating profile for user with Firebase UID: $userId');
 
       // Build update map with only non-null values
-      final Map<String, dynamic> updateData = {'name': fullName, 'username': username};
+      final Map<String, dynamic> updateData = {
+        'name': fullName,
+        'username': username,
+      };
 
       if (phone != null) updateData['phone'] = phone;
       if (address != null) updateData['address'] = address;
@@ -121,7 +130,10 @@ class SupabaseService {
           await _client
               .from('userdetails')
               .update(updateData)
-              .eq('firebaseuid', userId) // Use firebaseuid to find the correct record
+              .eq(
+                'firebaseuid',
+                userId,
+              ) // Use firebaseuid to find the correct record
               .select();
 
       print('Profile update response: $response');
@@ -146,7 +158,12 @@ class SupabaseService {
       print("Fetching user details for Firebase UID: $firebaseUuid");
       await initialize(); // Ensure client is initialized
 
-      final response = await _client.from('userdetails').select().eq('firebaseuid', firebaseUuid).maybeSingle();
+      final response =
+          await _client
+              .from('userdetails')
+              .select()
+              .eq('firebaseuid', firebaseUuid)
+              .maybeSingle();
 
       print("Supabase user details response: $response");
 
@@ -169,7 +186,12 @@ class SupabaseService {
       print("Fetching vehicle details for ID: $vehicleId");
       await initialize(); // Ensure client is initialized
 
-      final vehicle = await _client.from('vehicledetails').select().eq('vehicleid', vehicleId).maybeSingle();
+      final vehicle =
+          await _client
+              .from('vehicledetails')
+              .select()
+              .eq('vehicleid', vehicleId)
+              .maybeSingle();
 
       print("Vehicle details response: $vehicle");
       return vehicle;
@@ -181,22 +203,26 @@ class SupabaseService {
     }
   }
 
-  Future<Map<String, dynamic>?> getVehicleByUserId(String firebaseUuid) async {
+  Future<List<Map<String, dynamic>>> getVehiclesByUserId(
+    String firebaseUuid,
+  ) async {
     try {
-      print("Fetching vehicle for user with Firebase UID: $firebaseUuid");
+      print("Fetching vehicles for user with Firebase UID: $firebaseUuid");
       await initialize(); // Ensure client is initialized
 
       // Step 1: Get the vehicle details directly from vehicledetails table using firebaseuid
-      final vehicleResponse =
-          await _client.from('vehicledetails').select().eq('firebaseuid', firebaseUuid).maybeSingle();
+      final vehiclesResponse = await _client
+          .from('vehicledetails')
+          .select()
+          .eq('firebaseuid', firebaseUuid);
 
-      print("Vehicle details response: $vehicleResponse");
-      return vehicleResponse;
+      print("Vehicles details response: $vehiclesResponse");
+      return List<Map<String, dynamic>>.from(vehiclesResponse);
     } catch (e, stackTrace) {
-      print("Error getting vehicle by user id:");
+      print("Error getting vehicles by user id:");
       print("Error: $e");
       print("Stack trace: $stackTrace");
-      return null;
+      return [];
     }
   }
 
@@ -214,7 +240,12 @@ class SupabaseService {
       final response =
           await _client
               .from('vehicledetails')
-              .update({'insurance': insurance, 'registration': registration, 'puc': puc, 'model': model})
+              .update({
+                'insurance': insurance,
+                'registration': registration,
+                'puc': puc,
+                'model': model,
+              })
               .eq('vehicleid', vehicleId)
               .select();
 
@@ -258,17 +289,17 @@ class SupabaseService {
       print('Data Time Range: ${startTime.toLocal()} to ${endTime.toLocal()}');
       await initialize();
 
-      // Query 'datatransmission' table for sensor data within the time range
-      final response = await _client
-          .from('datatransmission')
-          .select()
-          .eq('vehicleid', vehicleId)
-          .gte('timesent', startTime.toIso8601String())
-          .lte('timesent', endTime.toIso8601String())
-          .order('timesent', ascending: true)
-          .limit(50000);
+      // Call Supabase RPC function to bypass client-side row limits
+      final response = await _client.rpc(
+        'get_drive_data',
+        params: {
+          '_vehicle_id': vehicleId,
+          '_start_time': startTime.toIso8601String(),
+          '_end_time': endTime.toIso8601String(),
+        },
+      );
 
-      print('Drive data points fetched: ${response.length}');
+      print('Drive data points fetched via RPC: ${response.length}');
       return List<Map<String, dynamic>>.from(response);
     } catch (e, stackTrace) {
       print('Error fetching drive data: $e');
@@ -277,13 +308,22 @@ class SupabaseService {
     }
   }
 
-  Future<void> createSupabaseUser({required String uid, required String email, String? displayName}) async {
+  Future<void> createSupabaseUser({
+    required String uid,
+    required String email,
+    String? displayName,
+  }) async {
     try {
       print('Ensuring Supabase client is initialized...');
       await initialize();
 
       // Check if user exists
-      final existingUser = await _client.from('userdetails').select().eq('firebaseuid', uid).maybeSingle();
+      final existingUser =
+          await _client
+              .from('userdetails')
+              .select()
+              .eq('firebaseuid', uid)
+              .maybeSingle();
 
       if (existingUser != null) {
         print('User already exists in Supabase: $uid');
@@ -348,7 +388,9 @@ class SupabaseService {
   }) async {
     try {
       print('Fetching drive events for vehicle $vehicleId');
-      print('Events Time Range: ${startTime.toLocal()} to ${endTime.toLocal()}');
+      print(
+        'Events Time Range: ${startTime.toLocal()} to ${endTime.toLocal()}',
+      );
       await initialize();
 
       final response = await _client
@@ -375,7 +417,9 @@ class SupabaseService {
   }) async {
     try {
       print('Fetching drive route for vehicle $vehicleId');
-      print('Route Time Range (d/m/y): ${startTime.toLocal()} to ${endTime.toLocal()}');
+      print(
+        'Route Time Range (d/m/y): ${startTime.toLocal()} to ${endTime.toLocal()}',
+      );
       await initialize();
 
       final response = await _client.rpc(

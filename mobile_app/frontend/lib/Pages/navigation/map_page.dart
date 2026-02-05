@@ -31,7 +31,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Timer? _autocompleteTimer;
 
   // Map state
-  LatLng _currentLatLng = LatLng(Config.defaultLatitude, Config.defaultLongitude);
+  LatLng _currentLatLng = LatLng(
+    Config.defaultLatitude,
+    Config.defaultLongitude,
+  );
   List<LatLng> _routePoints = [];
   List<Marker> _markers = [];
   bool _isLoading = false;
@@ -68,11 +71,13 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }
 
   void _setupPulseAnimation() {
-    _pulseController = AnimationController(duration: const Duration(seconds: 2), vsync: this);
-    _pulseAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _pulseAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
     _pulseController.repeat(reverse: true);
   }
 
@@ -95,19 +100,19 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     if (_isTrackingLocation) return;
 
     setState(() => _isTrackingLocation = true);
-    _positionStream = _mapService.positionStream(accuracy: LocationAccuracy.high, distanceFilter: 1).listen((
-      Position position,
-    ) {
-      setState(() {
-        _currentPosition = position;
-        _currentLatLng = LatLng(position.latitude, position.longitude);
-        _fromLocation = _currentLatLng;
-      });
+    _positionStream = _mapService
+        .positionStream(accuracy: LocationAccuracy.high, distanceFilter: 1)
+        .listen((Position position) {
+          setState(() {
+            _currentPosition = position;
+            _currentLatLng = LatLng(position.latitude, position.longitude);
+            _fromLocation = _currentLatLng;
+          });
 
-      // Keep map centered on user location during live tracking
-      _mapController.move(_currentLatLng, _mapController.camera.zoom);
-      _updateMarkers();
-    });
+          // Keep map centered on user location during live tracking
+          _mapController.move(_currentLatLng, _mapController.camera.zoom);
+          _updateMarkers();
+        });
 
     _showSnackBar('🔄 Live tracking started', Colors.green);
   }
@@ -129,7 +134,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       vid = vehicleProvider.vehicleId;
     }
     if (vid == null) {
-      _showSnackBar('❌ No vehicle linked. Please update your profile with a vehicle.', Colors.red);
+      _showSnackBar(
+        '❌ No vehicle linked. Please update your profile with a vehicle.',
+        Colors.red,
+      );
       return;
     }
     _vehicleId = vid;
@@ -159,7 +167,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _autocompleteTimer = Timer(const Duration(milliseconds: 300), () async {
       try {
         print('🔍 Autocomplete search: $query');
-        final suggestions = await _mapService.fetchAutocompleteSuggestions(query);
+        final suggestions = await _mapService.fetchAutocompleteSuggestions(
+          query,
+        );
         setState(() {
           _autocompleteSuggestions = suggestions;
           _showAutocomplete = suggestions.isNotEmpty;
@@ -247,7 +257,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       print('📍 From: ${_fromLocation!.latitude}, ${_fromLocation!.longitude}');
       print('📍 To: ${_toLocation!.latitude}, ${_toLocation!.longitude}');
 
-      final result = await _mapService.calculateRoute(_fromLocation!, _toLocation!);
+      final result = await _mapService.calculateRoute(
+        _fromLocation!,
+        _toLocation!,
+      );
 
       setState(() {
         _routePoints = result.points;
@@ -259,7 +272,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       _fitMapToRoute();
 
       print('✅ Route calculated successfully: ${_routePoints.length} points');
-      _showSnackBar('Route calculated: ${_totalDistance.toStringAsFixed(1)} km', Colors.green);
+      _showSnackBar(
+        'Route calculated: ${_totalDistance.toStringAsFixed(1)} km',
+        Colors.green,
+      );
     } catch (e) {
       print('❌ Route calculation error: $e');
       _showSnackBar('Error calculating route: $e', Colors.red);
@@ -293,9 +309,19 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.blue,
-                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: const Icon(Icons.my_location, color: Colors.white, size: 12),
+                    child: const Icon(
+                      Icons.my_location,
+                      color: Colors.white,
+                      size: 12,
+                    ),
                   ),
                 ),
               );
@@ -338,7 +364,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     if (_routePoints.isEmpty) return;
 
     final bounds = _mapService.boundsForRoute(_routePoints);
-    _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
+    _mapController.fitCamera(
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
+    );
   }
 
   void _clearRoute() {
@@ -353,9 +381,13 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }
 
   void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color, duration: const Duration(seconds: 2)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -376,7 +408,13 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       body: SafeArea(
-        child: Column(children: [_buildTopPanel(context), Expanded(child: _buildMap()), _buildBottomControls()]),
+        child: Column(
+          children: [
+            _buildTopPanel(context),
+            Expanded(child: _buildMap()),
+            _buildBottomControls(),
+          ],
+        ),
       ),
       //TODO: Add back the FAB in production
       // floatingActionButton: FloatingActionButton(
@@ -396,7 +434,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Color(0xFF2d2d44),
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
       ),
       child: Column(
         children: [
@@ -404,13 +445,20 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                ),
               ),
               const Expanded(
                 child: Text(
                   'Navigation',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               // IconButton(
@@ -450,7 +498,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               decoration: BoxDecoration(
                 color: const Color(0xFF1a1a2e),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF8E44AD).withOpacity(0.3)),
+                border: Border.all(
+                  color: const Color(0xFF8E44AD).withOpacity(0.3),
+                ),
               ),
               constraints: const BoxConstraints(maxHeight: 200),
               child: ListView.builder(
@@ -495,7 +545,11 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     leading: Icon(icon, color: iconColor, size: 20),
                     title: Text(
                       name,
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -503,12 +557,22 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                         label.isNotEmpty && label != name
                             ? Text(
                               label,
-                              style: const TextStyle(color: Colors.white54, fontSize: 12),
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             )
                             : null,
-                    trailing: confidence > 0.7 ? const Icon(Icons.star, color: Colors.amber, size: 16) : null,
+                    trailing:
+                        confidence > 0.7
+                            ? const Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                              size: 16,
+                            )
+                            : null,
                     onTap: () => _selectSuggestion(suggestion),
                   );
                 },
@@ -529,18 +593,29 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                             print('From text: ${_fromController.text}');
                             print('To text: ${_toController.text}');
 
-                            if (_toController.text.isNotEmpty && _toLocation == null) {
-                              _showSnackBar('Searching for destination...', Colors.blue);
-                              await _searchAndSetLocation(_toController.text, false);
+                            if (_toController.text.isNotEmpty &&
+                                _toLocation == null) {
+                              _showSnackBar(
+                                'Searching for destination...',
+                                Colors.blue,
+                              );
+                              await _searchAndSetLocation(
+                                _toController.text,
+                                false,
+                              );
                             }
 
                             if (_fromLocation != null && _toLocation != null) {
                               await _calculateRoute();
                             } else {
                               String missingLocation = '';
-                              if (_fromLocation == null) missingLocation += 'From ';
+                              if (_fromLocation == null)
+                                missingLocation += 'From ';
                               if (_toLocation == null) missingLocation += 'To ';
-                              _showSnackBar('Please set $missingLocation location(s)', Colors.orange);
+                              _showSnackBar(
+                                'Please set $missingLocation location(s)',
+                                Colors.orange,
+                              );
                             }
                           },
                   icon:
@@ -548,13 +623,18 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                           ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                           : const Icon(Icons.directions, color: Colors.white),
                   label: Text(_isLoading ? 'Loading...' : 'Get Route'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF8E44AD),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -565,7 +645,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 label: const Text('Clear'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3d3d54),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -584,17 +666,34 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 children: [
                   Column(
                     children: [
-                      const Icon(Icons.straighten, color: Color(0xFF8E44AD), size: 16),
+                      const Icon(
+                        Icons.straighten,
+                        color: Color(0xFF8E44AD),
+                        size: 16,
+                      ),
                       Text(
                         '${_totalDistance.toStringAsFixed(1)} km',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                   Column(
                     children: [
-                      const Icon(Icons.access_time, color: Color(0xFF8E44AD), size: 16),
-                      Text(_estimatedTime, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      const Icon(
+                        Icons.access_time,
+                        color: Color(0xFF8E44AD),
+                        size: 16,
+                      ),
+                      Text(
+                        _estimatedTime,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -614,11 +713,14 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         initialZoom: Config.defaultZoom,
         minZoom: Config.minZoom,
         maxZoom: Config.maxZoom,
-        interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
+        interactionOptions: const InteractionOptions(
+          flags: InteractiveFlag.all,
+        ),
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          urlTemplate:
+              'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
           subdomains: ['a', 'b', 'c', 'd'],
           userAgentPackageName: 'com.vehnicate.app',
         ),
@@ -643,18 +745,34 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Color(0xFF2d2d44),
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
       ),
       child: Row(
         children: [
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: _isCollectingData ? _stopDataCollection : _startDataCollection,
-              icon: Icon(_isCollectingData ? Icons.stop : Icons.sensors, color: Colors.white),
-              label: Text(_isCollectingData ? 'Stop IMU Collection' : 'Start IMU Collection'),
+              onPressed:
+                  _isCollectingData
+                      ? _stopDataCollection
+                      : _startDataCollection,
+              icon: Icon(
+                _isCollectingData ? Icons.stop : Icons.sensors,
+                color: Colors.white,
+              ),
+              label: Text(
+                _isCollectingData
+                    ? 'Stop IMU Collection'
+                    : 'Start IMU Collection',
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isCollectingData ? Colors.red : const Color(0xFF8E44AD),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor:
+                    _isCollectingData ? Colors.red : const Color(0xFF8E44AD),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
@@ -666,7 +784,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF3d3d54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               padding: const EdgeInsets.all(12),
             ),
             child: const Icon(Icons.my_location, color: Colors.white),
@@ -687,14 +807,20 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     required bool isFromFieldActive,
   }) {
     return Container(
-      decoration: BoxDecoration(color: const Color(0xFF1a1a2e), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1a1a2e),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: TextField(
         controller: controller,
         focusNode: focusNode,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.white54),
-          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12)), borderSide: BorderSide.none),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide.none,
+          ),
           prefixIcon: Icon(prefixIcon, color: color, size: 16),
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),

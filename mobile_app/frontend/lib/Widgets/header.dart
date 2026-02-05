@@ -28,7 +28,7 @@ class _HeaderState extends State<Header> {
   Widget build(BuildContext context) {
     return Container(
       height: 90,
-      margin: const EdgeInsets.only(top: 10, bottom: 15, left: 20, right: 20),
+      margin: const EdgeInsets.only(top: 10, bottom: 15, left: 25, right: 25),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -52,7 +52,10 @@ class _HeaderState extends State<Header> {
                       height: 30,
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 400),
-                        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+                        layoutBuilder: (
+                          Widget? currentChild,
+                          List<Widget> previousChildren,
+                        ) {
                           return Stack(
                             alignment: Alignment.centerLeft,
                             children: <Widget>[
@@ -61,7 +64,10 @@ class _HeaderState extends State<Header> {
                             ],
                           );
                         },
-                        transitionBuilder: (Widget child, Animation<double> animation) {
+                        transitionBuilder: (
+                          Widget child,
+                          Animation<double> animation,
+                        ) {
                           final double offset = _slideUp ? 1.0 : -1.0;
                           final inAnimation = Tween<Offset>(
                             begin: Offset(0.0, offset),
@@ -73,16 +79,22 @@ class _HeaderState extends State<Header> {
                           ).animate(animation);
 
                           if (child.key == ValueKey(widget.pageName)) {
-                            return SlideTransition(position: inAnimation, child: child);
+                            return SlideTransition(
+                              position: inAnimation,
+                              child: child,
+                            );
                           } else {
-                            return SlideTransition(position: outAnimation, child: child);
+                            return SlideTransition(
+                              position: outAnimation,
+                              child: child,
+                            );
                           }
                         },
                         child: Text(
                           widget.pageName,
                           key: ValueKey(widget.pageName),
                           style: TextStyle(
-                            color: Color(0xFF8E44AD),
+                            color: Theme.of(context).primaryColor,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -92,30 +104,37 @@ class _HeaderState extends State<Header> {
                   ),
                 ],
               ),
-              SizedBox(height: 4),
+              SizedBox(height: 6),
               Consumer<UserProvider>(
-                  builder: (context, userProvider, child) {
-                    if (userProvider.isLoading) {
-                      return Shimmer.fromColors(
-                          baseColor: Colors.grey.withValues(alpha: 0.2),
-                          highlightColor: Colors.white,
-                          loop: 5,
-                          child: Container(
-                            width: 200,
-                            height: 30,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                          ),
-                        );
-                    }
-                    if (userProvider.currentUser != null) {
-                      return TypewriterText(
-                          "${userProvider.currentUser?.name}",
-                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                builder: (context, userProvider, child) {
+                  if (userProvider.isLoading) {
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey.withValues(alpha: 0.2),
+                      highlightColor: Colors.white,
+                      loop: 5,
+                      child: Container(
+                        width: 200,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  }
+                  if (userProvider.currentUser != null) {
+                    return TypewriterText(
+                      "${userProvider.currentUser?.name}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
 
@@ -125,15 +144,17 @@ class _HeaderState extends State<Header> {
             child: Hero(
               tag: 'profile-avatar',
               child: CircleAvatar(
-                radius: 22,
-                backgroundColor: Color(0xFF8E44AD),
-                child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+                radius: 30,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Transform.translate(
+                  offset: const Offset(0, 2.2),
+                  child: Image.asset("assets/logo.png"),
+                ),
               ),
             ),
           ),
         ],
       ),
     );
-    ;
   }
 }

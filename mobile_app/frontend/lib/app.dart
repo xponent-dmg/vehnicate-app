@@ -21,28 +21,31 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('📱 Building App widget...');
-
     return MaterialApp(
       title: 'vehnicate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
-        primaryColor: Colors.deepPurple,
+        primaryColor: Color(0xFF555FDB),
+        // primaryColor: Colors.deepPurple,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.light),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.deepPurple[600],
-          foregroundColor: Colors.white,
-          elevation: 2,
-          centerTitle: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.light,
         ),
-        cardTheme: CardThemeData(elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurple[600],
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
       ),
@@ -78,8 +81,8 @@ class App extends StatelessWidget {
             return PageTransitions.slideFromRight(DriveAnalyzePage());
 
           // Edit Details - Fade + Slide Up (form-like)
-          case "/editdetails":
-            return PageTransitions.fadeSlideUp(EditProfilePage());
+          // case "/editdetails":
+          //   return PageTransitions.fadeSlideUp(EditProfilePage());
 
           // Home - Fade (neutral)
           case "/home":
@@ -92,18 +95,27 @@ class App extends StatelessWidget {
           // User Details with arguments
           case "/user-details":
             final args = settings.arguments as Map<String, dynamic>;
-            return PageTransitions.slideFromRight(UserDetailsPage(userId: args["userId"], email: args["email"]));
+            return PageTransitions.slideFromRight(
+              UserDetailsPage(userId: args["userId"], email: args["email"]),
+            );
 
           // Document Upload with arguments
           case "/document-upload":
             final args = settings.arguments as Map<String, dynamic>?;
-            final docType = args != null ? (args['documentType'] as String? ?? 'Document') : 'Document';
-            return PageTransitions.slideFromBottom(DocumentUploadPage(documentType: docType));
+            final docType =
+                args != null
+                    ? (args['documentType'] as String? ?? 'Document')
+                    : 'Document';
+            return PageTransitions.slideFromBottom(
+              DocumentUploadPage(documentType: docType),
+            );
 
           case "/drive-details":
             final args = settings.arguments as Drive?;
             final drive = args != null ? (args as Drive?) : null;
-            return PageTransitions.slideFromRight(DriveDetailsPage(drive: drive!));
+            return PageTransitions.slideFromRight(
+              DriveDetailsPage(drive: drive!),
+            );
 
           default:
             return null;

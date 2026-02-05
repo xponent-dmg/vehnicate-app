@@ -85,7 +85,10 @@ class CustomSnackBar {
             if (icon != null) ...[
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(icon, color: iconColor, size: 20),
               ),
               const SizedBox(width: 12),
@@ -93,7 +96,11 @@ class CustomSnackBar {
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(color: textColor ?? Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: textColor ?? Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

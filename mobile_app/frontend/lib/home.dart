@@ -20,10 +20,19 @@ class _HomeState extends State<Home> {
   final GlobalKey<MapPageState> _mapPageKey = GlobalKey<MapPageState>();
   late final PageController _pageController;
 
-  List<Color> colors = [Colors.purple, Colors.pink, Colors.amber[600]!, Colors.teal];
+  List<Color> colors = [
+    Colors.purple,
+    Colors.pink,
+    Colors.amber[600]!,
+    Colors.teal,
+  ];
   void onTabChange(int index) {
     setState(() => selectedIndex = index);
-    _pageController.animateToPage(index, duration: const Duration(milliseconds: 250), curve: Curves.ease);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.ease,
+    );
     if (index == 1) {
       _mapPageKey.currentState?.startLiveTracking();
     } else {
@@ -61,31 +70,55 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ProfileConstants.primaryBackground,
-      body: Column(
-        children: [
-          SafeArea(bottom: false, child: Header(pageName: _getPageName(selectedIndex), pageIndex: selectedIndex)),
-          Expanded(
-            child: MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() => selectedIndex = index);
-                  if (index == 1) {
-                    _mapPageKey.currentState?.startLiveTracking();
-                  } else {
-                    _mapPageKey.currentState?.stopLiveTracking();
-                  }
-                },
-                children: [DashboardPage(), SensorDebugPage(), GaragePage(), DriveAnalyzePage()],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0, 0.8, 1],
+            colors: [Colors.black, Color(0xFF191B33), Color(0xFF292D54)],
+          ),
+        ),
+        child: Column(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Header(
+                pageName: _getPageName(selectedIndex),
+                pageIndex: selectedIndex,
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() => selectedIndex = index);
+                    if (index == 1) {
+                      _mapPageKey.currentState?.startLiveTracking();
+                    } else {
+                      _mapPageKey.currentState?.stopLiveTracking();
+                    }
+                  },
+                  children: [
+                    DashboardPage(),
+                    SensorDebugPage(),
+                    GaragePage(),
+                    DriveAnalyzePage(),
+                  ],
+                ),
+              ),
+            ),
+            GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
+          ],
+        ),
       ),
-      bottomNavigationBar: GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
+      // bottomNavigationBar: GnavBar(
+      //   selectedIndex: selectedIndex,
+      //   onTabChange: onTabChange,
+      // ),
     );
   }
 }
