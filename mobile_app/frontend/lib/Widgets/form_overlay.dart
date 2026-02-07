@@ -332,7 +332,11 @@ class FormOverlay {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: Colors.white38),
-            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
+            prefixIcon: Icon(
+              icon,
+              color: Theme.of(context).primaryColor,
+              size: 20,
+            ),
             filled: true,
             fillColor: Color(0xFF3d3d54),
             border: OutlineInputBorder(
@@ -345,7 +349,10 @@ class FormOverlay {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
