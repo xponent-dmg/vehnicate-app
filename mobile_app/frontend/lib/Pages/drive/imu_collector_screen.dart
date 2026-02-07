@@ -39,6 +39,11 @@ class _ImuCollectorState extends State<ImuCollector> {
   final String _deviceId = 'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
   final String _currentImuBatchId = 'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
 
+  // Start position coordinates
+  double? _startX;
+  double? _startY;
+  double? _startZ;
+
   @override
   void initState() {
     super.initState();
@@ -101,6 +106,118 @@ class _ImuCollectorState extends State<ImuCollector> {
     }
   }
 
+  Future<bool> _showStartPositionDialog() async {
+    final TextEditingController xController = TextEditingController();
+    final TextEditingController yController = TextEditingController();
+    final TextEditingController zController = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF0E0E1A),
+          title: const Text(
+            'Enter Start Position',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Please enter the starting coordinates (X, Y, Z):',
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: xController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'X',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF765FD1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF765FD1), width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: yController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Y',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF765FD1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF765FD1), width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: zController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Z',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF765FD1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF765FD1), width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Validate inputs
+                final x = double.tryParse(xController.text);
+                final y = double.tryParse(yController.text);
+                final z = double.tryParse(zController.text);
+
+                if (x == null || y == null || z == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter valid numeric values for X, Y, and Z'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                _startX = x;
+                _startY = y;
+                _startZ = z;
+                Navigator.of(context).pop(true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4CAF50),
+              ),
+              child: const Text('Start'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   void startCollection() async {
     print('[IMU_DEBUG][startCollection] Called');
     if (isCollecting) return;
@@ -110,6 +227,15 @@ class _ImuCollectorState extends State<ImuCollector> {
       CustomSnackBar.showError(context, 'Error: No vehicle selected. Please go to Garage and select a vehicle.');
       return;
     }
+
+    // Show dialog to get start position before starting collection
+    final confirmed = await _showStartPositionDialog();
+    if (!confirmed) {
+      print('[IMU_DEBUG][startCollection] ❌ User cancelled start position dialog');
+      return;
+    }
+
+    print('[IMU_DEBUG][startCollection] 📍 Start position: X=$_startX, Y=$_startY, Z=$_startZ');
 
     try {
       print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
@@ -212,6 +338,9 @@ class _ImuCollectorState extends State<ImuCollector> {
         'starttime': _driveStartTime!.toIso8601String(),
         'endtime': _driveEndTime!.toIso8601String(),
         'distance': 0.0, // You can calculate actual distance if you have GPS data
+        'startx': _startX,
+        'starty': _startY,
+        'startz': _startZ,
       });
 
       print('[IMU_DEBUG][_saveDriveSession] ✅ Drive session saved successfully to trips table');
