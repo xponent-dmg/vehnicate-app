@@ -3,10 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -57,7 +59,6 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Start Card
                 _startCard(context),
                 SizedBox(height: 24),
                 // Score and Car Info
@@ -526,6 +527,87 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 }
+
+Widget _header(context) {
+  return Container(
+    height: 90,
+    padding: const EdgeInsets.symmetric(horizontal: 5),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Title section
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 5),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Color(0xFF8E44AD).withAlpha(51),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Color(0xFF8E44AD), width: 1),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset("assets/vehnicate_logo_padded.png", height: 32, width: 32),
+                  ),
+                  SizedBox(width: 10),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'vehnicate',
+                        style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                      ),
+                      RevealText(
+                        'calm in the chaos',
+                        style: TextStyle(color: Colors.white70, fontSize: 11),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12),
+                  Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 24),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Actions section
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, '/profile'),
+          child: Hero(
+            tag: 'profile-avatar',
+            child: CircleAvatar(
+              radius: 22,
+              backgroundColor: Color(0xFF8E44AD),
+              child: Transform.translate(offset: const Offset(0, 1.2), child: Image.asset("assets/logo.png")),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+// Widget _textField({required String hintText, required IconData icon, required Color color}) {
+//   return Container(
+//     decoration: BoxDecoration(color: ProfileConstants.primaryBackground, borderRadius: BorderRadius.circular(12)),
+//     child: TextField(
+//       decoration: InputDecoration(
+//         hintText: hintText,
+//         hintStyle: TextStyle(color: Colors.white54, fontSize: 14),
+//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+//         prefixIcon: Icon(icon, color: color, size: 17),
+//         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+//       ),
+//       style: TextStyle(color: Colors.white),
+//     ),
+//   );
+// }
 
 Widget _startCard(BuildContext context) {
   return Container(
