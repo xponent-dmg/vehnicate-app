@@ -9,6 +9,7 @@ import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 // Constants and Theme
@@ -53,27 +54,15 @@ class _ProfilePageState extends State<ProfilePage> {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CustomConfirmationDialog(
+          title: "Confirm Logout",
+          content: "Are you sure you want to logout of this account?",
+          confirmText: "Logout",
+          confirmTextColor: ProfileConstants.deleteRed,
+          onConfirm: () => _handleLogout(context),
+          titleStyle: ProfileConstants.nameStyle,
+          contentStyle: ProfileConstants.labelStyle,
           backgroundColor: ProfileConstants.cardBackground,
-          elevation: 5,
-          title: Text("Confirm Logout", style: ProfileConstants.nameStyle),
-          content: Text(
-            "Are you sure you want to logout of this account?",
-            style: ProfileConstants.labelStyle,
-          ),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () => _handleLogout(context),
-              child: Text("Logout", style: ProfileConstants.deleteStyle),
-            ),
-          ],
         );
       },
     );
@@ -82,25 +71,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _handleLogout(BuildContext context) async {
     try {
       // Show loading dialog
+      // Show loading dialog
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return Dialog(
+          return const CustomLoadingDialog(
+            message: 'Logging out...',
             backgroundColor: Color(0xFF2d2d44),
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  SizedBox(width: 20),
-                  Text('Logging out...', style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            ),
           );
         },
       );
