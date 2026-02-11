@@ -67,6 +67,9 @@ dependencies:
   animated_text_kit: ^4.3.0
   intl: ^0.20.2
   shimmer: ^3.0.0
+  glass_kit: ^4.0.2
+  google_fonts: ^8.0.1
+  image_cropper: ^11.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
@@ -57,7 +58,7 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 // Start Card
                 _startCard(context),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 // Score and Car Info
                 Row(
                   children: [
@@ -68,21 +69,18 @@ class _DashboardPageState extends State<DashboardPage> {
                     _selectedCarCard(context),
                   ],
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 16),
                 // Weekly Challenge
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF2d2d44),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: EdgeInsets.all(20),
+                GlassLiteContainer(
+                  backgroundColor: const Color(0xFF2d2d44),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Drive smoothly',
                             style: TextStyle(
                               color: Colors.white,
@@ -91,7 +89,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 6,
                             ),
@@ -116,13 +114,13 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
-                      Text(
+                      const SizedBox(height: 12),
+                      const Text(
                         'Maintain constant acceleration for 50 km',
                         style: TextStyle(color: Colors.white70, fontSize: 14),
                       ),
-                      SizedBox(height: 16),
-                      Row(
+                      const SizedBox(height: 16),
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -142,11 +140,11 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Container(
                         height: 6,
                         decoration: BoxDecoration(
-                          color: Color(0xFF3d3d54),
+                          color: const Color(0xFF3d3d54),
                           borderRadius: BorderRadius.circular(3),
                         ),
                         child: Stack(
@@ -266,15 +264,13 @@ class _DashboardPageState extends State<DashboardPage> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Color(0xFF2d2d44),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
+        return GlassLiteContainer(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
-          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          backgroundColor: const Color(0xFF2d2d44),
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           child: Consumer<VehicleProvider>(
             builder: (context, vehicleProvider, child) {
               final vehicles = vehicleProvider.vehicles;
@@ -390,13 +386,10 @@ class _DashboardPageState extends State<DashboardPage> {
         builder: (context, vehicleProvider, child) {
           final hasVehicle = vehicleProvider.vehicleId != null;
 
-          return Container(
+          return GlassLiteContainer(
             height: 160,
-            decoration: BoxDecoration(
-              color: Color(0xFF2d2d44),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            padding: EdgeInsets.all(17),
+            backgroundColor: const Color(0xFF2d2d44),
+            padding: const EdgeInsets.all(17),
             child:
                 hasVehicle
                     ? Column(
@@ -404,37 +397,43 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: [
                         Row(
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  vehicleProvider.vehicleModel ?? 'No vehicle',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    vehicleProvider.vehicleModel ??
+                                        'No vehicle',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                Text(
-                                  vehicleProvider.vehicleRegistration ??
-                                      '------',
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontSize: 11,
+                                  Text(
+                                    vehicleProvider.vehicleRegistration ??
+                                        '------',
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 11,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            Spacer(),
                             GestureDetector(
                               onTap: () => _showVehicleSelectionSheet(context),
                               child: Column(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.swap_horiz_rounded,
                                     color: Colors.white,
                                   ),
-                                  Text(
+                                  const Text(
                                     'Swap',
                                     style: TextStyle(
                                       color: Colors.white70,
@@ -446,14 +445,14 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Color(0xFF3d3d54),
+                              color: const Color(0xFF3d3d54),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Center(
+                            child: const Center(
                               child: Icon(
                                 Icons.directions_car,
                                 color: Colors.white70,
@@ -468,11 +467,11 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () => _showAddVehicleOverlay(context),
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 8,
                             ),
@@ -486,7 +485,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 width: 1,
                               ),
                             ),
-                            child: Column(
+                            child: const Column(
                               children: [
                                 Row(
                                   children: [
@@ -510,12 +509,12 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
-                        Text(
+                        const SizedBox(height: 16),
+                        const Text(
                           'Tap to add your vehicle',
                           style: TextStyle(color: Colors.white54, fontSize: 11),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                       ],
                     ),
           );
@@ -526,12 +525,9 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 Widget _startCard(BuildContext context) {
-  return Container(
-    decoration: BoxDecoration(
-      color: Color(0xFF2d2d44),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    padding: EdgeInsets.all(20),
+  return GlassLiteContainer(
+    backgroundColor: const Color(0xFF2d2d44),
+    padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -542,12 +538,15 @@ Widget _startCard(BuildContext context) {
                 Navigator.pushNamed(context, "/imu");
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child: Text(
+                child: const Text(
                   'Start Drive',
                   style: TextStyle(
                     color: Colors.white,
@@ -557,47 +556,32 @@ Widget _startCard(BuildContext context) {
                 ),
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.home, color: Colors.white, size: 20),
+              child: const Icon(Icons.home, color: Colors.white, size: 20),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, "/map");
               },
               child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
                   color: Color(0xFF3d3d54),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.map, color: Colors.white70, size: 20),
+                child: const Icon(Icons.map, color: Colors.white70, size: 20),
               ),
             ),
-            SizedBox(width: 8),
-            // GestureDetector(
-            //   onTap: () {
-            //     Navigator.pushNamed(context, "/camera");
-            //   },
-            //   child: Container(
-            //     padding: EdgeInsets.all(8),
-            //     decoration: BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-            //     child: Icon(Icons.camera_alt, color: Colors.white70, size: 20),
-            //   ),
-            // ),
+            const SizedBox(width: 8),
           ],
         ),
-        // SizedBox(height: 20),
-        // _textField(hintText: "Current location", icon: FontAwesomeIcons.locationCrosshairs, color: Theme.of(context).primaryColor),
-
-        // SizedBox(height: 12),
-        // _textField(hintText: 'Where to?', icon: FontAwesomeIcons.locationDot, color: Colors.white54),
       ],
     ),
   );
@@ -606,13 +590,10 @@ Widget _startCard(BuildContext context) {
 Widget _rpsScoreCard(BuildContext context) {
   final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
   return Expanded(
-    child: Container(
-      height: 160,
-      decoration: BoxDecoration(
-        color: Color(0xFF2d2d44),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: EdgeInsets.all(20),
+    child: GlassLiteContainer(
+      // height: 170,
+      backgroundColor: const Color(0xFF2d2d44),
+      padding: const EdgeInsets.all(20),
       child: CircularPercentIndicator(
         radius: 60,
         lineWidth: 10,
@@ -626,21 +607,24 @@ Widget _rpsScoreCard(BuildContext context) {
           children: [
             Text(
               rpsScore?.toString() ?? '- -',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 4.5, vertical: 2.5),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4.5,
+                vertical: 2.5,
+              ),
               decoration: BoxDecoration(
                 border: Border.all(color: Theme.of(context).primaryColor),
                 borderRadius: BorderRadius.circular(10),
                 color: Theme.of(context).primaryColor.withAlpha(51),
               ),
-              child: Text(
+              child: const Text(
                 'RPS Score',
                 style: TextStyle(color: Colors.white70, fontSize: 8),
               ),

@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/avatar.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
@@ -113,6 +116,107 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _pickAndUploadImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final File file = File(result.files.single.path!);
+
+        // Crop Image
+        final croppedFile = await ImageCropper().cropImage(
+          sourcePath: file.path,
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: const Color(0xFF2d2d44),
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.square,
+              lockAspectRatio: true,
+              aspectRatioPresets: [CropAspectRatioPreset.square],
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+              aspectRatioLockEnabled: true,
+              resetAspectRatioEnabled: false,
+              aspectRatioPickerButtonHidden: true,
+              rotateButtonsHidden: true,
+              rotateClockwiseButtonHidden: true,
+            ),
+          ],
+        );
+
+        if (croppedFile == null) return; // User cancelled cropping
+
+        final File finalFile = File(croppedFile.path);
+
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        final user = userProvider.currentUser;
+
+        if (user == null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('User not logged in')));
+          return;
+        }
+
+        // Show loading indicator
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const CustomLoadingDialog(
+                message: 'Uploading profile picture...',
+                backgroundColor: Color(0xFF2d2d44),
+              );
+            },
+          );
+        }
+
+        final imageUrl = await SupabaseService().uploadProfilePicture(
+          finalFile,
+          user.firebaseUid,
+        );
+
+        await SupabaseService().updateUserProfile(
+          userId: user.firebaseUid,
+          fullName: user.name,
+          username: user.username,
+          profilePictureUrl: imageUrl,
+        );
+
+        if (mounted) {
+          // Close loading dialog
+          Navigator.of(context).pop();
+          await userProvider.refresh();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Profile picture updated successfully!'),
+              backgroundColor: Theme.of(context).primaryColor,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        // Close loading dialog if open
+        Navigator.of(context).maybePop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile picture: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   void _showEditUserDetailsOverlay(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.currentUser;
@@ -205,111 +309,113 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _showUpdateVehicleOverlay(BuildContext context) {
-    final vehicleProvider = Provider.of<VehicleProvider>(
-      context,
-      listen: false,
-    );
-
-    if (vehicleProvider.vehicleId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'No vehicle found to update. Please add a vehicle first.',
-          ),
-          backgroundColor: Colors.orange,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    // Pre-fill controllers with current vehicle values
-    _vehicleModelController.text = vehicleProvider.vehicleModel ?? '';
-    _registrationController.text = vehicleProvider.vehicleRegistration ?? '';
-    _insuranceController.text = vehicleProvider.vehicleInsurance ?? '';
-    _pucDateController.text = vehicleProvider.vehiclePUC ?? '';
-
-    FormOverlay.show(
-      context: context,
-      title: 'Update Vehicle',
-      fields: [
-        FormFieldConfig(
-          label: 'Model',
-          hint: 'e.g., Honda City',
-          icon: Icons.car_rental,
-          controller: _vehicleModelController,
-        ),
-        FormFieldConfig(
-          label: 'Registration Number',
-          hint: 'e.g., KA01AB1234',
-          icon: Icons.confirmation_number,
-          controller: _registrationController,
-        ),
-        FormFieldConfig(
-          label: 'Insurance Number',
-          hint: 'e.g., INS123456789',
-          icon: Icons.shield,
-          controller: _insuranceController,
-        ),
-        FormFieldConfig(
-          label: 'PUC Date',
-          hint: 'Select date',
-          icon: Icons.calendar_today,
-          controller: _pucDateController,
-          type: FormFieldType.date,
-        ),
-      ],
-      submitButtonText: 'Update Vehicle',
-      onSubmit: () async {
-        final vehicleId = vehicleProvider.vehicleId;
-        if (vehicleId == null) return;
-
-        await SupabaseService().updateVehicleDetails(
-          vehicleId: vehicleId,
-          model: _vehicleModelController.text.trim(),
-          registration: _registrationController.text.trim(),
-          insurance: _insuranceController.text.trim(),
-          puc:
-              _pucDateController.text.trim().isEmpty
-                  ? null
-                  : _pucDateController.text.trim(),
-        );
-
-        // Refresh vehicle data
-        if (mounted) {
-          await Provider.of<VehicleProvider>(context, listen: false).refresh();
-        }
-      },
-      onSuccess: () {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Vehicle updated successfully!'),
-              backgroundColor: Theme.of(context).primaryColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-      onError: (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to update vehicle: ${error.toString()}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    );
-  }
+  // void _showUpdateVehicleOverlay(BuildContext context) {
+  //   final vehicleProvider = Provider.of<VehicleProvider>(
+  //     context,
+  //     listen: false,
+  //   );
+  //
+  //   if (vehicleProvider.vehicleId == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           'No vehicle found to update. Please add a vehicle first.',
+  //         ),
+  //         backgroundColor: Colors.orange,
+  //         behavior: SnackBarBehavior.floating,
+  //       ),
+  //     );
+  //     return;
+  //   }
+  //
+  //   // Pre-fill controllers with current vehicle values
+  //   _vehicleModelController.text = vehicleProvider.vehicleModel ?? '';
+  //   _registrationController.text = vehicleProvider.vehicleRegistration ?? '';
+  //   _insuranceController.text = vehicleProvider.vehicleInsurance ?? '';
+  //   _pucDateController.text = vehicleProvider.vehiclePUC ?? '';
+  //
+  //   FormOverlay.show(
+  //     context: context,
+  //     title: 'Update Vehicle',
+  //     fields: [
+  //       FormFieldConfig(
+  //         label: 'Model',
+  //         hint: 'e.g., Honda City',
+  //         icon: Icons.car_rental,
+  //         controller: _vehicleModelController,
+  //       ),
+  //       FormFieldConfig(
+  //         label: 'Registration Number',
+  //         hint: 'e.g., KA01AB1234',
+  //         icon: Icons.confirmation_number,
+  //         controller: _registrationController,
+  //       ),
+  //       FormFieldConfig(
+  //         label: 'Insurance Number',
+  //         hint: 'e.g., INS123456789',
+  //         icon: Icons.shield,
+  //         controller: _insuranceController,
+  //       ),
+  //       FormFieldConfig(
+  //         label: 'PUC Date',
+  //         hint: 'Select date',
+  //         icon: Icons.calendar_today,
+  //         controller: _pucDateController,
+  //         type: FormFieldType.date,
+  //       ),
+  //     ],
+  //     submitButtonText: 'Update Vehicle',
+  //     onSubmit: () async {
+  //       final vehicleId = vehicleProvider.vehicleId;
+  //       if (vehicleId == null) return;
+  //
+  //       await SupabaseService().updateVehicleDetails(
+  //         vehicleId: vehicleId,
+  //         model: _vehicleModelController.text.trim(),
+  //         registration: _registrationController.text.trim(),
+  //         insurance: _insuranceController.text.trim(),
+  //         puc:
+  //             _pucDateController.text.trim().isEmpty
+  //                 ? null
+  //                 : _pucDateController.text.trim(),
+  //       );
+  //
+  //       // Refresh vehicle data
+  //       if (mounted) {
+  //         await Provider.of<VehicleProvider>(context, listen: false).refresh();
+  //       }
+  //     },
+  //     onSuccess: () {
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Vehicle updated successfully!'),
+  //             backgroundColor: Theme.of(context).primaryColor,
+  //             behavior: SnackBarBehavior.floating,
+  //           ),
+  //         );
+  //       }
+  //     },
+  //     onError: (error) {
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             content: Text('Failed to update vehicle: ${error.toString()}'),
+  //             backgroundColor: Colors.red,
+  //             behavior: SnackBarBehavior.floating,
+  //           ),
+  //         );
+  //       }
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(gradient: ProfileConstants.gradient),
         child: SafeArea(
           child: RefreshIndicator(
@@ -390,41 +496,34 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildAvatar() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Hero(
-          tag: 'profile-avatar',
-          child: Container(
-            width: ProfileConstants.avatarSize,
-            height: ProfileConstants.avatarSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: const DecorationImage(
-                image: AssetImage("assets/logo.png"),
-                fit: BoxFit.cover,
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.currentUser;
+        final profilePic = user?.profilePictureUrl;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Hero(
+              tag: 'profile-avatar',
+              child: Avatar(
+                imageUrl: profilePic,
+                size: ProfileConstants.avatarSize,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).primaryColor.withAlpha(200),
-                  blurRadius: 4,
-                  offset: Offset(0, -2),
-                ),
-              ],
             ),
-          ),
-        ),
-        Positioned(
-          bottom: -10,
-          right: -10,
-          child: IconButton(
-            onPressed: () => _showEditUserDetailsOverlay(context),
-            icon: Icon(FontAwesomeIcons.penToSquare),
-            color: Colors.white,
-            iconSize: 18,
-          ),
-        ),
-      ],
+            Positioned(
+              bottom: -10,
+              right: -10,
+              child: IconButton(
+                onPressed: _pickAndUploadImage,
+                icon: const Icon(FontAwesomeIcons.penToSquare),
+                color: Colors.white,
+                iconSize: 18,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -559,9 +658,24 @@ class _ProfilePageState extends State<ProfilePage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Personal Information',
-                style: ProfileConstants.sectionTitleStyle,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Personal Information',
+                    style: ProfileConstants.sectionTitleStyle,
+                  ),
+                  TextButton(
+                    onPressed: () => _showEditUserDetailsOverlay(context),
+                    child: Text(
+                      'Edit',
+                      style: ProfileConstants.labelStyle.copyWith(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               _buildInfoRow(
@@ -596,11 +710,11 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(height: 3),
           _buildSettingRow('Dark Mode', true),
           SizedBox(height: 3),
-          GestureDetector(
-            onTap: () => _showUpdateVehicleOverlay(context),
-            child: _buildInfoRow('Update Vehicle Details', '', isLast: false),
-          ),
-          SizedBox(height: 3),
+          // GestureDetector(
+          //   onTap: () => _showUpdateVehicleOverlay(context),
+          //   child: _buildInfoRow('Update Vehicle Details', '', isLast: false),
+          // ),
+          // SizedBox(height: 3),
           _buildDeleteAccountRow(),
         ],
       ),
@@ -615,7 +729,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }) {
     return Container(
       height: ProfileConstants.cardHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 14, 14, 26),
         borderRadius: BorderRadius.only(
@@ -651,7 +765,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }) {
     return Container(
       height: ProfileConstants.cardHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
         color: ProfileConstants.cardBackground,
         borderRadius: BorderRadius.only(

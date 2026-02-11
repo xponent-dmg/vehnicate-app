@@ -18,7 +18,10 @@ void main() async {
       projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
     ),
   );
-  await Supabase.initialize(url: dotenv.env['SUPABASE_URL'] ?? '', anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '');
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+  );
 
   runApp(
     MultiProvider(

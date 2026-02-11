@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
+import 'package:vehnicate_frontend/Pages/vehicle/vehicle_details.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -122,7 +124,7 @@ class _GaragePageState extends State<GaragePage> {
               onRefresh: () async {
                 await vehicleProvider.refresh();
               },
-              color: Colors.purple,
+              color: Theme.of(context).primaryColor,
               backgroundColor: const Color(0xFF1E1E1E),
               child: _buildVehicleList(vehicleProvider),
             ),
@@ -149,46 +151,29 @@ class _GaragePageState extends State<GaragePage> {
   }
 
   Widget _buildAddVehicleTile() {
-    return Container(
+    return GlassLiteContainer(
+      hasBorder: false,
       margin: const EdgeInsets.only(bottom: 20, top: 10),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showAddVehicleOverlay(context),
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withAlpha(40),
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(
-                color: Theme.of(context).primaryColor,
-                style: BorderStyle.solid,
-                width: 1,
+      height: 50,
+      borderRadius: BorderRadius.circular(50),
+      backgroundColor: Theme.of(context).primaryColor.withAlpha(40),
+      borderColor: Theme.of(context).primaryColor,
+      onTap: () => _showAddVehicleOverlay(context),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            const Text(
+              'Add another vehicle',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.add_circle_outline,
-                    color: const Color(0xFF5B60F8),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Add another vehicle',
-                    style: TextStyle(
-                      color: const Color(0xFF5B60F8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          ],
         ),
       ),
     );
@@ -201,13 +186,11 @@ class _GaragePageState extends State<GaragePage> {
     final String image =
         "https://images.unsplash.com/photo-1503376763036-066120622c74?auto=format&fit=crop&w=300&q=80"; // Placeholder
 
-    return Container(
+    return GlassLiteContainer(
       margin: const EdgeInsets.only(bottom: 20),
       height: 150,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B1D25), // Card background
-        borderRadius: BorderRadius.circular(24),
-      ),
+      backgroundColor: const Color(0xFF1B1D25),
+      borderRadius: BorderRadius.circular(24),
       child: Stack(
         children: [
           // Content Row
@@ -300,14 +283,24 @@ class _GaragePageState extends State<GaragePage> {
           Positioned(
             bottom: 12,
             right: 16,
-            child: Row(
-              children: [
-                Text(
-                  'View details',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 10),
-                ),
-                Icon(Icons.arrow_right, color: Colors.grey[500], size: 14),
-              ],
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VehicleDetailsPage(vehicle: vehicle),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  Text(
+                    'View details',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 10),
+                  ),
+                  Icon(Icons.arrow_right, color: Colors.grey[500], size: 14),
+                ],
+              ),
             ),
           ),
         ],

@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
@@ -28,6 +30,7 @@ class App extends StatelessWidget {
         primaryColor: Color(0xFF555FDB),
         // primaryColor: Colors.deepPurple,
         useMaterial3: true,
+        textTheme: GoogleFonts.outfitTextTheme(),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
           brightness: Brightness.light,

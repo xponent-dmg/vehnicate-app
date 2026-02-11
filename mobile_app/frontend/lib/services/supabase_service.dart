@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -112,6 +113,7 @@ class SupabaseService {
     required String username,
     String? phone,
     String? address,
+    String? profilePictureUrl,
   }) async {
     try {
       print('Updating profile for user with Firebase UID: $userId');
@@ -124,6 +126,9 @@ class SupabaseService {
 
       if (phone != null) updateData['phone'] = phone;
       if (address != null) updateData['address'] = address;
+      if (profilePictureUrl != null) {
+        updateData['profile_picture_url'] = profilePictureUrl;
+      }
 
       // Update only the specified fields while maintaining the firebaseuid
       final response =
@@ -144,6 +149,36 @@ class SupabaseService {
     } catch (e) {
       print('Error updating user profile: $e');
       throw Exception('Failed to update profile: $e');
+    }
+  }
+
+  Future<String> uploadProfilePicture(File file, String userId) async {
+    try {
+      print('Uploading profile picture for user: $userId');
+      await initialize();
+
+      final fileExt = file.path.split('.').last;
+      final fileName =
+          '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      final filePath = '$userId/$fileName';
+
+      await _client.storage
+          .from('user_avatars')
+          .upload(
+            filePath,
+            file,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      final imageUrl = _client.storage
+          .from('user_avatars')
+          .getPublicUrl(filePath);
+
+      print('Profile picture uploaded successfully: $imageUrl');
+      return imageUrl;
+    } catch (e) {
+      print('Error uploading profile picture: $e');
+      throw Exception('Failed to upload profile picture: $e');
     }
   }
 
