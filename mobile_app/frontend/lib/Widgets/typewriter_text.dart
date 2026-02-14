@@ -20,14 +20,18 @@ class TypewriterText extends StatelessWidget {
     // Calculate speed based on duration and text length
     // If text is empty, avoid division by zero
     final int charCount = text.isNotEmpty ? text.length : 1;
-    final Duration speed = Duration(milliseconds: duration.inMilliseconds ~/ charCount);
+    final Duration speed = Duration(
+      milliseconds: duration.inMilliseconds ~/ charCount,
+    );
 
     return SizedBox(
       child: DefaultTextStyle(
         style: style ?? const TextStyle(),
         child: AnimatedTextKit(
           key: ValueKey(text), // Rebuilds animation when text changes
-          animatedTexts: [TypewriterAnimatedText(text, speed: speed, cursor: '_')],
+          animatedTexts: [
+            TypewriterAnimatedText(text, speed: speed, cursor: '_'),
+          ],
           totalRepeatCount: 1,
           onFinished: onFinished,
           displayFullTextOnTap: true,

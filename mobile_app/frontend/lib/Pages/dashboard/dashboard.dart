@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -70,103 +71,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                 ),
                 SizedBox(height: 16),
+
                 // Weekly Challenge
-                GlassLiteContainer(
-                  hasBorder: false,
-                  backgroundColor: const Color(0xFF2d2d44),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Drive smoothly',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withAlpha(30),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: Theme.of(context).primaryColor,
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              'Weekly',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Maintain constant acceleration for 50 km',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
-                      ),
-                      const SizedBox(height: 16),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Reward: 500 points',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            '50%',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF3d3d54),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width:
-                                  MediaQuery.of(context).size.width *
-                                  0.5 *
-                                  0.5, // 50% of available width
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _weeklyChallenge(context),
               ],
             ),
           ),
@@ -636,6 +543,108 @@ Widget _rpsScoreCard(BuildContext context) {
           ],
         ),
       ),
+    ),
+  );
+}
+
+Widget _weeklyChallenge(BuildContext context) {
+  return GlassLiteContainer(
+    hasBorder: false,
+    backgroundColor: const Color(0xFF2d2d44),
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Drive smoothly',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            GestureDetector(
+              onLongPress: () {
+                CustomSnackBar.showInfo(
+                  context,
+                  'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withAlpha(30),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Theme.of(context).primaryColor,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  'Weekly',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Maintain constant acceleration for 50 km',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        const SizedBox(height: 16),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Reward: 500 points',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            Text(
+              '50%',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: 6,
+          decoration: BoxDecoration(
+            color: const Color(0xFF3d3d54),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Stack(
+            children: [
+              Container(
+                width:
+                    MediaQuery.of(context).size.width *
+                    0.5 *
+                    0.5, // 50% of available width
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     ),
   );
 }

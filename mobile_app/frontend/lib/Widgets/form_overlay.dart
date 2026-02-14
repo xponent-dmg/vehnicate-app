@@ -12,6 +12,8 @@ class FormFieldConfig {
   final TextEditingController controller;
   final FormFieldType type;
 
+  final TextInputType? keyboardType;
+
   FormFieldConfig({
     required this.label,
     required this.hint,
@@ -19,13 +21,14 @@ class FormFieldConfig {
     this.isRequired = true,
     required this.controller,
     this.type = FormFieldType.text,
+    this.keyboardType,
   });
 }
 
 /// Reusable form overlay widget
 class FormOverlay {
   /// Show the form overlay dialog
-  static void show({
+  static Future<void> show({
     required BuildContext context,
     required String title,
     required List<FormFieldConfig> fields,
@@ -37,7 +40,7 @@ class FormOverlay {
     final formKey = GlobalKey<FormState>();
     bool isSubmitting = false;
 
-    showGeneralDialog(
+    return showGeneralDialog(
       context: context,
       barrierDismissible: !isSubmitting,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -118,6 +121,7 @@ class FormOverlay {
                                       hint: field.hint,
                                       icon: field.icon,
                                       isRequired: field.isRequired,
+                                      keyboardType: field.keyboardType,
                                     ),
                               ],
                             );
@@ -239,6 +243,7 @@ class FormOverlay {
     required String hint,
     required IconData icon,
     bool isRequired = true,
+    TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,6 +304,7 @@ class FormOverlay {
                     return null;
                   }
                   : null,
+          keyboardType: keyboardType,
         ),
       ],
     );
