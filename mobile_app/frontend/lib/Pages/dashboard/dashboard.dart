@@ -72,6 +72,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 SizedBox(height: 16),
                 // Weekly Challenge
                 GlassLiteContainer(
+                  hasBorder: false,
                   backgroundColor: const Color(0xFF2d2d44),
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -387,6 +388,7 @@ class _DashboardPageState extends State<DashboardPage> {
           final hasVehicle = vehicleProvider.vehicleId != null;
 
           return GlassLiteContainer(
+            hasBorder: false,
             height: 160,
             backgroundColor: const Color(0xFF2d2d44),
             padding: const EdgeInsets.all(17),
@@ -526,6 +528,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
 Widget _startCard(BuildContext context) {
   return GlassLiteContainer(
+    hasBorder: false,
     backgroundColor: const Color(0xFF2d2d44),
     padding: const EdgeInsets.all(20),
     child: Column(
@@ -591,6 +594,7 @@ Widget _rpsScoreCard(BuildContext context) {
   final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
   return Expanded(
     child: GlassLiteContainer(
+      hasBorder: false,
       // height: 170,
       backgroundColor: const Color(0xFF2d2d44),
       padding: const EdgeInsets.all(20),
