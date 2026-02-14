@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 /// A custom snackbar widget that matches the app's theme
 class CustomSnackBar {
+  // --- DEBOUNCE TRACKING VARIABLES ---
+  static DateTime? _lastShown;
+  static const _debounceDuration = Duration(seconds: 2);
+
   /// Shows a success snackbar
   static void showSuccess(BuildContext context, String message) {
     _showSnackBar(
@@ -80,6 +85,14 @@ class CustomSnackBar {
   }) {
     if (!context.mounted) return;
 
+    // --- DEBOUNCE LOGIC ---
+    final now = DateTime.now();
+    if (_lastShown != null && now.difference(_lastShown!) < _debounceDuration) {
+      return; // Ignore rapid-fire calls entirely
+    }
+    _lastShown = now;
+    // ----------------------
+
     // Define the state variable OUTSIDE the builder so it remembers
     // its state during rebuilds of the snackbar content.
     bool isExpanded = false;
@@ -92,9 +105,14 @@ class CustomSnackBar {
     final Duration finalDuration =
         hasLongMessage ? const Duration(minutes: 1) : duration;
 
+    final messenger = ScaffoldMessenger.of(context);
+
+    // Clear any lingering snackbars instantly before showing the new one
+    messenger.removeCurrentSnackBar();
+
     ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? controller;
 
-    controller = ScaffoldMessenger.of(context).showSnackBar(
+    controller = messenger.showSnackBar(
       SnackBar(
         content: StatefulBuilder(
           builder: (context, setState) {
@@ -167,10 +185,27 @@ class CustomSnackBar {
 
                 const SizedBox(width: 8),
 
+                // Copy Button - Only shown if expanded
+                if (isExpanded) ...[
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: message));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.copy_rounded,
+                        color: textColor?.withOpacity(0.8) ?? Colors.white70,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 // Cancel (X) Button
                 GestureDetector(
                   onTap: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    messenger.hideCurrentSnackBar();
                   },
                   child: Container(
                     padding: const EdgeInsets.all(4),

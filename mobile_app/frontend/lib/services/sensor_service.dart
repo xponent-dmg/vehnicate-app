@@ -32,7 +32,7 @@ class SensorService {
   Stream<SensorPacket> get sensorStream => _controller.stream;
   Function(int processed, int uploaded)? onDataCountUpdate;
 
-  static const int _sampleIntervalMs = 12; // Adjusted for ~80Hz stability
+  // static const int _sampleIntervalMs = 10; // Adjusted for ~100Hz stability
 
   Future<void> start({
     required BuildContext context,
