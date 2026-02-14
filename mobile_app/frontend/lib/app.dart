@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
@@ -28,12 +27,14 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: Color(0xFF555FDB),
+
         // primaryColor: Colors.deepPurple,
         useMaterial3: true,
         textTheme: GoogleFonts.outfitTextTheme(),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Color(0xFF555FDB),
           brightness: Brightness.light,
+          background: Color(0xFF2d2d44),
         ),
         cardTheme: CardThemeData(
           elevation: 2,

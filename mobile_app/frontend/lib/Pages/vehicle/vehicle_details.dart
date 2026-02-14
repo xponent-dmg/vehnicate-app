@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
 
 class VehicleDetailsPage extends StatelessWidget {
@@ -205,6 +208,63 @@ class VehicleDetailsPage extends StatelessWidget {
               icon: Icons.wallet,
               title: "Total Expenses",
               trailing: "Rs 31,200",
+            ),
+            const SizedBox(height: 30),
+
+            // Delete Vehicle Button
+            GestureDetector(
+              onTap: () {
+                CustomConfirmationDialog.show(
+                  context,
+                  title: "Delete Vehicle",
+                  content:
+                      "Are you sure you want to delete this vehicle? This action cannot be undone.",
+                  confirmText: "Delete",
+                  confirmTextColor: Colors.red,
+                  onConfirm: () async {
+                    try {
+                      Navigator.pop(context); // Close dialog
+                      CustomLoadingDialog.show(context, message: "Deleting...");
+
+                      await Provider.of<VehicleProvider>(
+                        context,
+                        listen: false,
+                      ).deleteVehicle(vehicle.id);
+
+                      if (context.mounted) {
+                        Navigator.pop(context); // Close loading dialog
+                        Navigator.pop(context); // Go back to previous screen
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        Navigator.pop(context); // Close loading dialog
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Error deleting vehicle: $e")),
+                        );
+                      }
+                    }
+                  },
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  border: Border.all(color: Colors.red.withOpacity(0.5)),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Delete Vehicle",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 30),
           ],

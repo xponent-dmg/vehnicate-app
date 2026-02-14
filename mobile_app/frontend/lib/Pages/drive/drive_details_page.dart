@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:fl_chart/fl_chart.dart';
+// import 'package:fl_chart/fl_chart.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
@@ -10,6 +10,7 @@ import 'package:vehnicate_frontend/Pages/drive/constants/drive_constants.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/models/event_model.dart';
 import 'package:intl/intl.dart';
+import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
 
 // Constants and Theme (consistent with other pages)
 class DriveDetailsPage extends StatefulWidget {
@@ -24,9 +25,9 @@ class DriveDetailsPage extends StatefulWidget {
 class _DriveDetailsPageState extends State<DriveDetailsPage>
     with TickerProviderStateMixin {
   final PageController _chartController = PageController();
-  int _currentChartIndex = 0;
+  // int _currentChartIndex = 0;
   bool _isLoading = true;
-  List<SensorDataPoint> _sensorData = [];
+  // List<SensorDataPoint> _sensorData = [];
   List<LatLng> _routePoints = [];
   List<DriveEvent> _events = [];
   final MapController _mapController = MapController();
@@ -40,11 +41,11 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
   Future<void> _fetchDriveData() async {
     try {
       final s = SupabaseService();
-      final dataFuture = s.fetchDriveData(
-        vehicleId: widget.drive.vehicleId,
-        startTime: widget.drive.startTime,
-        endTime: widget.drive.endTime,
-      );
+      // final dataFuture = s.fetchDriveData(
+      //   vehicleId: widget.drive.vehicleId,
+      //   startTime: widget.drive.startTime,
+      //   endTime: widget.drive.endTime,
+      // );
       final eventsFuture = s.fetchDriveEvents(
         vehicleId: widget.drive.vehicleId,
         startTime: widget.drive.startTime,
@@ -57,15 +58,15 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
       );
 
       final results = await Future.wait([
-        dataFuture,
+        // dataFuture,
         eventsFuture,
         routeFuture,
       ]);
-      final data = results[0];
-      final eventsData = results[1];
-      final routeData = results[2];
+      // final data = results[0];
+      final eventsData = results[0];
+      final routeData = results[1];
 
-      final points = data.map((e) => SensorDataPoint.fromJson(e)).toList();
+      // final points = data.map((e) => SensorDataPoint.fromJson(e)).toList();
 
       // Route points come pre-filtered (lat/long != 0) with lat, lng columns from Supabase
       final route =
@@ -82,7 +83,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
 
       if (mounted) {
         setState(() {
-          _sensorData = points;
+          // _sensorData = points;
           _routePoints = route;
           _events = events;
           _isLoading = false;
@@ -107,7 +108,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
   @override
   Widget build(BuildContext context) {
     final vehicleName =
-        Provider.of<VehicleProvider>(context).vehicleName ?? 'Vehicle';
+        Provider.of<VehicleProvider>(context).vehicleModel ?? 'Vehicle';
 
     return Scaffold(
       backgroundColor: DriveDetailsConstants.primaryBackground,
@@ -120,7 +121,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                   _isLoading
                       ? Center(
                         child: CircularProgressIndicator(
-                          color: DriveDetailsConstants.accentPurple,
+                          color: Theme.of(context).primaryColor,
                         ),
                       )
                       : SingleChildScrollView(
@@ -128,9 +129,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                         child: Column(
                           children: [
                             _buildMapSection(),
-                            SizedBox(height: 24),
-                            _buildChartsSection(),
-                            SizedBox(height: 24),
+                            SizedBox(height: 40),
+                            // _buildChartsSection(),
+                            // SizedBox(height: 40),
                             _buildMetricsGrid(),
                           ],
                         ),
@@ -174,15 +175,12 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
 
   Widget _buildMapSection() {
     if (_routePoints.isEmpty) {
-      return Container(
+      return GlassLiteContainer(
         height: 200,
         margin: EdgeInsets.symmetric(
           horizontal: DriveDetailsConstants.horizontalPadding,
         ),
-        decoration: BoxDecoration(
-          color: DriveDetailsConstants.cardBackground,
-          borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
-        ),
+        borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
         child: Center(
           child: Text(
             "No GPS data available for this trip",
@@ -192,18 +190,13 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
       );
     }
 
-    return Container(
+    return GlassLiteContainer(
       margin: EdgeInsets.symmetric(
         horizontal: DriveDetailsConstants.horizontalPadding,
       ),
       padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: DriveDetailsConstants.cardBackground,
-        borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
-        border: Border.all(
-          color: DriveDetailsConstants.accentPurple.withOpacity(0.3),
-        ),
-      ),
+      borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
+      borderColor: Theme.of(context).primaryColor.withOpacity(0.3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -217,46 +210,35 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: _showRouteDebugLogs,
-                    icon: Icon(
-                      Icons.bug_report,
-                      color: Colors.white54,
-                      size: 20,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      if (_routePoints.isEmpty) return;
+              IconButton(
+                onLongPress: _showRouteDebugLogs,
+                onPressed: () {
+                  if (_routePoints.isEmpty) return;
 
-                      LatLng targetCenter;
-                      double targetZoom;
+                  LatLng targetCenter;
+                  double targetZoom;
 
-                      if (_routePoints.length > 1) {
-                        final bounds = LatLngBounds.fromPoints(_routePoints);
-                        // constraints used to calculate center/zoom
-                        final fitted = CameraFit.bounds(
-                          bounds: bounds,
-                          padding: const EdgeInsets.all(50.0),
-                        ).fit(_mapController.camera);
-                        targetCenter = fitted.center;
-                        targetZoom = fitted.zoom;
-                      } else {
-                        targetCenter = _routePoints.first;
-                        targetZoom = 15.0;
-                      }
+                  if (_routePoints.length > 1) {
+                    final bounds = LatLngBounds.fromPoints(_routePoints);
+                    // constraints used to calculate center/zoom
+                    final fitted = CameraFit.bounds(
+                      bounds: bounds,
+                      padding: const EdgeInsets.all(50.0),
+                    ).fit(_mapController.camera);
+                    targetCenter = fitted.center;
+                    targetZoom = fitted.zoom;
+                  } else {
+                    targetCenter = _routePoints.first;
+                    targetZoom = 15.0;
+                  }
 
-                      _animatedMapMove(targetCenter, targetZoom, 0.0);
-                    },
-                    icon: Icon(
-                      Icons.fit_screen_rounded,
-                      color: Colors.white54,
-                      size: 20,
-                    ),
-                  ),
-                ],
+                  _animatedMapMove(targetCenter, targetZoom, 0.0);
+                },
+                icon: Icon(
+                  Icons.fit_screen_rounded,
+                  color: Colors.white54,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -292,36 +274,12 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     );
   }
 
+  /*
   Widget _buildChartsSection() {
     if (_sensorData.isEmpty) return SizedBox.shrink();
 
     return Column(
       children: [
-        // Chart indicators
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: DriveDetailsConstants.horizontalPadding,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (index) {
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: 4),
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:
-                      _currentChartIndex == index
-                          ? DriveDetailsConstants.accentPurple
-                          : Colors.white30,
-                ),
-              );
-            }),
-          ),
-        ),
-        SizedBox(height: 16),
-
         // Swipeable charts
         SizedBox(
           height: 300,
@@ -344,27 +302,46 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
             ],
           ),
         ),
+
+        SizedBox(height: 8),
+
+        // Chart indicators
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: DriveDetailsConstants.horizontalPadding,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(2, (index) {
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      _currentChartIndex == index
+                          ? Theme.of(context).primaryColor
+                          : Colors.white30,
+                ),
+              );
+            }),
+          ),
+        ),
       ],
     );
   }
+
 
   Widget _buildChartCard({required String title, required Widget chart}) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: DriveDetailsConstants.horizontalPadding,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: DriveDetailsConstants.cardBackground,
-          borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
-          boxShadow: [
-            BoxShadow(
-              color: DriveDetailsConstants.lightPurple.withOpacity(0.1),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
+      child: GlassLiteContainer(
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
+        hasShadow: true,
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -380,6 +357,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     );
   }
 
+  
   Widget _buildSensorChart({required bool isAccel}) {
     // Downsample if too many points to avoid lag
     // Downsample if too many points to avoid lag
@@ -469,6 +447,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     );
   }
 
+  */
+
   Widget _buildMetricsGrid() {
     final duration = widget.drive.endTime.difference(widget.drive.startTime);
     final avgSpeed =
@@ -525,18 +505,15 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     required String label,
     required String value,
   }) {
-    return Container(
+    return GlassLiteContainer(
       padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: DriveDetailsConstants.darkPurple.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
+      borderRadius: BorderRadius.circular(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: DriveDetailsConstants.accentPurple, size: 16),
+              Icon(icon, color: Theme.of(context).primaryColor, size: 16),
               SizedBox(width: 6),
               Text(label, style: DriveDetailsConstants.metricLabelStyle),
             ],
@@ -601,7 +578,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
             Polyline(
               points: uniquePath,
               strokeWidth: 4.0,
-              color: DriveDetailsConstants.accentPurple,
+              color: Theme.of(context).primaryColor,
             ),
           ],
         ),

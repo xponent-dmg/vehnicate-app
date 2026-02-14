@@ -25,7 +25,7 @@ class GlassLiteContainer extends StatelessWidget {
     this.backgroundColor,
     this.borderColor,
     this.hasShadow = false,
-    this.hasBorder = true,
+    this.hasBorder = false,
   });
 
   @override
@@ -41,8 +41,10 @@ class GlassLiteContainer extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            (backgroundColor ?? Colors.white).withOpacity(1),
-            (backgroundColor ?? Colors.white).withOpacity(0.2),
+            (backgroundColor ?? Theme.of(context).colorScheme.background)
+                .withOpacity(0.9),
+            (backgroundColor ?? Theme.of(context).colorScheme.background)
+                .withOpacity(0.2),
           ],
         ),
         borderRadius: borderRadius,

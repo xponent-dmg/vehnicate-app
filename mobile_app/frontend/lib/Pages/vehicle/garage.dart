@@ -71,8 +71,8 @@ class _GaragePageState extends State<GaragePage> {
         await SupabaseService().createVehicle(
           firebaseUid: user.uid,
           model: _vehicleModelController.text.trim(),
-          registration: _registrationController.text.trim(),
-          insurance: _insuranceController.text.trim(),
+          registration: _registrationController.text.trim().toUpperCase(),
+          insurance: _insuranceController.text.trim().toUpperCase(),
           puc:
               _pucDateController.text.trim().isEmpty
                   ? null

@@ -313,7 +313,7 @@ class SupabaseService {
       return [];
     }
   }
-
+  /*
   Future<List<Map<String, dynamic>>> fetchDriveData({
     required int vehicleId,
     required DateTime startTime,
@@ -342,6 +342,7 @@ class SupabaseService {
       return [];
     }
   }
+*/
 
   Future<void> createSupabaseUser({
     required String uid,
@@ -473,6 +474,37 @@ class SupabaseService {
       print('Error fetching drive route: $e');
       print('Stack trace: $stackTrace');
       return [];
+    }
+  }
+
+  Future<void> deleteVehicle(int vehicleId) async {
+    try {
+      print("Deleting vehicle with ID: $vehicleId");
+      await initialize(); // Ensure client is initialized
+
+      // We explicitly select the deleted record to verify if it was actually deleted.
+      // If RLS prevents it, this might return empty.
+      final response =
+          await _client
+              .from('vehicledetails')
+              .delete()
+              .eq('vehicleid', vehicleId)
+              .select();
+
+      print("Delete response: $response");
+
+      if ((response as List).isEmpty) {
+        throw Exception(
+          "Delete operation returned no rows. Possible RLS policy violation or record not found.",
+        );
+      }
+
+      print("Vehicle deleted successfully");
+    } catch (e, stackTrace) {
+      print("Error deleting vehicle:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to delete vehicle: $e');
     }
   }
 }

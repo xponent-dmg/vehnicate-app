@@ -7,80 +7,72 @@ import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import '../models/sensor_data.dart';
 import '../Widgets/custom_snackbar.dart';
 
-/// Service for managing sensor data streaming from native platform.
 class SensorService {
   static const EventChannel _eventChannel = EventChannel('vehnicate/sensors');
   final SupabaseClient _supabase;
 
-  SensorService({SupabaseClient? supabaseClient}) : _supabase = supabaseClient ?? Supabase.instance.client;
+  SensorService({SupabaseClient? supabaseClient})
+    : _supabase = supabaseClient ?? Supabase.instance.client;
 
   StreamSubscription? _subscription;
-  final StreamController<SensorPacket> _controller = StreamController<SensorPacket>.broadcast();
+  final StreamController<SensorPacket> _controller =
+      StreamController<SensorPacket>.broadcast();
 
-  // Data buffering and uploading
+  // --- Robust Buffer Management ---
   final List<Map<String, dynamic>> _imuBuffer = [];
+  final int _maxBufferSize = 10000; // Cap to prevent OOM (Out of Memory)
+  bool _isUploading = false; // The "Lock"
+
   Timer? _uploadTimer;
   int _processedCount = 0;
   int _uploadedCount = 0;
   bool _isCollecting = false;
+
   bool get isCollecting => _isCollecting;
-
-  // Throttling
-  DateTime? _lastSampleTime;
-  static const int _sampleIntervalMs = 10; // ~100 samples per second
-
-  // Callbacks
+  Stream<SensorPacket> get sensorStream => _controller.stream;
   Function(int processed, int uploaded)? onDataCountUpdate;
 
-  /// Exposes the sensor data stream
-  Stream<SensorPacket> get sensorStream => _controller.stream;
+  static const int _sampleIntervalMs = 12; // Adjusted for ~80Hz stability
 
-  /// Starts listening to sensor data from native platform and uploads to Supabase
-  Future<void> start({required BuildContext context, Function(int processed, int uploaded)? onDataCountUpdate}) async {
+  Future<void> start({
+    required BuildContext context,
+    Function(int processed, int uploaded)? onDataCountUpdate,
+  }) async {
     if (_isCollecting) return;
 
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
-      CustomSnackBar.showError(context, 'No vehicle selected! Please go to Garage and select a vehicle.');
+      CustomSnackBar.showError(context, 'No vehicle selected!');
       return;
     }
 
     _isCollecting = true;
+    _processedCount = 0; // Reset counters on new session
+    _uploadedCount = 0;
     this.onDataCountUpdate = onDataCountUpdate;
 
-    if (context.mounted) {
-      CustomSnackBar.showSuccess(context, '📱 Started sensor data collection');
-    }
+    _subscription = _eventChannel.receiveBroadcastStream().listen((
+      dynamic event,
+    ) {
+      try {
+        final packet = SensorPacket.fromMap(event as Map<dynamic, dynamic>);
+        _controller.add(packet);
 
-    _subscription = _eventChannel.receiveBroadcastStream().listen(
-      (dynamic event) {
-        try {
-          final packet = SensorPacket.fromMap(event as Map<dynamic, dynamic>);
-          _controller.add(packet);
-
-          // Throttle processing
-          final now = DateTime.now();
-          if (_lastSampleTime != null) {
-            final elapsed = now.difference(_lastSampleTime!).inMilliseconds;
-            if (elapsed < _sampleIntervalMs) {
-              return; // Skip this event
-            }
-          }
-          _lastSampleTime = now;
-
-          // Buffer data
-          final imuData = {
+        // Buffer logic
+        if (_imuBuffer.length < _maxBufferSize) {
+          _imuBuffer.add({
             'vehicleid': vehicleId,
-            'timesent': DateTime.now().toIso8601String(),
+            'timesent':
+                DateTime.now()
+                    .toUtc()
+                    .toIso8601String(), // Use UTC for DB consistency
             'accelx': packet.raw.ax,
             'accely': packet.raw.ay,
             'accelz': packet.raw.az,
             'gyrox': packet.raw.Gx,
             'gyroy': packet.raw.Gy,
             'gyroz': packet.raw.Gz,
-            'magx': packet.raw.Mx,
-            'magy': packet.raw.My,
-            'magz': packet.raw.Mz,
+            'magx': packet.raw.Mx, 'magy': packet.raw.My, 'magz': packet.raw.Mz,
             'useraccelx': packet.raw.Ax,
             'useraccely': packet.raw.Ay,
             'useraccelz': packet.raw.Az,
@@ -88,97 +80,84 @@ class SensorService {
             'longitude': packet.location.longitude,
             'speed': packet.location.speed,
             'bearing': packet.location.bearing,
-          };
-          _imuBuffer.add(imuData);
+          });
           _processedCount++;
           this.onDataCountUpdate?.call(_processedCount, _uploadedCount);
-        } catch (e) {
-          _controller.addError(e);
-          print('Error processing sensor event: $e');
+        } else {
+          // Optional: Remove oldest record to make room for newest (FIFO)
+          _imuBuffer.removeAt(0);
         }
-      },
-      onError: (dynamic error) {
-        _controller.addError(error);
-        print('Sensor stream error: $error');
-      },
-    );
-
-    // Start upload timer
-    _uploadTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (_imuBuffer.isNotEmpty && context.mounted) {
-        final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
-        _imuBuffer.clear();
-
-        CustomSnackBar.showInfo(context, '📤 Uploaded ${temp.length} sensor records');
-
-        await _sendToSupabase(context: context, data: temp);
-        _uploadedCount += temp.length;
-        this.onDataCountUpdate?.call(_processedCount, _uploadedCount);
+      } catch (e) {
+        debugPrint('Processing error: $e');
       }
+    });
+
+    // Periodic Upload Loop
+    _uploadTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _attemptUpload(context);
     });
   }
 
-  /// Stops listening to sensor data
-  Future<void> stop(BuildContext context) async {
-    _subscription?.cancel();
-    _subscription = null;
-    _uploadTimer?.cancel();
-    _isCollecting = false;
-    _lastSampleTime = null;
+  Future<void> _attemptUpload(BuildContext context) async {
+    // 1. Check if we are already uploading or have nothing to send
+    if (_isUploading || _imuBuffer.isEmpty) return;
 
-    if (_imuBuffer.isNotEmpty) {
-      final List<Map<String, dynamic>> temp = List.from(_imuBuffer);
-      _imuBuffer.clear();
+    _isUploading = true;
+
+    // 2. Snaphot the current buffer and clear it immediately
+    // This prevents the "retry loop" from duplicating data
+    final List<Map<String, dynamic>> dataToUpload = List.from(_imuBuffer);
+    _imuBuffer.clear();
+
+    try {
+      await _supabase.from('datatransmission').insert(dataToUpload);
+
+      // 3. Only update uploaded count on SUCCESS
+      _uploadedCount += dataToUpload.length;
+      onDataCountUpdate?.call(_processedCount, _uploadedCount);
 
       if (context.mounted) {
-        CustomSnackBar.showInfo(context, '📤 Uploaded ${temp.length} sensor records');
+        CustomSnackBar.showInfo(
+          context,
+          '📤 Synced ${dataToUpload.length} records',
+        );
+      }
+    } catch (e) {
+      debugPrint('Upload failed: $e');
+      // 4. On failure, put data back at the START of the buffer if there's room
+      if (_imuBuffer.length + dataToUpload.length < _maxBufferSize) {
+        _imuBuffer.insertAll(0, dataToUpload);
       }
 
-      await _sendToSupabase(context: context, data: temp);
-      _uploadedCount += temp.length;
-      onDataCountUpdate?.call(_processedCount, _uploadedCount);
+      if (context.mounted) {
+        CustomSnackBar.showWarning(
+          context,
+          '📡 Connection weak. Retrying later...',
+        );
+      }
+    } finally {
+      _isUploading = false; // Release the lock
+    }
+  }
+
+  Future<void> stop(BuildContext context) async {
+    _subscription?.cancel();
+    _uploadTimer?.cancel();
+    _isCollecting = false;
+
+    // Final Flush
+    if (_imuBuffer.isNotEmpty) {
+      await _attemptUpload(context);
     }
 
     if (context.mounted) {
-      CustomSnackBar.showWarning(context, '⏹️ Stopped sensor data collection');
+      CustomSnackBar.showWarning(context, '⏹️ Collection stopped');
     }
   }
 
-  Future<void> _sendToSupabase({required BuildContext context, required List<Map<String, dynamic>> data}) async {
-    try {
-      // Data is already in the correct format for the table
-      await _supabase.from('datatransmission').insert(data);
-    } on PostgrestException catch (e) {
-      String errorMessage = 'Database error';
-      if (e.code == '23503') {
-        errorMessage = 'Invalid vehicle ID. Please check your vehicle settings.';
-      } else if (e.code == '42501') {
-        errorMessage = 'Permission denied. Please check your login.';
-      }
-      if (context.mounted) {
-        CustomSnackBar.showError(context, '❌ $errorMessage');
-      }
-      // Re-add failed data to buffer? Or just log it?
-      // Original code re-added it, so we will too.
-      _imuBuffer.addAll(data);
-    } catch (e) {
-      if (context.mounted) {
-        CustomSnackBar.showError(context, '❌ Upload failed: ${e.toString()}');
-      }
-      _imuBuffer.addAll(data);
-    }
-  }
-
-  /// Disposes resources
   void dispose() {
-    stopListening();
-    _controller.close();
-    _uploadTimer?.cancel();
-  }
-
-  // Helper to stop listening without UI feedback (internal use or if needed)
-  void stopListening() {
     _subscription?.cancel();
-    _subscription = null;
+    _uploadTimer?.cancel();
+    _controller.close();
   }
 }

@@ -11,6 +11,8 @@ import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
 import 'package:vehnicate_frontend/services/sensor_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:location/location.dart' as loc;
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -182,12 +184,39 @@ class _ImuCollectorState extends State<ImuCollector> {
     print('[IMU_DEBUG][startCollection] Called');
     if (isCollecting) return;
 
+    // 1. Request Location Service (Gated)
+    // Use location package to trigger the native Google Play Services popup
+    final loc.Location location = loc.Location();
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        print(
+          '[IMU_DEBUG][startCollection] ❌ Location service request denied/failed',
+        );
+        if (mounted) {
+          CustomSnackBar.showError(
+            context,
+            'Location services are required to start collection.',
+          );
+        }
+        return;
+      }
+    }
+
+    // 2. Enable Wakelock
+    print('[IMU_DEBUG][startCollection] 💡 Enabling Wakelock...');
+    await WakelockPlus.enable();
+
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
-      CustomSnackBar.showError(
-        context,
-        'Error: No vehicle selected. Please go to Garage and select a vehicle.',
-      );
+      if (mounted) {
+        CustomSnackBar.showError(
+          context,
+          'Error: No vehicle selected. Please go to Garage and select a vehicle.',
+        );
+      }
+      await WakelockPlus.disable();
       return;
     }
 
@@ -197,6 +226,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print(
         '[IMU_DEBUG][startCollection] ❌ User cancelled start position dialog',
       );
+      await WakelockPlus.disable();
       return;
     }
 
@@ -240,9 +270,12 @@ class _ImuCollectorState extends State<ImuCollector> {
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
-      CustomSnackBar.showError(context, 'Failed to start collection: $e');
+      if (mounted) {
+        CustomSnackBar.showError(context, 'Failed to start collection: $e');
+      }
       _driveStartTime = null; // Reset if failed
       // CustomSnackBar.showError(context, 'Failed to start collection: $e');
+      await WakelockPlus.disable();
     }
   }
 
@@ -278,6 +311,10 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
+
+      print('[IMU_DEBUG][stopCollection] 💡 Disabling Wakelock...');
+      await WakelockPlus.disable();
+
       print(
         '[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully',
       );
@@ -290,6 +327,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
+      await WakelockPlus.disable();
     }
   }
 
@@ -339,6 +377,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   void dispose() {
     print('[IMU_DEBUG][dispose] Called');
+    WakelockPlus.disable();
     _cameraService.dispose();
     _sensorService.dispose();
     super.dispose();

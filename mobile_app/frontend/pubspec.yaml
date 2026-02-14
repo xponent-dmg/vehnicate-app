@@ -70,6 +70,8 @@ dependencies:
   glass_kit: ^4.0.2
   google_fonts: ^8.0.1
   image_cropper: ^11.0.0
+  location: ^8.0.1
+  wakelock_plus: ^1.4.0
 
 dev_dependencies:
   flutter_test:
