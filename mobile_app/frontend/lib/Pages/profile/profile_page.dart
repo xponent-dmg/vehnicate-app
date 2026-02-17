@@ -117,6 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _pickAndUploadImage() async {
+    File? croppedFileToDelete;
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.image,
@@ -152,6 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
         if (croppedFile == null) return; // User cancelled cropping
 
         final File finalFile = File(croppedFile.path);
+        croppedFileToDelete = finalFile;
 
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         final user = userProvider.currentUser;
@@ -213,6 +215,17 @@ class _ProfilePageState extends State<ProfilePage> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+      }
+    } finally {
+      // Clean up the temporary cropped file
+      if (croppedFileToDelete != null) {
+        try {
+          if (await croppedFileToDelete.exists()) {
+            await croppedFileToDelete.delete();
+          }
+        } catch (e) {
+          debugPrint('Error deleting temporary file: $e');
+        }
       }
     }
   }
