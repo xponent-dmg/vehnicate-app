@@ -12,13 +12,13 @@ class Avatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        image: DecorationImage(
-          image:
-              imageUrl != null
-                  ? NetworkImage(imageUrl!)
-                  : const AssetImage("assets/logo.png") as ImageProvider,
-          fit: BoxFit.cover,
-        ),
+        image:
+            imageUrl != null
+                ? DecorationImage(
+                  image: NetworkImage(imageUrl!),
+                  fit: BoxFit.cover,
+                )
+                : null,
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).primaryColor.withAlpha(200),
@@ -28,6 +28,14 @@ class Avatar extends StatelessWidget {
           ),
         ],
       ),
+      child:
+          imageUrl == null
+              ? Icon(
+                Icons.person,
+                size: size * 0.6,
+                color: const Color.fromARGB(140, 255, 255, 255),
+              )
+              : null,
     );
   }
 }

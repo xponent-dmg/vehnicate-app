@@ -507,4 +507,36 @@ class SupabaseService {
       throw Exception('Failed to delete vehicle: $e');
     }
   }
+
+  Future<void> deleteUser(String firebaseUid) async {
+    try {
+      print("Deleting user from Supabase with Firebase UID: $firebaseUid");
+      await initialize();
+
+      // Delete from userdetails table
+      // Note: If you have cascade delete on foreign keys, this will delete related data (vehicles, trips, etc.)
+      final response =
+          await _client
+              .from('userdetails')
+              .delete()
+              .eq('firebaseuid', firebaseUid)
+              .select();
+
+      print("Delete user response: $response");
+
+      if ((response as List).isEmpty) {
+        // It's possible the user doesn't exist in Supabase yet or RLS blocked it
+        print(
+          "Warning: User delete returned no rows. User might not exist in Supabase.",
+        );
+      } else {
+        print("User deleted from Supabase successfully");
+      }
+    } catch (e, stackTrace) {
+      print("Error deleting user from Supabase:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to delete user data: $e');
+    }
+  }
 }

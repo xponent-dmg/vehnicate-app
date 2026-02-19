@@ -29,12 +29,18 @@ class _SplashPageState extends State<SplashPage>
           _showFinalText = true;
         });
         // Decide route after animation completes
-        Future.delayed(Duration(milliseconds: 500), () {
+        Future.delayed(Duration(milliseconds: 500), () async {
           if (_navigated) return;
           final user = FirebaseAuth.instance.currentUser;
           if (user != null) {
             _navigated = true;
-            Navigator.pushReplacementNamed(context, '/home');
+            // Check if email is verified
+            await user.reload(); // Ensure we have the latest status
+            if (user.emailVerified) {
+              Navigator.pushReplacementNamed(context, '/home');
+            } else {
+              Navigator.pushReplacementNamed(context, '/email-verification');
+            }
           } else {
             _navigated = true;
             Navigator.pushReplacementNamed(context, '/login');

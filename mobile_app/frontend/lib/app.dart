@@ -12,6 +12,7 @@ import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
+import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/home.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/services/page_transitions.dart';
@@ -101,6 +102,9 @@ class App extends StatelessWidget {
             return PageTransitions.slideFromRight(
               UserDetailsPage(userId: args["userId"], email: args["email"]),
             );
+
+          case "/email-verification":
+            return PageTransitions.fade(const EmailVerificationPage());
 
           // Document Upload with arguments
           case "/document-upload":

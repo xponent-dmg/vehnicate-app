@@ -59,12 +59,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _googleSignIn() async {
     setState(() => _isLoading = true);
-
     try {
       await AuthService().signInWithGoogle();
-
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
+        // ... (existing logic)
+        Navigator.pushReplacementNamed(
+          context,
+          "/home",
+        ); // Changed from /dash to /home to match existing logic
       }
     } catch (e) {
       if (mounted) {
@@ -73,10 +75,96 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    final emailResetController = TextEditingController();
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: const Color(0xFF2d2d44),
+            title: const Text(
+              "Reset Password",
+              style: TextStyle(color: Colors.white),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Enter your email address to receive a password reset link.",
+                  style: TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: emailResetController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "Email",
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.white.withOpacity(0.3),
+                      ),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF8E44AD)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final email = emailResetController.text.trim();
+                  if (email.isEmpty) return;
+
+                  Navigator.pop(context); // Close dialog
+
+                  try {
+                    await AuthService().resetPassword(email);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Password reset email sent! Check your inbox.",
+                          ),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Error: $e"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8E44AD),
+                ),
+                child: const Text(
+                  "Send Link",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -223,6 +311,21 @@ class _LoginPageState extends State<LoginPage> {
                           }
                           return null;
                         },
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => _showForgotPasswordDialog(context),
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
 

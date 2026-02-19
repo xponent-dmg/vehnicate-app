@@ -74,7 +74,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _handleLogout(BuildContext context) async {
     try {
       // Show loading dialog
-      // Show loading dialog
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -109,6 +108,84 @@ class _ProfilePageState extends State<ProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to logout: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteAccountDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomConfirmationDialog(
+          title: "Delete Account",
+          content:
+              "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.",
+          confirmText: "Delete",
+          confirmTextColor: ProfileConstants.deleteRed,
+          onConfirm: () => _handleDeleteAccount(context),
+          titleStyle: ProfileConstants.deleteStyle,
+          contentStyle: ProfileConstants.labelStyle,
+          backgroundColor: ProfileConstants.cardBackground,
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDeleteAccount(BuildContext context) async {
+    // Close confirmation dialog first
+    Navigator.of(context).pop();
+
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const CustomLoadingDialog(
+            message: 'Deleting account...',
+            backgroundColor: Color(0xFF2d2d44),
+          );
+        },
+      );
+
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final user = userProvider.currentUser;
+
+      if (user != null) {
+        // 1. Delete from Supabase
+        await SupabaseService().deleteUser(user.firebaseUid);
+
+        // 2. Delete from Firebase and Sign out
+        await AuthService().deleteAccount();
+      }
+
+      if (context.mounted) {
+        // Close loading dialog
+        Navigator.of(context).pop();
+
+        // Navigate to login page
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil("/login", (route) => false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Account deleted successfully'),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        // Close loading dialog if open
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete account: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -820,18 +897,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildDeleteAccountRow() {
-    return Container(
-      height: ProfileConstants.cardHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        color: ProfileConstants.cardBackground,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(ProfileConstants.cardRadius),
-          bottomRight: Radius.circular(ProfileConstants.cardRadius),
+    return GestureDetector(
+      onTap: () => _showDeleteAccountDialog(context),
+      child: Container(
+        height: ProfileConstants.cardHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: const BoxDecoration(
+          color: ProfileConstants.cardBackground,
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(ProfileConstants.cardRadius),
+            bottomRight: Radius.circular(ProfileConstants.cardRadius),
+          ),
         ),
-      ),
-      child: const Center(
-        child: Text('Delete Account', style: ProfileConstants.deleteStyle),
+        child: const Center(
+          child: Text('Delete Account', style: ProfileConstants.deleteStyle),
+        ),
       ),
     );
   }

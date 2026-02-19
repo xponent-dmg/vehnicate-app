@@ -46,15 +46,17 @@ class _SignupPageState extends State<SignupPage> {
 
       print('User registered in Supabase successfully');
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          "/user-details",
-          (route) => false,
-          arguments: {
-            "userId": userCred.user!.uid,
-            "email": _emailController.text.trim(),
-          },
-        );
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            "/email-verification",
+            (route) => false,
+            arguments: {
+              "userId": userCred.user!.uid,
+              "email": _emailController.text.trim(),
+            },
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
