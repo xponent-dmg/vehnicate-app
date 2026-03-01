@@ -122,6 +122,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _fullNameController,
                       label: 'Full Name',
                       icon: Icons.person_outline,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your full name';
@@ -136,6 +137,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _usernameController,
                       label: 'Username',
                       icon: Icons.alternate_email,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a username';
@@ -164,6 +166,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _vehicleModelController,
                       label: 'Vehicle Model',
                       icon: Icons.directions_car_outlined,
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 16),
 
@@ -173,6 +176,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       label: 'Vehicle Year',
                       icon: Icons.calendar_today_outlined,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 40),
                     // Vehicle Registration Field
@@ -182,6 +186,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       label: 'Vehicle Registration',
                       icon: Icons.directions_car_outlined,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
                     ),
                     const SizedBox(height: 40),
 
@@ -259,6 +264,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     required IconData icon,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
+    TextInputAction? textInputAction,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -268,6 +274,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType ?? TextInputType.text,
+        textInputAction: textInputAction,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: label,

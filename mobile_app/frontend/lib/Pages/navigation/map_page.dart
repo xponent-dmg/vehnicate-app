@@ -814,6 +814,8 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       child: TextField(
         controller: controller,
         focusNode: focusNode,
+        textInputAction:
+            isFromFieldActive ? TextInputAction.next : TextInputAction.search,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.white54),

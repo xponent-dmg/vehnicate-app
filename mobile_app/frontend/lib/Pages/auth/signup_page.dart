@@ -107,6 +107,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'Email address',
@@ -152,6 +153,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: TextFormField(
                         controller: _passwordController,
                         obscureText: !_isPasswordVisible,
+                        textInputAction: TextInputAction.done,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'Password',

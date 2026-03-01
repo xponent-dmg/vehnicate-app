@@ -103,6 +103,12 @@ class FormOverlay {
                           ...fields.asMap().entries.map((entry) {
                             final index = entry.key;
                             final field = entry.value;
+                            final isLast = index == fields.length - 1;
+                            final textInputAction =
+                                isLast
+                                    ? TextInputAction.done
+                                    : TextInputAction.next;
+
                             return Column(
                               children: [
                                 if (index > 0) SizedBox(height: 16),
@@ -125,6 +131,7 @@ class FormOverlay {
                                       isRequired: field.isRequired,
                                       keyboardType: field.keyboardType,
                                       obscureText: field.obscureText,
+                                      textInputAction: textInputAction,
                                     ),
                               ],
                             );
@@ -250,6 +257,7 @@ class FormOverlay {
     bool isRequired = true,
     TextInputType? keyboardType,
     bool obscureText = false,
+    TextInputAction? textInputAction,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,6 +274,7 @@ class FormOverlay {
         TextFormField(
           controller: controller,
           obscureText: obscureText,
+          textInputAction: textInputAction,
           style: TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,
