@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class SignupPage extends StatefulWidget {
   final String? initialEmail;
@@ -34,24 +33,12 @@ class _SignupPageState extends State<SignupPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      // Initialize Supabase Service
-      final supabaseService = SupabaseService();
-      await supabaseService.initialize();
-
-      final userCred = await AuthService().signUpWithEmail(
+      await AuthService().signUpWithEmail(
         _emailController.text.trim(),
         _passwordController.text,
       );
-      // Register user in Supabase
 
-      print('Registering user in Supabase...');
-      await supabaseService.registerUser(
-        uid: userCred.user!.uid,
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-
-      print('User registered in Supabase successfully');
+      print('User signed up in Firebase successfully. Pending verification.');
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
