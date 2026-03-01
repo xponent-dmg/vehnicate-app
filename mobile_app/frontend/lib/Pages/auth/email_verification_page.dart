@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
+import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
 
 class EmailVerificationPage extends StatefulWidget {
@@ -61,17 +62,38 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
     }
   }
 
-  void _navigateToNextScreen() {
+  Future<void> _navigateToNextScreen() async {
     final user = AuthService().currentUser;
     if (user != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/user-details',
-        (route) => false,
-        arguments: {"userId": user.uid, "email": user.email ?? ""},
-      );
+      try {
+        // Ensure user is verified before proceeding
+        await user.reload();
+        if (user.emailVerified) {
+          // Explicitly create Supabase user and wait for it
+          await SupabaseService().createSupabaseUser(
+            uid: user.uid,
+            email: user.email ?? '',
+            displayName: user.displayName,
+          );
+        }
+      } catch (e) {
+        print("Error during backend registration: $e");
+      }
+
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/user-details',
+          (route) => false,
+          arguments: {"userId": user.uid, "email": user.email ?? ""},
+        );
+      }
     } else {
       // Fallback
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      if (mounted) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
     }
   }
 
