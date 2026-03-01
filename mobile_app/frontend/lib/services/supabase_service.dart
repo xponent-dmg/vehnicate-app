@@ -523,8 +523,8 @@ class SupabaseService {
       print("Delete User response: $response");
 
       if ((response as List).isEmpty) {
-        print(
-          "Warning: Delete user returned no rows. It might be already deleted or RLS issue.",
+        throw Exception(
+          "Supabase RLS Error: Your Supabase database is blocking the user account deletion. Please go to your Supabase Dashboard -> Authentication -> Policies and ensure there is an active DELETE policy on the 'userdetails' table.",
         );
       } else {
         print("User deleted successfully from Supabase");
