@@ -13,6 +13,7 @@ class FormFieldConfig {
   final FormFieldType type;
 
   final TextInputType? keyboardType;
+  final bool obscureText;
 
   FormFieldConfig({
     required this.label,
@@ -22,6 +23,7 @@ class FormFieldConfig {
     required this.controller,
     this.type = FormFieldType.text,
     this.keyboardType,
+    this.obscureText = false,
   });
 }
 
@@ -122,6 +124,7 @@ class FormOverlay {
                                       icon: field.icon,
                                       isRequired: field.isRequired,
                                       keyboardType: field.keyboardType,
+                                      obscureText: field.obscureText,
                                     ),
                               ],
                             );
@@ -149,7 +152,9 @@ class FormOverlay {
                                           await onSubmit();
 
                                           // Close dialog
-                                          Navigator.of(buildContext).pop();
+                                          if (buildContext.mounted) {
+                                            Navigator.of(buildContext).pop();
+                                          }
 
                                           // Call success callback
                                           if (onSuccess != null) {
@@ -244,6 +249,7 @@ class FormOverlay {
     required IconData icon,
     bool isRequired = true,
     TextInputType? keyboardType,
+    bool obscureText = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,6 +265,7 @@ class FormOverlay {
         SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          obscureText: obscureText,
           style: TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,

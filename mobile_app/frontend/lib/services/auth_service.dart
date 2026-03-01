@@ -199,6 +199,55 @@ class AuthService {
     }
   }
 
+  // Reauthenticate with Google
+  Future<void> reauthenticateWithGoogle() async {
+    try {
+      final user = currentUser;
+      if (user == null) throw Exception('No current user to reauthenticate.');
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('Google sign in was cancelled');
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = firebase.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      print('Google reauthentication successful');
+    } on firebase.FirebaseAuthException catch (e) {
+      throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
+    } catch (e) {
+      throw Exception('Failed to reauthenticate with Google: $e');
+    }
+  }
+
+  // Reauthenticate with Email and Password
+  Future<void> reauthenticateWithPassword(String password) async {
+    try {
+      final user = currentUser;
+      if (user == null) throw Exception('No current user to reauthenticate.');
+      if (user.email == null) throw Exception('User mapped without email.');
+
+      final credential = firebase.EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      print('Email/Password reauthentication successful');
+    } on firebase.FirebaseAuthException catch (e) {
+      throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
+    } catch (e) {
+      throw Exception('Failed to reauthenticate with password: $e');
+    }
+  }
+
   // Delete account
   Future<void> deleteAccount() async {
     try {

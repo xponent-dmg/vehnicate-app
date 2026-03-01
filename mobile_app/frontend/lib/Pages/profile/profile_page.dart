@@ -136,52 +136,107 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _handleDeleteAccount() async {
-    try {
-      // Show loading dialog
-      showDialog(
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) return;
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    final isPasswordUser = firebaseUser.providerData.any(
+      (userInfo) => userInfo.providerId == 'password',
+    );
+
+    if (isPasswordUser) {
+      final passwordController = TextEditingController();
+      FormOverlay.show(
         context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const CustomLoadingDialog(
-            message: 'Deleting account...',
-            backgroundColor: Color(0xFF2d2d44),
+        title: 'Confirm Password',
+        fields: [
+          FormFieldConfig(
+            label: 'Password',
+            hint: 'Enter your password to confirm',
+            icon: Icons.lock,
+            controller: passwordController,
+            obscureText: true,
+          ),
+        ],
+        submitButtonText: 'Verify & Delete',
+        onSubmit: () async {
+          await AuthService().reauthenticateWithPassword(
+            passwordController.text,
           );
+          final user = userProvider.currentUser;
+          if (user != null) {
+            await SupabaseService().deleteUser(user.firebaseUid);
+            await AuthService().deleteAccount();
+          }
+        },
+        onSuccess: () {
+          if (mounted) {
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil("/login", (route) => false);
+            CustomSnackBar.showSuccess(context, 'Account deleted successfully');
+          }
+        },
+        onError: (error) {
+          if (mounted) {
+            String errorMessage = error.toString();
+            if (errorMessage.startsWith('Exception: ')) {
+              errorMessage = errorMessage.substring(11);
+            }
+            CustomSnackBar.showError(context, errorMessage);
+          }
         },
       );
+    } else {
+      try {
+        // Show loading dialog for Google Auth
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const CustomLoadingDialog(
+              message: 'Confirming login...',
+              backgroundColor: Color(0xFF2d2d44),
+            );
+          },
+        );
 
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final user = userProvider.currentUser;
+        await AuthService().reauthenticateWithGoogle();
 
-      if (user != null) {
-        // 1. Delete from Supabase
-        await SupabaseService().deleteUser(user.firebaseUid);
+        final user = userProvider.currentUser;
 
-        // 2. Delete from Firebase and Sign out
-        await AuthService().deleteAccount();
-      }
+        if (user != null) {
+          // 1. Delete from Supabase
+          await SupabaseService().deleteUser(user.firebaseUid);
 
-      if (mounted) {
-        // Close loading dialog
-        Navigator.of(context).pop();
-
-        // Navigate to login page
-        Navigator.of(
-          context,
-        ).pushNamedAndRemoveUntil("/login", (route) => false);
-
-        CustomSnackBar.showSuccess(context, 'Account deleted successfully');
-      }
-    } catch (e) {
-      if (mounted) {
-        // Close loading dialog if open
-        Navigator.of(context).pop();
-
-        String errorMessage = e.toString();
-        if (errorMessage.startsWith('Exception: ')) {
-          errorMessage = errorMessage.substring(11);
+          // 2. Delete from Firebase and Sign out
+          await AuthService().deleteAccount();
         }
 
-        CustomSnackBar.showError(context, errorMessage);
+        if (mounted) {
+          // Close loading dialog
+          Navigator.of(context).pop();
+
+          // Navigate to login page
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil("/login", (route) => false);
+
+          CustomSnackBar.showSuccess(context, 'Account deleted successfully');
+        }
+      } catch (e) {
+        if (mounted) {
+          // Close loading dialog if open
+          Navigator.of(context).pop();
+
+          String errorMessage = e.toString();
+          if (errorMessage.startsWith('Exception: ')) {
+            errorMessage = errorMessage.substring(11);
+          }
+
+          CustomSnackBar.showError(context, errorMessage);
+        }
       }
     }
   }
@@ -225,6 +280,7 @@ class _ProfilePageState extends State<ProfilePage> {
         final File finalFile = File(croppedFile.path);
         croppedFileToDelete = finalFile;
 
+        if (!mounted) return;
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         final user = userProvider.currentUser;
 
@@ -234,18 +290,16 @@ class _ProfilePageState extends State<ProfilePage> {
         }
 
         // Show loading indicator
-        if (mounted) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return const CustomLoadingDialog(
-                message: 'Uploading profile picture...',
-                backgroundColor: Color(0xFF2d2d44),
-              );
-            },
-          );
-        }
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const CustomLoadingDialog(
+              message: 'Uploading profile picture...',
+              backgroundColor: Color(0xFF2d2d44),
+            );
+          },
+        );
 
         final imageUrl = await SupabaseService().uploadProfilePicture(
           finalFile,
@@ -260,9 +314,10 @@ class _ProfilePageState extends State<ProfilePage> {
         );
 
         if (mounted) {
-          // Close loading dialog
           Navigator.of(context).pop();
-          await userProvider.refresh();
+        }
+        await userProvider.refresh();
+        if (mounted) {
           CustomSnackBar.showSuccess(
             context,
             'Profile picture updated successfully!',
@@ -355,9 +410,7 @@ class _ProfilePageState extends State<ProfilePage> {
         );
 
         // Refresh user data
-        if (mounted) {
-          await Provider.of<UserProvider>(context, listen: false).refresh();
-        }
+        await userProvider.refresh();
       },
       onSuccess: () {
         if (mounted) {
