@@ -117,6 +117,7 @@ class SupabaseService {
   }) async {
     try {
       print('Updating profile for user with Firebase UID: $userId');
+      await initialize();
 
       // Build update map with only non-null values
       final Map<String, dynamic> updateData = {
