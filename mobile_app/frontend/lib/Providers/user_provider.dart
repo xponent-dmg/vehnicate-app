@@ -20,7 +20,9 @@ class UserProvider extends ChangeNotifier {
 
   void _listenAuth() {
     _authSub?.cancel();
-    _authSub = firebase.FirebaseAuth.instance.authStateChanges().listen((user) async {
+    _authSub = firebase.FirebaseAuth.instance.authStateChanges().listen((
+      user,
+    ) async {
       if (user == null) {
         _setUser(null);
         return;
@@ -42,31 +44,51 @@ class UserProvider extends ChangeNotifier {
       print("UserProvider: Received data from Supabase: $data");
       if (data != null) {
         final user = AppUser.fromMap(data);
-        print("UserProvider: Created AppUser object: ${user.name}, ${user.email}");
+        print(
+          "UserProvider: Created AppUser object: ${user.name}, ${user.email}",
+        );
         _setUser(user);
       } else {
-        print("UserProvider: No user data received from Supabase. Attempting to create...");
+        print(
+          "UserProvider: No user data received from Supabase. Attempting to create...",
+        );
         final currentUser = firebase.FirebaseAuth.instance.currentUser;
         if (currentUser != null && currentUser.uid == firebaseUid) {
-          await SupabaseService().createSupabaseUser(
-            uid: currentUser.uid,
-            email: currentUser.email ?? '',
-            displayName: currentUser.displayName,
-          );
-
-          // Retry fetch
-          print("UserProvider: Retrying data fetch after creation...");
-          final retryData = await SupabaseService().getUserdetails(firebaseUid);
-          if (retryData != null) {
-            final user = AppUser.fromMap(retryData);
-            print("UserProvider: Created AppUser object after retry: ${user.name}");
-            _setUser(user);
-          } else {
-            print("UserProvider: Still no user data after creation attempt");
+          if (!currentUser.emailVerified &&
+              currentUser.providerData.every(
+                (info) => info.providerId == 'password',
+              )) {
+            print(
+              "UserProvider: Email not verified. Skipping Supabase user creation.",
+            );
             _setUser(null);
+          } else {
+            await SupabaseService().createSupabaseUser(
+              uid: currentUser.uid,
+              email: currentUser.email ?? '',
+              displayName: currentUser.displayName,
+            );
+
+            // Retry fetch
+            print("UserProvider: Retrying data fetch after creation...");
+            final retryData = await SupabaseService().getUserdetails(
+              firebaseUid,
+            );
+            if (retryData != null) {
+              final user = AppUser.fromMap(retryData);
+              print(
+                "UserProvider: Created AppUser object after retry: ${user.name}",
+              );
+              _setUser(user);
+            } else {
+              print("UserProvider: Still no user data after creation attempt");
+              _setUser(null);
+            }
           }
         } else {
-          print("UserProvider: Current Firebase user does not match requested UID or is null");
+          print(
+            "UserProvider: Current Firebase user does not match requested UID or is null",
+          );
           _setUser(null);
         }
       }
