@@ -278,7 +278,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, "/signup");
+                            Navigator.pushNamed(
+                              context,
+                              "/signup",
+                              arguments: _emailController.text.trim(),
+                            );
                           },
                           child: Text(
                             'Sign up',

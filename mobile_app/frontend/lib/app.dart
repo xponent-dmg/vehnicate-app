@@ -10,6 +10,7 @@ import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
+import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
@@ -61,7 +62,10 @@ class App extends StatelessWidget {
           case "/login":
             return PageTransitions.fade(LoginPage());
           case "/signup":
-            return PageTransitions.fade(SignupPage());
+            final emailArgs = settings.arguments as String?;
+            return PageTransitions.fade(SignupPage(initialEmail: emailArgs));
+          case "/verify-email":
+            return PageTransitions.fade(EmailVerificationPage());
 
           // Profile - Fade + Slide Up (elegant)
           case "/profile":

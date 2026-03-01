@@ -56,13 +56,16 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _showLogoutDialog(BuildContext context) {
     return showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return CustomConfirmationDialog(
           title: "Confirm Logout",
           content: "Are you sure you want to logout of this account?",
           confirmText: "Logout",
           confirmTextColor: ProfileConstants.deleteRed,
-          onConfirm: () => _handleLogout(context),
+          onConfirm: () {
+            Navigator.of(dialogContext).pop();
+            _handleLogout();
+          },
           titleStyle: ProfileConstants.nameStyle,
           contentStyle: ProfileConstants.labelStyle,
           backgroundColor: ProfileConstants.cardBackground,
@@ -71,9 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Future<void> _handleLogout(BuildContext context) async {
+  Future<void> _handleLogout() async {
     try {
-      // Show loading dialog
       // Show loading dialog
       showDialog(
         context: context,
@@ -90,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
       await AuthService().signOut();
 
       // Check if widget is still mounted before using context
-      if (context.mounted) {
+      if (mounted) {
         // Close loading dialog
         Navigator.of(context).pop();
 
@@ -101,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       // Check if widget is still mounted before using context
-      if (context.mounted) {
+      if (mounted) {
         // Close loading dialog if it's open
         Navigator.of(context).pop();
 
@@ -109,6 +111,83 @@ class _ProfilePageState extends State<ProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to logout: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteAccountDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return CustomConfirmationDialog(
+          title: "Confirm deletion",
+          content:
+              "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.",
+          confirmText: "Delete",
+          confirmTextColor: ProfileConstants.deleteRed,
+          onConfirm: () {
+            Navigator.of(dialogContext).pop();
+            _handleDeleteAccount();
+          },
+          contentStyle: ProfileConstants.labelStyle,
+          backgroundColor: ProfileConstants.cardBackground,
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDeleteAccount() async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const CustomLoadingDialog(
+            message: 'Deleting account...',
+            backgroundColor: Color(0xFF2d2d44),
+          );
+        },
+      );
+
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final user = userProvider.currentUser;
+
+      if (user != null) {
+        // 1. Delete from Supabase
+        await SupabaseService().deleteUser(user.firebaseUid);
+
+        // 2. Delete from Firebase and Sign out
+        await AuthService().deleteAccount();
+      }
+
+      if (mounted) {
+        // Close loading dialog
+        Navigator.of(context).pop();
+
+        // Navigate to login page
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil("/login", (route) => false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Account deleted successfully'),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        // Close loading dialog if open
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete account: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -321,107 +400,6 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
-
-  // void _showUpdateVehicleOverlay(BuildContext context) {
-  //   final vehicleProvider = Provider.of<VehicleProvider>(
-  //     context,
-  //     listen: false,
-  //   );
-  //
-  //   if (vehicleProvider.vehicleId == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text(
-  //           'No vehicle found to update. Please add a vehicle first.',
-  //         ),
-  //         backgroundColor: Colors.orange,
-  //         behavior: SnackBarBehavior.floating,
-  //       ),
-  //     );
-  //     return;
-  //   }
-  //
-  //   // Pre-fill controllers with current vehicle values
-  //   _vehicleModelController.text = vehicleProvider.vehicleModel ?? '';
-  //   _registrationController.text = vehicleProvider.vehicleRegistration ?? '';
-  //   _insuranceController.text = vehicleProvider.vehicleInsurance ?? '';
-  //   _pucDateController.text = vehicleProvider.vehiclePUC ?? '';
-  //
-  //   FormOverlay.show(
-  //     context: context,
-  //     title: 'Update Vehicle',
-  //     fields: [
-  //       FormFieldConfig(
-  //         label: 'Model',
-  //         hint: 'e.g., Honda City',
-  //         icon: Icons.car_rental,
-  //         controller: _vehicleModelController,
-  //       ),
-  //       FormFieldConfig(
-  //         label: 'Registration Number',
-  //         hint: 'e.g., KA01AB1234',
-  //         icon: Icons.confirmation_number,
-  //         controller: _registrationController,
-  //       ),
-  //       FormFieldConfig(
-  //         label: 'Insurance Number',
-  //         hint: 'e.g., INS123456789',
-  //         icon: Icons.shield,
-  //         controller: _insuranceController,
-  //       ),
-  //       FormFieldConfig(
-  //         label: 'PUC Date',
-  //         hint: 'Select date',
-  //         icon: Icons.calendar_today,
-  //         controller: _pucDateController,
-  //         type: FormFieldType.date,
-  //       ),
-  //     ],
-  //     submitButtonText: 'Update Vehicle',
-  //     onSubmit: () async {
-  //       final vehicleId = vehicleProvider.vehicleId;
-  //       if (vehicleId == null) return;
-  //
-  //       await SupabaseService().updateVehicleDetails(
-  //         vehicleId: vehicleId,
-  //         model: _vehicleModelController.text.trim(),
-  //         registration: _registrationController.text.trim(),
-  //         insurance: _insuranceController.text.trim(),
-  //         puc:
-  //             _pucDateController.text.trim().isEmpty
-  //                 ? null
-  //                 : _pucDateController.text.trim(),
-  //       );
-  //
-  //       // Refresh vehicle data
-  //       if (mounted) {
-  //         await Provider.of<VehicleProvider>(context, listen: false).refresh();
-  //       }
-  //     },
-  //     onSuccess: () {
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text('Vehicle updated successfully!'),
-  //             backgroundColor: Theme.of(context).primaryColor,
-  //             behavior: SnackBarBehavior.floating,
-  //           ),
-  //         );
-  //       }
-  //     },
-  //     onError: (error) {
-  //       if (mounted) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text('Failed to update vehicle: ${error.toString()}'),
-  //             backgroundColor: Colors.red,
-  //             behavior: SnackBarBehavior.floating,
-  //           ),
-  //         );
-  //       }
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -820,18 +798,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildDeleteAccountRow() {
-    return Container(
-      height: ProfileConstants.cardHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        color: ProfileConstants.cardBackground,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(ProfileConstants.cardRadius),
-          bottomRight: Radius.circular(ProfileConstants.cardRadius),
+    return GestureDetector(
+      onTap: () => _showDeleteAccountDialog(context),
+      child: Container(
+        height: ProfileConstants.cardHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: ProfileConstants.cardBackground,
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(ProfileConstants.cardRadius),
+            bottomRight: Radius.circular(ProfileConstants.cardRadius),
+          ),
         ),
-      ),
-      child: const Center(
-        child: Text('Delete Account', style: ProfileConstants.deleteStyle),
+        child: const Center(
+          child: Text('Delete Account', style: ProfileConstants.deleteStyle),
+        ),
       ),
     );
   }

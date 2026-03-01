@@ -3,18 +3,25 @@ import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  final String? initialEmail;
+  const SignupPage({super.key, this.initialEmail});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final _emailController = TextEditingController();
+  late final TextEditingController _emailController;
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(text: widget.initialEmail ?? '');
+  }
 
   @override
   void dispose() {
@@ -48,12 +55,8 @@ class _SignupPageState extends State<SignupPage> {
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
-          "/user-details",
+          "/verify-email",
           (route) => false,
-          arguments: {
-            "userId": userCred.user!.uid,
-            "email": _emailController.text.trim(),
-          },
         );
       }
     } catch (e) {
@@ -142,13 +145,13 @@ class _SignupPageState extends State<SignupPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
-                          // Add email format validation
-                          final emailRegExp = RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                          );
-                          if (!emailRegExp.hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
+                          // // Add email format validation
+                          // final emailRegExp = RegExp(
+                          //   r'^[\w-\.\+]+@([\w-]+\.)+[\w-]{2,4}$',
+                          // );
+                          // if (!emailRegExp.hasMatch(value)) {
+                          //   return 'Please enter a valid email address';
+                          // }
                           return null;
                         },
                       ),

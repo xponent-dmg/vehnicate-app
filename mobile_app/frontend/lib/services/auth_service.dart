@@ -18,6 +18,16 @@ class AuthService {
   // Auth state changes stream
   Stream<firebase.User?> get authStateChanges => _auth.authStateChanges();
 
+  // Reload current user
+  Future<void> reloadUser() async {
+    await _auth.currentUser?.reload();
+  }
+
+  // Send email verification
+  Future<void> sendEmailVerification() async {
+    await _auth.currentUser?.sendEmailVerification();
+  }
+
   // Sign in with email and password
   Future<firebase.UserCredential> signInWithEmail(
     String email,
@@ -186,6 +196,39 @@ class AuthService {
     } catch (e) {
       print('SignOut error: $e'); // Debug print
       throw Exception('Failed to sign out: $e');
+    }
+  }
+
+  // Delete account
+  Future<void> deleteAccount() async {
+    try {
+      print('Starting deleteAccount process');
+      final user = currentUser;
+      if (user != null) {
+        // Delete user from Firebase Auth
+        await user.delete();
+        print('Firebase user deleted');
+
+        // Ensure user is also signed out from Google if they used it
+        await _googleSignIn.signOut();
+
+        // Log analytics event for account deletion
+        await _analytics.logEvent(name: 'account_deleted');
+
+        // Clear local storage
+        await _clearPersistedLogin();
+        print('Account deleted successfully');
+      }
+    } on firebase.FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw Exception(
+          'Please log out and log back in before deleting your account for security reasons.',
+        );
+      }
+      throw _handleAuthException(e);
+    } catch (e) {
+      print('deleteAccount error: $e');
+      throw Exception('Failed to delete account: $e');
     }
   }
 

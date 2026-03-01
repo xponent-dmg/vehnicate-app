@@ -507,4 +507,33 @@ class SupabaseService {
       throw Exception('Failed to delete vehicle: $e');
     }
   }
+
+  Future<void> deleteUser(String firebaseUid) async {
+    try {
+      print("Deleting user with Firebase UID: $firebaseUid");
+      await initialize();
+
+      final response =
+          await _client
+              .from('userdetails')
+              .delete()
+              .eq('firebaseuid', firebaseUid)
+              .select();
+
+      print("Delete User response: $response");
+
+      if ((response as List).isEmpty) {
+        print(
+          "Warning: Delete user returned no rows. It might be already deleted or RLS issue.",
+        );
+      } else {
+        print("User deleted successfully from Supabase");
+      }
+    } catch (e, stackTrace) {
+      print("Error deleting user from Supabase:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to delete Supabase user: $e');
+    }
+  }
 }

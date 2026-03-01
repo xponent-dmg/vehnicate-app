@@ -143,14 +143,16 @@ class _GaragePageState extends State<GaragePage> {
       itemCount: vehicles.length + 1,
       itemBuilder: (context, index) {
         if (index == vehicles.length) {
-          return _buildAddVehicleTile();
+          return _buildAddVehicleTile(
+            hasVehicle: vehicles.isNotEmpty,
+          );
         }
         return _buildVehicleCard(vehicles[index]);
       },
     );
   }
 
-  Widget _buildAddVehicleTile() {
+  Widget _buildAddVehicleTile({required bool hasVehicle}) {
     return GlassLiteContainer(
       hasBorder: false,
       margin: const EdgeInsets.only(bottom: 20, top: 10),
@@ -165,10 +167,10 @@ class _GaragePageState extends State<GaragePage> {
           children: [
             Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
             const SizedBox(width: 12),
-            const Text(
-              'Add another vehicle',
+            Text(
+              hasVehicle ? 'Add another vehicle' : 'Add your vehicle',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.white,  
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
