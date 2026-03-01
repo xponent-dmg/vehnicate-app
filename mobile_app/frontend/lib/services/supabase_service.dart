@@ -513,6 +513,21 @@ class SupabaseService {
       print("Deleting user with Firebase UID: $firebaseUid");
       await initialize();
 
+      // Check if user exists first to distinguish between RLS block and already-deleted
+      final checkUser =
+          await _client
+              .from('userdetails')
+              .select()
+              .eq('firebaseuid', firebaseUid)
+              .maybeSingle();
+
+      if (checkUser == null) {
+        print(
+          "User already deleted or doesn't exist in Supabase. Proceeding to Firebase deletion...",
+        );
+        return;
+      }
+
       final response =
           await _client
               .from('userdetails')

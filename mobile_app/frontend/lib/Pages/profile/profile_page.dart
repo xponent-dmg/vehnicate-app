@@ -13,6 +13,7 @@ import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 // Constants and Theme
@@ -108,12 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.of(context).pop();
 
         // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to logout: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CustomSnackBar.showError(context, 'Failed to logout: $e');
       }
     }
   }
@@ -173,12 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
           context,
         ).pushNamedAndRemoveUntil("/login", (route) => false);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Account deleted successfully'),
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-        );
+        CustomSnackBar.showSuccess(context, 'Account deleted successfully');
       }
     } catch (e) {
       if (mounted) {
@@ -190,13 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
           errorMessage = errorMessage.substring(11);
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 6),
-          ),
-        );
+        CustomSnackBar.showError(context, errorMessage);
       }
     }
   }
@@ -244,9 +229,7 @@ class _ProfilePageState extends State<ProfilePage> {
         final user = userProvider.currentUser;
 
         if (user == null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('User not logged in')));
+          CustomSnackBar.showError(context, 'User not logged in');
           return;
         }
 
@@ -280,12 +263,9 @@ class _ProfilePageState extends State<ProfilePage> {
           // Close loading dialog
           Navigator.of(context).pop();
           await userProvider.refresh();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Profile picture updated successfully!'),
-              backgroundColor: Theme.of(context).primaryColor,
-              behavior: SnackBarBehavior.floating,
-            ),
+          CustomSnackBar.showSuccess(
+            context,
+            'Profile picture updated successfully!',
           );
         }
       }
@@ -293,12 +273,9 @@ class _ProfilePageState extends State<ProfilePage> {
       if (mounted) {
         // Close loading dialog if open
         Navigator.of(context).maybePop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update profile picture: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
+        CustomSnackBar.showError(
+          context,
+          'Failed to update profile picture: $e',
         );
       }
     } finally {
@@ -384,23 +361,14 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       onSuccess: () {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Profile updated successfully!'),
-              backgroundColor: Theme.of(context).primaryColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          CustomSnackBar.showSuccess(context, 'Profile updated successfully!');
         }
       },
       onError: (error) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to update profile: ${error.toString()}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
+          CustomSnackBar.showError(
+            context,
+            'Failed to update profile: ${error.toString()}',
           );
         }
       },
