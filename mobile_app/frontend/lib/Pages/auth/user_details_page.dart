@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
@@ -39,12 +40,15 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
     try {
       final vehicleProvider = context.read<VehicleProvider>();
+      final userProvider = context.read<UserProvider>();
 
       await SupabaseService().updateUserProfile(
         userId: widget.userId, // Pass the Firebase UID
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
       );
+
+      await userProvider.refresh();
       await vehicleProvider.refresh();
       print(
         'VehicleProvider(saveUserDetails): Vehicle data loaded with data: ${vehicleProvider.vehicleId}',
