@@ -38,18 +38,20 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     setState(() => _isLoading = true);
 
     try {
+      final vehicleProvider = context.read<VehicleProvider>();
+
       await SupabaseService().updateUserProfile(
         userId: widget.userId, // Pass the Firebase UID
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
       );
-      await context.read<VehicleProvider>().refresh();
+      await vehicleProvider.refresh();
       print(
-        'VehicleProvider(saveUserDetails): Vehicle data loaded with data: ${context.read<VehicleProvider>().vehicleId}',
+        'VehicleProvider(saveUserDetails): Vehicle data loaded with data: ${vehicleProvider.vehicleId}',
       );
 
       await SupabaseService().updateVehicleDetails(
-        vehicleId: context.read<VehicleProvider>().vehicleId ?? 1,
+        vehicleId: vehicleProvider.vehicleId ?? 1,
         insurance: "",
         registration: _vehicleRegistrationController.text.trim(),
         puc: null,
@@ -57,7 +59,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       );
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, "/dash", (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -224,7 +226,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 : () {
                                   Navigator.pushNamedAndRemoveUntil(
                                     context,
-                                    "/dash",
+                                    "/home",
                                     (route) => false,
                                   );
                                 },
