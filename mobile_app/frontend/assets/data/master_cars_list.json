@@ -1,0 +1,833 @@
+{
+  "Cars": {
+    "Maruti Suzuki": [
+      "Alto",
+      "Alto 800 Tour",
+      "Alto K10",
+      "Alto Tour H1",
+      "Baleno",
+      "Baleno Rs",
+      "Brezza",
+      "Celerio",
+      "Celerio Tour",
+      "Celerio X",
+      "Ciaz",
+      "Dzire",
+      "Dzire Tour",
+      "Dzire Tour S",
+      "Eeco",
+      "Eeco Cargo",
+      "Ertiga",
+      "Ertiga Tour",
+      "Fronx",
+      "Grand Vitara",
+      "Gypsy",
+      "Ignis",
+      "Invicto",
+      "Jimny",
+      "Omni",
+      "S-Cross",
+      "S-Presso",
+      "Swift",
+      "Vitara Brezza",
+      "Wagon R",
+      "Wagon R Tour",
+      "Xl6"
+    ],
+    "Maruti": [
+      "800",
+      "A-Star",
+      "Alto",
+      "Baleno",
+      "Baleno 2025",
+      "Brezza 2025",
+      "Celerio",
+      "Ciaz",
+      "E Vitara",
+      "Eeco",
+      "Ertiga",
+      "Esteem",
+      "Estilo",
+      "Grand",
+      "Grand Vitara 3-Row",
+      "Gypsy",
+      "Ignis",
+      "Omni",
+      "Ritz",
+      "S-Cross",
+      "S-Presso",
+      "Swift",
+      "Sx4",
+      "Vitara",
+      "Wagon",
+      "Wagonr Electric",
+      "Zen"
+    ],
+    "Tata": [
+      "Altroz",
+      "Altroz 2025",
+      "Altroz Racer",
+      "Aria",
+      "Bolt",
+      "Curvv",
+      "Curvv Ev",
+      "Harrier",
+      "Harrier Ev",
+      "Hexa",
+      "Indica",
+      "Indigo",
+      "Manza",
+      "Nano",
+      "Nano Genx",
+      "New",
+      "Nexon",
+      "Nexon Ev",
+      "Punch",
+      "Punch 2025",
+      "Punch Ev",
+      "Safari",
+      "Safari Storme",
+      "Sierra",
+      "Sierra Ev",
+      "Spacio",
+      "Sumo",
+      "Tiago",
+      "Tiago Ev",
+      "Tiago Nrg",
+      "Tigor",
+      "Tigor Ev",
+      "Venture",
+      "Winger",
+      "Xenon",
+      "Yodha Pickup",
+      "Zest"
+    ],
+    "Kia": [
+      "Carens",
+      "Carens Clavis",
+      "Carens Ev",
+      "Carnival",
+      "Ev6",
+      "Ev9",
+      "Seltos",
+      "Sonet",
+      "Syros",
+      "Syros Ev"
+    ],
+    "Toyota": [
+      "3-Row Suv",
+      "Camry",
+      "Corolla",
+      "Corolla Altis",
+      "Etios",
+      "Etios Cross",
+      "Etios Liva",
+      "Fortuner",
+      "Fortuner Legender",
+      "Glanza",
+      "Hilux",
+      "Innova",
+      "Innova Crysta",
+      "Innova Hycross",
+      "Land Cruiser",
+      "Land Cruiser 300",
+      "Land Cruiser Prado",
+      "Mini Fortuner",
+      "Platinum Etios",
+      "Prius",
+      "Qualis",
+      "Rumion",
+      "Taisor",
+      "Urban Cruiser",
+      "Urban Cruiser Hyryder",
+      "Vellfire",
+      "Yaris"
+    ],
+    "Hyundai": [
+      "Accent",
+      "Alcazar",
+      "Aura",
+      "Creta",
+      "Creta Electric",
+      "Creta N Line",
+      "Elantra",
+      "Elite",
+      "Elite I20",
+      "Eon",
+      "Exter",
+      "Getz",
+      "Grand",
+      "Grand I10",
+      "Grand I10 Nios",
+      "Grand I10 Prime",
+      "I10",
+      "I20",
+      "I20 Active",
+      "I20 N-Line",
+      "Inster",
+      "Ioniq 5",
+      "Ioniq 6",
+      "Kona Electric",
+      "Palisade",
+      "Santa",
+      "Santro",
+      "Sonata",
+      "Tucson",
+      "Tucson 2025",
+      "Venue",
+      "Venue N Line",
+      "Verna",
+      "Xcent",
+      "Xcent Prime"
+    ],
+    "Mahindra": [
+      "Alturas",
+      "Alturas G4",
+      "Be 07",
+      "Be 6",
+      "Bolero",
+      "Bolero Camper",
+      "Bolero Maxitruck Plus",
+      "Bolero Neo",
+      "Bolero Neo Plus",
+      "Bolero Pikup Extralong",
+      "Bolero Pikup Extrastrong",
+      "Bolero Power Plus",
+      "E Verito",
+      "E2O Plus",
+      "Global Pik Up",
+      "Ingenio",
+      "Jeep",
+      "Kuv",
+      "Kuv100 Nxt",
+      "Marazzo",
+      "Nuvosport",
+      "Quanto",
+      "Renault",
+      "Renault Logan",
+      "Renault Logan Edge",
+      "Scorpio",
+      "Scorpio N",
+      "Ssangyong Rexton",
+      "Supro",
+      "Thar",
+      "Thar 3-Door",
+      "Thar E",
+      "Thar Roxx",
+      "Tuv",
+      "Tuv300",
+      "Tuv300 Plus",
+      "Verito",
+      "Verito Vibe",
+      "Xev 4E",
+      "Xev 9E",
+      "Xuv 3Xo",
+      "Xuv300",
+      "Xuv400 Ev",
+      "Xuv500",
+      "Xuv700",
+      "Xylo"
+    ],
+    "Honda": [
+      "Accord",
+      "Accord Hybrid",
+      "Amaze",
+      "Amaze 2Nd Gen",
+      "Br-V",
+      "Brio",
+      "Brv",
+      "City",
+      "City Hybrid",
+      "Civic",
+      "Cr-V",
+      "Elevate",
+      "Elevate Ev",
+      "Jazz",
+      "Mobilio",
+      "Wr-V"
+    ],
+    "Mg": [
+      "4 Ev",
+      "Astor",
+      "Comet Ev",
+      "Cyberster",
+      "Gloster",
+      "Hector",
+      "Hector Plus",
+      "Im5",
+      "M9",
+      "Majestor",
+      "Windsor Ev",
+      "Zs Ev"
+    ],
+    "Skoda": [
+      "Elroq",
+      "Enyaq",
+      "Fabia",
+      "Kodiaq",
+      "Kodiaq Scout",
+      "Kushaq",
+      "Kylaq",
+      "Laura",
+      "Monte Carlo",
+      "Octavia",
+      "Octavia Rs",
+      "Rapid",
+      "Slavia",
+      "Superb",
+      "Superb 2025",
+      "Superb Sportline",
+      "Yeti"
+    ],
+    "Jeep": [
+      "Compass",
+      "Compass Trailhawk",
+      "Grand Cherokee",
+      "Meridian",
+      "Wrangler"
+    ],
+    "Renault": [
+      "Bigster",
+      "Captur",
+      "Duster",
+      "Duster 2025",
+      "Fluence",
+      "Kardian",
+      "Kiger",
+      "Kiger 2025",
+      "Koleos",
+      "Kwid",
+      "Lodgy",
+      "Pulse",
+      "Scala",
+      "Triber",
+      "Triber 2025"
+    ],
+    "Nissan": [
+      "Compact Mpv",
+      "Evalia",
+      "Gtr",
+      "Kicks",
+      "Magnite",
+      "Micra",
+      "Micra Active",
+      "Patrol",
+      "Sunny",
+      "Terrano",
+      "Terrano 2025",
+      "Terrano 7Seater",
+      "X-Trail"
+    ],
+    "Volkswagen": [
+      "Ameo",
+      "Crosspolo",
+      "Golf Gti",
+      "Jetta",
+      "Passat",
+      "Polo",
+      "Taigun",
+      "Tera",
+      "Tiguan",
+      "Tiguan R-Line",
+      "Vento",
+      "Virtus"
+    ],
+    "Citroen": [
+      "Aircross",
+      "Basalt",
+      "C3",
+      "C5 Aircross",
+      "Ec3"
+    ],
+    "Aston": [
+      "Martin Db12",
+      "Martin Dbx",
+      "Martin Vanquish",
+      "Martin Vantage"
+    ],
+    "Audi": [
+      "A3",
+      "A3 Cabriolet",
+      "A4",
+      "A5",
+      "A5 Cabriolet",
+      "A6",
+      "A6 2026",
+      "A8",
+      "A8 L",
+      "E-Tron Gt",
+      "Q3",
+      "Q3 Sportback",
+      "Q5",
+      "Q5 2026",
+      "Q6 E-Tron",
+      "Q7",
+      "Q8",
+      "Q8 E-Tron",
+      "Q8 Sportback E-Tron",
+      "R8",
+      "Rs E-Tron Gt",
+      "Rs Q8",
+      "Rs5",
+      "Rs7",
+      "S5",
+      "S5 Sportback"
+    ],
+    "Bajaj": [
+      "Qute",
+      "Qute (Re60)"
+    ],
+    "Bentley": [
+      "Bentayga",
+      "Continental",
+      "Continental Gt",
+      "Flying Spur",
+      "Mulsanne"
+    ],
+    "BMW": [
+      "2 Series",
+      "2 Series 2025",
+      "3",
+      "3 Series",
+      "3 Series Long Wheelbase",
+      "3-Series",
+      "5",
+      "5 Series",
+      "5-Series",
+      "6-Series",
+      "7",
+      "7 Series",
+      "7-Series",
+      "I4",
+      "I5",
+      "I7",
+      "Ix",
+      "Ix 2025",
+      "Ix1",
+      "M2",
+      "M2 Competition",
+      "M4",
+      "M4 Competition",
+      "M4 Cs",
+      "M5",
+      "M8 Coupe Competition",
+      "X1",
+      "X3",
+      "X4",
+      "X5",
+      "X7",
+      "Xm",
+      "Z4",
+      "Z4 Roadster"
+    ],
+    "Byd": [
+      "Atto 3",
+      "Emax 7",
+      "Seal",
+      "Sealion 7"
+    ],
+    "Ferrari": [
+      "12Cilindri",
+      "296 Gtb",
+      "458 Speciale",
+      "458 Spider",
+      "488 Gtb",
+      "812",
+      "812 Superfast",
+      "F8 Tributo",
+      "Gtc4 Lusso",
+      "Portofino",
+      "Roma",
+      "Sf90 Stradale"
+    ],
+    "Force": [
+      "Gurkha",
+      "Gurkha 5 Door",
+      "One",
+      "Urbania"
+    ],
+    "Isuzu": [
+      "D-Max",
+      "Dmax V-Cross",
+      "Hi-Lander",
+      "Mu-X",
+      "S-Cab",
+      "S-Cab Z",
+      "V-Cross"
+    ],
+    "Jaguar": [
+      "F-Pace",
+      "F-Type",
+      "Xe",
+      "Xf",
+      "Xj"
+    ],
+    "Lamborghini": [
+      "Aventador",
+      "Huracan",
+      "Huracan Evo",
+      "Revuelto",
+      "Temerario",
+      "Urus"
+    ],
+    "Defender": [
+      "Unknown"
+    ],
+    "Range": [
+      "Rover",
+      "Rover Evoque",
+      "Rover Sport",
+      "Rover Velar"
+    ],
+    "Land Rover": [
+      "Discovery",
+      "Discovery Sport"
+    ],
+    "Lexus": [
+      "Es",
+      "Lc 500H",
+      "Lm",
+      "Ls 500H",
+      "Lx",
+      "Lx 450D",
+      "Lx 570",
+      "Nx",
+      "Nx 300H",
+      "Rx",
+      "Rx 450H"
+    ],
+    "Lotus": [
+      "Eletre",
+      "Emeya",
+      "Emira"
+    ],
+    "Maserati": [
+      "Ghibli",
+      "Grancabrio",
+      "Granturismo",
+      "Grecale",
+      "Levante",
+      "Quattroporte"
+    ],
+    "Mclaren": [
+      "750S",
+      "Gt"
+    ],
+    "Mercedes-Benz": [
+      "A-Class Limousine",
+      "Amg A 45 S",
+      "Amg C 63",
+      "Amg C43",
+      "Amg E 53 Cabriolet",
+      "Amg Eqs",
+      "Amg Gla 35",
+      "Amg Glc 43",
+      "Amg Gle 53",
+      "Amg Gt 4 Door Coupe",
+      "Amg Gt Coupe",
+      "Amg S 63",
+      "Amg Sl",
+      "B",
+      "C-Class",
+      "Cla Electric",
+      "Cle Cabriolet",
+      "E-Class",
+      "Eqa",
+      "Eqb",
+      "Eqe Sedan",
+      "Eqe Suv",
+      "Eqs",
+      "Eqs Suv",
+      "G-Class",
+      "G-Class Electric",
+      "Gl-Class",
+      "Gla",
+      "Glb",
+      "Glc",
+      "Gle",
+      "Gls",
+      "M-Class",
+      "Maybach Eqs Suv",
+      "Maybach Gls",
+      "Maybach S-Class",
+      "Maybach Sl 680",
+      "New",
+      "S-Class"
+    ],
+    "Mini": [
+      "Clubman",
+      "Convertible",
+      "Cooper 3 Door",
+      "Cooper 5 Door",
+      "Cooper Countryman",
+      "Cooper S",
+      "Cooper Se",
+      "Countryman",
+      "Countryman Electric",
+      "John Cooper Works"
+    ],
+    "Pmv": [
+      "Eas E"
+    ],
+    "Porsche": [
+      "718",
+      "911",
+      "Cayenne",
+      "Cayenne Coupe",
+      "Macan",
+      "Macan Ev",
+      "Panamera",
+      "Taycan"
+    ],
+    "Pravaig": [
+      "Defy"
+    ],
+    "Rolls-Royce": [
+      "Cullinan",
+      "Ghost Series Ii",
+      "Phantom",
+      "Spectre"
+    ],
+    "Strom": [
+      "Motors R3"
+    ],
+    "Vayve": [
+      "Mobility Eva"
+    ],
+    "Volvo": [
+      "C40 Recharge",
+      "Ex30",
+      "S60",
+      "S60 Cross Country",
+      "S90",
+      "V40",
+      "V40 Cross Country",
+      "V90 Cross Country",
+      "Xc",
+      "Xc40",
+      "Xc40 Recharge",
+      "Xc60",
+      "Xc90"
+    ],
+    "Haval": [
+      "Concept H",
+      "F5",
+      "F7",
+      "H2",
+      "H6",
+      "H9",
+      "Vision 2025"
+    ],
+    "Koenigsegg": [
+      "Agera"
+    ],
+    "Leapmotor": [
+      "C10",
+      "T03"
+    ],
+    "Xiaomi": [
+      "Su7"
+    ],
+    "Fiat": [
+      "1100",
+      "500",
+      "Abarth",
+      "Abarth Avventura",
+      "Abarth Punto",
+      "Adventure",
+      "Avventura",
+      "Avventura Urban Cross",
+      "Ducato",
+      "Grande",
+      "Grande Punto",
+      "Grande Punto 2009-2014",
+      "Linea",
+      "Linea 2008-2012",
+      "Linea 2012-2014",
+      "Linea Classic",
+      "Millicento",
+      "Palio",
+      "Palio D",
+      "Palio Nv",
+      "Palio Stile",
+      "Petra",
+      "Petra D",
+      "Premier Padmini",
+      "Punto",
+      "Punto Evo",
+      "Punto Evo Pure",
+      "Punto Pure",
+      "Siena",
+      "Uno",
+      "Urban Cross"
+    ],
+    "Ashok": [
+      "Leyland Stile"
+    ],
+    "Austin": [
+      "A40"
+    ],
+    "Cadillac": [
+      "Cts",
+      "Escalade",
+      "Sts"
+    ],
+    "Caterham": [
+      "7"
+    ],
+    "Chevrolet": [
+      "Aveo",
+      "Aveo U-Va",
+      "Beat",
+      "Beat 2009-2013",
+      "Beat 2014-2016",
+      "Captiva",
+      "Captiva 2008-2012",
+      "Captiva 2012-2014",
+      "Corvette",
+      "Cruze",
+      "Cruze 2010-2011",
+      "Cruze 2012-2014",
+      "Cruze 2014-2016",
+      "Enjoy",
+      "Enjoy 2013-2015",
+      "Forester",
+      "Optra",
+      "Optra Magnum",
+      "Optra Srv",
+      "Sail",
+      "Sail Hatchback",
+      "Sail Hatchback 2012-2013",
+      "Silverado",
+      "Spark",
+      "Spark 2007-2012",
+      "Tavera",
+      "Tavera 2003-2007",
+      "Tavera 2012-2017",
+      "Tavera Neo",
+      "Trailblazer"
+    ],
+    "Chrysler": [
+      "300",
+      "Avenger"
+    ],
+    "Conquest": [
+      "Evade"
+    ],
+    "Daewoo": [
+      "Cielo",
+      "Matiz",
+      "Nexia"
+    ],
+    "Datsun": [
+      "Go",
+      "Go Plus",
+      "Redi-Go",
+      "Redi-Go 2016-2020",
+      "Redigo"
+    ],
+    "Dc": [
+      "Avanti"
+    ],
+    "Dodge": [
+      "Nitro"
+    ],
+    "Hindustan": [
+      "Motors Ambassador",
+      "Motors Contessa"
+    ],
+    "Hummer": [
+      "H2",
+      "H3"
+    ],
+    "Icml": [
+      "Extreme",
+      "Rhino Rx"
+    ],
+    "Infiniti": [
+      "Fx"
+    ],
+    "Maybach": [
+      "57 S",
+      "62 S"
+    ],
+    "Mazda": [
+      "Miata",
+      "Rx 8"
+    ],
+    "Opel": [
+      "Astra",
+      "Corsa",
+      "Vectra"
+    ],
+    "Premier": [
+      "118 Ne",
+      "138 D",
+      "Padmini",
+      "Rio",
+      "Rio 2009 2011"
+    ],
+    "Reva": [
+      "I"
+    ],
+    "San": [
+      "Motors Storm"
+    ],
+    "Sipani": [
+      "Montego"
+    ],
+    "Smart": [
+      "Fortwo"
+    ],
+    "Studebaker": [
+      "Champion"
+    ],
+    "Subaru": [
+      "Impreza"
+    ],
+    "Ambassador": [
+      "Classic",
+      "Grand"
+    ],
+    "Ford": [
+      "Aspire",
+      "Classic",
+      "Ecosport",
+      "Endeavour",
+      "Fiesta",
+      "Figo",
+      "Freestyle",
+      "Fusion",
+      "Ikon",
+      "Mustang"
+    ],
+    "Land": [
+      "Rover"
+    ],
+    "Mitsubishi": [
+      "Montero",
+      "Outlander",
+      "Pajero",
+      "Pajero Sport"
+    ],
+    "Opelcorsa": [
+      "1.4",
+      "1.6Gls"
+    ],
+    "Aston Martin": [
+      "Db 11",
+      "Rapide",
+      "Vantage"
+    ],
+    "Bugatti": [
+      "Chiron"
+    ],
+    "Land Rover Rover": [
+      "Range",
+      "Range Evoque",
+      "Range Evoque Convertible",
+      "Range Sport",
+      "Range Velar"
+    ]
+  }
+}
