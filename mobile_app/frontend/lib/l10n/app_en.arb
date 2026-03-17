@@ -1,0 +1,934 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "vehnicate",
+  "@appTitle": {
+    "description": "App name displayed in splash and title bars"
+  },
+  "vehnicateTagline": "calm in the chaos",
+  "@vehnicateTagline": {
+    "description": "Tagline displayed on login screen"
+  },
+  "vehiclesCommunicate": "vehicles+communicate",
+  "@vehiclesCommunicate": {
+    "description": "Animated text shown on splash screen"
+  },
+  "vehnicate2025": "vehnicate@2025",
+  "@vehnicate2025": {
+    "description": "Copyright text shown on splash screen"
+  },
+
+  "vehnicateTab": "vehnicate",
+  "@vehnicateTab": {
+    "description": "Navigation tab title for main dashboard"
+  },
+  "navigationTab": "navigation",
+  "@navigationTab": {
+    "description": "Navigation tab title for map screen"
+  },
+  "garageTab": "your garage",
+  "@garageTab": {
+    "description": "Navigation tab title for garage screen"
+  },
+  "analyticsTab": "analytics",
+  "@analyticsTab": {
+    "description": "Navigation tab title for analytics screen"
+  },
+  "swap": "Swap",
+  "@swap": {
+    "description": "Button text to swap selected vehicle"
+  },
+
+  "loginEmailHint": "Email address",
+  "@loginEmailHint": {
+    "description": "Placeholder text for email input field on login screen"
+  },
+  "loginPasswordHint": "Password",
+  "@loginPasswordHint": {
+    "description": "Placeholder text for password input field on login screen"
+  },
+  "loginButton": "Sign in",
+  "@loginButton": {
+    "description": "Button text to sign in to the app"
+  },
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Link text to reset password on login screen"
+  },
+  "dontHaveAccount": "Don't have an account? ",
+  "@dontHaveAccount": {
+    "description": "Text prompting user to sign up on login screen"
+  },
+  "signUp": "Sign up",
+  "@signUp": {
+    "description": "Link text to navigate to sign up screen"
+  },
+  "orConnectWith": "or connect with",
+  "@orConnectWith": {
+    "description": "Text separator for social login options"
+  },
+  "pleaseEnterEmail": "Please enter your email",
+  "@pleaseEnterEmail": {
+    "description": "Validation error message for empty email field"
+  },
+  "pleaseEnterPassword": "Please enter your password",
+  "@pleaseEnterPassword": {
+    "description": "Validation error message for empty password field"
+  },
+  "passwordMinLength": "Password must be at least 6 characters",
+  "@passwordMinLength": {
+    "description": "Validation error message for short password"
+  },
+
+  "signupTitle": "Create your account",
+  "@signupTitle": {
+    "description": "Title text for sign up screen"
+  },
+  "signupButton": "Sign up",
+  "@signupButton": {
+    "description": "Button text to create new account"
+  },
+  "alreadyHaveAccount": "Already have an account? ",
+  "@alreadyHaveAccount": {
+    "description": "Text prompting user to sign in on sign up screen"
+  },
+  "signIn": "Sign in",
+  "@signIn": {
+    "description": "Link text to navigate to sign in screen"
+  },
+
+  "verifyEmailTitle": "Verify Email",
+  "@verifyEmailTitle": {
+    "description": "Title of email verification screen"
+  },
+  "verifyEmailHeading": "Verify your email address",
+  "@verifyEmailHeading": {
+    "description": "Heading text on email verification screen"
+  },
+  "verifyEmailMessage": "We have sent a verification email to:\n{email}",
+  "@verifyEmailMessage": {
+    "description": "Message explaining email verification process",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "verifyEmailInstruction": "Please check your email and click on the verification link.",
+  "@verifyEmailInstruction": {
+    "description": "Instruction text for email verification"
+  },
+  "iHaveVerifiedEmail": "I have verified my email",
+  "@iHaveVerifiedEmail": {
+    "description": "Button text after user verifies email"
+  },
+  "resendVerificationEmail": "Resend Verification Email",
+  "@resendVerificationEmail": {
+    "description": "Button text to resend verification email"
+  },
+  "resendEmailIn": "Resend Email in {seconds} s",
+  "@resendEmailIn": {
+    "description": "Countdown text for resend email button",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "emailVerified": "Email Verified!",
+  "@emailVerified": {
+    "description": "Success message when email is verified"
+  },
+  "redirectingToHome": "Redirecting to home...",
+  "@redirectingToHome": {
+    "description": "Status message during redirect after verification"
+  },
+  "cancelAndLogout": "Cancel & Log Out",
+  "@cancelAndLogout": {
+    "description": "Button to cancel verification and logout"
+  },
+  "checkingVerification": "Checking verification...",
+  "@checkingVerification": {
+    "description": "Loading message while checking email verification"
+  },
+  "emailNotVerified": "Email not verified yet. Please check your inbox.",
+  "@emailNotVerified": {
+    "description": "Message when email verification is not complete"
+  },
+  "errorSendingVerificationEmail": "Error sending verification email: {error}",
+  "@errorSendingVerificationEmail": {
+    "description": "Error message when verification email fails to send",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+
+  "completeProfileTitle": "Complete Your Profile",
+  "@completeProfileTitle": {
+    "description": "Title of user details completion screen"
+  },
+  "tellUsMore": "Tell us more about yourself",
+  "@tellUsMore": {
+    "description": "Subtitle text on user details screen"
+  },
+  "fullNameLabel": "Full Name",
+  "@fullNameLabel": {
+    "description": "Label for full name input field"
+  },
+  "usernameLabel": "Username",
+  "@usernameLabel": {
+    "description": "Label for username input field"
+  },
+  "vehicleDetailsOptional": "Vehicle Details (Optional)",
+  "@vehicleDetailsOptional": {
+    "description": "Section header for optional vehicle details"
+  },
+  "vehicleModelLabel": "Vehicle Model",
+  "@vehicleModelLabel": {
+    "description": "Label for vehicle model input field"
+  },
+  "vehicleYearLabel": "Vehicle Year",
+  "@vehicleYearLabel": {
+    "description": "Label for vehicle year input field"
+  },
+  "vehicleRegistrationLabel": "Vehicle Registration",
+  "@vehicleRegistrationLabel": {
+    "description": "Label for vehicle registration input field"
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Button to proceed after completing profile"
+  },
+  "skipForNow": "Skip for now",
+  "@skipForNow": {
+    "description": "Button to skip profile completion"
+  },
+  "pleaseEnterFullName": "Please enter your full name",
+  "@pleaseEnterFullName": {
+    "description": "Validation error for empty full name field"
+  },
+  "pleaseEnterUsername": "Please enter a username",
+  "@pleaseEnterUsername": {
+    "description": "Validation error for empty username field"
+  },
+  "usernameMinLength": "Username must be at least 3 characters",
+  "@usernameMinLength": {
+    "description": "Validation error for short username"
+  },
+
+  "startDrive": "Start Drive",
+  "@startDrive": {
+    "description": "Button to start driving data collection"
+  },
+  "rpsScore": "RPS Score",
+  "@rpsScore": {
+    "description": "Label for RPS (Road Performance Score) metric"
+  },
+  "driveSmoothly": "Drive smoothly",
+  "@driveSmoothly": {
+    "description": "Title of weekly challenge card"
+  },
+  "weekly": "Weekly",
+  "@weekly": {
+    "description": "Badge indicating weekly challenge"
+  },
+  "maintainConstantAcceleration": "Maintain constant acceleration for 50 km",
+  "@maintainConstantAcceleration": {
+    "description": "Description of weekly driving challenge"
+  },
+  "reward": "Reward: {points} points",
+  "@reward": {
+    "description": "Reward text for completing challenges",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "example": "500"
+      }
+    }
+  },
+  "addVehicle": "Add Vehicle",
+  "@addVehicle": {
+    "description": "Button to add a new vehicle"
+  },
+  "addAnotherVehicle": "Add another vehicle",
+  "@addAnotherVehicle": {
+    "description": "Button to add additional vehicle"
+  },
+  "tapToAddVehicle": "Tap to add your vehicle",
+  "@tapToAddVehicle": {
+    "description": "Instruction text when no vehicles exist"
+  },
+  "selectVehicle": "Select Vehicle",
+  "@selectVehicle": {
+    "description": "Title of vehicle selection bottom sheet"
+  },
+  "noVehiclesAvailable": "No vehicles available",
+  "@noVehiclesAvailable": {
+    "description": "Message when no vehicles exist"
+  },
+  "vehicleAddedSuccessfully": "Vehicle added successfully!",
+  "@vehicleAddedSuccessfully": {
+    "description": "Success message after adding vehicle"
+  },
+  "failedToAddVehicle": "Failed to add vehicle: {error}",
+  "@failedToAddVehicle": {
+    "description": "Error message when vehicle addition fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "noVehicle": "No vehicle",
+  "@noVehicle": {
+    "description": "Placeholder text when no vehicle is selected"
+  },
+  "vehicleRegistrationPlaceholder": "------",
+  "@vehicleRegistrationPlaceholder": {
+    "description": "Placeholder for missing vehicle registration"
+  },
+
+  "viewDetails": "View details",
+  "@viewDetails": {
+    "description": "Link text to view vehicle details"
+  },
+  "hillViewMumbai": "Hill view, Mumbai",
+  "@hillViewMumbai": {
+    "description": "Example vehicle location text"
+  },
+
+  "distanceCovered": "Distance Covered",
+  "@distanceCovered": {
+    "description": "Label for vehicle distance metric"
+  },
+  "rpsScoreLabel": "RPS Score",
+  "@rpsScoreLabel": {
+    "description": "Label for RPS score in vehicle details"
+  },
+  "documentCenter": "Document Center",
+  "@documentCenter": {
+    "description": "Section header for vehicle documents"
+  },
+  "insurancePolicy": "Insurance Policy",
+  "@insurancePolicy": {
+    "description": "Document type label"
+  },
+  "active": "Active",
+  "@active": {
+    "description": "Status indicator for active insurance"
+  },
+  "expires": "Expires: {date}",
+  "@expires": {
+    "description": "Expiry date format",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "14 Nov 2024"
+      }
+    }
+  },
+  "rcDetails": "RC Details",
+  "@rcDetails": {
+    "description": "Vehicle registration certificate document type"
+  },
+  "verified": "Verified",
+  "@verified": {
+    "description": "Status indicator for verified document"
+  },
+  "pucCertificate": "PUC Certificate",
+  "@pucCertificate": {
+    "description": "Pollution under control certificate document type"
+  },
+  "expiringSoon": "Expiring Soon",
+  "@expiringSoon": {
+    "description": "Status indicator for document expiring soon"
+  },
+  "notUploaded": "Not Uploaded",
+  "@notUploaded": {
+    "description": "Status indicator for missing document"
+  },
+  "expiresOn": "Expires: {date}",
+  "@expiresOn": {
+    "description": "Expiry date format for documents",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2024-12-31"
+      }
+    }
+  },
+  "logisticsHistory": "Logistics & History",
+  "@logisticsHistory": {
+    "description": "Section header for vehicle logistics and history"
+  },
+  "parkedNear": "Parked near {location}",
+  "@parkedNear": {
+    "description": "Vehicle location text",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "Orchard Avenue, Mumbai"
+      }
+    }
+  },
+  "hoursAgo": "{hours} hours ago",
+  "@hoursAgo": {
+    "description": "Relative time format",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "serviceHistory": "Service History",
+  "@serviceHistory": {
+    "description": "Label for vehicle service history"
+  },
+  "lastService": "Last: {service} (Jan 24)",
+  "@lastService": {
+    "description": "Last service information",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "Oil Change"
+      }
+    }
+  },
+  "totalExpenses": "Total Expenses",
+  "@totalExpenses": {
+    "description": "Label for total vehicle expenses"
+  },
+  "expensesAmount": "Rs {amount}",
+  "@expensesAmount": {
+    "description": "Currency format for expenses",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "31,200"
+      }
+    }
+  },
+  "roadsideAssist": "Roadside Assist",
+  "@roadsideAssist": {
+    "description": "Roadside assistance service label"
+  },
+  "premiumPlan": "Premium Plan",
+  "@premiumPlan": {
+    "description": "Insurance plan type label"
+  },
+  "tapToCall": "Tap to Call",
+  "@tapToCall": {
+    "description": "Button text to call roadside assistance"
+  },
+  "deleteVehicle": "Delete Vehicle",
+  "@deleteVehicle": {
+    "description": "Button to delete vehicle"
+  },
+  "deleteVehicleConfirmation": "Are you sure you want to delete this vehicle? This action cannot be undone.",
+  "@deleteVehicleConfirmation": {
+    "description": "Confirmation message for vehicle deletion"
+  },
+  "deleting": "Deleting...",
+  "@deleting": {
+    "description": "Loading message while deleting vehicle"
+  },
+  "errorDeletingVehicle": "Error deleting vehicle: {error}",
+  "@errorDeletingVehicle": {
+    "description": "Error message when vehicle deletion fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+
+  "unknownCar": "Unknown Car",
+  "@unknownCar": {
+    "description": "Fallback text when vehicle model is unknown"
+  },
+  "kmUnit": "km",
+  "@kmUnit": {
+    "description": "Unit abbreviation for kilometers"
+  },
+  "hoursUnit": "h",
+  "@hoursUnit": {
+    "description": "Unit abbreviation for hours"
+  },
+  "minutesUnit": "m",
+  "@minutesUnit": {
+    "description": "Unit abbreviation for minutes"
+  },
+
+  "logOut": "Log out",
+  "@logOut": {
+    "description": "Button to logout from account"
+  },
+  "personalInformation": "Personal Information",
+  "@personalInformation": {
+    "description": "Section header for user personal details"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Button to edit user information"
+  },
+  "emailLabel": "Email",
+  "@emailLabel": {
+    "description": "Label for user email address"
+  },
+  "mailNotGiven": "mail not given",
+  "@mailNotGiven": {
+    "description": "Placeholder when email is not provided"
+  },
+  "phoneLabel": "Phone",
+  "@phoneLabel": {
+    "description": "Label for user phone number"
+  },
+  "phoneNotGiven": "phone not given",
+  "@phoneNotGiven": {
+    "description": "Placeholder when phone is not provided"
+  },
+  "addressLabel": "Address",
+  "@addressLabel": {
+    "description": "Label for user address"
+  },
+  "addressNotUpdated": "Address not updated",
+  "@addressNotUpdated": {
+    "description": "Placeholder when address is not provided"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Section header for app settings"
+  },
+  "notification": "Notification",
+  "@notification": {
+    "description": "Setting option for notifications"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Setting option for dark theme"
+  },
+  "deleteAccount": "Delete Account",
+  "@deleteAccount": {
+    "description": "Button to delete user account"
+  },
+  "covered": "Covered",
+  "@covered": {
+    "description": "Label for distance covered metric"
+  },
+  "streak": "Streak",
+  "@streak": {
+    "description": "Label for user streak metric"
+  },
+  "overallPerformance": "Overall Performance",
+  "@overallPerformance": {
+    "description": "Label for overall performance score"
+  },
+  "days": "days",
+  "@days": {
+    "description": "Unit for days"
+  },
+
+  "imuCameraTitle": "IMU + Camera Data Collector",
+  "@imuCameraTitle": {
+    "description": "Title of IMU and camera data collection screen"
+  },
+  "dataCollectionStatistics": "Data Collection Statistics",
+  "@dataCollectionStatistics": {
+    "description": "Section header for collection statistics"
+  },
+  "imuData": "IMU Data",
+  "@imuData": {
+    "description": "Label for IMU sensor data statistics"
+  },
+  "images": "Images",
+  "@images": {
+    "description": "Label for camera images statistics"
+  },
+  "pendingImages": "Pending Images: {count}",
+  "@pendingImages": {
+    "description": "Count of pending images to upload",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "uploaded": "Uploaded: {count}",
+  "@uploaded": {
+    "description": "Count of uploaded items",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "startCollection": "Start Collection",
+  "@startCollection": {
+    "description": "Button to start data collection"
+  },
+  "stopCollection": "Stop Collection",
+  "@stopCollection": {
+    "description": "Button to stop data collection"
+  },
+  "stopping": "Stopping...",
+  "@stopping": {
+    "description": "Status message while stopping collection"
+  },
+  "uploadNow": "Upload Now",
+  "@uploadNow": {
+    "description": "Button to trigger immediate upload"
+  },
+  "uploadTriggered": "Upload triggered",
+  "@uploadTriggered": {
+    "description": "Success message when upload is triggered"
+  },
+  "dataCollectionActive": "Data Collection Active",
+  "@dataCollectionActive": {
+    "description": "Status message when collection is active"
+  },
+  "dataCollectionStopped": "Data Collection Stopped",
+  "@dataCollectionStopped": {
+    "description": "Status message when collection is stopped"
+  },
+  "cameraNotReady": "Camera not ready",
+  "@cameraNotReady": {
+    "description": "Message when camera is not initialized"
+  },
+  "enterStartPosition": "Enter Start Position",
+  "@enterStartPosition": {
+    "description": "Title for start position input dialog"
+  },
+  "startX": "Start X",
+  "@startX": {
+    "description": "Label for X coordinate input"
+  },
+  "startY": "Start Y",
+  "@startY": {
+    "description": "Label for Y coordinate input"
+  },
+  "startZ": "Start Z",
+  "@startZ": {
+    "description": "Label for Z coordinate input"
+  },
+  "startCollectionButton": "Start Collection",
+  "@startCollectionButton": {
+    "description": "Button to start collection in position dialog"
+  },
+  "pleaseEnterValidValues": "Please enter valid numeric values for X, Y, and Z",
+  "@pleaseEnterValidValues": {
+    "description": "Validation error for coordinate inputs"
+  },
+  "stopDataCollection": "Stop Data Collection?",
+  "@stopDataCollection": {
+    "description": "Confirmation dialog title when stopping collection"
+  },
+  "stopDataCollectionMessage": "Data transmission is currently active. Going back will stop transmission. Do you want to continue?",
+  "@stopDataCollectionMessage": {
+    "description": "Confirmation message for stopping data collection"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Button to cancel action"
+  },
+  "stopAndGoBack": "Stop & Go Back",
+  "@stopAndGoBack": {
+    "description": "Button to stop collection and navigate back"
+  },
+  "initializationFailed": "Initialization failed: {error}",
+  "@initializationFailed": {
+    "description": "Error message when initialization fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Camera error"
+      }
+    }
+  },
+  "cameraInitializationFailed": "Camera initialization failed: {error}",
+  "@cameraInitializationFailed": {
+    "description": "Error message when camera initialization fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Permission denied"
+      }
+    }
+  },
+  "locationInitializationFailed": "Location initialization failed: {error}",
+  "@locationInitializationFailed": {
+    "description": "Error message when location initialization fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "GPS unavailable"
+      }
+    }
+  },
+  "locationServicesDisabled": "Location services are disabled",
+  "@locationServicesDisabled": {
+    "description": "Error message when location services are disabled"
+  },
+  "locationPermissionsDenied": "Location permissions are denied",
+  "@locationPermissionsDenied": {
+    "description": "Error message when location permissions are denied"
+  },
+  "locationPermissionsPermanentlyDenied": "Location permissions are permanently denied",
+  "@locationPermissionsPermanentlyDenied": {
+    "description": "Error message when location permissions are permanently denied"
+  },
+  "locationServicesRequired": "Location services are required to start collection.",
+  "@locationServicesRequired": {
+    "description": "Message explaining location requirement"
+  },
+  "noVehicleSelected": "Error: No vehicle selected. Please go to Garage and select a vehicle.",
+  "@noVehicleSelected": {
+    "description": "Error message when no vehicle is selected for collection"
+  },
+  "failedToStartCollection": "Failed to start collection: {error}",
+  "@failedToStartCollection": {
+    "description": "Error message when collection start fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "warningFailedToSaveDriveSession": "Warning: Failed to save drive session times",
+  "@warningFailedToSaveDriveSession": {
+    "description": "Warning message when drive session save fails"
+  },
+
+  "addVehicleTitle": "Add Vehicle",
+  "@addVehicleTitle": {
+    "description": "Title of add vehicle dialog"
+  },
+  "modelLabel": "Model",
+  "@modelLabel": {
+    "description": "Label for vehicle model input"
+  },
+  "modelHint": "e.g., Honda City",
+  "@modelHint": {
+    "description": "Hint text for vehicle model input"
+  },
+  "registrationNumberLabel": "Registration Number",
+  "@registrationNumberLabel": {
+    "description": "Label for vehicle registration number input"
+  },
+  "registrationNumberHint": "e.g., KA01AB1234",
+  "@registrationNumberHint": {
+    "description": "Hint text for registration number input"
+  },
+  "insuranceNumberLabel": "Insurance Number",
+  "@insuranceNumberLabel": {
+    "description": "Label for insurance number input"
+  },
+  "insuranceNumberHint": "e.g., INS123456789",
+  "@insuranceNumberHint": {
+    "description": "Hint text for insurance number input"
+  },
+  "pucDateLabel": "PUC Date",
+  "@pucDateLabel": {
+    "description": "Label for PUC certificate date input"
+  },
+  "selectDateHint": "Select date",
+  "@selectDateHint": {
+    "description": "Hint text for date selection"
+  },
+  "addVehicleButton": "Add Vehicle",
+  "@addVehicleButton": {
+    "description": "Button to add vehicle in dialog"
+  },
+  "editProfileTitle": "Edit Profile",
+  "@editProfileTitle": {
+    "description": "Title of edit profile dialog"
+  },
+  "nameLabel": "Name",
+  "@nameLabel": {
+    "description": "Label for name input field"
+  },
+  "nameHint": "Enter your full name",
+  "@nameHint": {
+    "description": "Hint text for name input"
+  },
+  "usernameHint": "Enter your username",
+  "@usernameHint": {
+    "description": "Hint text for username input"
+  },
+  "phoneHint": "Enter your phone number",
+  "@phoneHint": {
+    "description": "Hint text for phone input"
+  },
+  "addressHint": "Enter your address",
+  "@addressHint": {
+    "description": "Hint text for address input"
+  },
+  "updateProfileButton": "Update Profile",
+  "@updateProfileButton": {
+    "description": "Button to save profile changes"
+  },
+  "confirmPasswordTitle": "Confirm Password",
+  "@confirmPasswordTitle": {
+    "description": "Title of password confirmation dialog"
+  },
+  "passwordHint": "Enter your password to confirm",
+  "@passwordHint": {
+    "description": "Hint text for password confirmation"
+  },
+  "verifyAndDelete": "Verify & Delete",
+  "@verifyAndDelete": {
+    "description": "Button to verify password and delete account"
+  },
+
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Default confirmation button text"
+  },
+  "confirmLogout": "Confirm Logout",
+  "@confirmLogout": {
+    "description": "Title of logout confirmation dialog"
+  },
+  "confirmLogoutMessage": "Are you sure you want to logout of this account?",
+  "@confirmLogoutMessage": {
+    "description": "Message in logout confirmation dialog"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout action button"
+  },
+  "confirmDeletion": "Confirm deletion",
+  "@confirmDeletion": {
+    "description": "Title of account deletion confirmation dialog"
+  },
+  "confirmDeletionMessage": "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.",
+  "@confirmDeletionMessage": {
+    "description": "Message in account deletion confirmation dialog"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete action button"
+  },
+  "resetPassword": "Reset Password",
+  "@resetPassword": {
+    "description": "Title of password reset dialog"
+  },
+  "resetPasswordMessage": "Enter your email address to receive a password reset link.",
+  "@resetPasswordMessage": {
+    "description": "Message in password reset dialog"
+  },
+  "sendLink": "Send Link",
+  "@sendLink": {
+    "description": "Button to send password reset link"
+  },
+  "passwordResetEmailSent": "Password reset email sent! Check your inbox.",
+  "@passwordResetEmailSent": {
+    "description": "Success message after password reset email"
+  },
+  "errorResetPassword": "Error: {error}",
+  "@errorResetPassword": {
+    "description": "Error message for password reset failure",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Email not found"
+      }
+    }
+  },
+  "loggingOut": "Logging out...",
+  "@loggingOut": {
+    "description": "Loading message during logout"
+  },
+  "failedToLogout": "Failed to logout: {error}",
+  "@failedToLogout": {
+    "description": "Error message when logout fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "accountDeletedSuccessfully": "Account deleted successfully",
+  "@accountDeletedSuccessfully": {
+    "description": "Success message after account deletion"
+  },
+  "confirmingLogin": "Confirming login...",
+  "@confirmingLogin": {
+    "description": "Loading message during re-authentication"
+  },
+  "cropImage": "Crop Image",
+  "@cropImage": {
+    "description": "Title of image cropping screen"
+  },
+
+  "profileUpdatedSuccessfully": "Profile updated successfully!",
+  "@profileUpdatedSuccessfully": {
+    "description": "Success message after profile update"
+  },
+  "failedToUpdateProfile": "Failed to update profile: {error}",
+  "@failedToUpdateProfile": {
+    "description": "Error message when profile update fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "profilePictureUpdatedSuccessfully": "Profile picture updated successfully!",
+  "@profilePictureUpdatedSuccessfully": {
+    "description": "Success message after profile picture update"
+  },
+  "failedToUpdateProfilePicture": "Failed to update profile picture: {error}",
+  "@failedToUpdateProfilePicture": {
+    "description": "Error message when profile picture update fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Upload failed"
+      }
+    }
+  },
+  "userNotLoggedIn": "User not logged in",
+  "@userNotLoggedIn": {
+    "description": "Error message when user is not authenticated"
+  },
+
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Generic loading message"
+  },
+  "uploadingProfilePicture": "Uploading profile picture...",
+  "@uploadingProfilePicture": {
+    "description": "Loading message during profile picture upload"
+  },
+
+  "viewMore": "View More",
+  "@viewMore": {
+    "description": "Button to expand long snackbar message"
+  },
+  "showLess": "Show Less",
+  "@showLess": {
+    "description": "Button to collapse expanded snackbar message"
+  },
+
+  "email": "Email",
+  "@email": {
+    "description": "Email label in forgot password dialog"
+  },
+
+  "userNotLoggedInError": "User not logged in",
+  "@userNotLoggedInError": {
+    "description": "Error message for unauthenticated user action"
+  }
+}

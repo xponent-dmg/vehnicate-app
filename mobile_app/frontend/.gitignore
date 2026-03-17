@@ -164,3 +164,6 @@ coverage/
 # Supabase local development
 .supabase/
 supabase/.env
+
+# app localization backup files
+lib/l10n/*.arb.bak
