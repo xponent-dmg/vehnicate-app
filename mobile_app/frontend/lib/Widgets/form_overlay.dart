@@ -12,6 +12,9 @@ class FormFieldConfig {
   final TextEditingController controller;
   final FormFieldType type;
 
+  final TextInputType? keyboardType;
+  final bool obscureText;
+
   FormFieldConfig({
     required this.label,
     required this.hint,
@@ -19,13 +22,15 @@ class FormFieldConfig {
     this.isRequired = true,
     required this.controller,
     this.type = FormFieldType.text,
+    this.keyboardType,
+    this.obscureText = false,
   });
 }
 
 /// Reusable form overlay widget
 class FormOverlay {
   /// Show the form overlay dialog
-  static void show({
+  static Future<void> show({
     required BuildContext context,
     required String title,
     required List<FormFieldConfig> fields,
@@ -37,7 +42,7 @@ class FormOverlay {
     final formKey = GlobalKey<FormState>();
     bool isSubmitting = false;
 
-    showGeneralDialog(
+    return showGeneralDialog(
       context: context,
       barrierDismissible: !isSubmitting,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -98,6 +103,12 @@ class FormOverlay {
                           ...fields.asMap().entries.map((entry) {
                             final index = entry.key;
                             final field = entry.value;
+                            final isLast = index == fields.length - 1;
+                            final textInputAction =
+                                isLast
+                                    ? TextInputAction.done
+                                    : TextInputAction.next;
+
                             return Column(
                               children: [
                                 if (index > 0) SizedBox(height: 16),
@@ -118,6 +129,9 @@ class FormOverlay {
                                       hint: field.hint,
                                       icon: field.icon,
                                       isRequired: field.isRequired,
+                                      keyboardType: field.keyboardType,
+                                      obscureText: field.obscureText,
+                                      textInputAction: textInputAction,
                                     ),
                               ],
                             );
@@ -145,7 +159,9 @@ class FormOverlay {
                                           await onSubmit();
 
                                           // Close dialog
-                                          Navigator.of(buildContext).pop();
+                                          if (buildContext.mounted) {
+                                            Navigator.of(buildContext).pop();
+                                          }
 
                                           // Call success callback
                                           if (onSuccess != null) {
@@ -239,6 +255,86 @@ class FormOverlay {
     required String hint,
     required IconData icon,
     bool isRequired = true,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    TextInputAction? textInputAction,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label + (isRequired ? ' *' : ''),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          textInputAction: textInputAction,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.white38),
+            prefixIcon: Icon(
+              icon,
+              color: Theme.of(context).primaryColor,
+              size: 20,
+            ),
+            filled: true,
+            fillColor: Color(0xFF3d3d54),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red, width: 1),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red, width: 2),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          validator:
+              isRequired
+                  ? (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'This field is required';
+                    }
+                    return null;
+                  }
+                  : null,
+          keyboardType: keyboardType,
+        ),
+      ],
+    );
+  }
+
+  /// Build a date picker field
+  static Widget _buildDateField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required StateSetter setState,
+    bool isRequired = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,78 +395,11 @@ class FormOverlay {
                     return null;
                   }
                   : null,
-        ),
-      ],
-    );
-  }
-
-  /// Build a date picker field
-  static Widget _buildDateField({
-    required BuildContext context,
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    required StateSetter setState,
-    bool isRequired = true,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label + (isRequired ? ' *' : ''),
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          style: TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.white38),
-            prefixIcon: Icon(icon, color: Color(0xFF8E44AD), size: 20),
-            filled: true,
-            fillColor: Color(0xFF3d3d54),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFF8E44AD), width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red, width: 2),
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          validator:
-              isRequired
-                  ? (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'This field is required';
-                    }
-                    return null;
-                  }
-                  : null,
           readOnly: true,
           onTap: () async {
             final DateTime? picked = await showDatePicker(
               context: context,
-              initialDate: DateTime.now(),
+              initialDate: DateTime.now().toLocal(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2101),
             );

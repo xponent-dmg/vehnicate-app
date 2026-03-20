@@ -6,7 +6,6 @@ import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
 import 'package:vehnicate_frontend/Widgets/header.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

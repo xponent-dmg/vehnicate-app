@@ -72,7 +72,7 @@ class CameraService {
     // On startup, load any leftover frames for retry.
     final entries = _framesDir.listSync().whereType<File>().toList()..sort((a, b) => a.path.compareTo(b.path));
     for (final file in entries) {
-      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().millisecondsSinceEpoch;
+      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
       final deviceId = _extractDeviceIdFromFilename(file.path) ?? 'unknown_device';
 
       _pendingFrames.add(
@@ -169,7 +169,7 @@ class CameraService {
 
     try {
       final XFile file = await _controller!.takePicture();
-      final int now = DateTime.now().millisecondsSinceEpoch;
+      final int now = DateTime.now().toLocal().millisecondsSinceEpoch;
 
       final int originalSize = await file.length();
 
@@ -333,7 +333,7 @@ class CameraService {
   }
 
   String _buildStoragePath(_FrameRecord rec) {
-    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toUtc();
+    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal();
     final String dateDir = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
     final String name = 'frame_${rec.timestampMs}_${rec.deviceId}.jpg';
     return '$dateDir/$name';

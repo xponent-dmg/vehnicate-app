@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Widgets/header.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:intl/intl.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
   // Colors
-  static const Color primaryBackground = Color(0xFF01010D);
-  static const Color cardBackground = Color(0xFF0E0E1A);
+  // static const Color primaryBackground = Color(0xFF01010D);
+  static const Color cardBackground = Color(0xFF2d2d44);
   static const Color accentPurple = Color(0xFF765FD1);
   static const Color lightPurple = Color(0xFF9217BB);
   static const Color darkPurple = Color(0xFF403862);
@@ -23,42 +22,36 @@ class DriveAnalyzeConstants {
   static const TextStyle titleStyle = TextStyle(
     color: Colors.white,
     fontSize: 24,
-    fontFamily: 'Manrope',
     fontWeight: FontWeight.w700,
   );
 
   static const TextStyle subtitleStyle = TextStyle(
     color: Colors.white70,
     fontSize: 16,
-    fontFamily: 'Manrope',
     fontWeight: FontWeight.w500,
   );
 
   static const TextStyle carNameStyle = TextStyle(
     color: Colors.white,
     fontSize: 16,
-    fontFamily: 'Manrope',
     fontWeight: FontWeight.w600,
   );
 
   static const TextStyle dateStyle = TextStyle(
     color: Colors.white70,
     fontSize: 12,
-    fontFamily: 'Manrope',
     fontWeight: FontWeight.w500,
   );
 
   static const TextStyle metricStyle = TextStyle(
     color: Colors.white,
     fontSize: 14,
-    fontFamily: 'Manrope',
     fontWeight: FontWeight.w500,
   );
 
   static const TextStyle scoreStyle = TextStyle(
     color: Colors.white,
     fontSize: 18,
-    fontFamily: 'Manrope',
     fontWeight: FontWeight.w700,
   );
 
@@ -82,7 +75,7 @@ class DriveAnalyzePage extends StatelessWidget {
               onRefresh: () async {
                 await vehicleProvider.loadDrives();
               },
-              color: DriveAnalyzeConstants.accentPurple,
+              color: Theme.of(context).primaryColor,
               backgroundColor: DriveAnalyzeConstants.cardBackground,
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -115,22 +108,31 @@ class DriveAnalyzePage extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: DriveAnalyzeConstants.cardBackground,
         borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: DriveAnalyzeConstants.lightPurple.withOpacity(0.1),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            (DriveAnalyzeConstants.cardBackground),
+            (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
+          ],
+        ),
+        // color: DriveAnalyzeConstants.cardBackground,
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Theme.of(context).primaryColor.withOpacity(0.1),
+        //     blurRadius: 8,
+        //     offset: Offset(0, 2),
+        //   ),
+        // ],
       ),
+
       child: ListTile(
         contentPadding: EdgeInsets.all(16),
         onTap: () {
           Navigator.pushNamed(context, "/drive-details", arguments: drive);
         },
-        leading: _buildCarIcon(carName),
+        leading: _buildCarIcon(carName, context),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,7 +169,7 @@ class DriveAnalyzePage extends StatelessWidget {
             // SizedBox(height: 4),
             Icon(
               Icons.arrow_forward_ios,
-              color: DriveAnalyzeConstants.accentPurple,
+              color: Theme.of(context).primaryColor,
               size: 16,
             ),
           ],
@@ -176,7 +178,7 @@ class DriveAnalyzePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCarIcon(String carName) {
+  Widget _buildCarIcon(String carName, BuildContext context) {
     IconData icon;
     if (carName.toLowerCase().contains('tesla')) {
       icon = FontAwesomeIcons.bolt;
@@ -192,10 +194,10 @@ class DriveAnalyzePage extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: DriveAnalyzeConstants.darkPurple,
+        color: Theme.of(context).primaryColor.withAlpha(70),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(icon, color: DriveAnalyzeConstants.accentPurple, size: 24),
+      child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
     );
   }
 
@@ -209,36 +211,6 @@ class DriveAnalyzePage extends StatelessWidget {
       ],
     );
   }
-
-  /*
-  Widget _buildScoreDisplay(double score, String trend) {
-    Color trendColor;
-    IconData trendIcon;
-
-    switch (trend) {
-      case 'up':
-        trendColor = DriveAnalyzeConstants.successGreen;
-        trendIcon = FontAwesomeIcons.arrowTrendUp;
-        break;
-      case 'down':
-        trendColor = DriveAnalyzeConstants.warningRed;
-        trendIcon = FontAwesomeIcons.arrowTrendDown;
-        break;
-      default:
-        trendColor = Colors.white70;
-        trendIcon = FontAwesomeIcons.minus;
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(score.toStringAsFixed(1), style: DriveAnalyzeConstants.scoreStyle),
-        SizedBox(width: 4),
-        Icon(trendIcon, color: trendColor, size: 14),
-      ],
-    );
-  }
-  */
 
   String _formatDate(DateTime date) {
     return DateFormat('dd MMM yyyy, HH:mm').format(date);

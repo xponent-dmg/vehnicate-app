@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -33,7 +34,7 @@ class SupabaseService {
               'firebaseuid': uid,
               'email': sanitizedEmail,
               'name': 'New User', // Required field, can be updated later
-              'created_at': DateTime.now().toIso8601String(),
+              'created_at': DateTime.now().toLocal().toIso8601String(),
               'role': 'User', // Notice the capital 'U' as per your enum check
             }).select();
 
@@ -112,9 +113,11 @@ class SupabaseService {
     required String username,
     String? phone,
     String? address,
+    String? profilePictureUrl,
   }) async {
     try {
       print('Updating profile for user with Firebase UID: $userId');
+      await initialize();
 
       // Build update map with only non-null values
       final Map<String, dynamic> updateData = {
@@ -124,6 +127,9 @@ class SupabaseService {
 
       if (phone != null) updateData['phone'] = phone;
       if (address != null) updateData['address'] = address;
+      if (profilePictureUrl != null) {
+        updateData['profile_picture_url'] = profilePictureUrl;
+      }
 
       // Update only the specified fields while maintaining the firebaseuid
       final response =
@@ -144,6 +150,36 @@ class SupabaseService {
     } catch (e) {
       print('Error updating user profile: $e');
       throw Exception('Failed to update profile: $e');
+    }
+  }
+
+  Future<String> uploadProfilePicture(File file, String userId) async {
+    try {
+      print('Uploading profile picture for user: $userId');
+      await initialize();
+
+      final fileExt = file.path.split('.').last;
+      final fileName =
+          '${userId}_${DateTime.now().toLocal().millisecondsSinceEpoch}.$fileExt';
+      final filePath = '$userId/$fileName';
+
+      await _client.storage
+          .from('user_avatars')
+          .upload(
+            filePath,
+            file,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      final imageUrl = _client.storage
+          .from('user_avatars')
+          .getPublicUrl(filePath);
+
+      print('Profile picture uploaded successfully: $imageUrl');
+      return imageUrl;
+    } catch (e) {
+      print('Error uploading profile picture: $e');
+      throw Exception('Failed to upload profile picture: $e');
     }
   }
 
@@ -278,7 +314,7 @@ class SupabaseService {
       return [];
     }
   }
-
+  /*
   Future<List<Map<String, dynamic>>> fetchDriveData({
     required int vehicleId,
     required DateTime startTime,
@@ -307,6 +343,7 @@ class SupabaseService {
       return [];
     }
   }
+*/
 
   Future<void> createSupabaseUser({
     required String uid,
@@ -339,7 +376,7 @@ class SupabaseService {
         'email': email,
         'name': name,
         'username': username,
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at': DateTime.now().toLocal().toIso8601String(),
         'role': 'User',
       });
 
@@ -438,6 +475,81 @@ class SupabaseService {
       print('Error fetching drive route: $e');
       print('Stack trace: $stackTrace');
       return [];
+    }
+  }
+
+  Future<void> deleteVehicle(int vehicleId) async {
+    try {
+      print("Deleting vehicle with ID: $vehicleId");
+      await initialize(); // Ensure client is initialized
+
+      // We explicitly select the deleted record to verify if it was actually deleted.
+      // If RLS prevents it, this might return empty.
+      final response =
+          await _client
+              .from('vehicledetails')
+              .delete()
+              .eq('vehicleid', vehicleId)
+              .select();
+
+      print("Delete response: $response");
+
+      if ((response as List).isEmpty) {
+        throw Exception(
+          "Delete operation returned no rows. Possible RLS policy violation or record not found.",
+        );
+      }
+
+      print("Vehicle deleted successfully");
+    } catch (e, stackTrace) {
+      print("Error deleting vehicle:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to delete vehicle: $e');
+    }
+  }
+
+  Future<void> deleteUser(String firebaseUid) async {
+    try {
+      print("Deleting user with Firebase UID: $firebaseUid");
+      await initialize();
+
+      // Check if user exists first to distinguish between RLS block and already-deleted
+      final checkUser =
+          await _client
+              .from('userdetails')
+              .select()
+              .eq('firebaseuid', firebaseUid)
+              .maybeSingle();
+
+      if (checkUser == null) {
+        print(
+          "User already deleted or doesn't exist in Supabase. Proceeding to Firebase deletion...",
+        );
+        return;
+      }
+
+      final response =
+          await _client
+              .from('userdetails')
+              .delete()
+              .eq('firebaseuid', firebaseUid)
+              .select();
+
+      print("Delete User response: $response");
+
+      if ((response as List).isEmpty) {
+        throw Exception(
+          "Supabase RLS Error: Your Supabase database is blocking the user account deletion. Please go to your Supabase Dashboard -> Authentication -> Policies and ensure there is an active DELETE policy on the 'userdetails' table.",
+        );
+      } else {
+        print("User deleted successfully from Supabase");
+      }
+    } catch (e, stackTrace) {
+      print("Error deleting user from Supabase:");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('Failed to delete Supabase user: $e');
     }
   }
 }

@@ -18,11 +18,27 @@ class AuthService {
   // Auth state changes stream
   Stream<firebase.User?> get authStateChanges => _auth.authStateChanges();
 
+  // Reload current user
+  Future<void> reloadUser() async {
+    await _auth.currentUser?.reload();
+  }
+
+  // Send email verification
+  Future<void> sendEmailVerification() async {
+    await _auth.currentUser?.sendEmailVerification();
+  }
+
   // Sign in with email and password
-  Future<firebase.UserCredential> signInWithEmail(String email, String password) async {
+  Future<firebase.UserCredential> signInWithEmail(
+    String email,
+    String password,
+  ) async {
     try {
       print('Attempting email sign in for: $email');
-      firebase.UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      firebase.UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       // Log analytics event for successful login
       await _analytics.logLogin(loginMethod: 'email');
@@ -38,7 +54,10 @@ class AuthService {
       print('FirebaseAuthException: ${e.code} - ${e.message}');
 
       // Log analytics event for failed login
-      await _analytics.logEvent(name: 'login_failed', parameters: {'method': 'email', 'error_code': e.code});
+      await _analytics.logEvent(
+        name: 'login_failed',
+        parameters: {'method': 'email', 'error_code': e.code},
+      );
 
       throw _handleAuthException(e);
     } catch (e) {
@@ -48,9 +67,13 @@ class AuthService {
   }
 
   // Sign up with email and password
-  Future<firebase.UserCredential> signUpWithEmail(String email, String password) async {
+  Future<firebase.UserCredential> signUpWithEmail(
+    String email,
+    String password,
+  ) async {
     try {
-      firebase.UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      firebase.UserCredential result = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       // Log analytics event for successful sign up
       await _analytics.logSignUp(signUpMethod: 'email');
@@ -63,7 +86,10 @@ class AuthService {
       return result;
     } on firebase.FirebaseAuthException catch (e) {
       // Log analytics event for failed sign up
-      await _analytics.logEvent(name: 'sign_up_failed', parameters: {'method': 'email', 'error_code': e.code});
+      await _analytics.logEvent(
+        name: 'sign_up_failed',
+        parameters: {'method': 'email', 'error_code': e.code},
+      );
 
       throw _handleAuthException(e);
     }
@@ -78,7 +104,8 @@ class AuthService {
         throw Exception('Google sign in was cancelled');
       }
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       print('Google auth tokens obtained');
       // Create a new credential
@@ -97,7 +124,11 @@ class AuthService {
 
           // Check if user exists in Supabase
           final existingUser =
-              await supabase.from('userdetails').select().eq('firebaseuid', result.user!.uid).maybeSingle();
+              await supabase
+                  .from('userdetails')
+                  .select()
+                  .eq('firebaseuid', result.user!.uid)
+                  .maybeSingle();
 
           if (existingUser == null) {
             // Create new user in Supabase
@@ -106,7 +137,7 @@ class AuthService {
               'email': result.user!.email,
               'name': result.user!.displayName ?? 'New User',
               'username': result.user!.displayName?.split(' ')[0] ?? 'New User',
-              'created_at': DateTime.now().toIso8601String(),
+              'created_at': DateTime.now().toLocal().toIso8601String(),
               'role': 'User',
             });
             print('Created new user in Supabase');
@@ -130,10 +161,15 @@ class AuthService {
       print('Google sign in successful: ${result.user?.email}');
       return result;
     } on firebase.FirebaseAuthException catch (e) {
-      print('FirebaseAuthException during Google sign in: ${e.code} - ${e.message}');
+      print(
+        'FirebaseAuthException during Google sign in: ${e.code} - ${e.message}',
+      );
 
       // Log analytics event for failed Google login
-      await _analytics.logEvent(name: 'login_failed', parameters: {'method': 'google', 'error_code': e.code});
+      await _analytics.logEvent(
+        name: 'login_failed',
+        parameters: {'method': 'google', 'error_code': e.code},
+      );
 
       throw Exception('Firebase Auth Error: ${e.message}');
     } catch (e) {
@@ -160,6 +196,88 @@ class AuthService {
     } catch (e) {
       print('SignOut error: $e'); // Debug print
       throw Exception('Failed to sign out: $e');
+    }
+  }
+
+  // Reauthenticate with Google
+  Future<void> reauthenticateWithGoogle() async {
+    try {
+      final user = currentUser;
+      if (user == null) throw Exception('No current user to reauthenticate.');
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('Google sign in was cancelled');
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = firebase.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      print('Google reauthentication successful');
+    } on firebase.FirebaseAuthException catch (e) {
+      throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
+    } catch (e) {
+      throw Exception('Failed to reauthenticate with Google: $e');
+    }
+  }
+
+  // Reauthenticate with Email and Password
+  Future<void> reauthenticateWithPassword(String password) async {
+    try {
+      final user = currentUser;
+      if (user == null) throw Exception('No current user to reauthenticate.');
+      if (user.email == null) throw Exception('User mapped without email.');
+
+      final credential = firebase.EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      print('Email/Password reauthentication successful');
+    } on firebase.FirebaseAuthException catch (e) {
+      throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
+    } catch (e) {
+      throw Exception('Failed to reauthenticate with password: $e');
+    }
+  }
+
+  // Delete account
+  Future<void> deleteAccount() async {
+    try {
+      print('Starting deleteAccount process');
+      final user = currentUser;
+      if (user != null) {
+        // Delete user from Firebase Auth
+        await user.delete();
+        print('Firebase user deleted');
+
+        // Ensure user is also signed out from Google if they used it
+        await _googleSignIn.signOut();
+
+        // Log analytics event for account deletion
+        await _analytics.logEvent(name: 'account_deleted');
+
+        // Clear local storage
+        await _clearPersistedLogin();
+        print('Account deleted successfully');
+      }
+    } on firebase.FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw Exception(
+          'Please log out and log back in before deleting your account for security reasons.',
+        );
+      }
+      throw _handleAuthException(e);
+    } catch (e) {
+      print('deleteAccount error: $e');
+      throw Exception('Failed to delete account: $e');
     }
   }
 

@@ -143,6 +143,37 @@ class VehicleProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteVehicle(int vehicleId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      print('VehicleProvider: Deleting vehicle $vehicleId');
+      await SupabaseService().deleteVehicle(vehicleId);
+
+      _vehicles.removeWhere((v) => v.id == vehicleId);
+
+      if (_selectedVehicle?.id == vehicleId) {
+        _selectedVehicle = _vehicles.isNotEmpty ? _vehicles.first : null;
+        if (_selectedVehicle != null) {
+          await loadDrives();
+        } else {
+          _drives = [];
+        }
+      }
+
+      notifyListeners();
+      print('VehicleProvider: Vehicle $vehicleId deleted');
+    } catch (e) {
+      print('VehicleProvider: Error deleting vehicle: $e');
+      _error = e;
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     _authSub?.cancel();

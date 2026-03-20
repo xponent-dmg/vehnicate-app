@@ -75,7 +75,7 @@ class CameraServiceRGB {
     // On startup, load any leftover frames for retry.
     final entries = _framesDir.listSync().whereType<File>().toList()..sort((a, b) => a.path.compareTo(b.path));
     for (final file in entries) {
-      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().millisecondsSinceEpoch;
+      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
       final deviceId = _extractDeviceIdFromFilename(file.path) ?? 'unknown_device';
 
       _pendingFrames.add(
@@ -195,7 +195,7 @@ class CameraServiceRGB {
 
         final int originalSize = await File(rawPath).length();
         
-        final int now = DateTime.now().millisecondsSinceEpoch;
+        final int now = DateTime.now().toLocal().millisecondsSinceEpoch;
 
         // 1. Compress and resize using flutter_image_compress (Native, fast)
         final Uint8List? compressedBytes = await FlutterImageCompress.compressWithFile(
@@ -227,7 +227,7 @@ class CameraServiceRGB {
 
       if (newPath == null) return;
 
-      final int timestamp = _extractTimestampFromFilename(newPath) ?? DateTime.now().millisecondsSinceEpoch;
+      final int timestamp = _extractTimestampFromFilename(newPath) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
       
       _pendingFrames.add(
         _FrameRecord(
@@ -360,7 +360,7 @@ class CameraServiceRGB {
   }
 
   String _buildStoragePath(_FrameRecord rec) {
-    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toUtc();
+    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal();
     final String dateDir = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
     final String name = 'frame_${rec.timestampMs}_${rec.deviceId}.jpg';
     return '$dateDir/$name';

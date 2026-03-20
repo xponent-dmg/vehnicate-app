@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
-import 'package:vehnicate_frontend/Pages/profile/edit_profile_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/login_page.dart';
@@ -10,6 +10,7 @@ import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
+import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
@@ -27,11 +28,14 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: Color(0xFF555FDB),
+
         // primaryColor: Colors.deepPurple,
         useMaterial3: true,
+        textTheme: GoogleFonts.outfitTextTheme(),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Color(0xFF555FDB),
           brightness: Brightness.light,
+          background: Color(0xFF2d2d44),
         ),
         cardTheme: CardThemeData(
           elevation: 2,
@@ -58,7 +62,10 @@ class App extends StatelessWidget {
           case "/login":
             return PageTransitions.fade(LoginPage());
           case "/signup":
-            return PageTransitions.fade(SignupPage());
+            final emailArgs = settings.arguments as String?;
+            return PageTransitions.fade(SignupPage(initialEmail: emailArgs));
+          case "/verify-email":
+            return PageTransitions.fade(EmailVerificationPage());
 
           // Profile - Fade + Slide Up (elegant)
           case "/profile":

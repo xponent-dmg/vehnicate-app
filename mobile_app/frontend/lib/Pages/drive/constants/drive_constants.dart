@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DriveDetailsConstants {
   // Colors
   static const Color primaryBackground = Color(0xFF01010D);
-  static const Color cardBackground = Color(0xFF0E0E1A);
+  static const Color cardBackground = Color(0xFF2d2d44);
   static const Color accentPurple = Color(0xFF765FD1);
   static const Color lightPurple = Color(0xFF9217BB);
   static const Color darkPurple = Color(0xFF403862);

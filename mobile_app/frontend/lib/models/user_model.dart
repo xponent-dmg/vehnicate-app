@@ -5,6 +5,7 @@ class AppUser {
   final String username;
   final String? phone;
   final String? address;
+  final String? profilePictureUrl;
   final int? rpsScore;
 
   const AppUser({
@@ -14,6 +15,7 @@ class AppUser {
     required this.username,
     this.phone,
     this.address,
+    this.profilePictureUrl,
     this.rpsScore,
   });
 
@@ -25,6 +27,8 @@ class AppUser {
       username: (map['username'] ?? '') as String,
       phone: map['phone'] as String?,
       address: map['address'] as String?,
+      profilePictureUrl:
+          (map['profile_picture_url'] ?? map['profilepictureurl']) as String?,
       rpsScore: (map['rpsscore'] as num?)?.toInt(),
     );
   }
@@ -37,6 +41,7 @@ class AppUser {
       'username': username,
       'phone': phone,
       'address': address,
+      'profile_picture_url': profilePictureUrl,
       'rpsscore': rpsScore,
     }..removeWhere((key, value) => value == null);
   }
@@ -49,6 +54,7 @@ class AppUser {
     String? username,
     String? phone,
     String? address,
+    String? profilePictureUrl,
     int? rpsScore,
   }) {
     return AppUser(
@@ -58,6 +64,7 @@ class AppUser {
       username: username ?? this.username,
       phone: phone ?? this.phone,
       address: address ?? this.address,
+      profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
       rpsScore: rpsScore ?? this.rpsScore,
     );
   }

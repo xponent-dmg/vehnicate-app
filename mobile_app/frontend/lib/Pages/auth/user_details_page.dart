@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
@@ -38,18 +39,23 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     setState(() => _isLoading = true);
 
     try {
+      final vehicleProvider = context.read<VehicleProvider>();
+      final userProvider = context.read<UserProvider>();
+
       await SupabaseService().updateUserProfile(
         userId: widget.userId, // Pass the Firebase UID
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
       );
-      await context.read<VehicleProvider>().refresh();
+
+      await userProvider.refresh();
+      await vehicleProvider.refresh();
       print(
-        'VehicleProvider(saveUserDetails): Vehicle data loaded with data: ${context.read<VehicleProvider>().vehicleId}',
+        'VehicleProvider(saveUserDetails): Vehicle data loaded with data: ${vehicleProvider.vehicleId}',
       );
 
       await SupabaseService().updateVehicleDetails(
-        vehicleId: context.read<VehicleProvider>().vehicleId ?? 1,
+        vehicleId: vehicleProvider.vehicleId ?? 1,
         insurance: "",
         registration: _vehicleRegistrationController.text.trim(),
         puc: null,
@@ -57,7 +63,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       );
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, "/dash", (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -116,6 +122,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _fullNameController,
                       label: 'Full Name',
                       icon: Icons.person_outline,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your full name';
@@ -130,6 +137,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _usernameController,
                       label: 'Username',
                       icon: Icons.alternate_email,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a username';
@@ -158,6 +166,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _vehicleModelController,
                       label: 'Vehicle Model',
                       icon: Icons.directions_car_outlined,
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 16),
 
@@ -167,6 +176,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       label: 'Vehicle Year',
                       icon: Icons.calendar_today_outlined,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 40),
                     // Vehicle Registration Field
@@ -176,6 +186,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       label: 'Vehicle Registration',
                       icon: Icons.directions_car_outlined,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
                     ),
                     const SizedBox(height: 40),
 
@@ -224,7 +235,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 : () {
                                   Navigator.pushNamedAndRemoveUntil(
                                     context,
-                                    "/dash",
+                                    "/home",
                                     (route) => false,
                                   );
                                 },
@@ -253,6 +264,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     required IconData icon,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
+    TextInputAction? textInputAction,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -262,6 +274,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType ?? TextInputType.text,
+        textInputAction: textInputAction,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: label,

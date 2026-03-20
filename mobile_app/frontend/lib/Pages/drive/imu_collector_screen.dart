@@ -10,6 +10,9 @@ import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
 import 'package:vehnicate_frontend/services/sensor_service.dart';
+import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:location/location.dart' as loc;
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -36,8 +39,10 @@ class _ImuCollectorState extends State<ImuCollector> {
   DateTime? _driveEndTime;
 
   // Config
-  final String _deviceId = 'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
-  final String _currentImuBatchId = 'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
+  final String _deviceId =
+      'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
+  final String _currentImuBatchId =
+      'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
 
   // Start position coordinates
   double? _startX;
@@ -73,7 +78,9 @@ class _ImuCollectorState extends State<ImuCollector> {
     try {
       await _cameraService.initialize();
       if (mounted) setState(() {}); // Rebuild to show preview
-      print('[IMU_DEBUG][_initCamera] 📷 Camera service initialized successfully');
+      print(
+        '[IMU_DEBUG][_initCamera] 📷 Camera service initialized successfully',
+      );
     } catch (e) {
       print('[IMU_DEBUG][_initCamera] ❌ Camera init error: $e');
       CustomSnackBar.showError(context, 'Camera initialization failed: $e');
@@ -111,138 +118,130 @@ class _ImuCollectorState extends State<ImuCollector> {
     final TextEditingController yController = TextEditingController();
     final TextEditingController zController = TextEditingController();
 
-    final result = await showDialog<bool>(
+    // Flag to track if the form was successfully submitted
+    bool success = false;
+
+    await FormOverlay.show(
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF0E0E1A),
-          title: const Text(
-            'Enter Start Position',
-            style: TextStyle(color: Colors.white),
+      title: 'Enter Start Position',
+      submitButtonText: 'Start Collection',
+      fields: [
+        FormFieldConfig(
+          label: 'Start X',
+          hint: '0.0',
+          icon: Icons.location_on_outlined,
+          controller: xController,
+          keyboardType: const TextInputType.numberWithOptions(
+            decimal: true,
+            signed: true,
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Please enter the starting coordinates (X, Y, Z):',
-                style: TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: xController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'X',
-                  labelStyle: TextStyle(color: Colors.white60),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF765FD1)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF765FD1), width: 2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: yController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Y',
-                  labelStyle: TextStyle(color: Colors.white60),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF765FD1)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF765FD1), width: 2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: zController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Z',
-                  labelStyle: TextStyle(color: Colors.white60),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF765FD1)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF765FD1), width: 2),
-                  ),
-                ),
-              ),
-            ],
+        ),
+        FormFieldConfig(
+          label: 'Start Y',
+          hint: '0.0',
+          icon: Icons.location_on_outlined,
+          controller: yController,
+          keyboardType: const TextInputType.numberWithOptions(
+            decimal: true,
+            signed: true,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Validate inputs
-                final x = double.tryParse(xController.text);
-                final y = double.tryParse(yController.text);
-                final z = double.tryParse(zController.text);
+        ),
+        FormFieldConfig(
+          label: 'Start Z',
+          hint: '0.0',
+          icon: Icons.height,
+          controller: zController,
+          keyboardType: const TextInputType.numberWithOptions(
+            decimal: true,
+            signed: true,
+          ),
+        ),
+      ],
+      onSubmit: () async {
+        // Validate inputs
+        final x = double.tryParse(xController.text);
+        final y = double.tryParse(yController.text);
+        final z = double.tryParse(zController.text);
 
-                if (x == null || y == null || z == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter valid numeric values for X, Y, and Z'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
+        if (x == null || y == null || z == null) {
+          throw 'Please enter valid numeric values for X, Y, and Z';
+        }
 
-                _startX = x;
-                _startY = y;
-                _startZ = z;
-                Navigator.of(context).pop(true);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4CAF50),
-              ),
-              child: const Text('Start'),
-            ),
-          ],
-        );
+        _startX = x;
+        _startY = y;
+        _startZ = z;
+        success = true;
+      },
+      onError: (error) {
+        CustomSnackBar.showError(context, error.toString());
       },
     );
 
-    return result ?? false;
+    return success;
   }
 
   void startCollection() async {
     print('[IMU_DEBUG][startCollection] Called');
     if (isCollecting) return;
 
+    // 1. Request Location Service (Gated)
+    // Use location package to trigger the native Google Play Services popup
+    final loc.Location location = loc.Location();
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        print(
+          '[IMU_DEBUG][startCollection] ❌ Location service request denied/failed',
+        );
+        if (mounted) {
+          CustomSnackBar.showError(
+            context,
+            'Location services are required to start collection.',
+          );
+        }
+        return;
+      }
+    }
+
+    // 2. Enable Wakelock
+    print('[IMU_DEBUG][startCollection] 💡 Enabling Wakelock...');
+    await WakelockPlus.enable();
+
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
-      CustomSnackBar.showError(context, 'Error: No vehicle selected. Please go to Garage and select a vehicle.');
+      if (mounted) {
+        CustomSnackBar.showError(
+          context,
+          'Error: No vehicle selected. Please go to Garage and select a vehicle.',
+        );
+      }
+      await WakelockPlus.disable();
       return;
     }
 
     // Show dialog to get start position before starting collection
     final confirmed = await _showStartPositionDialog();
     if (!confirmed) {
-      print('[IMU_DEBUG][startCollection] ❌ User cancelled start position dialog');
+      print(
+        '[IMU_DEBUG][startCollection] ❌ User cancelled start position dialog',
+      );
+      await WakelockPlus.disable();
       return;
     }
 
-    print('[IMU_DEBUG][startCollection] 📍 Start position: X=$_startX, Y=$_startY, Z=$_startZ');
+    print(
+      '[IMU_DEBUG][startCollection] 📍 Start position: X=$_startX, Y=$_startY, Z=$_startZ',
+    );
 
     try {
       print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
 
       // Capture start time
-      _driveStartTime = DateTime.now();
-      print('[IMU_DEBUG][startCollection] 📅 Drive started at: $_driveStartTime');
+      _driveStartTime = DateTime.now().toLocal();
+      print(
+        '[IMU_DEBUG][startCollection] 📅 Drive started at: $_driveStartTime',
+      );
 
       // Start Sensor collection
       await _sensorService.start(
@@ -265,13 +264,18 @@ class _ImuCollectorState extends State<ImuCollector> {
       );
 
       setState(() => isCollecting = true);
-      print('[IMU_DEBUG][startCollection] ✅ Data collection started successfully');
+      print(
+        '[IMU_DEBUG][startCollection] ✅ Data collection started successfully',
+      );
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
-      CustomSnackBar.showError(context, 'Failed to start collection: $e');
+      if (mounted) {
+        CustomSnackBar.showError(context, 'Failed to start collection: $e');
+      }
       _driveStartTime = null; // Reset if failed
       // CustomSnackBar.showError(context, 'Failed to start collection: $e');
+      await WakelockPlus.disable();
     }
   }
 
@@ -287,11 +291,14 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][stopCollection] ⏹️ Stopping data collection...');
 
       // Capture end time
-      _driveEndTime = DateTime.now();
+      _driveEndTime = DateTime.now().toLocal();
       print('[IMU_DEBUG][stopCollection] 📅 Drive ended at: $_driveEndTime');
 
       // Stop Sensor collection and Camera streaming in parallel
-      await Future.wait([_sensorService.stop(context), _cameraService.stopStreaming()]);
+      await Future.wait([
+        _sensorService.stop(context),
+        _cameraService.stopStreaming(),
+      ]);
 
       // Send start and end times to backend
       if (_driveStartTime != null && _driveEndTime != null) {
@@ -304,7 +311,13 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
-      print('[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully');
+
+      print('[IMU_DEBUG][stopCollection] 💡 Disabling Wakelock...');
+      await WakelockPlus.disable();
+
+      print(
+        '[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully',
+      );
       // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
     } catch (e) {
       print('[IMU_DEBUG][stopCollection] ❌ Stop collection error: $e');
@@ -314,13 +327,16 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
+      await WakelockPlus.disable();
     }
   }
 
   Future<void> _saveDriveSession() async {
     try {
       final vehicleId = context.read<VehicleProvider>().vehicleId;
-      if (vehicleId == null || _driveStartTime == null || _driveEndTime == null) {
+      if (vehicleId == null ||
+          _driveStartTime == null ||
+          _driveEndTime == null) {
         print('[IMU_DEBUG][_saveDriveSession] ⚠️ Missing required data');
         return;
       }
@@ -330,29 +346,38 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][_saveDriveSession] 💾 Saving drive session...');
       print('[IMU_DEBUG][_saveDriveSession] Start: $_driveStartTime');
       print('[IMU_DEBUG][_saveDriveSession] End: $_driveEndTime');
-      print('[IMU_DEBUG][_saveDriveSession] Duration: ${duration.inMinutes} minutes');
+      print(
+        '[IMU_DEBUG][_saveDriveSession] Duration: ${duration.inMinutes} minutes',
+      );
 
       // Save to your existing trips table
       await supabase.from('trips').insert({
         'vehicleid': vehicleId,
         'starttime': _driveStartTime!.toIso8601String(),
         'endtime': _driveEndTime!.toIso8601String(),
-        'distance': 0.0, // You can calculate actual distance if you have GPS data
+        'distance':
+            0.0, // You can calculate actual distance if you have GPS data
         'startx': _startX,
         'starty': _startY,
         'startz': _startZ,
       });
 
-      print('[IMU_DEBUG][_saveDriveSession] ✅ Drive session saved successfully to trips table');
+      print(
+        '[IMU_DEBUG][_saveDriveSession] ✅ Drive session saved successfully to trips table',
+      );
     } catch (e) {
       print('[IMU_DEBUG][_saveDriveSession] ❌ Error saving drive session: $e');
-      CustomSnackBar.showWarning(context, 'Warning: Failed to save drive session times');
+      CustomSnackBar.showWarning(
+        context,
+        'Warning: Failed to save drive session times',
+      );
     }
   }
 
   @override
   void dispose() {
     print('[IMU_DEBUG][dispose] Called');
+    WakelockPlus.disable();
     _cameraService.dispose();
     _sensorService.dispose();
     super.dispose();
@@ -379,7 +404,10 @@ class _ImuCollectorState extends State<ImuCollector> {
                   'Data transmission is currently active. Going back will stop the transmission. Do you want to continue?',
                 ),
                 actions: [
-                  TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
                     style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -399,6 +427,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: const Color(0xFF01010D),
         appBar: AppBar(
           title: const Text("IMU + Camera Data Collector"),
@@ -440,28 +469,35 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   Widget _buildLandscapeLayout() {
-    return Container(
-      child: Row(
-        children: [
-          // Left side: Camera Preview
-          Expanded(
-            flex: 3,
-            child: Column(children: [Expanded(child: _buildCameraPreview(isLandscape: true)), _buildStatusIndicator()]),
+    return Row(
+      children: [
+        // Left side: Camera Preview
+        Expanded(
+          flex: 3,
+          child: Column(
+            children: [
+              Expanded(child: _buildCameraPreview(isLandscape: true)),
+              _buildStatusIndicator(),
+            ],
           ),
+        ),
 
-          // Right side: Statistics and Controls
-          Expanded(
-            flex: 2,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [_buildStatisticsCard(), const SizedBox(height: 12), _buildControlButtons()],
-              ),
+        // Right side: Statistics and Controls
+        Expanded(
+          flex: 2,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildStatisticsCard(),
+                const SizedBox(height: 12),
+                _buildControlButtons(),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -469,7 +505,9 @@ class _ImuCollectorState extends State<ImuCollector> {
     if (_cameraService.isReady && _cameraService.controller != null) {
       // Use reciprocal aspect ratio for landscape mode
       final aspectRatio =
-          isLandscape ? _cameraService.controller!.value.aspectRatio : 1 / _cameraService.controller!.value.aspectRatio;
+          isLandscape
+              ? _cameraService.controller!.value.aspectRatio
+              : 1 / _cameraService.controller!.value.aspectRatio;
 
       return Container(
         height: height,
@@ -478,12 +516,19 @@ class _ImuCollectorState extends State<ImuCollector> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFF765FD1), width: 2),
           boxShadow: [
-            BoxShadow(color: const Color(0xFF765FD1).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2)),
+            BoxShadow(
+              color: const Color(0xFF765FD1).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
           ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: AspectRatio(aspectRatio: aspectRatio, child: CameraPreview(_cameraService.controller!)),
+          child: AspectRatio(
+            aspectRatio: aspectRatio,
+            child: CameraPreview(_cameraService.controller!),
+          ),
         ),
       );
     } else {
@@ -522,13 +567,21 @@ class _ImuCollectorState extends State<ImuCollector> {
         children: [
           const Text(
             'Data Collection Statistics',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatCard('IMU Data', '${_imuDataCount - _uploadedImuCount}', '$_uploadedImuCount'),
+              _buildStatCard(
+                'IMU Data',
+                '${_imuDataCount - _uploadedImuCount}',
+                '$_uploadedImuCount',
+              ),
               _buildStatCard(
                 'Images',
                 '${_cameraService.processedCount - _cameraService.uploadedCount}',
@@ -553,22 +606,37 @@ class _ImuCollectorState extends State<ImuCollector> {
         children: [
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: (isCollecting && !isStopping) ? stopCollection : (!isCollecting ? startCollection : null),
+              onPressed:
+                  (isCollecting && !isStopping)
+                      ? stopCollection
+                      : (!isCollecting ? startCollection : null),
               icon:
                   isStopping
                       ? Container(
                         width: 24,
                         height: 24,
                         padding: const EdgeInsets.all(2.0),
-                        child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
                       )
                       : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
-              label: Text(isStopping ? 'Stopping...' : (isCollecting ? 'Stop Collection' : 'Start Collection')),
+              label: Text(
+                isStopping
+                    ? 'Stopping...'
+                    : (isCollecting ? 'Stop Collection' : 'Start Collection'),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: isCollecting ? const Color(0xFFF24E1E) : const Color(0xFF4CAF50),
+                backgroundColor:
+                    isCollecting
+                        ? const Color(0xFFF24E1E)
+                        : const Color(0xFF4CAF50),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -583,10 +651,15 @@ class _ImuCollectorState extends State<ImuCollector> {
               icon: const Icon(Icons.upload),
               label: const Text('Upload Now'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: (_cameraService.pendingFramesCount == 0) ? Colors.grey : const Color(0xFF765FD1),
+                backgroundColor:
+                    (_cameraService.pendingFramesCount == 0)
+                        ? Colors.grey
+                        : const Color(0xFF765FD1),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -600,15 +673,23 @@ class _ImuCollectorState extends State<ImuCollector> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isCollecting ? const Color(0xFF4CAF50).withOpacity(0.2) : const Color(0xFF0E0E1A),
+        color:
+            isCollecting
+                ? const Color(0xFF4CAF50).withOpacity(0.2)
+                : const Color(0xFF0E0E1A),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isCollecting ? const Color(0xFF4CAF50) : Colors.white24, width: 1),
+        border: Border.all(
+          color: isCollecting ? const Color(0xFF4CAF50) : Colors.white24,
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            isCollecting ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+            isCollecting
+                ? Icons.radio_button_checked
+                : Icons.radio_button_unchecked,
             color: isCollecting ? const Color(0xFF4CAF50) : Colors.white38,
           ),
           const SizedBox(width: 8),
@@ -628,10 +709,23 @@ class _ImuCollectorState extends State<ImuCollector> {
     // print('[IMU_DEBUG][_buildStatCard] $title: processed=$processed, uploaded=$uploaded');
     return Column(
       children: [
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.white60)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 12, color: Colors.white60),
+        ),
         const SizedBox(height: 4),
-        Text(processed, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
-        Text('Uploaded: $uploaded', style: const TextStyle(fontSize: 10, color: Colors.white38)),
+        Text(
+          processed,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          'Uploaded: $uploaded',
+          style: const TextStyle(fontSize: 10, color: Colors.white38),
+        ),
       ],
     );
   }

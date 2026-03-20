@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
+import 'package:vehnicate_frontend/Widgets/avatar.dart';
 import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
 
 class Header extends StatefulWidget {
@@ -143,13 +144,12 @@ class _HeaderState extends State<Header> {
             onTap: () => Navigator.pushNamed(context, '/profile'),
             child: Hero(
               tag: 'profile-avatar',
-              child: CircleAvatar(
-                radius: 30,
-                backgroundColor: Theme.of(context).primaryColor,
-                child: Transform.translate(
-                  offset: const Offset(0, 2.2),
-                  child: Image.asset("assets/logo.png"),
-                ),
+              child: Consumer<UserProvider>(
+                builder: (context, userProvider, child) {
+                  final user = userProvider.currentUser;
+                  final profilePic = user?.profilePictureUrl;
+                  return Avatar(imageUrl: profilePic, size: 60);
+                },
               ),
             ),
           ),
