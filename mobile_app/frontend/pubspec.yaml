@@ -34,23 +34,42 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  sensors_plus: ^6.1.1
+
+  # Firebase & Authentication
   firebase_core: ^4.0.0
   firebase_auth: ^6.0.1
   firebase_analytics: ^12.0.0
   google_sign_in: ^6.2.2
   supabase_flutter: ^2.10.0
+
+  # Location & Maps
+  sensors_plus: ^6.1.1
   geolocator: ^14.0.2
-  font_awesome_flutter: ^10.9.1
-  percent_indicator: ^4.2.5
-  flutter_dotenv: ^5.1.0
-  fl_chart: ^0.68.0
-  google_nav_bar: ^5.0.7
-  provider: ^6.1.2
+  location: ^8.0.1
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
-  http: ^1.2.2
   flutter_polyline_points: ^2.1.0
+
+  # UI Components & Navigation
+  font_awesome_flutter: ^10.9.1
+  percent_indicator: ^4.2.5
+  fl_chart: ^0.68.0
+  google_nav_bar: ^5.0.7
+  animated_text_kit: ^4.3.0
+  shimmer: ^3.0.0
+  glass_kit: ^4.0.2
+  google_fonts: ^8.0.1
+
+  # State Management & Utilities
+  provider: ^6.1.2
+  flutter_dotenv: ^5.1.0
+  http: ^1.2.2
+  shared_preferences: ^2.5.3
+  intl: ^0.20.2
+  vector_math: ^2.1.4
+  wakelock_plus: ^1.4.0
+
+  # Camera & Image Processing
   camera: ^0.11.2
   permission_handler: ^12.0.1
   path_provider: ^2.1.5
@@ -58,20 +77,11 @@ dependencies:
   image: ^4.2.0
   flutter_image_compress: ^2.3.0
   file_picker: ^8.1.2
-  shared_preferences: ^2.5.3
-
-  flutter_local_notifications: ^18.0.1
-
-  vector_math: ^2.1.4
-
-  animated_text_kit: ^4.3.0
-  intl: ^0.20.2
-  shimmer: ^3.0.0
-  glass_kit: ^4.0.2
-  google_fonts: ^8.0.1
   image_cropper: ^11.0.0
-  location: ^8.0.1
-  wakelock_plus: ^1.4.0
+
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+  flutter_localization: ^0.3.3
 
 dev_dependencies:
   flutter_test:
@@ -87,25 +97,22 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter packages.
 flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
     - .env
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
-
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
@@ -125,7 +132,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-
 flutter_launcher_icons:
   android: true
   ios: true
@@ -134,3 +140,5 @@ flutter_launcher_icons:
   adaptive_icon_background: "#1a1a1a"
   adaptive_icon_foreground: "assets/vehnicate_logo_padded.png"
   min_sdk_android: 21
+flutter_intl:
+  enabled: true

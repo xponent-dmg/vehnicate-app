@@ -1,0 +1,773 @@
+{
+  "Bikes": {
+    "Royal Enfield": [
+      "Bear 650",
+      "Bullet 350",
+      "Classic 350",
+      "Classic 650",
+      "Continental Gt 650",
+      "Goan Classic 350",
+      "Guerrilla 450",
+      "Himalayan",
+      "Himalayan 450",
+      "Hunter 350",
+      "Interceptor 650",
+      "Meteor 350",
+      "Scram 440",
+      "Shotgun 650",
+      "Super Meteor 650"
+    ],
+    "Bajaj": [
+      "Avenger 220",
+      "Avenger 220 Street",
+      "Avenger Cruise 220",
+      "Avenger Street 160",
+      "Chetak 2903",
+      "Chetak 3501",
+      "Chetak 3502",
+      "Chetak 3503",
+      "Ct 100",
+      "Ct 110X",
+      "Dominar 250",
+      "Dominar 400",
+      "Freedom 125",
+      "Platina 100",
+      "Platina 110",
+      "Pulsar 125",
+      "Pulsar 150",
+      "Pulsar 220 F",
+      "Pulsar N125",
+      "Pulsar N150",
+      "Pulsar N160",
+      "Pulsar N250",
+      "Pulsar Ns 125",
+      "Pulsar Ns160",
+      "Pulsar Ns200",
+      "Pulsar Ns400Z",
+      "Pulsar Rs200"
+    ],
+    "KTM": [
+      "125 Duke",
+      "1290 Super Adventure S",
+      "1390 Super Duke R",
+      "200 Duke",
+      "250 Adventure",
+      "250 Duke",
+      "250 Sx-F",
+      "350 Exc-F",
+      "390 Adventure",
+      "390 Adventure X",
+      "390 Enduro R",
+      "450 Sx-F",
+      "50 Sx",
+      "65 Sx",
+      "85 Sx",
+      "890 Duke",
+      "Duke 200",
+      "Duke 390",
+      "Rc 200",
+      "Rc 390"
+    ],
+    "Kawasaki": [
+      "Eliminator",
+      "Klx 140R F",
+      "Klx 300R",
+      "Klx 450R",
+      "Klx110R L",
+      "Klx230",
+      "Klx230Rs",
+      "Kx 250",
+      "Kx 450",
+      "Kx 85",
+      "Kx112",
+      "Kx65",
+      "Ninja 1100Sx",
+      "Ninja 300",
+      "Ninja 400",
+      "Ninja 500",
+      "Ninja 650",
+      "Ninja H2 Sx",
+      "Ninja Zx-10R",
+      "Ninja Zx-4R",
+      "Ninja Zx-6R",
+      "Versys 650",
+      "Vulcan S",
+      "W175",
+      "Z H2",
+      "Z650",
+      "Z650Rs",
+      "Z900",
+      "Z900Rs"
+    ],
+    "Yamaha": [
+      "2025 Yamaha Fz-S Fi",
+      "Aerox 155",
+      "Fascino 125",
+      "Fascino 125 Fi Hybrid",
+      "Fz V3",
+      "Fz X",
+      "Fz-Fi V3",
+      "Fzs-Fi V3",
+      "Fzs-Fi V4",
+      "Mt 15 V2",
+      "Mt-03",
+      "Mt-15",
+      "R15 V4",
+      "R15S",
+      "R3",
+      "Ray Zr",
+      "Rayzr 125 Fi Hybrid"
+    ],
+    "Hero": [
+      "Destini 125",
+      "Destini Prime",
+      "Glamour",
+      "Glamour Xtec",
+      "Hf 100",
+      "Hf Deluxe",
+      "Karizma Xmr",
+      "Mavrick 440",
+      "Passion Plus",
+      "Passion Pro",
+      "Pleasure Plus",
+      "Splendor Plus",
+      "Splendor Plus Xtec",
+      "Super Splendor",
+      "Super Splendor Xtec",
+      "Xoom 110",
+      "Xoom 125",
+      "Xoom 160",
+      "Xpulse 200 4V",
+      "Xpulse 210",
+      "Xtreme 125R",
+      "Xtreme 160R",
+      "Xtreme 160R 4V",
+      "Xtreme 250R"
+    ],
+    "TVS": [
+      "Apache Rr 310",
+      "Apache Rtr 160",
+      "Apache Rtr 160 4V",
+      "Apache Rtr 180",
+      "Apache Rtr 200 4V",
+      "Apache Rtr 310",
+      "Jupiter",
+      "Ntorq 125",
+      "Radeon",
+      "Raider",
+      "Ronin",
+      "Sport",
+      "Star City Plus"
+    ],
+    "Honda": [
+      "Activa",
+      "Cb200X",
+      "Cb300F",
+      "Cb300F Flex-Fuel",
+      "Cb300R",
+      "Cb350",
+      "Cb350Rs",
+      "Cb650R",
+      "Cbr 650R",
+      "Cbr650R",
+      "Cd 110 Dream",
+      "Crf1100L Africa Twin",
+      "Dio",
+      "Gold Wing",
+      "Hness Cb350",
+      "Hornet 2.0",
+      "Livo",
+      "Nx200",
+      "Nx500",
+      "Shine",
+      "Shine 100",
+      "Sp 125",
+      "Sp160",
+      "Unicorn",
+      "Xl750 Transalp"
+    ],
+    "BMW": [
+      "C 400 Gt",
+      "Ce 02",
+      "Ce 04",
+      "F 900 Gs",
+      "F 900 Xr",
+      "G 310 Rr",
+      "K 1600 Bagger",
+      "K 1600 Grand America",
+      "K 1600 Gtl",
+      "M 1000 Rr",
+      "M 1000 Xr",
+      "R 12",
+      "R 12 Ninet",
+      "R 1250 Rt",
+      "R 1300 Gs",
+      "R 18 Transcontinental",
+      "S 1000 R",
+      "S 1000 Rr",
+      "S 1000 Xr"
+    ],
+    "Suzuki": [
+      "Access 125",
+      "Avenis",
+      "Burgman Street",
+      "Gixxer",
+      "Gixxer Sf",
+      "Gixxer Sf 250",
+      "Gixxer Sf 250 Flex Fuel",
+      "Gsx-8R",
+      "Hayabusa",
+      "Katana",
+      "V-Strom 800 De",
+      "V-Strom Sx"
+    ],
+    "Jawa": [
+      "350",
+      "42",
+      "42 Bobber",
+      "42 Fj",
+      "Perak"
+    ],
+    "Triumph": [
+      "Bonneville Bobber",
+      "Bonneville Speedmaster",
+      "Bonneville T100",
+      "Bonneville T120",
+      "Daytona 660",
+      "Rocket 3",
+      "Scrambler 400 X",
+      "Scrambler 900",
+      "Speed 400",
+      "Speed T4",
+      "Speed Triple 1200",
+      "Speed Twin 900",
+      "Street Triple 765",
+      "Tiger 1200",
+      "Tiger 900",
+      "Tiger Sport 660",
+      "Trident 660"
+    ],
+    "Harley Davidson": [
+      "Fat Bob 114",
+      "Fat Boy 114",
+      "Harley-Davidson Breakout 117",
+      "Heritage Classic",
+      "Nightster",
+      "Pan America 1250",
+      "Road Glide",
+      "Sportster S",
+      "Street Glide",
+      "X440"
+    ],
+    "Ather": [
+      "450 Apex",
+      "450S",
+      "450X",
+      "Rizta"
+    ],
+    "Aprilia": [
+      "Rs 457",
+      "Rs 660",
+      "Rsv4",
+      "Sr 125",
+      "Sr 160",
+      "Sr Storm",
+      "Sxr 125",
+      "Sxr 160",
+      "Tuono 457"
+    ],
+    "Ducati": [
+      "Desertx",
+      "Diavel V4",
+      "Hypermotard 950",
+      "Monster",
+      "Multistrada V2",
+      "Multistrada V4",
+      "Panigale V2",
+      "Panigale V4",
+      "Scrambler 1100",
+      "Scrambler 800",
+      "Streetfighter V2",
+      "Streetfighter V4",
+      "Supersport 950"
+    ],
+    "Ola Electric": [
+      "Ola Gig",
+      "Ola Roadster",
+      "Ola Roadster Pro",
+      "Ola Roadster X",
+      "Ola Roadster X+",
+      "Ola S1 Air",
+      "Ola S1 Pro",
+      "Ola S1 Pro Plus",
+      "Ola S1 X",
+      "Ola S1 X Plus",
+      "Ola S1 Z"
+    ],
+    "Keeway": [
+      "K-Light 250V",
+      "K300 R",
+      "K300 Sf",
+      "Sixties 300I",
+      "Sr 250",
+      "Sr125",
+      "V302C",
+      "Vieste 300"
+    ],
+    "Revolt": [
+      "Rv Blazex",
+      "Rv1",
+      "Rv400",
+      "Rv400 Brz"
+    ],
+    "Oben Electric": [
+      "Oben Rorr",
+      "Oben Rorr Ez"
+    ],
+    "Hero Electric": [
+      "Atria",
+      "Flash",
+      "Optima",
+      "Photon"
+    ],
+    "Vespa": [
+      "Zx"
+    ],
+    "Benelli": [
+      "502 C",
+      "Leoncino 500",
+      "Trk 502"
+    ],
+    "Indian": [
+      "Challenger Dark Horse",
+      "Chief Bobber Dark Horse",
+      "Chief Dark Horse",
+      "Chieftain Dark Horse",
+      "Chieftain Limited",
+      "Ftr",
+      "Pursuit Limited",
+      "Roadmaster",
+      "Roadmaster Elite",
+      "Scout",
+      "Scout Bobber",
+      "Scout Rogue",
+      "Springfield",
+      "Springfield Dark Horse",
+      "Super Chief Limited"
+    ],
+    "Okinawa": [
+      "Dual 100",
+      "Ipraise+",
+      "Lite",
+      "Okhi90",
+      "Praisepro",
+      "R30",
+      "Ridge"
+    ],
+    "Ultraviolette": [
+      "F77",
+      "F77 Superstreet",
+      "Tesseract"
+    ],
+    "Benling India": [
+      "Benling Aura",
+      "Benling Falcon",
+      "Benling Kriti"
+    ],
+    "Pure Ev": [
+      "Ecodryft",
+      "Epluto 7G",
+      "Epluto 7G Max",
+      "Etrance Neo",
+      "Etryst 350"
+    ],
+    "Komaki": [
+      "Cat 2.0 Nxt",
+      "Dt 3000",
+      "Flora",
+      "Ly",
+      "Mx3",
+      "Ranger",
+      "Se",
+      "Tn-95",
+      "Venice",
+      "X One",
+      "X2 Vogue",
+      "X3",
+      "Xgt Cat 2.0",
+      "Xgt Classic",
+      "Xgt Km",
+      "Xgt Vp",
+      "Xgt X4",
+      "Xgt X5",
+      "Xr1"
+    ],
+    "Eeve": [
+      "Ahava",
+      "Soul",
+      "Wind",
+      "Xeniaa"
+    ],
+    "Hero Lectro": [
+      "F6I",
+      "H3",
+      "H4",
+      "H5",
+      "H7",
+      "Muv-E",
+      "Winn",
+      "Winn-X"
+    ],
+    "Battre Electric Mobility": [
+      "Battre Electric Loev",
+      "Battre Electric One",
+      "Battre Electric Storie"
+    ],
+    "Joy E-Bike": [
+      "Beast",
+      "Gen Next Nanu",
+      "Gen Next Nanu Plus",
+      "Glob",
+      "Hurricane",
+      "Mihos",
+      "Thunderbolt",
+      "Wolf",
+      "Wolf Plus"
+    ],
+    "Bgauss": [
+      "C12I",
+      "Ruv 350"
+    ],
+    "Ujaas Energy": [
+      "Ujaas Ego La",
+      "Ujaas Ego Li",
+      "Ujaas Ego T3",
+      "Ujaas Espa La",
+      "Ujaas Espa Li"
+    ],
+    "Adms": [
+      "Db",
+      "Eva",
+      "Gtr",
+      "Mantra",
+      "Marvel",
+      "Phantom",
+      "Ttx"
+    ],
+    "Amo Electric": [
+      "Brisk",
+      "Inspirer",
+      "Jaunty",
+      "Jaunty Plus",
+      "Jaunty Pro",
+      "Jaunty-3W"
+    ],
+    "Aeroride": [
+      "Yb2000"
+    ],
+    "Aftek Motors": [
+      "Aftek Elmo"
+    ],
+    "Ampere Electric": [
+      "Ampere Magnus Ex",
+      "Ampere Magnus Neo",
+      "Ampere Nexus",
+      "Ampere Primus",
+      "Ampere Reo",
+      "Ampere Zeal Ex"
+    ],
+    "Atumobile": [
+      "Atum Version 1.0",
+      "Atumvader"
+    ],
+    "Bnc Motors": [
+      "Challenger"
+    ],
+    "Bsa": [
+      "Gold Star"
+    ],
+    "Bounce": [
+      "Infinity E.1"
+    ],
+    "Brixton Motorcycles": [
+      "Brixton Cromwell 1200",
+      "Brixton Crossfire 500"
+    ],
+    "Cfmoto": [
+      "300Nk",
+      "650Gt",
+      "650Mt",
+      "650Nk"
+    ],
+    "Crayon Motors": [
+      "Crayon Zeez"
+    ],
+    "Dao": [
+      "Model 703",
+      "Vidyut 108",
+      "Zor 405"
+    ],
+    "Deltic": [
+      "Drixx",
+      "Legion",
+      "Trento",
+      "Zgs"
+    ],
+    "E-Went": [
+      "Rabbitor"
+    ],
+    "Emotorad": [
+      "Doodle",
+      "Emx",
+      "Legend O7",
+      "Neo",
+      "T-Rex Air",
+      "X1",
+      "X2",
+      "X3"
+    ],
+    "Elecson": [
+      "Eco",
+      "Folding",
+      "Ladybird"
+    ],
+    "Enigma": [
+      "Ambier N8"
+    ],
+    "Essel Energy": [
+      "Get 1",
+      "Get 1+",
+      "Wind"
+    ],
+    "Fidato Evtech": [
+      "Cutie",
+      "Easy Go",
+      "Future 2020"
+    ],
+    "Flycon Motors": [
+      "Flycon Empire",
+      "Flycon Empire +",
+      "Flycon Grove"
+    ],
+    "Fujiyama": [
+      "Ozone",
+      "Spectra",
+      "Spectra Pro"
+    ],
+    "Gt Force": [
+      "Gt Drive Pro",
+      "Gt One Plus Pro",
+      "Gt Ryd Plus",
+      "Gt Texa",
+      "Gt Vegas"
+    ],
+    "Gaura Electric": [
+      "Gaura Warrior 5G"
+    ],
+    "Gobike": [
+      "A 1-4",
+      "Ambition",
+      "Dmg",
+      "Dms",
+      "E-Smart",
+      "Electro",
+      "Jf",
+      "Kn1 Plus",
+      "V6",
+      "Xl"
+    ],
+    "Hayasa": [
+      "Daksha",
+      "Ira",
+      "Nirbhar",
+      "Ojas"
+    ],
+    "Herald": [
+      "Legend",
+      "Rider",
+      "Royal"
+    ],
+    "Hop Electric": [
+      "Hop Oxo",
+      "Leo"
+    ],
+    "Jhev": [
+      "Alfa K1",
+      "Alfa R1",
+      "Alfa R3",
+      "Alfa R5",
+      "Delta E5",
+      "Delta R3",
+      "Delta V6"
+    ],
+    "Jitendra Ev": [
+      "Jitendra Jmt 1000 3K",
+      "Jitendra Jmt 1000Hs",
+      "Jitendra Jmt 1000Hs 26"
+    ],
+    "Kabira Mobility": [
+      "Kabira Hermes 75",
+      "Km3000",
+      "Km4000"
+    ],
+    "Kinetic Green": [
+      "E Luna",
+      "Flex",
+      "Zing",
+      "Zoom",
+      "Zulu"
+    ],
+    "Kyte Energy": [
+      "Magnum"
+    ],
+    "Lectrix Ev": [
+      "Lectrix Lxs 2.0",
+      "Lectrix Nduro",
+      "Lxs",
+      "Lxs 2.0 Subscription",
+      "Lxs 3.0",
+      "Lxs G 2.0",
+      "Sx25"
+    ],
+    "Mx Moto": [
+      "M16",
+      "Mx9",
+      "Mxv"
+    ],
+    "Maruthisan": [
+      "Beat",
+      "Dream+",
+      "Ms 3.0",
+      "Racer"
+    ],
+    "Moto Morini": [
+      "Seiemmezzo 6 \u00bd",
+      "X-Cape"
+    ],
+    "Motovolt": [
+      "M7"
+    ],
+    "Nij Automotive": [
+      "Accelero Plus",
+      "Accelero R14",
+      "Accelero X-Pro"
+    ],
+    "Nexzu": [
+      "Bazinga",
+      "Roadlark",
+      "Rompus Plus"
+    ],
+    "Odysse Electric": [
+      "E2Go",
+      "Evoqis",
+      "Hawk",
+      "V2",
+      "Vader"
+    ],
+    "Okaya Electric": [
+      "Okaya Classiq",
+      "Okaya Faast",
+      "Okaya Faast F2B",
+      "Okaya Faast F2F",
+      "Okaya Faast F2T",
+      "Okaya Ferrato Disruptor",
+      "Okaya Freedum",
+      "Okaya Motofaast"
+    ],
+    "Ozotec": [
+      "Bheem",
+      "Flio"
+    ],
+    "Polarity Smart": [
+      "Executive",
+      "Sport"
+    ],
+    "Qj Motor": [
+      "Src 250",
+      "Src 500",
+      "Srk 400",
+      "Srv 300"
+    ],
+    "Quantum Energy": [
+      "Quantum Bziness",
+      "Quantum Milan",
+      "Quantum Plasma"
+    ],
+    "Raftaar": [
+      "Bumblebee",
+      "Cruzer R1",
+      "Electrica",
+      "Galaxy"
+    ],
+    "Rowwet": [
+      "Rame",
+      "Trono"
+    ],
+    "Svitch Bike": [
+      "Svitch Csr 762"
+    ],
+    "Seeka": [
+      "Sbolt",
+      "Sseagun"
+    ],
+    "Shema E-Vehicle": [
+      "Shema Bold",
+      "Shema Eagle",
+      "Shema Tuff"
+    ],
+    "Sokudo": [
+      "Acute",
+      "Plus",
+      "Select"
+    ],
+    "Tunwal": [
+      "Lithino Li",
+      "Mini Lithino",
+      "Mini Sports 63",
+      "Roma",
+      "Sport",
+      "Storm Zx",
+      "Strom Advance 1",
+      "Strom Advance 2",
+      "Tz"
+    ],
+    "Warivo Motors": [
+      "Nexa",
+      "Warivo Crx"
+    ],
+    "Yobykes": [
+      "Yo Drift Dx"
+    ],
+    "Yezdi": [
+      "Adventure",
+      "Roadster",
+      "Scrambler"
+    ],
+    "Zelio": [
+      "Eeva",
+      "Eeva Eco",
+      "Gracy I",
+      "Little Gracy",
+      "X Men 2.0"
+    ],
+    "Zelo": [
+      "Knight",
+      "Zoop"
+    ],
+    "Zontes": [
+      "350R",
+      "350T",
+      "350X",
+      "Gk350"
+    ],
+    "E-Sprinto": [
+      "Ls",
+      "Roamy",
+      "Sprinto Hs"
+    ],
+    "Ivoomi": [
+      "Jeet X",
+      "S1"
+    ]
+  }
+}
