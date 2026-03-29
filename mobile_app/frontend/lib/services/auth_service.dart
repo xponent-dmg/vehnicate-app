@@ -34,7 +34,7 @@ class AuthService {
     String password,
   ) async {
     try {
-      print('Attempting email sign in for: $email');
+      
       firebase.UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -48,10 +48,10 @@ class AuthService {
         await _persistLogin(result.user!);
       }
 
-      print('Email sign in successful');
+      
       return result;
     } on firebase.FirebaseAuthException catch (e) {
-      print('FirebaseAuthException: ${e.code} - ${e.message}');
+      
 
       // Log analytics event for failed login
       await _analytics.logEvent(
@@ -61,7 +61,7 @@ class AuthService {
 
       throw _handleAuthException(e);
     } catch (e) {
-      print('General sign in error: $e');
+      
       throw Exception('Failed to sign in: $e');
     }
   }
@@ -107,7 +107,7 @@ class AuthService {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      print('Google auth tokens obtained');
+      
       // Create a new credential
       final credential = firebase.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -140,12 +140,12 @@ class AuthService {
               'created_at': DateTime.now().toLocal().toIso8601String(),
               'role': 'User',
             });
-            print('Created new user in Supabase');
+            
           } else {
-            print('User already exists in Supabase');
+            
           }
         } catch (e) {
-          print('Error creating/updating Supabase user: $e');
+          
           // Don't throw the error as Firebase auth was successful
         }
       }
@@ -158,12 +158,9 @@ class AuthService {
         await _persistLogin(result.user!);
       }
 
-      print('Google sign in successful: ${result.user?.email}');
+      
       return result;
     } on firebase.FirebaseAuthException catch (e) {
-      print(
-        'FirebaseAuthException during Google sign in: ${e.code} - ${e.message}',
-      );
 
       // Log analytics event for failed Google login
       await _analytics.logEvent(
@@ -173,7 +170,7 @@ class AuthService {
 
       throw Exception('Firebase Auth Error: ${e.message}');
     } catch (e) {
-      print('General Google sign in error: $e');
+      
       throw Exception('Failed to sign in with Google: $e');
     }
   }
@@ -181,20 +178,20 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
-      print('Starting signOut process');
+      
 
       // Log analytics event for logout
       await _analytics.logEvent(name: 'logout');
 
       await _googleSignIn.signOut();
-      print('Google sign out completed');
+      
       await _auth.signOut();
-      print('Firebase auth sign out completed');
+      
 
       // Clear persisted login state
       await _clearPersistedLogin();
     } catch (e) {
-      print('SignOut error: $e'); // Debug print
+       // Debug print
       throw Exception('Failed to sign out: $e');
     }
   }
@@ -219,7 +216,7 @@ class AuthService {
       );
 
       await user.reauthenticateWithCredential(credential);
-      print('Google reauthentication successful');
+      
     } on firebase.FirebaseAuthException catch (e) {
       throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
     } catch (e) {
@@ -240,7 +237,7 @@ class AuthService {
       );
 
       await user.reauthenticateWithCredential(credential);
-      print('Email/Password reauthentication successful');
+      
     } on firebase.FirebaseAuthException catch (e) {
       throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
     } catch (e) {
@@ -251,12 +248,12 @@ class AuthService {
   // Delete account
   Future<void> deleteAccount() async {
     try {
-      print('Starting deleteAccount process');
+      
       final user = currentUser;
       if (user != null) {
         // Delete user from Firebase Auth
         await user.delete();
-        print('Firebase user deleted');
+        
 
         // Ensure user is also signed out from Google if they used it
         await _googleSignIn.signOut();
@@ -266,7 +263,7 @@ class AuthService {
 
         // Clear local storage
         await _clearPersistedLogin();
-        print('Account deleted successfully');
+        
       }
     } on firebase.FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
@@ -276,7 +273,7 @@ class AuthService {
       }
       throw _handleAuthException(e);
     } catch (e) {
-      print('deleteAccount error: $e');
+      
       throw Exception('Failed to delete account: $e');
     }
   }
@@ -292,7 +289,7 @@ class AuthService {
 
   // Handle Firebase Auth exceptions
   String _handleAuthException(firebase.FirebaseAuthException e) {
-    print('Handling Firebase Auth Exception: ${e.code}');
+    
     switch (e.code) {
       case 'user-not-found':
         return 'No user found for that email.';
@@ -334,7 +331,7 @@ class AuthService {
       }
     } catch (e) {
       // Non-fatal: do not block login flow on prefs failure
-      print('Persist login failed: $e');
+      
     }
   }
 
@@ -346,7 +343,7 @@ class AuthService {
       await prefs.remove(_prefsEmailKey);
     } catch (e) {
       // Non-fatal
-      print('Clearing persisted login failed: $e');
+      
     }
   }
 }

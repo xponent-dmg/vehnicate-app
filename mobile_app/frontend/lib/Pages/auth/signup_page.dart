@@ -38,7 +38,6 @@ class _SignupPageState extends State<SignupPage> {
         _passwordController.text,
       );
 
-      print('User signed up in Firebase successfully. Pending verification.');
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,

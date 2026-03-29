@@ -29,7 +29,6 @@ class CameraServiceRGB {
   Timer? _batchTimer;
 
   // Config
-  static const int _batchIntervalSeconds = 10;
   static const int _batchSize = 10;
 
   // Supabase config
@@ -60,8 +59,7 @@ class CameraServiceRGB {
     try {
       await _prepareCacheDirs();
       await _initCamera();
-    } catch (e, st) {
-      debugPrint('Init error: $e\n$st');
+    } catch (e) {
       rethrow;
     }
   }
@@ -88,7 +86,6 @@ class CameraServiceRGB {
         ),
       );
     }
-    debugPrint('Pending RGB frames restored: ${_pendingFrames.length}');
   }
 
   Future<void> _initCamera() async {
@@ -110,7 +107,6 @@ class CameraServiceRGB {
 
   Future<void> startStreaming({required String vehicleId, required String deviceId, required String imuBatchId}) async {
     if (!_isReady || _controller == null) {
-      debugPrint('Camera not ready');
       return;
     }
     if (_isStreaming) return;
@@ -127,9 +123,7 @@ class CameraServiceRGB {
       _startCaptureTimer();
       // _startBatchTimer();
       _isStreaming = true;
-      print('📱 Started RGB camera capture (auto-upload every ${_batchIntervalSeconds}s)');
     } catch (e) {
-      print('Start stream error: $e');
       rethrow;
     }
   }
@@ -141,7 +135,6 @@ class CameraServiceRGB {
       _captureTimer?.cancel();
       _batchTimer?.cancel();
       _isStreaming = false;
-      print('⏹️ Stopped RGB camera capture');
 
       // Wait for any ongoing upload to finish before triggering the final one
       while (_isUploading) {
@@ -151,7 +144,6 @@ class CameraServiceRGB {
       // Try one last upload
       await uploadBatch();
     } catch (e) {
-      print('Stop stream error: $e');
       rethrow;
     }
   }
@@ -185,16 +177,12 @@ class CameraServiceRGB {
       final RootIsolateToken? rootIsolateToken = RootIsolateToken.instance;
 
       if (rootIsolateToken == null) {
-        debugPrint('RootIsolateToken is null');
         return;
       }
 
       final String? newPath = await Isolate.run(() async {
         // Initialize background isolate
-        BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-        final int originalSize = await File(rawPath).length();
-        
+        BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);        
         final int now = DateTime.now().toLocal().millisecondsSinceEpoch;
 
         // 1. Compress and resize using flutter_image_compress (Native, fast)
@@ -207,14 +195,8 @@ class CameraServiceRGB {
         );
 
         if (compressedBytes == null) {
-          debugPrint('Compression failed');
           return null;
         }
-
-        debugPrint(
-          'Original: ${(originalSize / 1024).toStringAsFixed(2)} KB, '
-          'RGB Compressed: ${(compressedBytes.length / 1024).toStringAsFixed(2)} KB, ',
-        );
 
         // 2. Save locally
         final String fileName = 'frame_${now}_$deviceId.jpg';
@@ -243,18 +225,14 @@ class CameraServiceRGB {
       onStatsUpdated?.call();
 
       if (_pendingFrames.length >= _batchSize) {
-        debugPrint('Batch limit reached (${_pendingFrames.length}), uploading now...');
         uploadBatch();
       }
-    } catch (e) {
-      debugPrint('Frame capture error: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> uploadBatch() async {
     if (_pendingFrames.isEmpty) return;
     if (_isUploading) {
-      debugPrint('Upload already in progress, skipping this trigger.');
       return;
     }
 
@@ -262,8 +240,6 @@ class CameraServiceRGB {
 
     final List<_FrameRecord> batch = List<_FrameRecord>.from(_pendingFrames);
     if (batch.isEmpty) return;
-
-    debugPrint('Uploading batch: ${batch.length} frames');
 
     try {
       final List<Map<String, dynamic>> rows = <Map<String, dynamic>>[];
@@ -282,7 +258,6 @@ class CameraServiceRGB {
         }
 
         if (finalVehicleId == null) {
-          debugPrint('Skipping frame: Invalid vehicle ID (raw: ${rec.vehicleId}, stored: $_vehicleId)');
           _pendingFrames.remove(rec);
           await f.delete().catchError((_) => f);
           continue;
@@ -314,9 +289,7 @@ class CameraServiceRGB {
           _uploadedCount++;
         }
         onStatsUpdated?.call();
-        debugPrint('Batch upload complete: ${rows.length} records.');
       } catch (insertError) {
-        debugPrint('Bulk insert failed ($insertError), falling back to individual inserts...');
         for (int i = 0; i < rows.length; i++) {
           final row = rows[i];
           final rec = recordsForInsert[i];
@@ -336,9 +309,8 @@ class CameraServiceRGB {
         }
         onStatsUpdated?.call();
       }
-    } catch (e, st) {
-      debugPrint('Batch upload error: $e\n$st');
-    } finally {
+    } catch (e) {}
+    finally {
       _isUploading = false;
     }
   }
@@ -354,9 +326,7 @@ class CameraServiceRGB {
           await file.delete();
         }
       }
-    } catch (e) {
-      debugPrint('Clear cache error: $e');
-    }
+    } catch (e) {}
   }
 
   String _buildStoragePath(_FrameRecord rec) {

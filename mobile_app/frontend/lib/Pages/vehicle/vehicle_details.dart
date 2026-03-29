@@ -13,8 +13,6 @@ class VehicleDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Placeholder image if not available (ideally this should come from vehicle model)
-    const String vehicleImage =
-        "https://images.unsplash.com/photo-1558981806-ec527fa84f3d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=hunter";
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F1115), // Dark premium background
@@ -44,7 +42,7 @@ class VehicleDetailsPage extends StatelessWidget {
                 height: 200,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(vehicleImage),
+                    image: AssetImage("assets/vehicle_def.png"),
                     fit: BoxFit.contain,
                   ),
                 ),

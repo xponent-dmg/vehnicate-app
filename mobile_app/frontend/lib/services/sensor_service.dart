@@ -119,7 +119,7 @@ class SensorService {
       if (context.mounted) {
         CustomSnackBar.showInfo(
           context,
-          '📤 Synced ${dataToUpload.length} records',
+          'Synced ${dataToUpload.length} records',
         );
       }
     } catch (e) {
@@ -132,7 +132,7 @@ class SensorService {
       if (context.mounted) {
         CustomSnackBar.showWarning(
           context,
-          '📡 Connection weak. Retrying later...',
+          'Connection weak. Retrying later...',
         );
       }
     } finally {
@@ -151,7 +151,7 @@ class SensorService {
     }
 
     if (context.mounted) {
-      CustomSnackBar.showWarning(context, '⏹️ Collection stopped');
+      CustomSnackBar.showWarning(context, 'Collection stopped');
     }
   }
 

@@ -17,7 +17,6 @@ class VehicleProvider extends ChangeNotifier {
   List<Vehicle> get vehicles => _vehicles;
   Vehicle? get selectedVehicle => _selectedVehicle;
 
-  // Convenience getters for backward compatibility or easy access
   int? get vehicleId => _selectedVehicle?.id;
   String? get vehicleName => _selectedVehicle?.name;
   String? get vehicleModel => _selectedVehicle?.model;
@@ -45,10 +44,8 @@ class VehicleProvider extends ChangeNotifier {
         _drives = [];
         return;
       }
-      print('VehicleProvider: Loading vehicles for uid: ${user.uid}');
       await loadVehicleByUserId(user.uid);
 
-      // Load drives if we have a selected vehicle
       if (_selectedVehicle != null) {
         await loadDrives();
       }
@@ -57,7 +54,6 @@ class VehicleProvider extends ChangeNotifier {
 
   Future<void> refresh() async {
     final uid = firebase.FirebaseAuth.instance.currentUser?.uid;
-    print('VehicleProvider(refresh): Loading vehicle data with uid: $uid');
     if (uid == null) {
       _vehicles = [];
       _selectedVehicle = null;
@@ -87,11 +83,7 @@ class VehicleProvider extends ChangeNotifier {
     try {
       final data = await SupabaseService().getVehiclesByUserId(firebaseUuid);
       _vehicles = data.map((json) => Vehicle.fromJson(json)).toList();
-      print(
-        'VehicleProvider(loadVehicleByUserId): Loaded ${_vehicles.length} vehicles',
-      );
 
-      // Auto-select first vehicle if none selected or selection invalid
       if (_vehicles.isNotEmpty) {
         if (_selectedVehicle == null ||
             !_vehicles.any((v) => v.id == _selectedVehicle!.id)) {
@@ -101,7 +93,6 @@ class VehicleProvider extends ChangeNotifier {
         _selectedVehicle = null;
       }
     } catch (e) {
-      print('VehicleProvider(loadVehicleByUserId): Error loading vehicles: $e');
       _error = e;
       _vehicles = [];
       _selectedVehicle = null;
@@ -115,7 +106,7 @@ class VehicleProvider extends ChangeNotifier {
     if (_selectedVehicle?.id != vehicle.id) {
       _selectedVehicle = vehicle;
       notifyListeners();
-      loadDrives(); // Reload drives for new vehicle
+      loadDrives(); 
     }
   }
 
@@ -126,16 +117,11 @@ class VehicleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print(
-        'VehicleProvider: Loading drives for vehicle ${_selectedVehicle!.id}',
-      );
       final drivesData = await SupabaseService().fetchDrives(
         _selectedVehicle!.id,
       );
       _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
-      print('VehicleProvider: Loaded ${_drives.length} drives');
     } catch (e) {
-      print('VehicleProvider: Error loading drives: $e');
       _error = e;
     } finally {
       _isLoading = false;
@@ -148,7 +134,6 @@ class VehicleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('VehicleProvider: Deleting vehicle $vehicleId');
       await SupabaseService().deleteVehicle(vehicleId);
 
       _vehicles.removeWhere((v) => v.id == vehicleId);
@@ -163,9 +148,7 @@ class VehicleProvider extends ChangeNotifier {
       }
 
       notifyListeners();
-      print('VehicleProvider: Vehicle $vehicleId deleted');
     } catch (e) {
-      print('VehicleProvider: Error deleting vehicle: $e');
       _error = e;
       rethrow;
     } finally {
