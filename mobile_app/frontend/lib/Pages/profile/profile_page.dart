@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
             await croppedFileToDelete.delete();
           }
         } catch (e) {
-          debugPrint('Error deleting temporary file: $e');
+          throw Exception(e);
         }
       }
     }

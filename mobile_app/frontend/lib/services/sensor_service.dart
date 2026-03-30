@@ -88,7 +88,7 @@ class SensorService {
           _imuBuffer.removeAt(0);
         }
       } catch (e) {
-        debugPrint('Processing error: $e');
+        throw Exception(e);
       }
     });
 
@@ -122,9 +122,7 @@ class SensorService {
           'Synced ${dataToUpload.length} records',
         );
       }
-    } catch (e) {
-      debugPrint('Upload failed: $e');
-      // 4. On failure, put data back at the START of the buffer if there's room
+    } catch (e) {      // 4. On failure, put data back at the START of the buffer if there's room
       if (_imuBuffer.length + dataToUpload.length < _maxBufferSize) {
         _imuBuffer.insertAll(0, dataToUpload);
       }

@@ -90,7 +90,6 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
         });
       }
     } catch (e) {
-      print("Error fetching drive data: $e");
       if (mounted) {
         setState(() {
           _isLoading = false;

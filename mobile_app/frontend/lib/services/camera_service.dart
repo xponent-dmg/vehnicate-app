@@ -162,8 +162,6 @@ class CameraService {
       final XFile file = await _controller!.takePicture();
       final int now = DateTime.now().toLocal().millisecondsSinceEpoch;
 
-      final int originalSize = await file.length();
-
       // Read bytes
       final Uint8List bytes = await file.readAsBytes();
 
@@ -203,8 +201,7 @@ class CameraService {
       if (_pendingFrames.length >= _batchSize) {
         uploadBatch();
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<String> _saveLocally(Uint8List bytes, int timestampMs) async {
