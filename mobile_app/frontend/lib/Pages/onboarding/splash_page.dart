@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -78,7 +79,9 @@ class _SplashPageState extends State<SplashPage>
                 animation: _animation,
                 builder: (context, child) {
                   return Text(
-                    _showFinalText ? "vehnicate" : "vehicles+communicate",
+                    _showFinalText
+                        ? context.loc.appTitle
+                        : context.loc.vehiclesCommunicate,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -95,7 +98,7 @@ class _SplashPageState extends State<SplashPage>
               Transform.translate(
                 offset: Offset(0, MediaQuery.of(context).size.height / 3),
                 child: Text(
-                  "vehnicate@2025",
+                  context.loc.vehnicate2025,
                   style: TextStyle(
                     color: const Color.fromARGB(255, 255, 255, 255),
                     fontSize: 14,

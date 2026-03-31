@@ -6,6 +6,7 @@ import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
 import 'package:vehnicate_frontend/Widgets/header.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -54,15 +55,15 @@ class _HomeState extends State<Home> {
   String _getPageName(int index) {
     switch (index) {
       case 0:
-        return 'vehnicate';
+        return context.loc.vehnicateTab;
       case 1:
-        return 'navigation';
+        return context.loc.navigationTab;
       case 2:
-        return 'your garage';
+        return context.loc.garageTab;
       case 3:
-        return 'analytics';
+        return context.loc.analyticsTab;
       default:
-        return 'vehnicate';
+        return context.loc.vehnicateTab;
     }
   }
 

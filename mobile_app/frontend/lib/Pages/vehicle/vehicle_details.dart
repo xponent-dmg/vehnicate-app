@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class VehicleDetailsPage extends StatelessWidget {
   final Vehicle vehicle;
@@ -79,7 +80,7 @@ class VehicleDetailsPage extends StatelessWidget {
                 Expanded(
                   child: _buildStatCard(
                     icon: Icons.speed,
-                    label: "Distance Covered",
+                    label: context.loc.distanceCovered,
                     value: "24,500 km",
                   ),
                 ),
@@ -87,7 +88,7 @@ class VehicleDetailsPage extends StatelessWidget {
                 Expanded(
                   child: _buildStatCard(
                     icon: Icons.electric_bolt,
-                    label: "RPS Score",
+                    label: context.loc.rpsScore,
                     value: "85",
                     isHighlighted: true,
                   ),
@@ -100,7 +101,7 @@ class VehicleDetailsPage extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Document Center",
+                context.loc.documentCenter,
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 14,
@@ -118,29 +119,29 @@ class VehicleDetailsPage extends StatelessWidget {
               mainAxisSpacing: 15,
               children: [
                 _buildDocumentCard(
-                  title: "Insurance Policy",
-                  status: "Active",
+                  title: context.loc.insurancePolicy,
+                  status: context.loc.active,
                   statusColor: Colors.green,
                   subtitle: "Expires: 14 Nov 2024",
                   icon: Icons.security,
                   hasEdit: true,
                 ),
                 _buildDocumentCard(
-                  title: "RC Details",
-                  status: "Verified",
+                  title: context.loc.rcDetails,
+                  status: context.loc.verified,
                   statusColor: Colors.grey,
                   subtitle: vehicle.registration,
                   icon: Icons.article,
                   hasEdit: true,
                 ),
                 _buildDocumentCard(
-                  title: "PUC Certificate",
-                  status: "Expiring Soon",
+                  title: context.loc.pucCertificate,
+                  status: context.loc.expiringSoon,
                   statusColor: Colors.orange,
                   subtitle:
                       vehicle.puc != null
                           ? "Expires: ${vehicle.puc}"
-                          : "Not Uploaded",
+                          : context.loc.notUploaded,
                   icon: Icons.cloud_queue,
                 ),
                 _buildCallActionCard(),
@@ -152,7 +153,7 @@ class VehicleDetailsPage extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Logistics & History",
+                context.loc.logisticsHistory,
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 14,
@@ -184,7 +185,7 @@ class VehicleDetailsPage extends StatelessWidget {
                           style: TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                         Text(
-                          "2 hours ago",
+                          context.loc.hoursAgo(2),
                           style: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 12,
@@ -200,13 +201,13 @@ class VehicleDetailsPage extends StatelessWidget {
             const SizedBox(height: 10),
             _buildListTile(
               icon: Icons.build_circle_outlined,
-              title: "Service History",
-              trailing: "Last: Oil Change (Jan 24)",
+              title: context.loc.serviceHistory,
+              trailing: context.loc.lastService("Oil Change (Jan 24)"),
             ),
             const SizedBox(height: 10),
             _buildListTile(
               icon: Icons.wallet,
-              title: "Total Expenses",
+              title: context.loc.totalExpenses,
               trailing: "Rs 31,200",
             ),
             const SizedBox(height: 30),
@@ -216,15 +217,18 @@ class VehicleDetailsPage extends StatelessWidget {
               onTap: () {
                 CustomConfirmationDialog.show(
                   context,
-                  title: "Delete Vehicle",
+                  title: context.loc.deleteVehicle,
                   content:
                       "Are you sure you want to delete this vehicle? This action cannot be undone.",
-                  confirmText: "Delete",
+                  confirmText: context.loc.delete,
                   confirmTextColor: Colors.red,
                   onConfirm: () async {
                     try {
                       Navigator.pop(context); // Close dialog
-                      CustomLoadingDialog.show(context, message: "Deleting...");
+                      CustomLoadingDialog.show(
+                        context,
+                        message: context.loc.deleting,
+                      );
 
                       await Provider.of<VehicleProvider>(
                         context,
@@ -239,7 +243,11 @@ class VehicleDetailsPage extends StatelessWidget {
                       if (context.mounted) {
                         Navigator.pop(context); // Close loading dialog
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Error deleting vehicle: $e")),
+                          SnackBar(
+                            content: Text(
+                              context.loc.errorDeletingVehicle(e.toString()),
+                            ),
+                          ),
                         );
                       }
                     }
@@ -254,9 +262,9 @@ class VehicleDetailsPage extends StatelessWidget {
                   border: Border.all(color: Colors.red.withOpacity(0.5)),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    "Delete Vehicle",
+                    context.loc.deleteVehicle,
                     style: TextStyle(
                       color: Colors.red,
                       fontSize: 16,

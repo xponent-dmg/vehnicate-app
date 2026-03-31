@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final String userId;
@@ -99,9 +100,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 40),
-                    const Text(
-                      'Complete Your Profile',
-                      style: TextStyle(
+                    Text(
+                      context.loc.completeProfileTitle,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -109,7 +110,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tell us more about yourself',
+                      context.loc.tellUsMore,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white.withOpacity(0.7),
@@ -120,12 +121,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     // Full Name Field
                     _buildTextField(
                       controller: _fullNameController,
-                      label: 'Full Name',
+                      label: context.loc.fullNameLabel,
                       icon: Icons.person_outline,
                       textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your full name';
+                          return context.loc.pleaseEnterFullName;
                         }
                         return null;
                       },
@@ -135,15 +136,15 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     // Username Field
                     _buildTextField(
                       controller: _usernameController,
-                      label: 'Username',
+                      label: context.loc.usernameLabel,
                       icon: Icons.alternate_email,
                       textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a username';
+                          return context.loc.pleaseEnterUsername;
                         }
                         if (value.length < 3) {
-                          return 'Username must be at least 3 characters';
+                          return context.loc.usernameMinLength;
                         }
                         return null;
                       },
@@ -152,7 +153,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
                     // Vehicle Details Section
                     Text(
-                      'Vehicle Details (Optional)',
+                      context.loc.vehicleDetailsOptional,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -164,7 +165,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     // Vehicle Model Field
                     _buildTextField(
                       controller: _vehicleModelController,
-                      label: 'Vehicle Model',
+                      label: context.loc.vehicleModelLabel,
                       icon: Icons.directions_car_outlined,
                       textInputAction: TextInputAction.next,
                     ),
@@ -173,7 +174,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     // Vehicle Year Field
                     _buildTextField(
                       controller: _vehicleYearController,
-                      label: 'Vehicle Year',
+                      label: context.loc.vehicleYearLabel,
                       icon: Icons.calendar_today_outlined,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
@@ -183,7 +184,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _vehicleRegistrationController,
-                      label: 'Vehicle Registration',
+                      label: context.loc.vehicleRegistrationLabel,
                       icon: Icons.directions_car_outlined,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.done,
@@ -216,9 +217,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                     ),
                                   ),
                                 )
-                                : const Text(
-                                  'Continue',
-                                  style: TextStyle(
+                                : Text(
+                                  context.loc.continueButton,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -240,7 +241,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                   );
                                 },
                         child: Text(
-                          'Skip for now',
+                          context.loc.skipForNow,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 16,

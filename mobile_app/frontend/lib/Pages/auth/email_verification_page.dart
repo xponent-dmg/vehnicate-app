@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   const EmailVerificationPage({super.key});
@@ -125,7 +126,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error sending verification email: $e"),
+            content: Text(
+              context.loc.errorSendingVerificationEmail(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -153,8 +156,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         _navigateToNextScreen();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Email not verified yet. Please check your inbox."),
+          SnackBar(
+            content: Text(context.loc.emailNotVerified),
             backgroundColor: Colors.orange,
           ),
         );
@@ -165,25 +168,25 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   @override
   Widget build(BuildContext context) {
     if (isEmailVerified) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF1E1E2C), // Match app theme
+      return Scaffold(
+        backgroundColor: const Color(0xFF1E1E2C), // Match app theme
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle_outline, size: 100, color: Colors.green),
-              SizedBox(height: 20),
+              const Icon(Icons.check_circle_outline, size: 100, color: Colors.green),
+              const SizedBox(height: 20),
               Text(
-                'Email Verified!',
-                style: TextStyle(
+                context.loc.emailVerified,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
-                'Redirecting to home...',
+                context.loc.redirectingToHome,
                 style: TextStyle(color: Colors.white70),
               ),
             ],
@@ -195,7 +198,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E2C), // Match app theme
       appBar: AppBar(
-        title: const Text("Verify Email"),
+        title: Text(context.loc.verifyEmailTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -211,10 +214,10 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               color: Colors.white70,
             ),
             const SizedBox(height: 30),
-            const Text(
-              'Verify your email address',
+            Text(
+              context.loc.verifyEmailHeading,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -222,15 +225,17 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'We have sent a verification email to:\n${AuthService().currentUser?.email ?? "your email"}',
+              context.loc.verifyEmailMessage(
+                AuthService().currentUser?.email ?? "your email",
+              ),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Please check your email and click on the verification link.',
+            Text(
+              context.loc.verifyEmailInstruction,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.white60),
+              style: const TextStyle(fontSize: 14, color: Colors.white60),
             ),
             const SizedBox(height: 40),
 
@@ -248,7 +253,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text('I have verified my email'),
+              child: Text(context.loc.iHaveVerifiedEmail),
             ),
 
             const SizedBox(height: 24),
@@ -258,8 +263,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               onPressed: canResendEmail ? _sendVerificationEmail : null,
               child: Text(
                 canResendEmail
-                    ? 'Resend Verification Email'
-                    : 'Resend Email in $_resendTimer s',
+                    ? context.loc.resendVerificationEmail
+                    : context.loc.resendEmailIn(_resendTimer),
                 style: TextStyle(
                   color: canResendEmail ? const Color(0xFF6C63FF) : Colors.grey,
                 ),
@@ -276,9 +281,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                   ).pushNamedAndRemoveUntil('/login', (route) => false);
                 }
               },
-              child: const Text(
-                'Cancel & Log Out',
-                style: TextStyle(color: Colors.redAccent),
+              child: Text(
+                context.loc.cancelAndLogout,
+                style: const TextStyle(color: Colors.redAccent),
               ),
             ),
           ],

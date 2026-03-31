@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class SignupPage extends StatefulWidget {
   final String? initialEmail;
@@ -80,9 +81,9 @@ class _SignupPageState extends State<SignupPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 80),
-                    const Text(
-                      'vehnicate',
-                      style: TextStyle(
+                    Text(
+                      context.loc.appTitle,
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -90,9 +91,9 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Create your account',
-                      style: TextStyle(
+                    Text(
+                      context.loc.signupTitle,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.white70,
                         letterSpacing: 0.5,
@@ -110,7 +111,7 @@ class _SignupPageState extends State<SignupPage> {
                         textInputAction: TextInputAction.next,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: 'Email address',
+                          hintText: context.loc.loginEmailHint,
                           hintStyle: TextStyle(
                             color: Colors.white.withOpacity(0.6),
                           ),
@@ -131,7 +132,7 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return context.loc.pleaseEnterEmail;
                           }
                           // // Add email format validation
                           // final emailRegExp = RegExp(
@@ -156,7 +157,7 @@ class _SignupPageState extends State<SignupPage> {
                         textInputAction: TextInputAction.done,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: 'Password',
+                          hintText: context.loc.loginPasswordHint,
                           hintStyle: TextStyle(
                             color: Colors.white.withOpacity(0.6),
                           ),
@@ -190,10 +191,10 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
+                            return context.loc.pleaseEnterPassword;
                           }
                           if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                            return context.loc.passwordMinLength;
                           }
                           return null;
                         },
@@ -225,9 +226,9 @@ class _SignupPageState extends State<SignupPage> {
                                     ),
                                   ),
                                 )
-                                : const Text(
-                                  'Sign up',
-                                  style: TextStyle(
+                                : Text(
+                                  context.loc.signupButton,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -238,17 +239,17 @@ class _SignupPageState extends State<SignupPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Already have an account? ',
-                          style: TextStyle(color: Colors.white70),
+                        Text(
+                          context.loc.alreadyHaveAccount,
+                          style: const TextStyle(color: Colors.white70),
                         ),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context);
                           },
-                          child: const Text(
-                            'Sign in',
-                            style: TextStyle(
+                          child: Text(
+                            context.loc.signIn,
+                            style: const TextStyle(
                               color: Color(0xFF8E44AD),
                               fontWeight: FontWeight.w600,
                             ),

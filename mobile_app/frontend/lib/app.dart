@@ -14,6 +14,7 @@ import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/home.dart';
+import 'package:vehnicate_frontend/l10n/app_localizations.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/services/page_transitions.dart';
 
@@ -53,6 +54,9 @@ class App extends StatelessWidget {
           ),
         ),
       ),
+
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       onGenerateRoute: (settings) {
         // Apply custom transitions to all routes
         switch (settings.name) {

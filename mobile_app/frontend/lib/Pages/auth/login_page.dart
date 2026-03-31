@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -86,23 +87,23 @@ class _LoginPageState extends State<LoginPage> {
       builder:
           (context) => AlertDialog(
             backgroundColor: const Color(0xFF2d2d44),
-            title: const Text(
-              "Reset Password",
-              style: TextStyle(color: Colors.white),
+            title: Text(
+              context.loc.resetPassword,
+              style: const TextStyle(color: Colors.white),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  "Enter your email address to receive a password reset link.",
-                  style: TextStyle(color: Colors.white70),
+                Text(
+                  context.loc.resetPasswordMessage,
+                  style: const TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: emailResetController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    hintText: "Email",
+                    hintText: context.loc.email,
                     hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -119,9 +120,9 @@ class _LoginPageState extends State<LoginPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  "Cancel",
-                  style: TextStyle(color: Colors.white70),
+                child: Text(
+                  context.loc.cancel,
+                  style: const TextStyle(color: Colors.white70),
                 ),
               ),
               ElevatedButton(
@@ -135,10 +136,8 @@ class _LoginPageState extends State<LoginPage> {
                     await AuthService().resetPassword(email);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Password reset email sent! Check your inbox.",
-                          ),
+                        SnackBar(
+                          content: Text(context.loc.passwordResetEmailSent),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -147,7 +146,9 @@ class _LoginPageState extends State<LoginPage> {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text("Error: $e"),
+                          content: Text(
+                            context.loc.errorResetPassword(e.toString()),
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -157,9 +158,9 @@ class _LoginPageState extends State<LoginPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8E44AD),
                 ),
-                child: const Text(
-                  "Send Link",
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  context.loc.sendLink,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -194,9 +195,9 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 80),
 
                     // Logo and Title
-                    const Text(
-                      'vehnicate',
-                      style: TextStyle(
+                    Text(
+                      context.loc.appTitle,
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -204,9 +205,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'calm in the chaos',
-                      style: TextStyle(
+                    Text(
+                      context.loc.vehnicateTagline,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.white70,
                         letterSpacing: 0.5,
@@ -227,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                         textInputAction: TextInputAction.next,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: 'Email address',
+                          hintText: context.loc.loginEmailHint,
                           hintStyle: TextStyle(
                             color: Colors.white.withOpacity(0.6),
                           ),
@@ -248,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return context.loc.pleaseEnterEmail;
                           }
                           // if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                           //   return 'Please enter a valid email';
@@ -272,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
                         textInputAction: TextInputAction.done,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: 'Password',
+                          hintText: context.loc.loginPasswordHint,
                           hintStyle: TextStyle(
                             color: Colors.white.withOpacity(0.6),
                           ),
@@ -306,10 +307,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
+                            return context.loc.pleaseEnterPassword;
                           }
                           if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                            return context.loc.passwordMinLength;
                           }
                           return null;
                         },
@@ -321,7 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: TextButton(
                         onPressed: () => _showForgotPasswordDialog(context),
                         child: Text(
-                          'Forgot Password?',
+                          context.loc.forgotPassword,
                           style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF8E44AD),
@@ -360,7 +361,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 )
                                 : Text(
-                                  'Sign in',
+                                  context.loc.loginButton,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -376,7 +377,7 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Don't have an account? ",
+                          context.loc.dontHaveAccount,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                           ),
@@ -390,7 +391,7 @@ class _LoginPageState extends State<LoginPage> {
                             );
                           },
                           child: Text(
-                            'Sign up',
+                            context.loc.signUp,
                             style: const TextStyle(
                               color: Color(0xFF8E44AD),
                               fontWeight: FontWeight.w600,
@@ -414,7 +415,7 @@ class _LoginPageState extends State<LoginPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'or connect with',
+                            context.loc.orConnectWith,
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.6),
                               fontSize: 14,

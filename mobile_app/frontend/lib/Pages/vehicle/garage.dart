@@ -7,6 +7,7 @@ import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/vehicle_details.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -33,35 +34,35 @@ class _GaragePageState extends State<GaragePage> {
   void _showAddVehicleOverlay(BuildContext context) {
     FormOverlay.show(
       context: context,
-      title: 'Add Vehicle',
+      title: context.loc.addVehicle,
       fields: [
         FormFieldConfig(
-          label: 'Model',
-          hint: 'e.g., Honda City',
+          label: context.loc.modelLabel,
+          hint: context.loc.modelHint,
           icon: Icons.car_rental,
           controller: _vehicleModelController,
         ),
         FormFieldConfig(
-          label: 'Registration Number',
-          hint: 'e.g., KA01AB1234',
+          label: context.loc.registrationNumberLabel,
+          hint: context.loc.registrationNumberHint,
           icon: Icons.confirmation_number,
           controller: _registrationController,
         ),
         FormFieldConfig(
-          label: 'Insurance Number',
-          hint: 'e.g., INS123456789',
+          label: context.loc.insuranceNumberLabel,
+          hint: context.loc.insuranceNumberHint,
           icon: Icons.shield,
           controller: _insuranceController,
         ),
         FormFieldConfig(
-          label: 'PUC Date',
-          hint: 'Select date',
+          label: context.loc.pucDateLabel,
+          hint: context.loc.selectDateHint,
           icon: Icons.calendar_today,
           controller: _pucDateController,
           type: FormFieldType.date,
         ),
       ],
-      submitButtonText: 'Add Vehicle',
+      submitButtonText: context.loc.addVehicle,
       onSubmit: () async {
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) {
@@ -92,7 +93,7 @@ class _GaragePageState extends State<GaragePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Vehicle added successfully!'),
+              content: Text(context.loc.vehicleAddedSuccessfully),
               backgroundColor: Theme.of(context).primaryColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -103,7 +104,7 @@ class _GaragePageState extends State<GaragePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to add vehicle: ${error.toString()}'),
+              content: Text(context.loc.failedToAddVehicle(error.toString())),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             ),
@@ -143,9 +144,7 @@ class _GaragePageState extends State<GaragePage> {
       itemCount: vehicles.length + 1,
       itemBuilder: (context, index) {
         if (index == vehicles.length) {
-          return _buildAddVehicleTile(
-            hasVehicle: vehicles.isNotEmpty,
-          );
+          return _buildAddVehicleTile(hasVehicle: vehicles.isNotEmpty);
         }
         return _buildVehicleCard(vehicles[index]);
       },
@@ -168,9 +167,11 @@ class _GaragePageState extends State<GaragePage> {
             Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
             const SizedBox(width: 12),
             Text(
-              hasVehicle ? 'Add another vehicle' : 'Add your vehicle',
+              hasVehicle
+                  ? context.loc.addAnotherVehicle
+                  : context.loc.addVehicle,
               style: TextStyle(
-                color: Colors.white,  
+                color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -297,7 +298,7 @@ class _GaragePageState extends State<GaragePage> {
               child: Row(
                 children: [
                   Text(
-                    'View details',
+                    context.loc.viewDetails,
                     style: TextStyle(color: Colors.grey[500], fontSize: 10),
                   ),
                   Icon(Icons.arrow_right, color: Colors.grey[500], size: 14),

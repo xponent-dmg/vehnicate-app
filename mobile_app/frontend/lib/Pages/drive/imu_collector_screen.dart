@@ -13,6 +13,7 @@ import 'package:vehnicate_frontend/services/sensor_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:location/location.dart' as loc;
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -68,8 +69,13 @@ class _ImuCollectorState extends State<ImuCollector> {
       await _initLocation();
       print('[IMU_DEBUG][_initAll] ✅ IMU Collector initialized successfully');
     } catch (e, st) {
-      print('[IMU_DEBUG][_initAll] ❌ Init error: $e\n$st');
-      CustomSnackBar.showError(context, 'Initialization failed: $e');
+      print(
+        '[IMU_DEBUG][_initAll] ❌ Init error: ${e.toString()}\n${st.toString()}',
+      );
+      CustomSnackBar.showError(
+        context,
+        context.loc.initializationFailed(e.toString()),
+      );
     }
   }
 
@@ -83,7 +89,10 @@ class _ImuCollectorState extends State<ImuCollector> {
       );
     } catch (e) {
       print('[IMU_DEBUG][_initCamera] ❌ Camera init error: $e');
-      CustomSnackBar.showError(context, 'Camera initialization failed: $e');
+      CustomSnackBar.showError(
+        context,
+        context.loc.cameraInitializationFailed(e.toString()),
+      );
     }
   }
 
@@ -92,24 +101,27 @@ class _ImuCollectorState extends State<ImuCollector> {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw Exception('Location services are disabled');
+        throw Exception(context.loc.locationServicesDisabled);
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          throw Exception('Location permissions are denied');
+          throw Exception(context.loc.locationPermissionsDenied);
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        throw Exception('Location permissions are permanently denied');
+        throw Exception(context.loc.locationPermissionsPermanentlyDenied);
       }
       print('[IMU_DEBUG][_initLocation] 📍 Location permissions granted');
     } catch (e) {
       print('[IMU_DEBUG][_initLocation] ❌ Location init error: $e');
-      CustomSnackBar.showError(context, 'Location initialization failed: $e');
+      CustomSnackBar.showError(
+        context,
+        context.loc.locationInitializationFailed(e.toString()),
+      );
     }
   }
 
@@ -123,11 +135,11 @@ class _ImuCollectorState extends State<ImuCollector> {
 
     await FormOverlay.show(
       context: context,
-      title: 'Enter Start Position',
-      submitButtonText: 'Start Collection',
+      title: context.loc.enterStartPosition,
+      submitButtonText: context.loc.startCollection,
       fields: [
         FormFieldConfig(
-          label: 'Start X',
+          label: context.loc.startX,
           hint: '0.0',
           icon: Icons.location_on_outlined,
           controller: xController,
@@ -137,7 +149,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           ),
         ),
         FormFieldConfig(
-          label: 'Start Y',
+          label: context.loc.startY,
           hint: '0.0',
           icon: Icons.location_on_outlined,
           controller: yController,
@@ -147,7 +159,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           ),
         ),
         FormFieldConfig(
-          label: 'Start Z',
+          label: context.loc.startZ,
           hint: '0.0',
           icon: Icons.height,
           controller: zController,
@@ -197,7 +209,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         if (mounted) {
           CustomSnackBar.showError(
             context,
-            'Location services are required to start collection.',
+            context.loc.locationServicesRequired,
           );
         }
         return;
@@ -211,10 +223,7 @@ class _ImuCollectorState extends State<ImuCollector> {
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
       if (mounted) {
-        CustomSnackBar.showError(
-          context,
-          'Error: No vehicle selected. Please go to Garage and select a vehicle.',
-        );
+        CustomSnackBar.showError(context, context.loc.noVehicleSelected);
       }
       await WakelockPlus.disable();
       return;
@@ -271,7 +280,10 @@ class _ImuCollectorState extends State<ImuCollector> {
     } catch (e) {
       print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
       if (mounted) {
-        CustomSnackBar.showError(context, 'Failed to start collection: $e');
+        CustomSnackBar.showError(
+          context,
+          context.loc.failedToStartCollection(e.toString()),
+        );
       }
       _driveStartTime = null; // Reset if failed
       // CustomSnackBar.showError(context, 'Failed to start collection: $e');
@@ -399,19 +411,17 @@ class _ImuCollectorState extends State<ImuCollector> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Stop Data Collection?'),
-                content: const Text(
-                  'Data transmission is currently active. Going back will stop the transmission. Do you want to continue?',
-                ),
+                title: Text(context.loc.stopDataCollection),
+                content: Text(context.loc.stopDataCollectionMessage),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.loc.cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
                     style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Stop & Go Back'),
+                    child: Text(context.loc.stopAndGoBack),
                   ),
                 ],
               );
@@ -430,7 +440,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         resizeToAvoidBottomInset: false,
         backgroundColor: const Color(0xFF01010D),
         appBar: AppBar(
-          title: const Text("IMU + Camera Data Collector"),
+          title: Text("IMU + Camera Data Collector"),
           backgroundColor: const Color(0xFF0E0E1A),
           foregroundColor: Colors.white,
           elevation: 0,
@@ -578,12 +588,12 @@ class _ImuCollectorState extends State<ImuCollector> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatCard(
-                'IMU Data',
+                context.loc.imuData,
                 '${_imuDataCount - _uploadedImuCount}',
                 '$_uploadedImuCount',
               ),
               _buildStatCard(
-                'Images',
+                context.loc.images,
                 '${_cameraService.processedCount - _cameraService.uploadedCount}',
                 '${_cameraService.uploadedCount}',
               ),
@@ -624,8 +634,10 @@ class _ImuCollectorState extends State<ImuCollector> {
                       : Icon(isCollecting ? Icons.stop : Icons.play_arrow),
               label: Text(
                 isStopping
-                    ? 'Stopping...'
-                    : (isCollecting ? 'Stop Collection' : 'Start Collection'),
+                    ? context.loc.stopping
+                    : (isCollecting
+                        ? context.loc.stopCollection
+                        : context.loc.startCollection),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
@@ -646,10 +658,13 @@ class _ImuCollectorState extends State<ImuCollector> {
               onPressed: () async {
                 print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
                 await _cameraService.uploadBatch();
-                CustomSnackBar.showSuccess(context, 'Upload triggered');
+                CustomSnackBar.showSuccess(
+                  context,
+                  context.loc.uploadTriggered,
+                );
               },
               icon: const Icon(Icons.upload),
-              label: const Text('Upload Now'),
+              label: Text(context.loc.uploadNow),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     (_cameraService.pendingFramesCount == 0)
@@ -694,7 +709,9 @@ class _ImuCollectorState extends State<ImuCollector> {
           ),
           const SizedBox(width: 8),
           Text(
-            isCollecting ? 'Data Collection Active' : 'Data Collection Stopped',
+            isCollecting
+                ? context.loc.dataCollectionActive
+                : context.loc.dataCollectionStopped,
             style: TextStyle(
               color: isCollecting ? const Color(0xFF4CAF50) : Colors.white60,
               fontWeight: FontWeight.bold,

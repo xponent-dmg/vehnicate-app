@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 /// A custom snackbar widget that matches the app's theme
 class CustomSnackBar {
@@ -166,7 +167,9 @@ class CustomSnackBar {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 6.0),
                               child: Text(
-                                isExpanded ? "Show Less" : "View More",
+                                isExpanded
+                                    ? context.loc.showLess
+                                    : context.loc.viewMore,
                                 style: TextStyle(
                                   color:
                                       textColor?.withOpacity(0.8) ??

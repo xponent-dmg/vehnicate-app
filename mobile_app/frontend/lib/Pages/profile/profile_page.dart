@@ -1,20 +1,14 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
-
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
-import 'package:vehnicate_frontend/Widgets/avatar.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
 import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 // Constants and Theme
 class ProfilePage extends StatefulWidget {
@@ -59,9 +53,9 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext dialogContext) {
         return CustomConfirmationDialog(
-          title: "Confirm Logout",
-          content: "Are you sure you want to logout of this account?",
-          confirmText: "Logout",
+          title: context.loc.confirmLogout,
+          content: context.loc.confirmLogoutMessage,
+          confirmText: context.loc.logout,
           confirmTextColor: ProfileConstants.deleteRed,
           onConfirm: () {
             Navigator.of(dialogContext).pop();
@@ -82,9 +76,9 @@ class _ProfilePageState extends State<ProfilePage> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return const CustomLoadingDialog(
-            message: 'Logging out...',
-            backgroundColor: Color(0xFF2d2d44),
+          return CustomLoadingDialog(
+            message: context.loc.loggingOut,
+            backgroundColor: const Color(0xFF2d2d44),
           );
         },
       );
@@ -109,7 +103,10 @@ class _ProfilePageState extends State<ProfilePage> {
         Navigator.of(context).pop();
 
         // Show error message
-        CustomSnackBar.showError(context, 'Failed to logout: $e');
+        CustomSnackBar.showError(
+          context,
+          context.loc.failedToLogout(e.toString()),
+        );
       }
     }
   }
@@ -119,10 +116,9 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext dialogContext) {
         return CustomConfirmationDialog(
-          title: "Confirm deletion",
-          content:
-              "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.",
-          confirmText: "Delete",
+          title: context.loc.confirmDeletion,
+          content: context.loc.confirmDeletionMessage,
+          confirmText: context.loc.delete,
           confirmTextColor: ProfileConstants.deleteRed,
           onConfirm: () {
             Navigator.of(dialogContext).pop();
@@ -149,17 +145,17 @@ class _ProfilePageState extends State<ProfilePage> {
       final passwordController = TextEditingController();
       FormOverlay.show(
         context: context,
-        title: 'Confirm Password',
+        title: context.loc.confirmPasswordTitle,
         fields: [
           FormFieldConfig(
-            label: 'Password',
-            hint: 'Enter your password to confirm',
+            label: context.loc.passwordHint,
+            hint: context.loc.passwordHint,
             icon: Icons.lock,
             controller: passwordController,
             obscureText: true,
           ),
         ],
-        submitButtonText: 'Verify & Delete',
+        submitButtonText: context.loc.verifyAndDelete,
         onSubmit: () async {
           await AuthService().reauthenticateWithPassword(
             passwordController.text,
@@ -175,7 +171,10 @@ class _ProfilePageState extends State<ProfilePage> {
             Navigator.of(
               context,
             ).pushNamedAndRemoveUntil("/login", (route) => false);
-            CustomSnackBar.showSuccess(context, 'Account deleted successfully');
+            CustomSnackBar.showSuccess(
+              context,
+              context.loc.accountDeletedSuccessfully,
+            );
           }
         },
         onError: (error) {
@@ -195,9 +194,9 @@ class _ProfilePageState extends State<ProfilePage> {
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return const CustomLoadingDialog(
-              message: 'Confirming login...',
-              backgroundColor: Color(0xFF2d2d44),
+            return CustomLoadingDialog(
+              message: context.loc.confirmingLogin,
+              backgroundColor: const Color(0xFF2d2d44),
             );
           },
         );
@@ -241,112 +240,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _pickAndUploadImage() async {
-    File? croppedFileToDelete;
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      );
-
-      if (result != null && result.files.single.path != null) {
-        final File file = File(result.files.single.path!);
-
-        // Crop Image
-        final croppedFile = await ImageCropper().cropImage(
-          sourcePath: file.path,
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: const Color(0xFF2d2d44),
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.square,
-              lockAspectRatio: true,
-              aspectRatioPresets: [CropAspectRatioPreset.square],
-            ),
-            IOSUiSettings(
-              title: 'Crop Image',
-              aspectRatioLockEnabled: true,
-              resetAspectRatioEnabled: false,
-              aspectRatioPickerButtonHidden: true,
-              rotateButtonsHidden: true,
-              rotateClockwiseButtonHidden: true,
-            ),
-          ],
-        );
-
-        if (croppedFile == null) return; // User cancelled cropping
-
-        final File finalFile = File(croppedFile.path);
-        croppedFileToDelete = finalFile;
-
-        if (!mounted) return;
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final user = userProvider.currentUser;
-
-        if (user == null) {
-          CustomSnackBar.showError(context, 'User not logged in');
-          return;
-        }
-
-        // Show loading indicator
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return const CustomLoadingDialog(
-              message: 'Uploading profile picture...',
-              backgroundColor: Color(0xFF2d2d44),
-            );
-          },
-        );
-
-        final imageUrl = await SupabaseService().uploadProfilePicture(
-          finalFile,
-          user.firebaseUid,
-        );
-
-        await SupabaseService().updateUserProfile(
-          userId: user.firebaseUid,
-          fullName: user.name,
-          username: user.username,
-          profilePictureUrl: imageUrl,
-        );
-
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-        await userProvider.refresh();
-        if (mounted) {
-          CustomSnackBar.showSuccess(
-            context,
-            'Profile picture updated successfully!',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        // Close loading dialog if open
-        Navigator.of(context).maybePop();
-        CustomSnackBar.showError(
-          context,
-          'Failed to update profile picture: $e',
-        );
-      }
-    } finally {
-      // Clean up the temporary cropped file
-      if (croppedFileToDelete != null) {
-        try {
-          if (await croppedFileToDelete.exists()) {
-            await croppedFileToDelete.delete();
-          }
-        } catch (e) {
-          debugPrint('Error deleting temporary file: $e');
-        }
-      }
-    }
-  }
-
   void _showEditUserDetailsOverlay(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.currentUser;
@@ -359,36 +252,36 @@ class _ProfilePageState extends State<ProfilePage> {
 
     FormOverlay.show(
       context: context,
-      title: 'Edit Profile',
+      title: context.loc.editProfileTitle,
       fields: [
         FormFieldConfig(
-          label: 'Name',
-          hint: 'Enter your full name',
+          label: context.loc.nameLabel,
+          hint: context.loc.nameHint,
           icon: Icons.person,
           controller: _nameController,
         ),
         FormFieldConfig(
-          label: 'Username',
-          hint: 'Enter your username',
+          label: context.loc.usernameLabel,
+          hint: context.loc.usernameHint,
           icon: Icons.alternate_email,
           controller: _usernameController,
         ),
         FormFieldConfig(
-          label: 'Phone',
-          hint: 'Enter your phone number',
+          label: context.loc.phoneLabel,
+          hint: context.loc.phoneHint,
           icon: Icons.phone,
           controller: _phoneController,
           isRequired: false,
         ),
         FormFieldConfig(
-          label: 'Address',
-          hint: 'Enter your address',
+          label: context.loc.addressLabel,
+          hint: context.loc.addressHint,
           icon: Icons.location_on,
           controller: _addressController,
           isRequired: false,
         ),
       ],
-      submitButtonText: 'Update Profile',
+      submitButtonText: context.loc.updateProfileButton,
       onSubmit: () async {
         final firebaseUser = FirebaseAuth.instance.currentUser;
         if (firebaseUser == null) {
@@ -414,7 +307,10 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       onSuccess: () {
         if (mounted) {
-          CustomSnackBar.showSuccess(context, 'Profile updated successfully!');
+          CustomSnackBar.showSuccess(
+            context,
+            context.loc.profileUpdatedSuccessfully,
+          );
         }
       },
       onError: (error) {
@@ -449,7 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   _buildHeader(context),
                   _buildProfileSection(context),
-                  _buildStatsSection(),
+                  // _buildStatsSection(),
                   const SizedBox(height: 14),
                   _buildPersonalInfoSection(context),
                   const SizedBox(height: 30),
@@ -488,7 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
           border: Border.all(color: ProfileConstants.logoutRed),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Text('Log out', style: ProfileConstants.logoutStyle),
+        child: Text(context.loc.logOut, style: ProfileConstants.logoutStyle),
       ),
     );
   }
@@ -499,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
         final user = userProvider.currentUser;
         return Column(
           children: [
-            _buildAvatar(),
+            // _buildAvatar(),
             const SizedBox(height: 16),
             Text(user?.name ?? 'Guest', style: ProfileConstants.nameStyle),
             const SizedBox(height: 4),
@@ -510,160 +406,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildAvatar() {
-    return Consumer<UserProvider>(
-      builder: (context, userProvider, child) {
-        final user = userProvider.currentUser;
-        final profilePic = user?.profilePictureUrl;
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Hero(
-              tag: 'profile-avatar',
-              child: Avatar(
-                imageUrl: profilePic,
-                size: ProfileConstants.avatarSize,
-              ),
-            ),
-            Positioned(
-              bottom: -10,
-              right: -10,
-              child: IconButton(
-                onPressed: _pickAndUploadImage,
-                icon: const Icon(FontAwesomeIcons.penToSquare),
-                color: Colors.white,
-                iconSize: 18,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildStatsSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildStatMetric(
-                icon: FontAwesomeIcons.road,
-                iconColor: Colors.blueGrey,
-                value: 0,
-                unit: 'km',
-                label: 'Covered',
-                backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
-              ),
-              _buildStatMetric(
-                icon: FontAwesomeIcons.fire,
-                iconColor: Colors.deepOrangeAccent,
-                value: 0,
-                unit: 'days',
-                label: 'Streak',
-                backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
-              ),
-              _buildProgressIndicator(context),
-            ],
-          ),
-          const SizedBox(height: 30),
-          Container(
-            height: 2,
-            decoration: BoxDecoration(
-              color: ProfileConstants.dividerColor,
-              borderRadius: BorderRadius.circular(67),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatMetric({
-    required IconData icon,
-    required int value,
-    required String unit,
-    required String label,
-    required Color backgroundColor,
-    required Color iconColor,
-  }) {
-    return Column(
-      children: [
-        Container(
-          width: ProfileConstants.metricCircleSize,
-          height: ProfileConstants.metricCircleSize,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Icon(
-              icon,
-              color:
-                  (value > 0)
-                      ? iconColor
-                      : const Color.fromARGB(255, 218, 218, 218),
-              size: 32,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: 64,
-          child: Text(
-            '${value.toString()} $unit',
-            textAlign: TextAlign.center,
-            style: ProfileConstants.metricLabelStyle,
-          ),
-        ),
-        SizedBox(
-          width: 64,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: ProfileConstants.metricLabelStyle,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProgressIndicator(BuildContext context) {
-    final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
-    return Column(
-      children: [
-        Hero(
-          tag: 'rps-score-indicator',
-          child: CircularPercentIndicator(
-            radius: 30,
-            lineWidth: 8,
-            percent: (rpsScore ?? 0) / 100,
-            backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
-            progressColor: Theme.of(context).primaryColor,
-            circularStrokeCap: CircularStrokeCap.round, // rounded ends
-            animation: true,
-            center: Text(
-              "${rpsScore ?? '--'}",
-              style: ProfileConstants.metricValueStyle,
-            ),
-          ),
-        ),
-        SizedBox(height: 5),
-        SizedBox(
-          width: 70,
-          child: Text(
-            "Overall Performance",
-            style: ProfileConstants.metricLabelStyle,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
     );
   }
 
@@ -679,8 +421,8 @@ class _ProfilePageState extends State<ProfilePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Personal Information',
+                  Text(
+                    context.loc.personalInformation,
                     style: ProfileConstants.sectionTitleStyle,
                   ),
                   TextButton(
@@ -697,16 +439,19 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 8),
               _buildInfoRow(
-                'Email',
-                user?.email ?? 'mail not given',
+                context.loc.emailLabel,
+                user?.email ?? context.loc.mailNotGiven,
                 isFirst: true,
               ),
               SizedBox(height: 3),
-              _buildInfoRow('Phone', user?.phone ?? 'phone not given'),
+              _buildInfoRow(
+                context.loc.phoneLabel,
+                user?.phone ?? context.loc.phoneNotGiven,
+              ),
               SizedBox(height: 3),
               _buildInfoRow(
-                'Address',
-                user?.address ?? 'Address not updated',
+                context.loc.addressLabel,
+                user?.address ?? context.loc.addressNotUpdated,
                 isLast: true,
               ),
             ],
@@ -722,7 +467,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Settings', style: ProfileConstants.sectionTitleStyle),
+          Text(context.loc.settings, style: ProfileConstants.sectionTitleStyle),
           const SizedBox(height: 8),
           _buildSettingRow('Notification', true, isFirst: true),
           SizedBox(height: 3),

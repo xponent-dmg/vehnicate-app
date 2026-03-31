@@ -9,6 +9,7 @@ import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vehnicate_frontend/utils/extensions.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -100,20 +101,20 @@ class _DashboardPageState extends State<DashboardPage> {
           controller: _registrationController,
         ),
         FormFieldConfig(
-          label: 'Insurance Number',
-          hint: 'e.g., INS123456789',
+          label: context.loc.insuranceNumberLabel,
+          hint: context.loc.insuranceNumberHint,
           icon: Icons.shield,
           controller: _insuranceController,
         ),
         FormFieldConfig(
-          label: 'PUC Date',
-          hint: 'Select date',
+          label: context.loc.pucDateLabel,
+          hint: context.loc.selectDateHint,
           icon: Icons.calendar_today,
           controller: _pucDateController,
           type: FormFieldType.date,
         ),
       ],
-      submitButtonText: 'Add Vehicle',
+      submitButtonText: context.loc.addVehicle,
       onSubmit: () async {
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) {
@@ -146,7 +147,7 @@ class _DashboardPageState extends State<DashboardPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Vehicle added successfully!'),
+              content: Text(context.loc.vehicleAddedSuccessfully),
               backgroundColor: Theme.of(context).primaryColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -157,7 +158,7 @@ class _DashboardPageState extends State<DashboardPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to add vehicle: ${error.toString()}'),
+              content: Text(context.loc.failedToAddVehicle(error.toString())),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             ),
@@ -190,7 +191,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
                     child: Text(
-                      'Select Vehicle',
+                      context.loc.selectVehicle,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -203,7 +204,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Center(
                         child: Text(
-                          'No vehicles available',
+                          context.loc.noVehiclesAvailable,
                           style: TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -312,7 +313,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 children: [
                                   Text(
                                     vehicleProvider.vehicleModel ??
-                                        'No vehicle',
+                                        context.loc.noVehicle,
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -323,7 +324,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                   Text(
                                     vehicleProvider.vehicleRegistration ??
-                                        '------',
+                                        context
+                                            .loc
+                                            .vehicleRegistrationPlaceholder,
                                     style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 11,
@@ -338,13 +341,13 @@ class _DashboardPageState extends State<DashboardPage> {
                               onTap: () => _showVehicleSelectionSheet(context),
                               child: Column(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.swap_horiz_rounded,
                                     color: Colors.white,
                                   ),
-                                  const Text(
-                                    'Swap',
-                                    style: TextStyle(
+                                  Text(
+                                    context.loc.swap,
+                                    style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 10,
                                     ),
@@ -394,7 +397,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 width: 1,
                               ),
                             ),
-                            child: const Column(
+                            child: Column(
                               children: [
                                 Row(
                                   children: [
@@ -405,8 +408,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                     ),
                                     SizedBox(width: 6),
                                     Text(
-                                      'Add Vehicle',
-                                      style: TextStyle(
+                                      context.loc.addVehicle,
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
@@ -419,9 +422,12 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Tap to add your vehicle',
-                          style: TextStyle(color: Colors.white54, fontSize: 11),
+                        Text(
+                          context.loc.tapToAddVehicle,
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 11,
+                          ),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -456,9 +462,9 @@ Widget _startCard(BuildContext context) {
                   color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child: const Text(
-                  'Start Drive',
-                  style: TextStyle(
+                child: Text(
+                  context.loc.startDrive,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -535,9 +541,9 @@ Widget _rpsScoreCard(BuildContext context) {
                 borderRadius: BorderRadius.circular(10),
                 color: Theme.of(context).primaryColor.withAlpha(51),
               ),
-              child: const Text(
-                'RPS Score',
-                style: TextStyle(color: Colors.white70, fontSize: 8),
+              child: Text(
+                context.loc.rpsScore,
+                style: const TextStyle(color: Colors.white70, fontSize: 8),
               ),
             ),
           ],
@@ -558,9 +564,9 @@ Widget _weeklyChallenge(BuildContext context) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Drive smoothly',
-              style: TextStyle(
+            Text(
+              context.loc.driveSmoothly,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -587,7 +593,7 @@ Widget _weeklyChallenge(BuildContext context) {
                   ),
                 ),
                 child: Text(
-                  'Weekly',
+                  context.loc.weekly,
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.w500,
@@ -599,9 +605,9 @@ Widget _weeklyChallenge(BuildContext context) {
           ],
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Maintain constant acceleration for 50 km',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
+        Text(
+          context.loc.maintainConstantAcceleration,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 16),
         const Row(
