@@ -15,12 +15,10 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-  // final bool _isSignUp = false;
 
   @override
   void initState() {
     super.initState();
-    print('🔐 LoginPage initialized');
   }
 
   @override
@@ -169,7 +167,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('🎨 Building LoginPage widget...');
 
     return Scaffold(
       body: Container(
@@ -250,9 +247,6 @@ class _LoginPageState extends State<LoginPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
-                          // if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          //   return 'Please enter a valid email';
-                          // }
                           return null;
                         },
                       ),

@@ -6,11 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
-import 'package:vehnicate_frontend/Pages/vehicle/vehicle_details.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
-
   @override
   State<GaragePage> createState() => _GaragePageState();
 }
@@ -52,6 +50,7 @@ class _GaragePageState extends State<GaragePage> {
           hint: 'e.g., INS123456789',
           icon: Icons.shield,
           controller: _insuranceController,
+          isRequired: false,
         ),
         FormFieldConfig(
           label: 'PUC Date',
@@ -59,6 +58,7 @@ class _GaragePageState extends State<GaragePage> {
           icon: Icons.calendar_today,
           controller: _pucDateController,
           type: FormFieldType.date,
+          isRequired: false,
         ),
       ],
       submitButtonText: 'Add Vehicle',
@@ -185,128 +185,109 @@ class _GaragePageState extends State<GaragePage> {
     // Placeholder data
 
     final String location = "Hill view, Mumbai"; // Placeholder
-    final String image =
-        "https://images.unsplash.com/photo-1503376763036-066120622c74?auto=format&fit=crop&w=300&q=80"; // Placeholder
+    final String image = 'assets/vehicle_def.png';
 
     return GlassLiteContainer(
       margin: const EdgeInsets.only(bottom: 20),
       height: 150,
       backgroundColor: const Color(0xFF1B1D25),
       borderRadius: BorderRadius.circular(24),
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          "/vehicle-details",
+          arguments: vehicle,
+        );
+      },
       child: Stack(
-        children: [
-          // Content Row
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                // Car Image Area
-                Expanded(
-                  flex: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      image,
-                      fit: BoxFit.cover,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: const Color(0xFF1B1D25),
-                          child: Center(
-                            child: Icon(
-                              Icons.directions_car_filled,
-                              size: 40,
-                              color: Colors.white.withOpacity(0.1),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // Details Column
-                Expanded(
-                  flex: 5,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 6),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          vehicle.model,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          vehicle.registration,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 12,
-                              color: const Color(0xFF5B60F8),
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                location,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 12,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // "View details" text at bottom right
-          Positioned(
-            bottom: 12,
-            right: 16,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VehicleDetailsPage(vehicle: vehicle),
-                  ),
-                );
-              },
+          children: [
+            // Content Row
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  Text(
-                    'View details',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 10),
+                  // Car Image Area
+                  Hero(
+                    tag: 'vehicle_image_${vehicle.id}',
+                    child: Container(
+                      width: 110,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(image),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
                   ),
-                  Icon(Icons.arrow_right, color: Colors.grey[500], size: 14),
+                  const SizedBox(width: 16),
+                  // Details Column
+                  Expanded(
+                    flex: 5,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            vehicle.model,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            vehicle.registration,
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 12,
+                                color: const Color(0xFF5B60F8),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
+
+            // "Arrow" 
+            Positioned(
+              right:25,
+              bottom:60,
+
+                child: 
+                  Icon(Icons.arrow_right, color: Colors.grey[500], size: 30),
+            ),
+          ],
+        ),
+      
     );
   }
 }

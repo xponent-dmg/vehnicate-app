@@ -238,7 +238,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
 
       // Capture start time
-      _driveStartTime = DateTime.now();
+      _driveStartTime = DateTime.now().toLocal();
       print(
         '[IMU_DEBUG][startCollection] 📅 Drive started at: $_driveStartTime',
       );
@@ -291,7 +291,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       print('[IMU_DEBUG][stopCollection] ⏹️ Stopping data collection...');
 
       // Capture end time
-      _driveEndTime = DateTime.now();
+      _driveEndTime = DateTime.now().toLocal();
       print('[IMU_DEBUG][stopCollection] 📅 Drive ended at: $_driveEndTime');
 
       // Stop Sensor collection and Camera streaming in parallel

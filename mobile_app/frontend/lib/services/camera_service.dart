@@ -57,8 +57,7 @@ class CameraService {
     try {
       await _prepareCacheDirs();
       await _initCamera();
-    } catch (e, st) {
-      debugPrint('Init error: $e\n$st');
+    } catch (e) {
       rethrow;
     }
   }
@@ -72,7 +71,7 @@ class CameraService {
     // On startup, load any leftover frames for retry.
     final entries = _framesDir.listSync().whereType<File>().toList()..sort((a, b) => a.path.compareTo(b.path));
     for (final file in entries) {
-      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().millisecondsSinceEpoch;
+      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
       final deviceId = _extractDeviceIdFromFilename(file.path) ?? 'unknown_device';
 
       _pendingFrames.add(
@@ -85,7 +84,6 @@ class CameraService {
         ),
       );
     }
-    debugPrint('Pending RGB frames restored: ${_pendingFrames.length}');
   }
 
   Future<void> _initCamera() async {
@@ -107,7 +105,6 @@ class CameraService {
 
   Future<void> startStreaming({required String vehicleId, required String deviceId, required String imuBatchId}) async {
     if (!_isReady || _controller == null) {
-      debugPrint('Camera not ready');
       return;
     }
     if (_isStreaming) return;
@@ -124,9 +121,7 @@ class CameraService {
       _startCaptureTimer();
       _startBatchTimer();
       _isStreaming = true;
-      print('📱 Started RGB camera capture (auto-upload every ${_batchIntervalSeconds}s)');
     } catch (e) {
-      print('Start stream error: $e');
       rethrow;
     }
   }
@@ -138,12 +133,8 @@ class CameraService {
       _captureTimer?.cancel();
       _batchTimer?.cancel();
       _isStreaming = false;
-      print('⏹️ Stopped RGB camera capture');
-
-      // Try one last upload
       await uploadBatch();
     } catch (e) {
-      print('Stop stream error: $e');
       rethrow;
     }
   }
@@ -169,9 +160,7 @@ class CameraService {
 
     try {
       final XFile file = await _controller!.takePicture();
-      final int now = DateTime.now().millisecondsSinceEpoch;
-
-      final int originalSize = await file.length();
+      final int now = DateTime.now().toLocal().millisecondsSinceEpoch;
 
       // Read bytes
       final Uint8List bytes = await file.readAsBytes();
@@ -179,7 +168,6 @@ class CameraService {
       // Decode image
       img.Image? image = img.decodeImage(bytes);
       if (image == null) {
-        debugPrint('Failed to decode image');
         return;
       }
 
@@ -193,10 +181,6 @@ class CameraService {
 
       // Encode to JPG with reduced quality
       final Uint8List processedBytes = img.encodeJpg(grayscale, quality: 70);
-
-      debugPrint(
-        'Original size: ${(originalSize / 1024).toStringAsFixed(2)} KB, Processed size: ${(processedBytes.length / 1024).toStringAsFixed(2)} KB',
-      );
 
       // Save processed file
       final String newPath = await _saveLocally(processedBytes, now);
@@ -215,12 +199,9 @@ class CameraService {
       onStatsUpdated?.call();
 
       if (_pendingFrames.length >= _batchSize) {
-        debugPrint('Batch limit reached (${_pendingFrames.length}), uploading now...');
         uploadBatch();
       }
-    } catch (e) {
-      debugPrint('Frame capture error: $e');
-    }
+    } catch (e) {}
   }
 
   Future<String> _saveLocally(Uint8List bytes, int timestampMs) async {
@@ -237,8 +218,6 @@ class CameraService {
 
     final List<_FrameRecord> batch = List<_FrameRecord>.from(_pendingFrames);
     if (batch.isEmpty) return;
-
-    debugPrint('Uploading batch: ${batch.length} frames');
 
     try {
       final List<Map<String, dynamic>> rows = <Map<String, dynamic>>[];
@@ -289,9 +268,7 @@ class CameraService {
           _uploadedCount++;
         }
         onStatsUpdated?.call();
-        debugPrint('Batch upload complete: ${rows.length} records.');
       } catch (insertError) {
-        debugPrint('Bulk insert failed ($insertError), falling back to individual inserts...');
         for (int i = 0; i < rows.length; i++) {
           final row = rows[i];
           final rec = recordsForInsert[i];
@@ -311,9 +288,7 @@ class CameraService {
         }
         onStatsUpdated?.call();
       }
-    } catch (e, st) {
-      debugPrint('Batch upload error: $e\n$st');
-    }
+    } catch (e){}
   }
 
   Future<void> clearCache() async {
@@ -327,13 +302,11 @@ class CameraService {
           await file.delete();
         }
       }
-    } catch (e) {
-      debugPrint('Clear cache error: $e');
-    }
+    } catch (e) {}
   }
 
   String _buildStoragePath(_FrameRecord rec) {
-    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toUtc();
+    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal();
     final String dateDir = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
     final String name = 'frame_${rec.timestampMs}_${rec.deviceId}.jpg';
     return '$dateDir/$name';

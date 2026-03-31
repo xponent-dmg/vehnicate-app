@@ -8,7 +8,6 @@ void main() async {
   final originalImage = img.decodeImage(originalBytes);
   
   if (originalImage == null) {
-    print('Error: Could not decode image');
     return;
   }
 
@@ -35,8 +34,4 @@ void main() async {
   // Save the padded image
   final paddedFile = File('assets/vehnicate_logo_padded.png');
   await paddedFile.writeAsBytes(img.encodePng(newImage));
-  
-  print('✓ Created padded icon: ${paddedFile.path}');
-  print('  Original size: ${originalWidth}x$originalHeight');
-  print('  New size: ${newWidth}x$newHeight');
 }

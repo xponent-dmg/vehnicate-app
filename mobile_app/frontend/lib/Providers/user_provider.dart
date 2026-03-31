@@ -32,35 +32,22 @@ class UserProvider extends ChangeNotifier {
   }
 
   Future<void> loadUserByFirebaseUid(String firebaseUid) async {
-    print("UserProvider: Loading user data for Firebase UID: $firebaseUid");
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      print("UserProvider: Requesting data from SupabaseService");
       final data = await SupabaseService().getUserdetails(firebaseUid);
-
-      print("UserProvider: Received data from Supabase: $data");
       if (data != null) {
         final user = AppUser.fromMap(data);
-        print(
-          "UserProvider: Created AppUser object: ${user.name}, ${user.email}",
-        );
         _setUser(user);
       } else {
-        print(
-          "UserProvider: No user data received from Supabase. Attempting to create...",
-        );
         final currentUser = firebase.FirebaseAuth.instance.currentUser;
         if (currentUser != null && currentUser.uid == firebaseUid) {
           if (!currentUser.emailVerified &&
               currentUser.providerData.every(
                 (info) => info.providerId == 'password',
               )) {
-            print(
-              "UserProvider: Email not verified. Skipping Supabase user creation.",
-            );
             _setUser(null);
           } else {
             await SupabaseService().createSupabaseUser(
@@ -68,34 +55,21 @@ class UserProvider extends ChangeNotifier {
               email: currentUser.email ?? '',
               displayName: currentUser.displayName,
             );
-
-            // Retry fetch
-            print("UserProvider: Retrying data fetch after creation...");
             final retryData = await SupabaseService().getUserdetails(
               firebaseUid,
             );
             if (retryData != null) {
               final user = AppUser.fromMap(retryData);
-              print(
-                "UserProvider: Created AppUser object after retry: ${user.name}",
-              );
               _setUser(user);
             } else {
-              print("UserProvider: Still no user data after creation attempt");
               _setUser(null);
             }
           }
         } else {
-          print(
-            "UserProvider: Current Firebase user does not match requested UID or is null",
-          );
           _setUser(null);
         }
       }
-    } catch (e, stackTrace) {
-      print("UserProvider: Error loading user data:");
-      print("Error: $e");
-      print("Stack trace: $stackTrace");
+    } catch (e) {
       _error = e;
       _setUser(null);
     } finally {

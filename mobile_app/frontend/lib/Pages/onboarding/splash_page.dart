@@ -28,7 +28,6 @@ class _SplashPageState extends State<SplashPage>
         setState(() {
           _showFinalText = true;
         });
-        // Decide route after animation completes
         Future.delayed(Duration(milliseconds: 500), () {
           if (_navigated) return;
           final user = FirebaseAuth.instance.currentUser;

@@ -64,7 +64,7 @@ class SensorService {
             'vehicleid': vehicleId,
             'timesent':
                 DateTime.now()
-                    .toUtc()
+                    .toLocal()
                     .toIso8601String(), // Use UTC for DB consistency
             'accelx': packet.raw.ax,
             'accely': packet.raw.ay,
@@ -88,7 +88,7 @@ class SensorService {
           _imuBuffer.removeAt(0);
         }
       } catch (e) {
-        debugPrint('Processing error: $e');
+        throw Exception(e);
       }
     });
 
@@ -119,12 +119,10 @@ class SensorService {
       if (context.mounted) {
         CustomSnackBar.showInfo(
           context,
-          '📤 Synced ${dataToUpload.length} records',
+          'Synced ${dataToUpload.length} records',
         );
       }
-    } catch (e) {
-      debugPrint('Upload failed: $e');
-      // 4. On failure, put data back at the START of the buffer if there's room
+    } catch (e) {      // 4. On failure, put data back at the START of the buffer if there's room
       if (_imuBuffer.length + dataToUpload.length < _maxBufferSize) {
         _imuBuffer.insertAll(0, dataToUpload);
       }
@@ -132,7 +130,7 @@ class SensorService {
       if (context.mounted) {
         CustomSnackBar.showWarning(
           context,
-          '📡 Connection weak. Retrying later...',
+          'Connection weak. Retrying later...',
         );
       }
     } finally {
@@ -151,7 +149,7 @@ class SensorService {
     }
 
     if (context.mounted) {
-      CustomSnackBar.showWarning(context, '⏹️ Collection stopped');
+      CustomSnackBar.showWarning(context, 'Collection stopped');
     }
   }
 

@@ -399,7 +399,7 @@ class FormOverlay {
           onTap: () async {
             final DateTime? picked = await showDatePicker(
               context: context,
-              initialDate: DateTime.now(),
+              initialDate: DateTime.now().toLocal(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2101),
             );

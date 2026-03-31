@@ -13,8 +13,10 @@ import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
+import 'package:vehnicate_frontend/Pages/vehicle/vehicle_details.dart';
 import 'package:vehnicate_frontend/home.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
+import 'package:vehnicate_frontend/models/vehicle_model.dart';
 import 'package:vehnicate_frontend/services/page_transitions.dart';
 
 class App extends StatelessWidget {
@@ -54,9 +56,7 @@ class App extends StatelessWidget {
         ),
       ),
       onGenerateRoute: (settings) {
-        // Apply custom transitions to all routes
         switch (settings.name) {
-          // Splash and Auth - Fade transition (clean and simple)
           case "/splash":
             return PageTransitions.fade(SplashPage());
           case "/login":
@@ -66,47 +66,31 @@ class App extends StatelessWidget {
             return PageTransitions.fade(SignupPage(initialEmail: emailArgs));
           case "/verify-email":
             return PageTransitions.fade(EmailVerificationPage());
-
-          // Profile - Fade + Slide Up (elegant)
           case "/profile":
             return PageTransitions.fadeSlideUp(ProfilePage());
-
-          // Dashboard - Fade (quick and clean)
           case "/dash":
             return PageTransitions.fade(DashboardPage());
-
-          // IMU Collector - Slide from Bottom (modal-style)
           case "/imu":
             return PageTransitions.slideFromBottom(ImuCollector());
-
-          // Garage - Scale + Fade (emphasis)
           case "/garage":
             return PageTransitions.scaleFade(GaragePage());
-
-          // Drive Analyze - Slide from Right (forward navigation)
+          case "/vehicle-details":
+            final vehicle = settings.arguments as Vehicle?;
+            return PageTransitions.slideFromBottom(VehicleDetailsPage(vehicle: vehicle!));
           case "/analyze":
-            return PageTransitions.slideFromRight(DriveAnalyzePage());
-
+            return PageTransitions.slideFromBottom(DriveAnalyzePage());
           // Edit Details - Fade + Slide Up (form-like)
           // case "/editdetails":
           //   return PageTransitions.fadeSlideUp(EditProfilePage());
-
-          // Home - Fade (neutral)
           case "/home":
             return PageTransitions.fade(Home());
-
-          // Map - Scale + Fade (focus on map)
           case "/map":
             return PageTransitions.scaleFade(MapPage());
-
-          // User Details with arguments
           case "/user-details":
             final args = settings.arguments as Map<String, dynamic>;
             return PageTransitions.slideFromRight(
               UserDetailsPage(userId: args["userId"], email: args["email"]),
             );
-
-          // Document Upload with arguments
           case "/document-upload":
             final args = settings.arguments as Map<String, dynamic>?;
             final docType =
@@ -116,14 +100,12 @@ class App extends StatelessWidget {
             return PageTransitions.slideFromBottom(
               DocumentUploadPage(documentType: docType),
             );
-
           case "/drive-details":
             final args = settings.arguments as Drive?;
             final drive = args != null ? (args as Drive?) : null;
-            return PageTransitions.slideFromRight(
+            return PageTransitions.slideFromBottom(
               DriveDetailsPage(drive: drive!),
             );
-
           default:
             return null;
         }

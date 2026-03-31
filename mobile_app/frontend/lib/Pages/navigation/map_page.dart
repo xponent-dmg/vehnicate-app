@@ -135,7 +135,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     }
     if (vid == null) {
       _showSnackBar(
-        '❌ No vehicle linked. Please update your profile with a vehicle.',
+        'No vehicle linked. Please update your profile with a vehicle.',
         Colors.red,
       );
       return;
@@ -166,7 +166,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     // Debounce the search - wait 300ms after user stops typing
     _autocompleteTimer = Timer(const Duration(milliseconds: 300), () async {
       try {
-        print('🔍 Autocomplete search: $query');
+        
         final suggestions = await _mapService.fetchAutocompleteSuggestions(
           query,
         );
@@ -175,9 +175,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           _showAutocomplete = suggestions.isNotEmpty;
           _isFromFieldActive = isFromField;
         });
-        print('📍 Found ${suggestions.length} autocomplete suggestions');
+        
       } catch (e) {
-        print('❌ Autocomplete error: $e');
+        throw Exception(e);
       }
     });
   }
@@ -253,10 +253,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     setState(() => _isLoading = true);
 
     try {
-      print('🗺️ Calculating route...');
-      print('📍 From: ${_fromLocation!.latitude}, ${_fromLocation!.longitude}');
-      print('📍 To: ${_toLocation!.latitude}, ${_toLocation!.longitude}');
-
       final result = await _mapService.calculateRoute(
         _fromLocation!,
         _toLocation!,
@@ -271,13 +267,13 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       _updateMarkers();
       _fitMapToRoute();
 
-      print('✅ Route calculated successfully: ${_routePoints.length} points');
+      
       _showSnackBar(
         'Route calculated: ${_totalDistance.toStringAsFixed(1)} km',
         Colors.green,
       );
     } catch (e) {
-      print('❌ Route calculation error: $e');
+      
       _showSnackBar('Error calculating route: $e', Colors.red);
     } finally {
       setState(() => _isLoading = false);
@@ -588,10 +584,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       _isLoading
                           ? null
                           : () async {
-                            print('From location: $_fromLocation');
-                            print('To location: $_toLocation');
-                            print('From text: ${_fromController.text}');
-                            print('To text: ${_toController.text}');
+                            
+                            
+                            
+                            
 
                             if (_toController.text.isNotEmpty &&
                                 _toLocation == null) {

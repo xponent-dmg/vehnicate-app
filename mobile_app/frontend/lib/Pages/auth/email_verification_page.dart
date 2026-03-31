@@ -77,7 +77,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           );
         }
       } catch (e) {
-        print("Error during backend registration: $e");
+        throw Exception(e);
       }
 
       if (mounted) {
@@ -238,7 +238,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
             ElevatedButton(
               onPressed: _handleManualCheck,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF), // Primary color
+                backgroundColor: const Color(0xFF6C63FF), // 1mary color
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 40,
