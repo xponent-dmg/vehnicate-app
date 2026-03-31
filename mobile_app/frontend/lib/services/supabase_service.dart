@@ -297,7 +297,7 @@ class SupabaseService {
         'email': email,
         'name': name,
         'username': username,
-        'created_at': DateTime.now().toLocal().toIso8601String(),
+        'created_at': DateTime.now().toIso8601String(),
         'role': 'User',
       });
 

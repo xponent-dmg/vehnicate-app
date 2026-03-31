@@ -64,7 +64,8 @@ class SensorService {
             'vehicleid': vehicleId,
             'timesent':
                 DateTime.now()
-                    .toLocal()
+                    .toUtc()
+                    .add(const Duration(hours: 5, minutes: 30))
                     .toIso8601String(), // Use UTC for DB consistency
             'accelx': packet.raw.ax,
             'accely': packet.raw.ay,
@@ -88,7 +89,7 @@ class SensorService {
           _imuBuffer.removeAt(0);
         }
       } catch (e) {
-        throw Exception(e);
+        _controller.addError(e);
       }
     });
 

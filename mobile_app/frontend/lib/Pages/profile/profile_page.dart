@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
             await croppedFileToDelete.delete();
           }
         } catch (e) {
-          throw Exception(e);
+          debugPrint('Failed to clean up temporary file: $e');
         }
       }
     }

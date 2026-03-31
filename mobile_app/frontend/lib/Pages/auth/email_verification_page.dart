@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
@@ -77,7 +78,10 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           );
         }
       } catch (e) {
-        throw Exception(e);
+        if (mounted) {
+          CustomSnackBar.showError(context, "Error checking verification: $e");
+        }
+        return;
       }
 
       if (mounted) {
