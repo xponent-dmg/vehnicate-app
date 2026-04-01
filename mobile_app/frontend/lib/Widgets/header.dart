@@ -48,56 +48,62 @@ class _HeaderState extends State<Header> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  ClipRect(
-                    child: SizedBox(
-                      height: 30,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 400),
-                        layoutBuilder: (
-                          Widget? currentChild,
-                          List<Widget> previousChildren,
-                        ) {
-                          return Stack(
-                            alignment: Alignment.centerLeft,
-                            children: <Widget>[
-                              ...previousChildren,
-                              if (currentChild != null) currentChild,
-                            ],
-                          );
-                        },
-                        transitionBuilder: (
-                          Widget child,
-                          Animation<double> animation,
-                        ) {
-                          final double offset = _slideUp ? 1.0 : -1.0;
-                          final inAnimation = Tween<Offset>(
-                            begin: Offset(0.0, offset),
-                            end: Offset.zero,
-                          ).animate(animation);
-                          final outAnimation = Tween<Offset>(
-                            begin: Offset(0.0, -offset),
-                            end: Offset.zero,
-                          ).animate(animation);
+                  Transform.translate(
+                    offset: const Offset(
+                      0,
+                      -1.2,
+                    ), // Visually align with 'Welcome to '
+                    child: ClipRect(
+                      child: SizedBox(
+                        height: 30,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          layoutBuilder: (
+                            Widget? currentChild,
+                            List<Widget> previousChildren,
+                          ) {
+                            return Stack(
+                              alignment: Alignment.centerLeft,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          transitionBuilder: (
+                            Widget child,
+                            Animation<double> animation,
+                          ) {
+                            final double offset = _slideUp ? 1.0 : -1.0;
+                            final inAnimation = Tween<Offset>(
+                              begin: Offset(0.0, offset),
+                              end: Offset.zero,
+                            ).animate(animation);
+                            final outAnimation = Tween<Offset>(
+                              begin: Offset(0.0, -offset),
+                              end: Offset.zero,
+                            ).animate(animation);
 
-                          if (child.key == ValueKey(widget.pageName)) {
-                            return SlideTransition(
-                              position: inAnimation,
-                              child: child,
-                            );
-                          } else {
-                            return SlideTransition(
-                              position: outAnimation,
-                              child: child,
-                            );
-                          }
-                        },
-                        child: Text(
-                          widget.pageName,
-                          key: ValueKey(widget.pageName),
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            if (child.key == ValueKey(widget.pageName)) {
+                              return SlideTransition(
+                                position: inAnimation,
+                                child: child,
+                              );
+                            } else {
+                              return SlideTransition(
+                                position: outAnimation,
+                                child: child,
+                              );
+                            }
+                          },
+                          child: Text(
+                            widget.pageName,
+                            key: ValueKey(widget.pageName),
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -125,7 +131,7 @@ class _HeaderState extends State<Header> {
                   }
                   if (userProvider.currentUser != null) {
                     return TypewriterText(
-                      "${userProvider.currentUser?.name}",
+                      userProvider.displayName,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,

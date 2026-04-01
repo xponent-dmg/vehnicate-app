@@ -27,18 +27,14 @@ class SupabaseService {
   Future<void> initialize() async {
     try {
       _client = Supabase.instance.client;
-      
     } catch (e) {
-      
       try {
         await Supabase.initialize(
           url: dotenv.env['SUPABASE_URL'] ?? '',
           anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
         );
         _client = Supabase.instance.client;
-        
       } catch (e) {
-        
         throw Exception('Failed to initialize Supabase: $e');
       }
     }
@@ -54,7 +50,6 @@ class SupabaseService {
     String? profilePictureUrl,
   }) async {
     try {
-      
       await initialize();
 
       // Build update map with only non-null values
@@ -80,20 +75,16 @@ class SupabaseService {
               ) // Use firebaseuid to find the correct record
               .select();
 
-      
-
       if ((response as List).isEmpty) {
         throw Exception('User record not found');
       }
     } catch (e) {
-      
       throw Exception('Failed to update profile: $e');
     }
   }
 
   Future<String> uploadProfilePicture(File file, String userId) async {
     try {
-      
       await initialize();
 
       final fileExt = file.path.split('.').last;
@@ -113,10 +104,8 @@ class SupabaseService {
           .from('user_avatars')
           .getPublicUrl(filePath);
 
-      
       return imageUrl;
     } catch (e) {
-      
       throw Exception('Failed to upload profile picture: $e');
     }
   }
@@ -124,12 +113,11 @@ class SupabaseService {
   Future<Map<String, dynamic>?> getUserdetails(String firebaseUuid) async {
     try {
       if (firebaseUuid.isEmpty) {
-        
         return null;
       }
 
       // Query Supabase using Firebase UID
-      
+
       await initialize(); // Ensure client is initialized
 
       final response =
@@ -139,25 +127,18 @@ class SupabaseService {
               .eq('firebaseuid', firebaseUuid)
               .maybeSingle();
 
-      
-
       if (response == null) {
-        
         return null;
       }
 
       return response;
     } catch (e) {
-      
-      
-      
       return null;
     }
   }
 
   Future<Map<String, dynamic>?> getVehicleDetails(int vehicleId) async {
     try {
-      
       await initialize(); // Ensure client is initialized
 
       final vehicle =
@@ -167,12 +148,8 @@ class SupabaseService {
               .eq('vehicleid', vehicleId)
               .maybeSingle();
 
-      
       return vehicle;
     } catch (e) {
-      
-      
-      
       return null;
     }
   }
@@ -181,7 +158,6 @@ class SupabaseService {
     String firebaseUuid,
   ) async {
     try {
-      
       await initialize(); // Ensure client is initialized
 
       // Step 1: Get the vehicle details directly from vehicledetails table using firebaseuid
@@ -190,12 +166,8 @@ class SupabaseService {
           .select()
           .eq('firebaseuid', firebaseUuid);
 
-      
       return List<Map<String, dynamic>>.from(vehiclesResponse);
     } catch (e) {
-      
-      
-      
       return [];
     }
   }
@@ -208,7 +180,6 @@ class SupabaseService {
     required String model,
   }) async {
     try {
-      
       await initialize(); // Ensure client is initialized
     } catch (e) {
       throw Exception('Failed to update vehicle details: $e');
@@ -217,7 +188,6 @@ class SupabaseService {
 
   Future<List<Map<String, dynamic>>> fetchDrives(int vehicleId) async {
     try {
-      
       await initialize();
 
       // Query 'trips' table directly
@@ -227,11 +197,24 @@ class SupabaseService {
           .eq('vehicleid', vehicleId)
           .order('starttime', ascending: false);
 
-      
-      return List<Map<String, dynamic>>.from(response);
+      final List<Map<String, dynamic>> allDrives =
+          List<Map<String, dynamic>>.from(response);
+
+      // Filter drives that are greater than 5 minutes
+      final filteredDrives =
+          allDrives.where((drive) {
+            if (drive['starttime'] == null || drive['endtime'] == null) {
+              return false;
+            }
+            final start = DateTime.tryParse(drive['starttime']);
+            final end = DateTime.tryParse(drive['endtime']);
+            if (start == null || end == null) return false;
+
+            return end.difference(start).inMinutes > 1;
+          }).toList();
+
+      return filteredDrives;
     } catch (e) {
-      
-      
       return [];
     }
   }
@@ -272,7 +255,6 @@ class SupabaseService {
     String? displayName,
   }) async {
     try {
-      
       await initialize();
 
       // Check if user exists
@@ -284,11 +266,9 @@ class SupabaseService {
               .maybeSingle();
 
       if (existingUser != null) {
-        
         return;
       }
 
-      
       final name = displayName ?? 'New User';
       final username = name.split(' ')[0];
 
@@ -300,11 +280,7 @@ class SupabaseService {
         'created_at': DateTime.now().toIso8601String(),
         'role': 'User',
       });
-
-      
     } catch (e) {
-      
-      
       // Don't rethrow, just log. The subsequent fetch will fail if this failed.
     }
   }
@@ -317,13 +293,8 @@ class SupabaseService {
     String? puc,
   }) async {
     try {
-      
       await initialize(); // Ensure client is initialized
-      
     } catch (e) {
-      
-      
-      
       throw Exception('Failed to create vehicle: $e');
     }
   }
@@ -344,11 +315,8 @@ class SupabaseService {
           .lte('timestamp', endTime.toIso8601String())
           .order('timestamp', ascending: true);
 
-      
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      
-      
       return [];
     }
   }
@@ -370,19 +338,15 @@ class SupabaseService {
         },
       );
 
-      
       // RPC returns a list directly typically, but we cast for safety
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      
-      
       return [];
     }
   }
 
   Future<void> deleteVehicle(int vehicleId) async {
     try {
-      
       await initialize(); // Ensure client is initialized
 
       // We explicitly select the deleted record to verify if it was actually deleted.
@@ -394,26 +358,18 @@ class SupabaseService {
               .eq('vehicleid', vehicleId)
               .select();
 
-      
-
       if ((response as List).isEmpty) {
         throw Exception(
           "Delete operation returned no rows. Possible RLS policy violation or record not found.",
         );
       }
-
-      
     } catch (e) {
-      
-      
-      
       throw Exception('Failed to delete vehicle: $e');
     }
   }
 
   Future<void> deleteUser(String firebaseUid) async {
     try {
-      
       await initialize();
 
       // Check if user exists first to distinguish between RLS block and already-deleted
@@ -435,20 +391,28 @@ class SupabaseService {
               .eq('firebaseuid', firebaseUid)
               .select();
 
-      
-
       if ((response as List).isEmpty) {
         throw Exception(
           "Supabase RLS Error: Your Supabase database is blocking the user account deletion. Please go to your Supabase Dashboard -> Authentication -> Policies and ensure there is an active DELETE policy on the 'userdetails' table.",
         );
-      } else {
-        
-      }
+      } else {}
     } catch (e) {
-      
-      
-      
       throw Exception('Failed to delete Supabase user: $e');
+    }
+  }
+
+  Future<bool> isUsernameAvailable(String username) async {
+    try {
+      await initialize();
+      final response =
+          await _client
+              .from('userdetails')
+              .select('username')
+              .eq('username', username)
+              .maybeSingle();
+      return response == null; // True if no user exists with this username
+    } catch (e) {
+      throw Exception('Failed to check username availability: $e');
     }
   }
 }

@@ -143,9 +143,7 @@ class _GaragePageState extends State<GaragePage> {
       itemCount: vehicles.length + 1,
       itemBuilder: (context, index) {
         if (index == vehicles.length) {
-          return _buildAddVehicleTile(
-            hasVehicle: vehicles.isNotEmpty,
-          );
+          return _buildAddVehicleTile(hasVehicle: vehicles.isNotEmpty);
         }
         return _buildVehicleCard(vehicles[index]);
       },
@@ -170,7 +168,7 @@ class _GaragePageState extends State<GaragePage> {
             Text(
               hasVehicle ? 'Add another vehicle' : 'Add your vehicle',
               style: TextStyle(
-                color: Colors.white,  
+                color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -185,7 +183,7 @@ class _GaragePageState extends State<GaragePage> {
     // Placeholder data
 
     final String location = "Hill view, Mumbai"; // Placeholder
-    final String image = 'assets/vehicle_def.png';
+    final String image = 'assets/images/vehicle_def.png';
 
     return GlassLiteContainer(
       margin: const EdgeInsets.only(bottom: 20),
@@ -193,101 +191,99 @@ class _GaragePageState extends State<GaragePage> {
       backgroundColor: const Color(0xFF1B1D25),
       borderRadius: BorderRadius.circular(24),
       onTap: () {
-        Navigator.pushNamed(
-          context,
-          "/vehicle-details",
-          arguments: vehicle,
-        );
+        Navigator.pushNamed(context, "/vehicle-details", arguments: vehicle);
       },
       child: Stack(
-          children: [
-            // Content Row
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  // Car Image Area
-                  Hero(
-                    tag: 'vehicle_image_${vehicle.id}',
-                    child: Container(
-                      width: 110,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(image),
-                          fit: BoxFit.contain,
+        children: [
+          // Content Row
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                // Car Image Area
+                Hero(
+                  tag: 'vehicle_image_${vehicle.id}',
+                  child: Container(
+                    width: 110,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(image),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Details Column
+                Expanded(
+                  flex: 5,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          vehicle.model,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Details Column
-                  Expanded(
-                    flex: 5,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 6),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            vehicle.model,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        const SizedBox(height: 2),
+                        Text(
+                          vehicle.registration,
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 12,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            vehicle.registration,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 12,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 12,
+                              color: const Color(0xFF5B60F8),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                size: 12,
-                                color: const Color(0xFF5B60F8),
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  location,
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 12,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                location,
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            // "Arrow" 
-            Positioned(
-              right:25,
-              bottom:60,
+          // "Arrow"
+          Positioned(
+            right: 25,
+            bottom: 60,
 
-                child: 
-                  Icon(Icons.arrow_right, color: Colors.grey[500], size: 30),
+            child: Icon(
+              Icons.arrow_right_rounded,
+              color: Colors.grey[500],
+              size: 30,
             ),
-          ],
-        ),
-      
+          ),
+        ],
+      ),
     );
   }
 }

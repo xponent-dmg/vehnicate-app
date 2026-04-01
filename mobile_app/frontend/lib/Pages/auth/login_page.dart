@@ -3,7 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final String? initialEmail;
+
+  const LoginPage({super.key, this.initialEmail});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -19,6 +21,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialEmail != null) {
+      _emailController.text = widget.initialEmail!;
+    }
   }
 
   @override

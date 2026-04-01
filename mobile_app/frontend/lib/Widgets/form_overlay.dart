@@ -13,7 +13,8 @@ class FormFieldConfig {
   final FormFieldType type;
 
   final TextInputType? keyboardType;
-  final bool obscureText;
+  final bool isPassword;
+  bool obscureText;
 
   FormFieldConfig({
     required this.label,
@@ -23,8 +24,9 @@ class FormFieldConfig {
     required this.controller,
     this.type = FormFieldType.text,
     this.keyboardType,
-    this.obscureText = false,
-  });
+    this.isPassword = false,
+    bool? obscureText,
+  }) : obscureText = obscureText ?? isPassword;
 }
 
 /// Reusable form overlay widget
@@ -131,6 +133,12 @@ class FormOverlay {
                                       isRequired: field.isRequired,
                                       keyboardType: field.keyboardType,
                                       obscureText: field.obscureText,
+                                      isPassword: field.isPassword,
+                                      onTogglePassword: () {
+                                        setState(() {
+                                          field.obscureText = !field.obscureText;
+                                        });
+                                      },
                                       textInputAction: textInputAction,
                                     ),
                               ],
@@ -257,6 +265,8 @@ class FormOverlay {
     bool isRequired = true,
     TextInputType? keyboardType,
     bool obscureText = false,
+    bool isPassword = false,
+    VoidCallback? onTogglePassword,
     TextInputAction? textInputAction,
   }) {
     return Column(
@@ -284,6 +294,15 @@ class FormOverlay {
               color: Theme.of(context).primaryColor,
               size: 20,
             ),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility : Icons.visibility_off_rounded,
+                      color: Colors.white70,
+                    ),
+                    onPressed: onTogglePassword,
+                  )
+                : null,
             filled: true,
             fillColor: Color(0xFF3d3d54),
             border: OutlineInputBorder(

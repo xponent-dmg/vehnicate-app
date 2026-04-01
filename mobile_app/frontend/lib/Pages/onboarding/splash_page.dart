@@ -67,7 +67,7 @@ class _SplashPageState extends State<SplashPage>
             mainAxisAlignment: MainAxisAlignment.center, // center vertically
             children: [
               Image.asset(
-                'assets/vehnicate_logo.png',
+                'assets/images/vehnicate_logo.png',
                 width: 150,
                 height: 150,
                 fit: BoxFit.contain,

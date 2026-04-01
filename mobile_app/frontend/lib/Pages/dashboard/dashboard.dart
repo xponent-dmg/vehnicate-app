@@ -362,8 +362,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             child: Center(
                               child: Image.asset(
-                                "assets/vehicle_def.png",
-                              )
+                                "assets/images/vehicle_def.png",
+                              ),
                             ),
                           ),
                         ),

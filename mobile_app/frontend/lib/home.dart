@@ -56,11 +56,11 @@ class _HomeState extends State<Home> {
       case 0:
         return 'vehnicate';
       case 1:
-        return 'navigation';
+        return 'analytics';
       case 2:
         return 'your garage';
       case 3:
-        return 'analytics';
+        return 'the map';
       default:
         return 'vehnicate';
     }
@@ -103,9 +103,9 @@ class _HomeState extends State<Home> {
                   },
                   children: [
                     DashboardPage(),
-                    SensorDebugPage(),
-                    GaragePage(),
                     DriveAnalyzePage(),
+                    GaragePage(),
+                    SensorDebugPage(),
                   ],
                 ),
               ),

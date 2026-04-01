@@ -31,9 +31,9 @@ class GnavBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 14),
         tabs: [
           GButton(icon: Icons.home, text: 'Home'),
-          GButton(icon: Icons.location_on, text: 'Location'),
-          GButton(icon: Icons.directions_car, text: 'Garage'),
           GButton(icon: Icons.analytics, text: 'Analytics'),
+          GButton(icon: Icons.directions_car, text: 'Garage'),
+          GButton(icon: Icons.map_rounded, text: 'Map'),
         ],
         selectedIndex: selectedIndex,
         onTabChange: onTabChange,

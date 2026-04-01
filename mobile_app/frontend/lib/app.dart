@@ -60,7 +60,8 @@ class App extends StatelessWidget {
           case "/splash":
             return PageTransitions.fade(SplashPage());
           case "/login":
-            return PageTransitions.fade(LoginPage());
+            final emailArgs = settings.arguments as String?;
+            return PageTransitions.fade(LoginPage(initialEmail: emailArgs));
           case "/signup":
             final emailArgs = settings.arguments as String?;
             return PageTransitions.fade(SignupPage(initialEmail: emailArgs));

@@ -153,10 +153,10 @@ class _ProfilePageState extends State<ProfilePage> {
         fields: [
           FormFieldConfig(
             label: 'Password',
-            hint: 'Enter your password to confirm',
+            hint: 'Enter your password',
             icon: Icons.lock,
             controller: passwordController,
-            obscureText: true,
+            isPassword: true,
           ),
         ],
         submitButtonText: 'Verify & Delete',

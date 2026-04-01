@@ -42,7 +42,7 @@ class VehicleDetailsPage extends StatelessWidget {
                 height: 200,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("assets/vehicle_def.png"),
+                    image: AssetImage("assets/images/vehicle_def.png"),
                     fit: BoxFit.contain,
                   ),
                 ),
