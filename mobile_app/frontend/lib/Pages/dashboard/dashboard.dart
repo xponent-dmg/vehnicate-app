@@ -258,7 +258,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             ),
                                           ),
                                           Text(
-                                            vehicle.registration,
+                                            vehicle.formattedRegistration,
                                             style: TextStyle(
                                               color: Colors.white54,
                                               fontSize: 12,
@@ -321,7 +321,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    vehicleProvider.vehicleRegistration ??
+                                    vehicleProvider.selectedVehicle?.formattedRegistration ??
                                         '------',
                                     style: const TextStyle(
                                       color: Colors.white54,

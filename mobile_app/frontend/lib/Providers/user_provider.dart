@@ -76,7 +76,7 @@ class UserProvider extends ChangeNotifier {
               )) {
             _setUser(null);
           } else {
-            await SupabaseService().createSupabaseUser(
+            await SupabaseService().ensureUserExists(
               uid: currentUser.uid,
               email: currentUser.email ?? '',
               displayName: currentUser.displayName,

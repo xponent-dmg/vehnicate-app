@@ -181,6 +181,12 @@ class SupabaseService {
   }) async {
     try {
       await initialize(); // Ensure client is initialized
+      await _client.from('vehicledetails').update({
+        'insurance': insurance,
+        'registration': registration,
+        'puc': puc,
+        'model': model,
+      }).eq('vehicleid', vehicleId);
     } catch (e) {
       throw Exception('Failed to update vehicle details: $e');
     }
@@ -249,7 +255,7 @@ class SupabaseService {
   }
 */
 
-  Future<void> createSupabaseUser({
+  Future<void> ensureUserExists({
     required String uid,
     required String email,
     String? displayName,
@@ -294,6 +300,14 @@ class SupabaseService {
   }) async {
     try {
       await initialize(); // Ensure client is initialized
+      await _client.from('vehicledetails').insert({
+        'firebaseuid': firebaseUid,
+        'model': model,
+        'registration': registration,
+        'insurance': insurance,
+        'puc': puc,
+        'created_at': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
       throw Exception('Failed to create vehicle: $e');
     }

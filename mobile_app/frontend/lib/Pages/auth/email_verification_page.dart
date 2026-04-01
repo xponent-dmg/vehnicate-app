@@ -71,7 +71,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         await user.reload();
         if (user.emailVerified) {
           // Explicitly create Supabase user and wait for it
-          await SupabaseService().createSupabaseUser(
+          await SupabaseService().ensureUserExists(
             uid: user.uid,
             email: user.email ?? '',
             displayName: user.displayName,
@@ -235,6 +235,16 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               'Please check your email and click on the verification link.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Colors.white60),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'If you requested multiple emails, use the latest one.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white54,
+                fontStyle: FontStyle.italic,
+              ),
             ),
             const SizedBox(height: 40),
 

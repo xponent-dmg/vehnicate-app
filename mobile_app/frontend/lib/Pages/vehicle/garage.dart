@@ -236,7 +236,7 @@ class _GaragePageState extends State<GaragePage> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          vehicle.registration,
+                          vehicle.formattedRegistration,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 12,

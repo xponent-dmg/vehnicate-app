@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
+import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class LoginPage extends StatefulWidget {
   final String? initialEmail;
@@ -39,9 +40,28 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await AuthService().signInWithEmail(
+      final credential = await AuthService().signInWithEmail(
         _emailController.text.trim(),
         _passwordController.text,
+      );
+
+      final user = credential.user;
+      if (user == null) {
+        throw Exception("Authentication failed, user is null.");
+      }
+
+      if (!user.emailVerified) {
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, "/verify-email", (route) => false);
+        }
+        return;
+      }
+
+      // Self-healing: ensure user exists in Supabase
+      await SupabaseService().ensureUserExists(
+        uid: user.uid,
+        email: user.email ?? '',
+        displayName: user.displayName,
       );
 
       if (mounted) {
@@ -64,7 +84,18 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await AuthService().signInWithGoogle();
+      final credential = await AuthService().signInWithGoogle();
+
+      final user = credential.user;
+      if (user == null) {
+        throw Exception("Authentication failed, user is null.");
+      }
+
+      await SupabaseService().ensureUserExists(
+        uid: user.uid,
+        email: user.email ?? '',
+        displayName: user.displayName,
+      );
 
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);

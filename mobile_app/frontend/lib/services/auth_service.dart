@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -117,38 +117,7 @@ class AuthService {
       // Once signed in, return the UserCredential
       final result = await _auth.signInWithCredential(credential);
 
-      // Create or update user in Supabase
-      if (result.user != null) {
-        try {
-          final supabase = Supabase.instance.client;
-
-          // Check if user exists in Supabase
-          final existingUser =
-              await supabase
-                  .from('userdetails')
-                  .select()
-                  .eq('firebaseuid', result.user!.uid)
-                  .maybeSingle();
-
-          if (existingUser == null) {
-            // Create new user in Supabase
-            await supabase.from('userdetails').insert({
-              'firebaseuid': result.user!.uid,
-              'email': result.user!.email,
-              'name': result.user!.displayName ?? 'New User',
-              'username': result.user!.displayName?.split(' ')[0] ?? 'New User',
-              'created_at': DateTime.now().toLocal().toIso8601String(),
-              'role': 'User',
-            });
-            
-          } else {
-            
-          }
-        } catch (e) {
-          
-          // Don't throw the error as Firebase auth was successful
-        }
-      }
+      // Create or update user in Supabase handled by UI layer after successful return
 
       // Log analytics event for successful Google sign in
       await _analytics.logLogin(loginMethod: 'google');
@@ -289,14 +258,18 @@ class AuthService {
 
   // Handle Firebase Auth exceptions
   String _handleAuthException(firebase.FirebaseAuthException e) {
-    
     switch (e.code) {
       case 'user-not-found':
-        return 'No user found for that email.';
+        return 'No account found with this email. Please sign up first.';
+      case 'invalid-credential':
+        // Modern Firebase Auth uses 'invalid-credential' for both wrong password 
+        // and non-existent user for security. We can give a slightly more tailored 
+        // hint if the user wants clarity.
+        return 'Invalid email or password. If you don\'t have an account, please sign up.';
       case 'wrong-password':
-        return 'Wrong password provided.';
+        return 'Wrong password provided. Please try again.';
       case 'email-already-in-use':
-        return 'The account already exists for that email.';
+        return 'An account already exists for this email.';
       case 'weak-password':
         return 'The password provided is too weak.';
       case 'invalid-email':
@@ -309,14 +282,12 @@ class AuthService {
         return 'Network error. Check your internet connection.';
       case 'internal-error':
         return 'Internal server error. Please try again later.';
-      case 'invalid-credential':
-        return 'Invalid credentials provided.';
       case 'user-disabled':
         return 'This user account has been disabled.';
       case 'account-exists-with-different-credential':
         return 'An account already exists with a different sign-in method.';
       default:
-        return 'An error occurred: ${e.message ?? e.code}';
+        return 'Authentication failed: ${e.message ?? e.code}';
     }
   }
 
