@@ -59,6 +59,7 @@ dependencies:
   shimmer: ^3.0.0
   glass_kit: ^4.0.2
   google_fonts: ^8.0.1
+  webview_flutter: ^4.8.0
 
   # State Management & Utilities
   provider: ^6.1.2

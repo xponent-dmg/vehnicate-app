@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
+import 'package:vehnicate_frontend/Pages/navigation/map_webview_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/login_page.dart';
@@ -78,7 +79,9 @@ class App extends StatelessWidget {
             return PageTransitions.scaleFade(GaragePage());
           case "/vehicle-details":
             final vehicle = settings.arguments as Vehicle?;
-            return PageTransitions.slideFromBottom(VehicleDetailsPage(vehicle: vehicle!));
+            return PageTransitions.slideFromBottom(
+              VehicleDetailsPage(vehicle: vehicle!),
+            );
           case "/analyze":
             return PageTransitions.slideFromBottom(DriveAnalyzePage());
           // Edit Details - Fade + Slide Up (form-like)
@@ -116,6 +119,9 @@ class App extends StatelessWidget {
             return PageTransitions.slideFromBottom(
               DriveDetailsPage(drive: drive!),
             );
+
+          case "/map-webview":
+            return PageTransitions.slideFromBottom(MapWebviewScreen());
           default:
             return null;
         }

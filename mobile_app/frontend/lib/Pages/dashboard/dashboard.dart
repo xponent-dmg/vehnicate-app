@@ -321,7 +321,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    vehicleProvider.selectedVehicle?.formattedRegistration ??
+                                    vehicleProvider
+                                            .selectedVehicle
+                                            ?.formattedRegistration ??
                                         '------',
                                     style: const TextStyle(
                                       color: Colors.white54,
@@ -442,12 +444,16 @@ Widget _startCard(BuildContext context) {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, "/loading", arguments: {
-                  "duration": const Duration(seconds: 3),
-                  "onComplete": () {
-                    Navigator.pushReplacementNamed(context, "/imu");
-                  }
-                });
+                Navigator.pushNamed(
+                  context,
+                  "/loading",
+                  arguments: {
+                    "duration": const Duration(seconds: 3),
+                    "onComplete": () {
+                      Navigator.pushReplacementNamed(context, "/imu");
+                    },
+                  },
+                );
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -480,6 +486,9 @@ Widget _startCard(BuildContext context) {
             const SizedBox(width: 8),
             GestureDetector(
               onTap: () {
+                Navigator.pushNamed(context, "/map-webview");
+              },
+              onLongPress: () {
                 Navigator.pushNamed(context, "/map");
               },
               child: Container(
