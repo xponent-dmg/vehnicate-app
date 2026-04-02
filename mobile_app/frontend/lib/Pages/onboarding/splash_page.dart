@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 class SplashPage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _SplashPageState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
+    FlutterNativeSplash.remove();
     _controller = AnimationController(
       duration: Duration(milliseconds: 1500),
       vsync: this,

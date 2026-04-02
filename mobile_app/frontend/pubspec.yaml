@@ -83,6 +83,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   flutter_localization: ^0.3.3
   hive: ^2.2.3
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
@@ -144,3 +145,23 @@ flutter_launcher_icons:
   min_sdk_android: 21
 flutter_intl:
   enabled: true
+
+flutter_native_splash:
+  # 1. Match your SplashRevealWidget overlayColor
+  color: "#ffffff" 
+
+  # 2. Use the same icon/logo you use in your Flutter code
+  # Ensure this asset is actually in your assets folder
+  image: assets/images/vehnicate_logo_padded.png 
+
+  # 3. Branding (Optional - if you want text at the bottom like in your code)
+  # branding: assets/branding_text.png
+
+  # 4. Android 12+ specific settings (Required for modern phones)
+  android_12:
+    color: "#ffffff"
+    icon_background_color: "#ffffff"
+    image: assets/images/vehnicate_logo_padded.png
+
+  # 5. Keeps the status bar hidden for a cleaner look
+  fullscreen: true
