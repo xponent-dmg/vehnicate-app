@@ -53,7 +53,8 @@ class _RisingParticlesState extends State<RisingParticles>
   void _initParticles() {
     particles.clear();
     for (int i = 0; i < widget.quantity; i++) {
-      particles.add(_createParticle());
+      // Randomize initial progress so they don't all start at once
+      particles.add(_createParticle(initialProgress: random.nextDouble()));
     }
   }
 
@@ -91,8 +92,8 @@ class _RisingParticlesState extends State<RisingParticles>
           widget.minSize,
       color: widget.colors[random.nextInt(widget.colors.length)],
       shape: ParticleShape.values[random.nextInt(ParticleShape.values.length)],
-      progress: initialProgress, // Random initial progress
-      speed: 0.2 + random.nextDouble() * 0.3, // Random speed
+      progress: initialProgress, // Use the provided initial progress
+      speed: 0.15 + random.nextDouble() * 0.2, // Slightly slower speed (0.15 - 0.35)
     );
   }
 

@@ -4,13 +4,33 @@ import '../../Widgets/animations/rising_particles.dart';
 import '../../Widgets/animations/step_rotating_shape.dart';
 
 class LoadingPage extends StatefulWidget {
-  const LoadingPage({super.key});
+  final Duration duration;
+  final VoidCallback? onComplete;
+
+  const LoadingPage({
+    super.key,
+    this.duration = const Duration(seconds: 3),
+    this.onComplete,
+  });
 
   @override
   State<LoadingPage> createState() => _LoadingPageState();
 }
 
 class _LoadingPageState extends State<LoadingPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(widget.duration, () {
+      if (mounted) {
+        if (widget.onComplete != null) {
+          widget.onComplete!();
+        } else {
+          Navigator.pop(context);
+        }
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     // Determine background color based on theme

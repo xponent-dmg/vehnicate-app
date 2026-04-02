@@ -8,6 +8,7 @@ import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/login_page.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
@@ -100,6 +101,14 @@ class App extends StatelessWidget {
                     : 'Document';
             return PageTransitions.slideFromBottom(
               DocumentUploadPage(documentType: docType),
+            );
+          case "/loading":
+            final args = settings.arguments as Map<String, dynamic>?;
+            final duration =
+                args?['duration'] as Duration? ?? const Duration(seconds: 3);
+            final onComplete = args?['onComplete'] as VoidCallback?;
+            return PageTransitions.fade(
+              LoadingPage(duration: duration, onComplete: onComplete),
             );
           case "/drive-details":
             final args = settings.arguments as Drive?;

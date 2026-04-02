@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
-// import 'package:vehnicate_frontend/Pages/drive/sensor_debug_page.dart';
-import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
+import 'package:vehnicate_frontend/Pages/drive/sensor_debug_page.dart';
+// import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
@@ -100,8 +100,8 @@ class _HomeState extends State<Home> {
                     DashboardPage(),
                     DriveAnalyzePage(),
                     GaragePage(),
-                    // SensorDebugPage(),
-                    LoadingPage(),
+                    SensorDebugPage(),
+                    // LoadingPage(),
                   ],
                 ),
               ),

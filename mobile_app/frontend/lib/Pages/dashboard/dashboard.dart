@@ -442,7 +442,12 @@ Widget _startCard(BuildContext context) {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, "/imu");
+                Navigator.pushNamed(context, "/loading", arguments: {
+                  "duration": const Duration(seconds: 3),
+                  "onComplete": () {
+                    Navigator.pushReplacementNamed(context, "/imu");
+                  }
+                });
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(
