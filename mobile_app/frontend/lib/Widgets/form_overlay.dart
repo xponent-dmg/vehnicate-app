@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'glass_lite_container.dart';
 
-
 /// Enum to define the type of form field
 enum FormFieldType { text, date }
 
@@ -66,7 +65,7 @@ class FormOverlay {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: GlassLiteContainer(
-                  backgroundColor: const Color(0xFF2d2d44),
+                  backgroundColor: const Color(0xFF0E0E1A),
                   borderRadius: BorderRadius.circular(20),
                   hasBorder: true,
                   hasShadow: true,
@@ -140,7 +139,8 @@ class FormOverlay {
                                       isPassword: field.isPassword,
                                       onTogglePassword: () {
                                         setState(() {
-                                          field.obscureText = !field.obscureText;
+                                          field.obscureText =
+                                              !field.obscureText;
                                         });
                                       },
                                       textInputAction: textInputAction,
@@ -232,8 +232,6 @@ class FormOverlay {
                 ),
               ),
             );
-
-
           },
         );
       },
@@ -300,15 +298,18 @@ class FormOverlay {
               color: Theme.of(context).primaryColor,
               size: 20,
             ),
-            suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(
-                      obscureText ? Icons.visibility : Icons.visibility_off_rounded,
-                      color: Colors.white70,
-                    ),
-                    onPressed: onTogglePassword,
-                  )
-                : null,
+            suffixIcon:
+                isPassword
+                    ? IconButton(
+                      icon: Icon(
+                        obscureText
+                            ? Icons.visibility
+                            : Icons.visibility_off_rounded,
+                        color: Colors.white70,
+                      ),
+                      onPressed: onTogglePassword,
+                    )
+                    : null,
             filled: true,
             fillColor: Color(0xFF3d3d54),
             border: OutlineInputBorder(
