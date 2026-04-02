@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'glass_lite_container.dart';
+
 
 /// Enum to define the type of form field
 enum FormFieldType { text, date }
@@ -60,15 +62,17 @@ class FormOverlay {
             return Center(
               child: Dialog(
                 backgroundColor: Colors.transparent,
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF2d2d44),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: EdgeInsets.all(24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: GlassLiteContainer(
+                  backgroundColor: const Color(0xFF2d2d44),
+                  borderRadius: BorderRadius.circular(20),
+                  hasBorder: true,
+                  hasShadow: true,
+                  padding: const EdgeInsets.all(24),
+                  width: double.infinity,
+
                   child: SingleChildScrollView(
                     child: Form(
                       key: formKey,
@@ -228,6 +232,8 @@ class FormOverlay {
                 ),
               ),
             );
+
+
           },
         );
       },
