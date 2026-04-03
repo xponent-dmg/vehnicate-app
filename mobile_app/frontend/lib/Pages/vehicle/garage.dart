@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -120,12 +121,10 @@ class _GaragePageState extends State<GaragePage> {
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
-            child: RefreshIndicator(
+            child: StarRefreshIndicator(
               onRefresh: () async {
                 await vehicleProvider.refresh();
               },
-              color: Theme.of(context).primaryColor,
-              backgroundColor: const Color(0xFF1E1E1E),
               child: _buildVehicleList(vehicleProvider),
             ),
           ),
@@ -219,7 +218,7 @@ class _GaragePageState extends State<GaragePage> {
                 Expanded(
                   flex: 5,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 6),
+                    padding: EdgeInsets.only(top: 14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -228,7 +227,7 @@ class _GaragePageState extends State<GaragePage> {
                           vehicle.model,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -242,12 +241,12 @@ class _GaragePageState extends State<GaragePage> {
                             fontSize: 12,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 13),
                         Row(
                           children: [
                             Icon(
                               Icons.location_on,
-                              size: 12,
+                              size: 13,
                               color: const Color(0xFF5B60F8),
                             ),
                             const SizedBox(width: 4),

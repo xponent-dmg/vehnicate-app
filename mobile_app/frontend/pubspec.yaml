@@ -85,6 +85,7 @@ dependencies:
   flutter_localization: ^0.3.3
   hive: ^2.2.3
   flutter_native_splash: ^2.4.7
+  custom_refresh_indicator: ^4.0.1
 
 dev_dependencies:
   flutter_test:

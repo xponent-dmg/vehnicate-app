@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
@@ -45,15 +45,13 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: RefreshIndicator(
+        child: StarRefreshIndicator(
           onRefresh: () async {
             await Future.wait([
               Provider.of<UserProvider>(context, listen: false).refresh(),
               Provider.of<VehicleProvider>(context, listen: false).refresh(),
             ]);
           },
-          color: Theme.of(context).primaryColor,
-          backgroundColor: ProfileConstants.cardBackground,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -467,6 +465,7 @@ class _CarCardShimmer extends StatelessWidget {
       child: Shimmer.fromColors(
         baseColor: ShimmerConstants.shimmerBase,
         highlightColor: ShimmerConstants.shimmerHighlight,
+        direction: ShimmerDirection.ttb,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
+import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
@@ -56,7 +58,7 @@ class DriveAnalyzeConstants {
   );
 
   // Dimensions
-  static const double cardRadius = 12.0;
+  static const double cardRadius = 24;
   static const double horizontalPadding = 24.0;
 }
 
@@ -71,22 +73,33 @@ class DriveAnalyzePage extends StatelessWidget {
         child: Consumer<VehicleProvider>(
           builder: (context, vehicleProvider, child) {
             final drives = vehicleProvider.drives;
-            return RefreshIndicator(
+            return StarRefreshIndicator(
               onRefresh: () async {
                 await vehicleProvider.loadDrives();
               },
-              color: Theme.of(context).primaryColor,
-              backgroundColor: DriveAnalyzeConstants.cardBackground,
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: drives.length,
+                itemCount:
+                    vehicleProvider.isLoading && drives.isEmpty
+                        ? 4
+                        : drives.length,
                 itemBuilder: (context, index) {
+                  if (vehicleProvider.isLoading) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DriveAnalyzeConstants.horizontalPadding,
+                        vertical: 8,
+                      ),
+                      child: _buildShimmerCard(context),
+                    );
+                  }
+
                   final drive = drives[index];
                   // We can pass the car name from the provider, as all drives are for this vehicle
                   return Padding(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: DriveAnalyzeConstants.horizontalPadding,
-                      vertical: 6,
+                      vertical: 8,
                     ),
                     child: _buildDriveCard(
                       context,
@@ -98,6 +111,98 @@ class DriveAnalyzePage extends StatelessWidget {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            (DriveAnalyzeConstants.cardBackground),
+            (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
+          ],
+        ),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: ShimmerConstants.shimmerBase,
+        highlightColor: ShimmerConstants.shimmerHighlight,
+        direction: ShimmerDirection.ttb,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          height: 128,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Leading icon box - matches _buildCarIcon size exactly
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: ShimmerConstants.shimmerBase,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Title + subtitle column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Car name (title line 1)
+                    Container(
+                      width: 100,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: ShimmerConstants.shimmerBase,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Date (title line 2)
+                    Container(
+                      width: 140,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: ShimmerConstants.shimmerBase,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Metric pills row (subtitle)
+                    Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: ShimmerConstants.shimmerBase,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: ShimmerConstants.shimmerBase,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_right_rounded, color: Colors.white, size: 35),
+            ],
+          ),
         ),
       ),
     );
@@ -117,14 +222,6 @@ class DriveAnalyzePage extends StatelessWidget {
             (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
           ],
         ),
-        // color: DriveAnalyzeConstants.cardBackground,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Theme.of(context).primaryColor.withOpacity(0.1),
-        //     blurRadius: 8,
-        //     offset: Offset(0, 2),
-        //   ),
-        // ],
       ),
 
       child: ListTile(
@@ -168,9 +265,9 @@ class DriveAnalyzePage extends StatelessWidget {
             // _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
             // SizedBox(height: 4),
             Icon(
-              Icons.arrow_forward_ios,
+              Icons.arrow_right_rounded,
               color: Theme.of(context).primaryColor,
-              size: 16,
+              size: 35,
             ),
           ],
         ),
