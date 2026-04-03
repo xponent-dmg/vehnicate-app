@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Widgets/avatar.dart';
 import 'package:vehnicate_frontend/Widgets/typewriter_text.dart';
+import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
 
 class Header extends StatefulWidget {
   final String pageName;
@@ -116,8 +117,8 @@ class _HeaderState extends State<Header> {
                 builder: (context, userProvider, child) {
                   if (userProvider.isLoading) {
                     return Shimmer.fromColors(
-                      baseColor: Colors.grey.withValues(alpha: 0.2),
-                      highlightColor: Colors.white,
+                      baseColor: ShimmerConstants.shimmerBase,
+                      highlightColor: ShimmerConstants.shimmerHighlight,
                       loop: 5,
                       child: Container(
                         width: 200,

@@ -7,10 +7,11 @@ class AppGradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     stops: [0, 0.8, 1],
-    colors: [
-      Colors.black,
-      Color(0xFF191B33),
-      Color(0xFF292D54),
-    ],
+    colors: [Colors.black, Color(0xFF191B33), Color(0xFF292D54)],
   );
+}
+
+class ShimmerConstants {
+  static const shimmerBase = Color(0xFF3a3a52);
+  static const shimmerHighlight = Color(0xFF5c5c7a);
 }
