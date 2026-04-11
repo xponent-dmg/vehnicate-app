@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:vehnicate_frontend/core/constants/app_config.dart';
+import 'package:vehnicate_frontend/utils/app_logger.dart';
 import '../models/sensor_data.dart';
 import '../Widgets/custom_snackbar.dart';
 
@@ -32,8 +35,6 @@ class SensorService {
   Stream<SensorPacket> get sensorStream => _controller.stream;
   Function(int processed, int uploaded)? onDataCountUpdate;
 
-  // static const int _sampleIntervalMs = 10; // Adjusted for ~100Hz stability
-
   Future<void> start({
     required BuildContext context,
     Function(int processed, int uploaded)? onDataCountUpdate,
@@ -42,6 +43,7 @@ class SensorService {
 
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
+      AppLogger.warning('SensorService: No vehicle selected!');
       CustomSnackBar.showError(context, 'No vehicle selected!');
       return;
     }
@@ -66,7 +68,7 @@ class SensorService {
                 DateTime.now()
                     .toUtc()
                     .add(const Duration(hours: 5, minutes: 30))
-                    .toIso8601String(), // Use UTC for DB consistency
+                    .toIso8601String(), // Use local time as requested by existing logic
             'accelx': packet.raw.ax,
             'accely': packet.raw.ay,
             'accelz': packet.raw.az,
@@ -85,10 +87,12 @@ class SensorService {
           _processedCount++;
           this.onDataCountUpdate?.call(_processedCount, _uploadedCount);
         } else {
-          // Optional: Remove oldest record to make room for newest (FIFO)
+          // FIFO: Remove oldest record to make room for newest
           _imuBuffer.removeAt(0);
+          AppLogger.warning('SensorService: IMU Buffer overflow, discarding oldest data');
         }
-      } catch (e) {
+      } catch (e, stack) {
+        AppLogger.error('Error processing sensor event', e, stack);
         _controller.addError(e);
       }
     });
@@ -97,6 +101,8 @@ class SensorService {
     _uploadTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _attemptUpload(context);
     });
+
+    AppLogger.info('SensorService started for vehicle $vehicleId');
   }
 
   Future<void> _attemptUpload(BuildContext context) async {
@@ -105,37 +111,32 @@ class SensorService {
 
     _isUploading = true;
 
-    // 2. Snaphot the current buffer and clear it immediately
-    // This prevents the "retry loop" from duplicating data
+    // 2. Snapshot the current buffer and clear it immediately
     final List<Map<String, dynamic>> dataToUpload = List.from(_imuBuffer);
     _imuBuffer.clear();
 
     try {
-      await _supabase.from('datatransmission').insert(dataToUpload);
+      await _supabase.from(AppConfig.tableDataTransmission).insert(dataToUpload);
 
       // 3. Only update uploaded count on SUCCESS
       _uploadedCount += dataToUpload.length;
       onDataCountUpdate?.call(_processedCount, _uploadedCount);
 
-      if (context.mounted) {
-        CustomSnackBar.showInfo(
-          context,
-          'Synced ${dataToUpload.length} records',
-        );
-      }
-    } catch (e) {      // 4. On failure, put data back at the START of the buffer if there's room
+      AppLogger.info('Synced ${dataToUpload.length} sensor records to Supabase');
+    } catch (e, stack) {
+      // 4. On failure, put data back at the START of the buffer if there's room
       if (_imuBuffer.length + dataToUpload.length < _maxBufferSize) {
         _imuBuffer.insertAll(0, dataToUpload);
       }
+      
+      AppLogger.warning('Sensor upload failed, pending retry: ${dataToUpload.length} records', e);
+      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Sensor data transmission failed');
 
       if (context.mounted) {
-        CustomSnackBar.showWarning(
-          context,
-          'Connection weak. Retrying later...',
-        );
+        CustomSnackBar.showWarning(context, 'Connection weak. Retrying Sync...');
       }
     } finally {
-      _isUploading = false; // Release the lock
+      _isUploading = false;
     }
   }
 

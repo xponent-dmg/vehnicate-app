@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.vehnicate.app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "26.3.11579264"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

@@ -67,10 +67,10 @@ class DriveAnalyzePage extends StatefulWidget {
   const DriveAnalyzePage({super.key});
 
   @override
-  State<DriveAnalyzePage> createState() => _DriveAnalyzePageState();
+  State<DriveAnalyzePage> createState() => DriveAnalyzePageState();
 }
 
-class _DriveAnalyzePageState extends State<DriveAnalyzePage> {
+class DriveAnalyzePageState extends State<DriveAnalyzePage> {
   // Filter state
   int? _filterVehicleId;
   DateTime? _filterDate;
@@ -79,7 +79,7 @@ class _DriveAnalyzePageState extends State<DriveAnalyzePage> {
   TimeOfDay? _filterStartTime;
   TimeOfDay? _filterEndTime;
 
-  void _showFilterSheet() {
+  void showFilterSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -118,11 +118,6 @@ class _DriveAnalyzePageState extends State<DriveAnalyzePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showFilterSheet,
-        backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.tune, color: Colors.white),
-      ),
       body: SafeArea(
         child: Column(
           children: [

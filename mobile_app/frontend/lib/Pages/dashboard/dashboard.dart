@@ -8,8 +8,6 @@ import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
@@ -112,11 +110,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ],
       submitButtonText: 'Add Vehicle',
       onSubmit: () async {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user == null) throw Exception('User not logged in');
-
-        await SupabaseService().createVehicle(
-          firebaseUid: user.uid,
+        await Provider.of<VehicleProvider>(context, listen: false).addVehicle(
           model: _vehicleModelController.text.trim(),
           registration: _registrationController.text.trim(),
           insurance: _insuranceController.text.trim(),
@@ -125,10 +119,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ? null
                   : _pucDateController.text.trim(),
         );
-
-        if (mounted) {
-          await Provider.of<VehicleProvider>(context, listen: false).refresh();
-        }
 
         _vehicleModelController.clear();
         _registrationController.clear();

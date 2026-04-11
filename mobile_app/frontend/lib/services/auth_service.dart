@@ -2,15 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 class AuthService {
   final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-  static const String _prefsIsLoggedInKey = 'is_logged_in';
-  static const String _prefsUidKey = 'uid';
-  static const String _prefsEmailKey = 'email';
 
   // Get current user
   firebase.User? get currentUser => _auth.currentUser;
@@ -43,12 +38,6 @@ class AuthService {
       // Log analytics event for successful login
       await _analytics.logLogin(loginMethod: 'email');
 
-      // Persist login state
-      if (result.user != null) {
-        await _persistLogin(result.user!);
-      }
-
-      
       return result;
     } on firebase.FirebaseAuthException catch (e) {
       
@@ -77,11 +66,6 @@ class AuthService {
 
       // Log analytics event for successful sign up
       await _analytics.logSignUp(signUpMethod: 'email');
-
-      // Persist login state
-      if (result.user != null) {
-        await _persistLogin(result.user!);
-      }
 
       return result;
     } on firebase.FirebaseAuthException catch (e) {
@@ -122,12 +106,6 @@ class AuthService {
       // Log analytics event for successful Google sign in
       await _analytics.logLogin(loginMethod: 'google');
 
-      // Persist login state
-      if (result.user != null) {
-        await _persistLogin(result.user!);
-      }
-
-      
       return result;
     } on firebase.FirebaseAuthException catch (e) {
 
@@ -153,12 +131,7 @@ class AuthService {
       await _analytics.logEvent(name: 'logout');
 
       await _googleSignIn.signOut();
-      
       await _auth.signOut();
-      
-
-      // Clear persisted login state
-      await _clearPersistedLogin();
     } catch (e) {
        // Debug print
       throw Exception('Failed to sign out: $e');
@@ -229,9 +202,6 @@ class AuthService {
 
         // Log analytics event for account deletion
         await _analytics.logEvent(name: 'account_deleted');
-
-        // Clear local storage
-        await _clearPersistedLogin();
         
       }
     } on firebase.FirebaseAuthException catch (e) {
@@ -288,33 +258,6 @@ class AuthService {
         return 'An account already exists with a different sign-in method.';
       default:
         return 'Authentication failed: ${e.message ?? e.code}';
-    }
-  }
-
-  Future<void> _persistLogin(firebase.User user) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_prefsIsLoggedInKey, true);
-      await prefs.setString(_prefsUidKey, user.uid);
-      final email = user.email;
-      if (email != null) {
-        await prefs.setString(_prefsEmailKey, email);
-      }
-    } catch (e) {
-      // Non-fatal: do not block login flow on prefs failure
-      
-    }
-  }
-
-  Future<void> _clearPersistedLogin() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_prefsIsLoggedInKey);
-      await prefs.remove(_prefsUidKey);
-      await prefs.remove(_prefsEmailKey);
-    } catch (e) {
-      // Non-fatal
-      
     }
   }
 }

@@ -11,10 +11,10 @@ import 'package:vehnicate_frontend/models/vehicle_model.dart';
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
   @override
-  State<GaragePage> createState() => _GaragePageState();
+  State<GaragePage> createState() => GaragePageState();
 }
 
-class _GaragePageState extends State<GaragePage> {
+class GaragePageState extends State<GaragePage> {
   final _vehicleModelController = TextEditingController();
   final _registrationController = TextEditingController();
   final _insuranceController = TextEditingController();
@@ -29,7 +29,7 @@ class _GaragePageState extends State<GaragePage> {
     super.dispose();
   }
 
-  void _showAddVehicleOverlay(BuildContext context) {
+  void showAddVehicleOverlay(BuildContext context) {
     FormOverlay.show(
       context: context,
       title: 'Add Vehicle',
@@ -139,42 +139,10 @@ class _GaragePageState extends State<GaragePage> {
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
-      itemCount: vehicles.length + 1,
+      itemCount: vehicles.length,
       itemBuilder: (context, index) {
-        if (index == vehicles.length) {
-          return _buildAddVehicleTile(hasVehicle: vehicles.isNotEmpty);
-        }
         return _buildVehicleCard(vehicles[index]);
       },
-    );
-  }
-
-  Widget _buildAddVehicleTile({required bool hasVehicle}) {
-    return GlassLiteContainer(
-      hasBorder: false,
-      margin: const EdgeInsets.only(bottom: 20, top: 10),
-      height: 50,
-      borderRadius: BorderRadius.circular(50),
-      backgroundColor: Theme.of(context).primaryColor.withAlpha(40),
-      borderColor: Theme.of(context).primaryColor,
-      onTap: () => _showAddVehicleOverlay(context),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
-            Text(
-              hasVehicle ? 'Add another vehicle' : 'Add your vehicle',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

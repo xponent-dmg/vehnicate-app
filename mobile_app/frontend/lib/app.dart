@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
@@ -11,11 +12,13 @@ import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/offline_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/vehicle_details.dart';
+import 'package:vehnicate_frontend/Providers/connectivity_provider.dart';
 import 'package:vehnicate_frontend/home.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
@@ -57,6 +60,7 @@ class App extends StatelessWidget {
           ),
         ),
       ),
+      builder: (context, child) => ConnectivityWrapper(child: child!),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case "/splash":
@@ -127,6 +131,49 @@ class App extends StatelessWidget {
         }
       },
       initialRoute: "/splash",
+    );
+  }
+}
+
+// ─── Connectivity Wrapper ─────────────────────────────────────────────────────
+
+/// Sits between [MaterialApp] and every navigated page via the `builder`
+/// parameter. It listens to [ConnectivityProvider] and slides [OfflinePage]
+/// over the current content whenever the device goes offline, then slides it
+/// away again when connectivity is restored.
+class ConnectivityWrapper extends StatelessWidget {
+  final Widget child;
+  const ConnectivityWrapper({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final isOnline = context.select<ConnectivityProvider, bool>(
+      (p) => p.isOnline,
+    );
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (widget, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.06),
+            end: Offset.zero,
+          ).animate(animation),
+          child: widget,
+        ),
+      ),
+      child: isOnline
+          ? KeyedSubtree(key: const ValueKey('online'), child: child)
+          : KeyedSubtree(
+              key: const ValueKey('offline'),
+              child: OfflinePage(
+                onRetry: () =>
+                    context.read<ConnectivityProvider>().recheck(),
+              ),
+            ),
     );
   }
 }

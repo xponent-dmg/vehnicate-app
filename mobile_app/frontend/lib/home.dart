@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
-import 'package:vehnicate_frontend/Pages/drive/sensor_debug_page.dart';
-// import 'package:vehnicate_frontend/Pages/navigation/map_webview_page.dart';
-// import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
@@ -20,14 +17,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int selectedIndex = 0;
   final GlobalKey<MapPageState> _mapPageKey = GlobalKey<MapPageState>();
+  final GlobalKey<DriveAnalyzePageState> _driveAnalyzeKey =
+      GlobalKey<DriveAnalyzePageState>();
+  final GlobalKey<GaragePageState> _garageKey = GlobalKey<GaragePageState>();
   late final PageController _pageController;
 
-  List<Color> colors = [
-    Colors.purple,
-    Colors.pink,
-    Colors.amber[600]!,
-    Colors.teal,
-  ];
   void onTabChange(int index) {
     setState(() => selectedIndex = index);
     _pageController.animateToPage(
@@ -62,8 +56,6 @@ class _HomeState extends State<Home> {
         return 'analytics';
       case 2:
         return 'your garage';
-      case 3:
-        return 'the map';
       default:
         return 'vehnicate';
     }
@@ -72,6 +64,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: Container(
         decoration: BoxDecoration(gradient: AppGradients.mainBackground),
         child: Column(
@@ -99,23 +92,71 @@ class _HomeState extends State<Home> {
                   },
                   children: [
                     DashboardPage(),
-                    DriveAnalyzePage(),
-                    GaragePage(),
-                    SensorDebugPage(),
-                    // MapWebviewScreen(),
-                    // LoadingPage(),
+                    DriveAnalyzePage(key: _driveAnalyzeKey),
+                    GaragePage(key: _garageKey),
                   ],
                 ),
               ),
             ),
-            GnavBar(selectedIndex: selectedIndex, onTabChange: onTabChange),
           ],
         ),
       ),
-      // bottomNavigationBar: GnavBar(
-      //   selectedIndex: selectedIndex,
-      //   onTabChange: onTabChange,
-      // ),
+      bottomNavigationBar: GnavBar(
+        selectedIndex: selectedIndex,
+        onTabChange: onTabChange,
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 12.0),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            switch (selectedIndex) {
+              case 0:
+                Navigator.pushNamed(context, "/map-webview");
+                break;
+              case 1:
+                _driveAnalyzeKey.currentState?.showFilterSheet();
+                break;
+              case 2:
+                _garageKey.currentState?.showAddVehicleOverlay(context);
+                break;
+            }
+          },
+          backgroundColor: Theme.of(context).primaryColor,
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return ScaleTransition(scale: animation, child: child);
+            },
+            child: Icon(
+              selectedIndex == 0
+                  ? Icons.map_rounded
+                  : selectedIndex == 1
+                  ? Icons.tune_rounded
+                  : Icons.add_rounded,
+              key: ValueKey<int>(selectedIndex),
+              color: Colors.white,
+            ),
+          ),
+          label: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: Text(
+              selectedIndex == 0
+                  ? 'Map'
+                  : selectedIndex == 1
+                  ? 'Filter'
+                  : 'Add Vehicle',
+              key: ValueKey<int>(selectedIndex),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

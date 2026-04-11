@@ -9,10 +9,12 @@ import 'package:camera/camera.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
+import 'package:vehnicate_frontend/services/device_id_service.dart';
 import 'package:vehnicate_frontend/services/sensor_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:location/location.dart' as loc;
 import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
+import 'package:vehnicate_frontend/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuCollector extends StatefulWidget {
@@ -25,6 +27,7 @@ class ImuCollector extends StatefulWidget {
 class _ImuCollectorState extends State<ImuCollector> {
   final SensorService _sensorService = SensorService();
   final CameraServiceRGB _cameraService = CameraServiceRGB();
+  final DeviceIdService _deviceIdService = DeviceIdService();
   final supabase = Supabase.instance.client;
 
   // Collection state
@@ -40,8 +43,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   DateTime? _driveEndTime;
 
   // Config
-  final String _deviceId =
-      'mobile-device-${DateTime.now().millisecondsSinceEpoch}';
+  String _deviceId = 'pending...';
   final String _currentImuBatchId =
       'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
 
@@ -53,7 +55,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   void initState() {
     super.initState();
-    print('[IMU_DEBUG][initState] Called');
+    AppLogger.info('ImuCollector initialized');
     _initAll();
 
     // Listen to camera service stats updates
@@ -64,12 +66,17 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   Future<void> _initAll() async {
     try {
-      print('[IMU_DEBUG][_initAll] 🚀 Initializing IMU Collector...');
+      AppLogger.info('Initializing ImuCollector components...');
+      _deviceId = await _deviceIdService.getPersistentDeviceId();
+      AppLogger.info('Persistent Device ID: $_deviceId');
+
       await _initCamera();
       await _initLocation();
-      print('[IMU_DEBUG][_initAll] ✅ IMU Collector initialized successfully');
+      AppLogger.info(
+        'ImuCollector initialized successfully with deviceId: $_deviceId',
+      );
     } catch (e, st) {
-      print('[IMU_DEBUG][_initAll] ❌ Init error: $e\n$st');
+      AppLogger.error('ImuCollector initialization failed', e, st);
       CustomSnackBar.showError(context, 'Initialization failed: $e');
     }
   }

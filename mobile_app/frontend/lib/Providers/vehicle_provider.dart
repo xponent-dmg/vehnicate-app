@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
+import 'package:vehnicate_frontend/services/cache_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:vehnicate_frontend/models/vehicle_model.dart';
@@ -42,6 +43,7 @@ class VehicleProvider extends ChangeNotifier {
         _vehicles = [];
         _selectedVehicle = null;
         _drives = [];
+        CacheService().clearAuthCache();
         return;
       }
       await loadVehicleByUserId(user.uid);
@@ -80,6 +82,18 @@ class VehicleProvider extends ChangeNotifier {
       return;
     }
 
+    // 1. Try Cache First
+    final cachedData = CacheService().getVehicles(firebaseUuid);
+    if (cachedData.isNotEmpty) {
+      _vehicles = cachedData.map((json) => Vehicle.fromJson(json)).toList();
+      if (_selectedVehicle == null ||
+          !_vehicles.any((v) => v.id == _selectedVehicle!.id)) {
+        _selectedVehicle = _vehicles.first;
+      }
+    }
+    
+    notifyListeners();
+
     try {
       final data = await SupabaseService().getVehiclesByUserId(firebaseUuid);
       _vehicles = data.map((json) => Vehicle.fromJson(json)).toList();
@@ -89,6 +103,8 @@ class VehicleProvider extends ChangeNotifier {
             !_vehicles.any((v) => v.id == _selectedVehicle!.id)) {
           _selectedVehicle = _vehicles.first;
         }
+        // 2. Save to Cache
+        await CacheService().setVehicles(firebaseUuid, data);
       } else {
         _selectedVehicle = null;
       }
@@ -114,6 +130,13 @@ class VehicleProvider extends ChangeNotifier {
     if (_selectedVehicle == null) return;
 
     _isLoading = true;
+    
+    // 1. Try Cache First
+    final cachedData = CacheService().getTrips(_selectedVehicle!.id);
+    if (cachedData.isNotEmpty) {
+      _drives = cachedData.map((data) => Drive.fromJson(data)).toList();
+    }
+    
     notifyListeners();
 
     try {
@@ -121,6 +144,9 @@ class VehicleProvider extends ChangeNotifier {
         _selectedVehicle!.id,
       );
       _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
+      
+      // 2. Save to Cache
+      await CacheService().setTrips(_selectedVehicle!.id, drivesData);
     } catch (e) {
       _error = e;
     } finally {
@@ -129,8 +155,42 @@ class VehicleProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> addVehicle({
+    required String model,
+    required String registration,
+    required String insurance,
+    String? puc,
+  }) async {
+    final uid = firebase.FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) throw Exception('User not logged in');
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await SupabaseService().createVehicle(
+        firebaseUid: uid,
+        model: model,
+        registration: registration,
+        insurance: insurance,
+        puc: puc,
+      );
+
+      // Refresh the list to include the new vehicle
+      await loadVehicleByUserId(uid);
+    } catch (e) {
+      _error = e;
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> deleteVehicle(int vehicleId) async {
     _isLoading = true;
+    _error = null; // Also reset error here
     notifyListeners();
 
     try {

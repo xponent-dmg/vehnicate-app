@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:vehnicate_frontend/models/user_model.dart';
+import 'package:vehnicate_frontend/services/cache_service.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -60,44 +61,51 @@ class UserProvider extends ChangeNotifier {
   Future<void> loadUserByFirebaseUid(String firebaseUid) async {
     _isLoading = true;
     _error = null;
+    
+    // 1. Try Cache First
+    final cachedData = CacheService().getUserDetail(firebaseUid);
+    if (cachedData != null) {
+      _setUser(AppUser.fromMap(cachedData));
+    }
+    
     notifyListeners();
 
     try {
-      final data = await SupabaseService().getUserdetails(firebaseUid);
+      final currentUser = firebase.FirebaseAuth.instance.currentUser;
+      
+      // If user isn't verified (and isn't using a social provider), we don't load details yet
+      if (currentUser != null &&
+          currentUser.uid == firebaseUid &&
+          !currentUser.emailVerified &&
+          currentUser.providerData.every((info) => info.providerId == 'password')) {
+        _setUser(null);
+        return;
+      }
+
+      final data = await SupabaseService().getOrCreateUser(
+        uid: firebaseUid,
+        email: currentUser?.email ?? '',
+        displayName: currentUser?.displayName,
+      );
+
       if (data != null) {
         final user = AppUser.fromMap(data);
         _setUser(user);
+        
+        // 2. Save to Cache
+        await CacheService().setUserDetail(firebaseUid, data);
       } else {
-        final currentUser = firebase.FirebaseAuth.instance.currentUser;
-        if (currentUser != null && currentUser.uid == firebaseUid) {
-          if (!currentUser.emailVerified &&
-              currentUser.providerData.every(
-                (info) => info.providerId == 'password',
-              )) {
-            _setUser(null);
-          } else {
-            await SupabaseService().ensureUserExists(
-              uid: currentUser.uid,
-              email: currentUser.email ?? '',
-              displayName: currentUser.displayName,
-            );
-            final retryData = await SupabaseService().getUserdetails(
-              firebaseUid,
-            );
-            if (retryData != null) {
-              final user = AppUser.fromMap(retryData);
-              _setUser(user);
-            } else {
-              _setUser(null);
-            }
-          }
-        } else {
+        // If no data and no cache, set to null
+        if (cachedData == null) {
           _setUser(null);
         }
       }
     } catch (e) {
       _error = e;
-      _setUser(null);
+      // If we have cached data, don't force null on error (keep last known good)
+      if (cachedData == null) {
+        _setUser(null);
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
