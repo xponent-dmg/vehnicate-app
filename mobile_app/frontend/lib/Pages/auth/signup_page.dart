@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vehnicate_frontend/services/auth_service.dart';
+import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
 
 class SignupPage extends StatefulWidget {
   final String? initialEmail;
@@ -47,9 +48,28 @@ class _SignupPageState extends State<SignupPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
+        String errorMessage = e.toString();
+        // Check for specific error or clean up the generic Exception prefix
+        if (errorMessage.contains('email-already-in-use') || 
+            errorMessage.contains('account already exists')) {
+          errorMessage = 'This email is already registered. Please sign in instead.';
+          CustomSnackBar.showError(context, errorMessage);
+          
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              Navigator.pushReplacementNamed(
+                context, 
+                "/login", 
+                arguments: _emailController.text.trim(),
+              );
+            }
+          });
+          return;
+        } else if (errorMessage.startsWith('Exception: ')) {
+          errorMessage = errorMessage.substring(11);
+        }
+
+        CustomSnackBar.showError(context, errorMessage);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/permissions_page.dart';
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -42,37 +46,29 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: RefreshIndicator(
+        child: StarRefreshIndicator(
           onRefresh: () async {
             await Future.wait([
               Provider.of<UserProvider>(context, listen: false).refresh(),
               Provider.of<VehicleProvider>(context, listen: false).refresh(),
             ]);
           },
-          color: Theme.of(context).primaryColor,
-          backgroundColor: ProfileConstants.cardBackground,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Start Card
                 _startCard(context),
-                SizedBox(height: 16),
-                // Score and Car Info
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    // Circular Score
                     _rpsScoreCard(context),
-                    SizedBox(width: 16),
-                    // Car Info
+                    const SizedBox(width: 16),
                     _selectedCarCard(context),
                   ],
                 ),
-                SizedBox(height: 16),
-
-                // Weekly Challenge
+                const SizedBox(height: 16),
                 _weeklyChallenge(context),
                 const SizedBox(height: 16),
                 Center(
@@ -87,6 +83,8 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
+
+  // ─── Add vehicle overlay ────────────────────────────────────────────────────
 
   void _showAddVehicleOverlay(BuildContext context) {
     FormOverlay.show(
@@ -122,9 +120,7 @@ class _DashboardPageState extends State<DashboardPage> {
       submitButtonText: 'Add Vehicle',
       onSubmit: () async {
         final user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          throw Exception('User not logged in');
-        }
+        if (user == null) throw Exception('User not logged in');
 
         await SupabaseService().createVehicle(
           firebaseUid: user.uid,
@@ -137,12 +133,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   : _pucDateController.text.trim(),
         );
 
-        // Refresh vehicle data
         if (mounted) {
           await Provider.of<VehicleProvider>(context, listen: false).refresh();
         }
 
-        // Clear form
         _vehicleModelController.clear();
         _registrationController.clear();
         _insuranceController.clear();
@@ -152,7 +146,7 @@ class _DashboardPageState extends State<DashboardPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Vehicle added successfully!'),
+              content: const Text('Vehicle added successfully!'),
               backgroundColor: Theme.of(context).primaryColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -173,6 +167,8 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  // ─── Vehicle selection bottom sheet ────────────────────────────────────────
+
   void _showVehicleSelectionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -188,14 +184,13 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Consumer<VehicleProvider>(
             builder: (context, vehicleProvider, child) {
               final vehicles = vehicleProvider.vehicles;
-
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
-                    child: Text(
+                    child: const Text(
                       'Select Vehicle',
                       style: TextStyle(
                         color: Colors.white,
@@ -205,8 +200,8 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   if (vehicles.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
                       child: Center(
                         child: Text(
                           'No vehicles available',
@@ -227,8 +222,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 Navigator.pop(context);
                               },
                               child: Container(
-                                margin: EdgeInsets.only(bottom: 12),
-                                padding: EdgeInsets.all(12),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color:
                                       isSelected
@@ -246,11 +241,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.directions_car,
                                       color: Colors.white70,
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -258,15 +253,15 @@ class _DashboardPageState extends State<DashboardPage> {
                                         children: [
                                           Text(
                                             vehicle.model,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16,
                                             ),
                                           ),
                                           Text(
-                                            vehicle.registration,
-                                            style: TextStyle(
+                                            vehicle.formattedRegistration,
+                                            style: const TextStyle(
                                               color: Colors.white54,
                                               fontSize: 12,
                                             ),
@@ -294,10 +289,17 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  // ─── Selected car card ──────────────────────────────────────────────────────
+
   Widget _selectedCarCard(BuildContext context) {
     return Expanded(
       child: Consumer<VehicleProvider>(
         builder: (context, vehicleProvider, child) {
+          // shimmer while loading
+          if (vehicleProvider.isLoading) {
+            return const _CarCardShimmer();
+          }
+
           final hasVehicle = vehicleProvider.vehicleId != null;
 
           return GlassLiteContainer(
@@ -307,128 +309,19 @@ class _DashboardPageState extends State<DashboardPage> {
             padding: const EdgeInsets.all(17),
             child:
                 hasVehicle
-                    ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    vehicleProvider.vehicleModel ??
-                                        'No vehicle',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    vehicleProvider.vehicleRegistration ??
-                                        '------',
-                                    style: const TextStyle(
-                                      color: Colors.white54,
-                                      fontSize: 11,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => _showVehicleSelectionSheet(context),
-                              child: Column(
-                                children: [
-                                  const Icon(
-                                    Icons.swap_horiz_rounded,
-                                    color: Colors.white,
-                                  ),
-                                  const Text(
-                                    'Swap',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF3d3d54),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                "assets/vehicle_def.png",
-                              )
-                            ),
-                          ),
-                        ),
-                      ],
+                    // ── vehicle exists ──────────────────────────────────
+                    ? _VehicleInfoContent(
+                      model: vehicleProvider.vehicleModel ?? 'No vehicle',
+                      registration:
+                          vehicleProvider
+                              .selectedVehicle
+                              ?.formattedRegistration ??
+                          '------',
+                      onSwap: () => _showVehicleSelectionSheet(context),
                     )
-                    : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 6),
-                        GestureDetector(
-                          onTap: () => _showAddVehicleOverlay(context),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withAlpha(51),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: Theme.of(context).primaryColor,
-                                width: 1,
-                              ),
-                            ),
-                            child: const Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.add_circle_outline,
-                                      color: Colors.white,
-                                      // size: 16, // Assuming a small icon size
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Add Vehicle',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Tap to add your vehicle',
-                          style: TextStyle(color: Colors.white54, fontSize: 11),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
+                    // ── no vehicle yet ──────────────────────────────────
+                    : _NoVehicleContent(
+                      onAddVehicle: () => _showAddVehicleOverlay(context),
                     ),
           );
         },
@@ -437,116 +330,343 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
+// ─── Car card sub-widgets ─────────────────────────────────────────────────────
+
+/// Content shown when a vehicle IS selected.
+class _VehicleInfoContent extends StatelessWidget {
+  const _VehicleInfoContent({
+    required this.model,
+    required this.registration,
+    required this.onSwap,
+  });
+
+  final String model;
+  final String registration;
+  final VoidCallback onSwap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    model,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    registration,
+                    style: const TextStyle(color: Colors.white54, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: onSwap,
+              child: const Column(
+                children: [
+                  Icon(Icons.swap_horiz_rounded, color: Colors.white),
+                  Text(
+                    'Swap',
+                    style: TextStyle(color: Colors.white70, fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF3d3d54),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(child: Image.asset("assets/images/vehicle_def.png")),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Content shown when NO vehicle has been added yet.
+class _NoVehicleContent extends StatelessWidget {
+  const _NoVehicleContent({required this.onAddVehicle});
+
+  final VoidCallback onAddVehicle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: onAddVehicle,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor.withAlpha(51),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 1,
+              ),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_circle_outline, color: Colors.white),
+                SizedBox(width: 6),
+                Text(
+                  'Add Vehicle',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Tap to add your vehicle',
+          style: TextStyle(color: Colors.white54, fontSize: 11),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+// ─── Shimmer skeleton ─────────────────────────────────────────────────────────
+
+/// Skeleton for the selected-car card shown while VehicleProvider is loading.
+class _CarCardShimmer extends StatelessWidget {
+  const _CarCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassLiteContainer(
+      hasBorder: false,
+      height: 160,
+      backgroundColor: const Color(0xFF2d2d44),
+      padding: const EdgeInsets.all(17),
+      child: Shimmer.fromColors(
+        baseColor: ShimmerConstants.shimmerBase,
+        highlightColor: ShimmerConstants.shimmerHighlight,
+        direction: ShimmerDirection.ttb,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // mirrors Row(text column + swap icon)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // model name — fontSize:16 bold ≈ 18px
+                      Container(
+                        height: 18,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: ShimmerConstants.shimmerBase,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      // registration — fontSize:11 ≈ 13px
+                      Container(
+                        height: 13,
+                        width: 70,
+                        decoration: BoxDecoration(
+                          color: ShimmerConstants.shimmerBase,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // swap icon + label placeholder
+                const Column(
+                  children: [
+                    Icon(Icons.swap_horiz_rounded, color: Colors.white),
+                    Text(
+                      'Swap',
+                      style: TextStyle(color: Colors.white70, fontSize: 10),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // vehicle image placeholder
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: ShimmerConstants.shimmerBase,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Top-level card widgets ───────────────────────────────────────────────────
+
 Widget _startCard(BuildContext context) {
   return GlassLiteContainer(
     hasBorder: false,
     backgroundColor: const Color(0xFF2d2d44),
     padding: const EdgeInsets.all(20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    child: Row(
       children: [
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, "/imu");
+        GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              "/loading",
+              arguments: {
+                "duration": const Duration(seconds: 3),
+                "onComplete": () {
+                  Navigator.pushReplacementNamed(context, "/imu");
+                },
               },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: const Text(
-                  'Start Drive',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: const Text(
+              'Start Drive',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
             ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.home, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, "/map");
-              },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF3d3d54),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.map, color: Colors.white70, size: 20),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
+          ),
         ),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.home, color: Colors.white, size: 20),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, "/map-webview"),
+          onLongPress: () => Navigator.pushNamed(context, "/map"),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFF3d3d54),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.map, color: Colors.white70, size: 20),
+          ),
+        ),
+        const SizedBox(width: 8),
       ],
     ),
   );
 }
 
 Widget _rpsScoreCard(BuildContext context) {
-  final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
   return Expanded(
-    child: GlassLiteContainer(
-      hasBorder: false,
-      // height: 170,
-      backgroundColor: const Color(0xFF2d2d44),
-      padding: const EdgeInsets.all(20),
-      child: CircularPercentIndicator(
-        radius: 60,
-        lineWidth: 10,
-        percent: (rpsScore ?? 0) / 100,
-        backgroundColor: Theme.of(context).primaryColor.withAlpha(50),
-        progressColor: Theme.of(context).primaryColor,
-        circularStrokeCap: CircularStrokeCap.round, // rounded ends
-        animation: true,
-        center: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              rpsScore?.toString() ?? '- -',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+    child: Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final isLoading = userProvider.isLoading;
+        final rpsScore = userProvider.currentUser?.rpsScore;
+
+        return GlassLiteContainer(
+          hasBorder: false,
+          backgroundColor: const Color(0xFF2d2d44),
+          padding: const EdgeInsets.all(20),
+          child: CircularPercentIndicator(
+            radius: 60,
+            lineWidth: 10,
+            percent: isLoading ? 0 : (rpsScore ?? 0) / 100,
+            backgroundColor: Theme.of(context).primaryColor.withAlpha(50),
+            progressColor: Theme.of(context).primaryColor,
+            circularStrokeCap: CircularStrokeCap.round,
+            animation: true,
+            center: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // shimmer only the score number while loading
+                if (isLoading)
+                  Shimmer.fromColors(
+                    baseColor: ShimmerConstants.shimmerBase,
+                    highlightColor: ShimmerConstants.shimmerHighlight,
+                    child: Container(
+                      width: 44,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: ShimmerConstants.shimmerBase,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    rpsScore?.toString() ?? '- -',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4.5,
+                    vertical: 2.5,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).primaryColor),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Theme.of(context).primaryColor.withAlpha(51),
+                  ),
+                  child: const Text(
+                    'RPS Score',
+                    style: TextStyle(color: Colors.white70, fontSize: 8),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 2),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4.5,
-                vertical: 2.5,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: Theme.of(context).primaryColor),
-                borderRadius: BorderRadius.circular(10),
-                color: Theme.of(context).primaryColor.withAlpha(51),
-              ),
-              child: const Text(
-                'RPS Score',
-                style: TextStyle(color: Colors.white70, fontSize: 8),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     ),
   );
 }
@@ -570,33 +690,22 @@ Widget _weeklyChallenge(BuildContext context) {
                 fontSize: 16,
               ),
             ),
-            GestureDetector(
-              // onLongPress: () {
-              //   CustomSnackBar.showInfo(
-              //     context,
-              //     'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
-              //   );
-              // },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withAlpha(30),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Theme.of(context).primaryColor,
+                  width: 1,
                 ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withAlpha(30),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Theme.of(context).primaryColor,
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  'Weekly',
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                  ),
+              ),
+              child: Text(
+                'Weekly',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -635,10 +744,7 @@ Widget _weeklyChallenge(BuildContext context) {
           child: Stack(
             children: [
               Container(
-                width:
-                    MediaQuery.of(context).size.width *
-                    0.5 *
-                    0.5, // 50% of available width
+                width: MediaQuery.of(context).size.width * 0.5 * 0.5,
                 height: 6,
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,

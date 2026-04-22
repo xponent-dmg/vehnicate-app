@@ -3,11 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
+import 'package:vehnicate_frontend/Pages/navigation/map_webview_page.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
 import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/login_page.dart';
 import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/onboarding_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/permissions_page.dart';
@@ -66,7 +68,8 @@ class App extends StatelessWidget {
           case "/permissions":
             return PageTransitions.slideFromRight(PermissionsPage());
           case "/login":
-            return PageTransitions.fade(LoginPage());
+            final emailArgs = settings.arguments as String?;
+            return PageTransitions.fade(LoginPage(initialEmail: emailArgs));
           case "/signup":
             final emailArgs = settings.arguments as String?;
             return PageTransitions.fade(SignupPage(initialEmail: emailArgs));
@@ -82,7 +85,9 @@ class App extends StatelessWidget {
             return PageTransitions.scaleFade(GaragePage());
           case "/vehicle-details":
             final vehicle = settings.arguments as Vehicle?;
-            return PageTransitions.slideFromBottom(VehicleDetailsPage(vehicle: vehicle!));
+            return PageTransitions.slideFromBottom(
+              VehicleDetailsPage(vehicle: vehicle!),
+            );
           case "/analyze":
             return PageTransitions.slideFromBottom(DriveAnalyzePage());
           // Edit Details - Fade + Slide Up (form-like)
@@ -106,12 +111,23 @@ class App extends StatelessWidget {
             return PageTransitions.slideFromBottom(
               DocumentUploadPage(documentType: docType),
             );
+          case "/loading":
+            final args = settings.arguments as Map<String, dynamic>?;
+            final duration =
+                args?['duration'] as Duration? ?? const Duration(seconds: 3);
+            final onComplete = args?['onComplete'] as VoidCallback?;
+            return PageTransitions.fade(
+              LoadingPage(duration: duration, onComplete: onComplete),
+            );
           case "/drive-details":
             final args = settings.arguments as Drive?;
             final drive = args != null ? (args as Drive?) : null;
             return PageTransitions.slideFromBottom(
               DriveDetailsPage(drive: drive!),
             );
+
+          case "/map-webview":
+            return PageTransitions.slideFromBottom(MapWebviewScreen());
           default:
             return null;
         }

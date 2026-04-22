@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/user_provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 
 class UserDetailsPage extends StatefulWidget {
@@ -18,28 +18,56 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _usernameController = TextEditingController();
-  final _vehicleModelController = TextEditingController();
-  final _vehicleYearController = TextEditingController();
-  final _vehicleRegistrationController = TextEditingController();
   bool _isLoading = false;
+  bool _isVerifyingUsername = false;
+  bool? _isUsernameAvailable;
 
   @override
   void dispose() {
     _fullNameController.dispose();
     _usernameController.dispose();
-    _vehicleModelController.dispose();
-    _vehicleYearController.dispose();
-    _vehicleRegistrationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _verifyUsername() async {
+    final username = _usernameController.text.trim();
+    if (username.isEmpty || username.length < 3) return;
+
+    setState(() => _isVerifyingUsername = true);
+
+    try {
+      final isAvailable = await SupabaseService().isUsernameAvailable(username);
+      if (mounted) {
+        setState(() {
+          _isUsernameAvailable = isAvailable;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Verification failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isVerifyingUsername = false);
+    }
   }
 
   Future<void> _saveUserDetails() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Verify username first
+    await _verifyUsername();
+    if (_isUsernameAvailable == false) {
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
-      final vehicleProvider = context.read<VehicleProvider>();
       final userProvider = context.read<UserProvider>();
 
       await SupabaseService().updateUserProfile(
@@ -49,18 +77,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       );
 
       await userProvider.refresh();
-      await vehicleProvider.refresh();
-      print(
-        'VehicleProvider(saveUserDetails): Vehicle data loaded with data: ${vehicleProvider.vehicleId}',
-      );
-
-      await SupabaseService().updateVehicleDetails(
-        vehicleId: vehicleProvider.vehicleId ?? 1,
-        insurance: "",
-        registration: _vehicleRegistrationController.text.trim(),
-        puc: null,
-        model: _vehicleModelController.text.trim(),
-      );
 
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
@@ -141,7 +157,37 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       controller: _usernameController,
                       label: 'Username',
                       icon: Icons.alternate_email,
-                      textInputAction: TextInputAction.next,
+                      textInputAction: TextInputAction.done,
+                      onChanged: (value) {
+                        if (_isUsernameAvailable != null) {
+                          setState(() {
+                            _isUsernameAvailable = null;
+                          });
+                        }
+                      },
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: TextButton(
+                          onPressed:
+                              _isVerifyingUsername ? null : _verifyUsername,
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF8E44AD),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child:
+                              _isVerifyingUsername
+                                  ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : const Text('Verify'),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a username';
@@ -152,46 +198,26 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                         return null;
                       },
                     ),
+                    if (_isUsernameAvailable != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0, left: 16.0),
+                        child: Text(
+                          _isUsernameAvailable!
+                              ? 'Username is available'
+                              : 'Username is already taken',
+                          style: TextStyle(
+                            color:
+                                _isUsernameAvailable!
+                                    ? Colors.greenAccent
+                                    : Colors.redAccent,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 32),
 
-                    // Vehicle Details Section
-                    Text(
-                      'Vehicle Details (Optional)',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Vehicle Model Field
-                    _buildTextField(
-                      controller: _vehicleModelController,
-                      label: 'Vehicle Model',
-                      icon: Icons.directions_car_outlined,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Vehicle Year Field
-                    _buildTextField(
-                      controller: _vehicleYearController,
-                      label: 'Vehicle Year',
-                      icon: Icons.calendar_today_outlined,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                    ),
                     const SizedBox(height: 40),
-                    // Vehicle Registration Field
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _vehicleRegistrationController,
-                      label: 'Vehicle Registration',
-                      icon: Icons.directions_car_outlined,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                    ),
                     const SizedBox(height: 40),
 
                     // Save Button
@@ -267,8 +293,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     required String label,
     required IconData icon,
     String? Function(String?)? validator,
+    void Function(String)? onChanged,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
+    Widget? suffixIcon,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -279,11 +307,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         controller: controller,
         keyboardType: keyboardType ?? TextInputType.text,
         textInputAction: textInputAction,
+        onChanged: onChanged,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
           prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide.none,

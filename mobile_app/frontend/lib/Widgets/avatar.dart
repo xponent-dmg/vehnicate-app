@@ -16,7 +16,7 @@ class Avatar extends StatelessWidget {
           image:
               imageUrl != null
                   ? NetworkImage(imageUrl!)
-                    : const AssetImage("assets/images/logo.png") as ImageProvider,
+                  : const AssetImage("assets/images/logo.png") as ImageProvider,
           fit: BoxFit.cover,
         ),
         boxShadow: [

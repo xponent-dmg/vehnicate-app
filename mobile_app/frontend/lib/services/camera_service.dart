@@ -288,7 +288,10 @@ class CameraService {
         }
         onStatsUpdated?.call();
       }
-    } catch (e){}
+    } catch (e) {
+      debugPrint('Error uploading batch: $e');
+      rethrow;
+    }
   }
 
   Future<void> clearCache() async {

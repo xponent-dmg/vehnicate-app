@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/models/drive_model.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
+import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
+import 'package:vehnicate_frontend/Widgets/drive_filter_sheet.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
@@ -56,48 +59,261 @@ class DriveAnalyzeConstants {
   );
 
   // Dimensions
-  static const double cardRadius = 12.0;
+  static const double cardRadius = 24;
   static const double horizontalPadding = 24.0;
 }
 
-class DriveAnalyzePage extends StatelessWidget {
+class DriveAnalyzePage extends StatefulWidget {
   const DriveAnalyzePage({super.key});
+
+  @override
+  State<DriveAnalyzePage> createState() => _DriveAnalyzePageState();
+}
+
+class _DriveAnalyzePageState extends State<DriveAnalyzePage> {
+  // Filter state
+  int? _filterVehicleId;
+  DateTime? _filterDate;
+  RangeValues _filterDuration = const RangeValues(0, 600); // 10 hours max default
+  RangeValues _filterDistance = const RangeValues(0, 2000); // in km
+  TimeOfDay? _filterStartTime;
+  TimeOfDay? _filterEndTime;
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return DriveFilterSheet(
+          initialVehicleId: _filterVehicleId,
+          initialDate: _filterDate,
+          initialDuration: _filterDuration,
+          initialDistance: _filterDistance,
+          initialStartTime: _filterStartTime,
+          initialEndTime: _filterEndTime,
+          onApply: ({
+            vehicleId,
+            date,
+            duration,
+            distance,
+            startTime,
+            endTime,
+          }) {
+            setState(() {
+              _filterVehicleId = vehicleId;
+              _filterDate = date;
+              _filterDuration = duration ?? _filterDuration;
+              _filterDistance = distance ?? _filterDistance;
+              _filterStartTime = startTime;
+              _filterEndTime = endTime;
+            });
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showFilterSheet,
+        backgroundColor: Theme.of(context).primaryColor,
+        child: const Icon(Icons.tune, color: Colors.white),
+      ),
       body: SafeArea(
-        child: Consumer<VehicleProvider>(
-          builder: (context, vehicleProvider, child) {
-            final drives = vehicleProvider.drives;
-            return RefreshIndicator(
-              onRefresh: () async {
-                await vehicleProvider.loadDrives();
-              },
-              color: Theme.of(context).primaryColor,
-              backgroundColor: DriveAnalyzeConstants.cardBackground,
-              child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: drives.length,
-                itemBuilder: (context, index) {
-                  final drive = drives[index];
-                  // We can pass the car name from the provider, as all drives are for this vehicle
-                  return Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: DriveAnalyzeConstants.horizontalPadding,
-                      vertical: 6,
-                    ),
-                    child: _buildDriveCard(
-                      context,
-                      drive,
-                      vehicleProvider.vehicleModel ?? 'Unknown Car',
+        child: Column(
+          children: [
+            Expanded(
+              child: Consumer<VehicleProvider>(
+                builder: (context, vehicleProvider, child) {
+                  final rawDrives = vehicleProvider.drives;
+                  final carName = vehicleProvider.vehicleModel ?? 'Unknown Car';
+
+                  final drives =
+                      rawDrives.where((drive) {
+                        if (_filterVehicleId != null &&
+                            drive.vehicleId != _filterVehicleId) {
+                          return false;
+                        }
+
+                        if (_filterDate != null) {
+                          if (drive.startTime.year != _filterDate!.year ||
+                              drive.startTime.month != _filterDate!.month ||
+                              drive.startTime.day != _filterDate!.day) {
+                            return false;
+                          }
+                        }
+
+                        final durationMins =
+                            drive.duration.inMinutes.toDouble();
+                        if (durationMins < _filterDuration.start ||
+                            durationMins > _filterDuration.end) {
+                          return false;
+                        }
+
+                        if (drive.distance < _filterDistance.start ||
+                            drive.distance > _filterDistance.end) {
+                          return false;
+                        }
+
+                        if (_filterStartTime != null) {
+                          if (drive.startTime.hour < _filterStartTime!.hour ||
+                              (drive.startTime.hour == _filterStartTime!.hour &&
+                                  drive.startTime.minute <
+                                      _filterStartTime!.minute)) {
+                            return false;
+                          }
+                        }
+
+                        if (_filterEndTime != null) {
+                          if (drive.endTime.hour > _filterEndTime!.hour ||
+                              (drive.endTime.hour == _filterEndTime!.hour &&
+                                  drive.endTime.minute >
+                                      _filterEndTime!.minute)) {
+                            return false;
+                          }
+                        }
+
+                        return true;
+                      }).toList();
+
+                  return StarRefreshIndicator(
+                    onRefresh: () async {
+                      await vehicleProvider.loadDrives();
+                    },
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount:
+                          vehicleProvider.isLoading && rawDrives.isEmpty
+                              ? 4
+                              : drives.length,
+                      itemBuilder: (context, index) {
+                        if (vehicleProvider.isLoading && rawDrives.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal:
+                                  DriveAnalyzeConstants.horizontalPadding,
+                              vertical: 8,
+                            ),
+                            child: _buildShimmerCard(context),
+                          );
+                        }
+
+                        if (index >= drives.length) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final drive = drives[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: DriveAnalyzeConstants.horizontalPadding,
+                            vertical: 8,
+                          ),
+                          child: _buildDriveCard(context, drive, carName),
+                        );
+                      },
                     ),
                   );
                 },
               ),
-            );
-          },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            (DriveAnalyzeConstants.cardBackground),
+            (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
+          ],
+        ),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: ShimmerConstants.shimmerBase,
+        highlightColor: ShimmerConstants.shimmerHighlight,
+        direction: ShimmerDirection.ttb,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          height: 128,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Leading icon box
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: ShimmerConstants.shimmerBase,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Title + subtitle column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: ShimmerConstants.shimmerBase,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 140,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: ShimmerConstants.shimmerBase,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: ShimmerConstants.shimmerBase,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: ShimmerConstants.shimmerBase,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_right_rounded,
+                color: Colors.white,
+                size: 35,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -117,18 +333,9 @@ class DriveAnalyzePage extends StatelessWidget {
             (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
           ],
         ),
-        // color: DriveAnalyzeConstants.cardBackground,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Theme.of(context).primaryColor.withOpacity(0.1),
-        //     blurRadius: 8,
-        //     offset: Offset(0, 2),
-        //   ),
-        // ],
       ),
-
       child: ListTile(
-        contentPadding: EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(16),
         onTap: () {
           Navigator.pushNamed(context, "/drive-details", arguments: drive);
         },
@@ -137,7 +344,7 @@ class DriveAnalyzePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(carName, style: DriveAnalyzeConstants.carNameStyle),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               _formatDate(drive.startTime),
               style: DriveAnalyzeConstants.dateStyle,
@@ -145,14 +352,14 @@ class DriveAnalyzePage extends StatelessWidget {
           ],
         ),
         subtitle: Padding(
-          padding: EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: 8),
           child: Row(
             children: [
               _buildMetric(
                 icon: FontAwesomeIcons.road,
                 value: '${drive.distance.toStringAsFixed(1)} km',
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               _buildMetric(
                 icon: FontAwesomeIcons.clock,
                 value: _formatDuration(duration),
@@ -164,13 +371,10 @@ class DriveAnalyzePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Score handling removed for now as per new schema
-            // _buildScoreDisplay(drive.avgScore, drive.scoreTrend),
-            // SizedBox(height: 4),
             Icon(
-              Icons.arrow_forward_ios,
+              Icons.arrow_right_rounded,
               color: Theme.of(context).primaryColor,
-              size: 16,
+              size: 35,
             ),
           ],
         ),
@@ -206,7 +410,7 @@ class DriveAnalyzePage extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: Colors.white70, size: 14),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(value, style: DriveAnalyzeConstants.metricStyle),
       ],
     );

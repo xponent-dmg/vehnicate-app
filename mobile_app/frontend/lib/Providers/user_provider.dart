@@ -14,6 +14,32 @@ class UserProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   Object? get error => _error;
 
+  String get displayName {
+    final name = _currentUser?.name ?? 'Guest';
+    const int threshold = 15;
+
+    if (name.length <= threshold) {
+      return name;
+    }
+
+    final words = name.split(' ');
+    String result = '';
+
+    for (var word in words) {
+      if (result.isEmpty) {
+        result = word;
+      } else if ((result.length + 1 + word.length) <= threshold) {
+        result += ' $word';
+      } else {
+        break;
+      }
+    }
+
+    // If even the first word is longer than the threshold, we just return it.
+    // (You can also truncate the first word if desired, e.g. result.substring(0, threshold))
+    return result;
+  }
+
   UserProvider() {
     _listenAuth();
   }
@@ -50,7 +76,7 @@ class UserProvider extends ChangeNotifier {
               )) {
             _setUser(null);
           } else {
-            await SupabaseService().createSupabaseUser(
+            await SupabaseService().ensureUserExists(
               uid: currentUser.uid,
               email: currentUser.email ?? '',
               displayName: currentUser.displayName,

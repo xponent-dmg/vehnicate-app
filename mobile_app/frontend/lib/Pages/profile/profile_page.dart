@@ -153,10 +153,10 @@ class _ProfilePageState extends State<ProfilePage> {
         fields: [
           FormFieldConfig(
             label: 'Password',
-            hint: 'Enter your password to confirm',
+            hint: 'Enter your password',
             icon: Icons.lock,
             controller: passwordController,
-            obscureText: true,
+            isPassword: true,
           ),
         ],
         submitButtonText: 'Verify & Delete',
@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
             await croppedFileToDelete.delete();
           }
         } catch (e) {
-          throw Exception(e);
+          debugPrint('Failed to clean up temporary file: $e');
         }
       }
     }

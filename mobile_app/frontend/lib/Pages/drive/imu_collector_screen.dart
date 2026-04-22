@@ -12,6 +12,7 @@ import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
 import 'package:vehnicate_frontend/services/sensor_service.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:location/location.dart' as loc;
+import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuCollector extends StatefulWidget {
@@ -428,21 +429,20 @@ class _ImuCollectorState extends State<ImuCollector> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: const Color(0xFF01010D),
-        appBar: AppBar(
-          title: const Text("IMU + Camera Data Collector"),
-          backgroundColor: const Color(0xFF0E0E1A),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        body: OrientationBuilder(
-          builder: (context, orientation) {
-            if (orientation == Orientation.landscape) {
-              return _buildLandscapeLayout();
-            } else {
-              return _buildPortraitLayout();
-            }
-          },
+        backgroundColor: Colors.transparent,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: AppGradients.mainBackground,
+          ),
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              if (orientation == Orientation.landscape) {
+                return _buildLandscapeLayout();
+              } else {
+                return _buildPortraitLayout();
+              }
+            },
+          ),
         ),
       ), // Close Scaffold
     ); // Close PopScope
@@ -451,6 +451,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   Widget _buildPortraitLayout() {
     return Column(
       children: [
+        SizedBox(height: MediaQuery.of(context).size.height * 0.09),
         // Camera Preview
         _buildCameraPreview(height: 400, isLandscape: false),
 
@@ -514,10 +515,10 @@ class _ImuCollectorState extends State<ImuCollector> {
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF765FD1), width: 2),
+          border: Border.all(color: Colors.white24, width: 2),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF765FD1).withOpacity(0.3),
+              color: Colors.white24,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -538,7 +539,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: const Color(0xFF0E0E1A),
-          border: Border.all(color: const Color(0xFF765FD1), width: 2),
+          border: Border.all(color: Theme.of(context).primaryColor, width: 2),
         ),
         child: const Center(
           child: Column(
@@ -561,7 +562,9 @@ class _ImuCollectorState extends State<ImuCollector> {
       decoration: BoxDecoration(
         color: const Color(0xFF0E0E1A),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF765FD1).withOpacity(0.3)),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withOpacity(0.3),
+        ),
       ),
       child: Column(
         children: [
