@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
 
 class SplashPage extends StatefulWidget {
@@ -10,6 +11,7 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
+  static const String _prefsOnboardingSeenKey = 'onboarding_seen';
   late AnimationController _controller;
   late Animation<double> _animation;
   bool _showFinalText = false;
@@ -28,20 +30,28 @@ class _SplashPageState extends State<SplashPage>
         setState(() {
           _showFinalText = true;
         });
-        Future.delayed(Duration(milliseconds: 500), () {
-          if (_navigated) return;
-          final user = FirebaseAuth.instance.currentUser;
-          if (user != null) {
-            _navigated = true;
-            Navigator.pushReplacementNamed(context, '/home');
-          } else {
-            _navigated = true;
-            Navigator.pushReplacementNamed(context, '/login');
-          }
-        });
+        _decideNextRoute();
       }
     });
     _controller.forward();
+  }
+
+  Future<void> _decideNextRoute() async {
+    await Future.delayed(Duration(milliseconds: 500));
+    if (!mounted || _navigated) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenOnboarding = prefs.getBool(_prefsOnboardingSeenKey) ?? false;
+
+    if (!hasSeenOnboarding) {
+      _navigated = true;
+      Navigator.pushReplacementNamed(context, '/onboarding');
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    _navigated = true;
+    Navigator.pushReplacementNamed(context, user != null ? '/home' : '/login');
   }
 
   @override
@@ -67,7 +77,7 @@ class _SplashPageState extends State<SplashPage>
             mainAxisAlignment: MainAxisAlignment.center, // center vertically
             children: [
               Image.asset(
-                'assets/vehnicate_logo.png',
+                'assets/images/vehnicate_logo.png',
                 width: 150,
                 height: 150,
                 fit: BoxFit.contain,

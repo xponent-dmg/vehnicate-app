@@ -8,6 +8,7 @@ import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
 import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/permissions_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -73,6 +74,12 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 // Weekly Challenge
                 _weeklyChallenge(context),
+                const SizedBox(height: 16),
+                Center(
+                  child: FractionallySizedBox(
+                    child: const PermissionsWidget(compact: true),
+                  ),
+                ),
               ],
             ),
           ),
