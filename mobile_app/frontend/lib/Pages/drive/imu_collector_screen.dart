@@ -82,21 +82,15 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   Future<void> _initCamera() async {
-    print('[IMU_DEBUG][_initCamera] Initializing camera service...');
     try {
       await _cameraService.initialize();
       if (mounted) setState(() {}); // Rebuild to show preview
-      print(
-        '[IMU_DEBUG][_initCamera] 📷 Camera service initialized successfully',
-      );
     } catch (e) {
-      print('[IMU_DEBUG][_initCamera] ❌ Camera init error: $e');
       CustomSnackBar.showError(context, 'Camera initialization failed: $e');
     }
   }
 
   Future<void> _initLocation() async {
-    print('[IMU_DEBUG][_initLocation] Initializing location...');
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -114,9 +108,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       if (permission == LocationPermission.deniedForever) {
         throw Exception('Location permissions are permanently denied');
       }
-      print('[IMU_DEBUG][_initLocation] 📍 Location permissions granted');
     } catch (e) {
-      print('[IMU_DEBUG][_initLocation] ❌ Location init error: $e');
       CustomSnackBar.showError(context, 'Location initialization failed: $e');
     }
   }
@@ -189,7 +181,6 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   void startCollection() async {
-    print('[IMU_DEBUG][startCollection] Called');
     if (isCollecting) return;
 
     // 1. Request Location Service (Gated)
@@ -199,9 +190,6 @@ class _ImuCollectorState extends State<ImuCollector> {
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
-        print(
-          '[IMU_DEBUG][startCollection] ❌ Location service request denied/failed',
-        );
         if (mounted) {
           CustomSnackBar.showError(
             context,
@@ -213,7 +201,6 @@ class _ImuCollectorState extends State<ImuCollector> {
     }
 
     // 2. Enable Wakelock
-    print('[IMU_DEBUG][startCollection] 💡 Enabling Wakelock...');
     await WakelockPlus.enable();
 
     final vehicleId = context.read<VehicleProvider>().vehicleId;
@@ -231,25 +218,15 @@ class _ImuCollectorState extends State<ImuCollector> {
     // Show dialog to get start position before starting collection
     final confirmed = await _showStartPositionDialog();
     if (!confirmed) {
-      print(
-        '[IMU_DEBUG][startCollection] ❌ User cancelled start position dialog',
-      );
       await WakelockPlus.disable();
       return;
     }
 
-    print(
-      '[IMU_DEBUG][startCollection] 📍 Start position: X=$_startX, Y=$_startY, Z=$_startZ',
-    );
 
     try {
-      print('[IMU_DEBUG][startCollection] 🔄 Starting data collection...');
 
       // Capture start time
       _driveStartTime = DateTime.now().toLocal();
-      print(
-        '[IMU_DEBUG][startCollection] 📅 Drive started at: $_driveStartTime',
-      );
 
       // Start Sensor collection
       await _sensorService.start(
@@ -272,12 +249,9 @@ class _ImuCollectorState extends State<ImuCollector> {
       );
 
       setState(() => isCollecting = true);
-      print(
-        '[IMU_DEBUG][startCollection] ✅ Data collection started successfully',
-      );
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
-    } catch (e) {
-      print('[IMU_DEBUG][startCollection] ❌ Start collection error: $e');
+    } catch (e, st) {
+      AppLogger.error('Failed to start collection', e, st);
       if (mounted) {
         CustomSnackBar.showError(context, 'Failed to start collection: $e');
       }
@@ -288,7 +262,6 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   void stopCollection() async {
-    print('[IMU_DEBUG][stopCollection] Called');
     if (isStopping) return;
 
     setState(() {
@@ -296,11 +269,9 @@ class _ImuCollectorState extends State<ImuCollector> {
     });
 
     try {
-      print('[IMU_DEBUG][stopCollection] ⏹️ Stopping data collection...');
 
       // Capture end time
       _driveEndTime = DateTime.now().toLocal();
-      print('[IMU_DEBUG][stopCollection] 📅 Drive ended at: $_driveEndTime');
 
       // Stop Sensor collection and Camera streaming in parallel
       await Future.wait([
@@ -320,16 +291,11 @@ class _ImuCollectorState extends State<ImuCollector> {
         });
       }
 
-      print('[IMU_DEBUG][stopCollection] 💡 Disabling Wakelock...');
       await WakelockPlus.disable();
 
-      print(
-        '[IMU_DEBUG][stopCollection] ✅ Data collection stopped successfully',
-      );
       // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
-    } catch (e) {
-      print('[IMU_DEBUG][stopCollection] ❌ Stop collection error: $e');
-      // CustomSnackBar.showError(context, 'Error stopping collection: $e');
+    } catch (e, st) {
+      AppLogger.error('Error stopping collection', e, st);
       if (mounted) {
         setState(() {
           isStopping = false;
@@ -345,18 +311,11 @@ class _ImuCollectorState extends State<ImuCollector> {
       if (vehicleId == null ||
           _driveStartTime == null ||
           _driveEndTime == null) {
-        print('[IMU_DEBUG][_saveDriveSession] ⚠️ Missing required data');
         return;
       }
 
-      final duration = _driveEndTime!.difference(_driveStartTime!);
+      final _ = _driveEndTime!.difference(_driveStartTime!);
 
-      print('[IMU_DEBUG][_saveDriveSession] 💾 Saving drive session...');
-      print('[IMU_DEBUG][_saveDriveSession] Start: $_driveStartTime');
-      print('[IMU_DEBUG][_saveDriveSession] End: $_driveEndTime');
-      print(
-        '[IMU_DEBUG][_saveDriveSession] Duration: ${duration.inMinutes} minutes',
-      );
 
       // Save to your existing trips table
       await supabase.from('trips').insert({
@@ -370,21 +329,19 @@ class _ImuCollectorState extends State<ImuCollector> {
         'startz': _startZ,
       });
 
-      print(
-        '[IMU_DEBUG][_saveDriveSession] ✅ Drive session saved successfully to trips table',
-      );
-    } catch (e) {
-      print('[IMU_DEBUG][_saveDriveSession] ❌ Error saving drive session: $e');
-      CustomSnackBar.showWarning(
-        context,
-        'Warning: Failed to save drive session times',
-      );
+    } catch (e, st) {
+      AppLogger.error('Failed to save drive session times', e, st);
+      if (mounted) {
+        CustomSnackBar.showWarning(
+          context,
+          'Warning: Failed to save drive session times',
+        );
+      }
     }
   }
 
   @override
   void dispose() {
-    print('[IMU_DEBUG][dispose] Called');
     WakelockPlus.disable();
     _cameraService.dispose();
     _sensorService.dispose();
@@ -393,7 +350,6 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   @override
   Widget build(BuildContext context) {
-    // print('[IMU_DEBUG][build] Building widget');
     return PopScope(
       canPop: !isCollecting,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
@@ -654,7 +610,6 @@ class _ImuCollectorState extends State<ImuCollector> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () async {
-                print('[IMU_DEBUG][UploadNowButton] Upload Now pressed');
                 await _cameraService.uploadBatch();
                 CustomSnackBar.showSuccess(context, 'Upload triggered');
               },
@@ -716,7 +671,6 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   Widget _buildStatCard(String title, String processed, String uploaded) {
-    // print('[IMU_DEBUG][_buildStatCard] $title: processed=$processed, uploaded=$uploaded');
     return Column(
       children: [
         Text(

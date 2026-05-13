@@ -95,9 +95,6 @@ class App extends StatelessWidget {
             );
           case "/analyze":
             return PageTransitions.slideFromBottom(DriveAnalyzePage());
-          // Edit Details - Fade + Slide Up (form-like)
-          // case "/editdetails":
-          //   return PageTransitions.fadeSlideUp(EditProfilePage());
           case "/home":
             return PageTransitions.fade(Home());
           case "/map":
