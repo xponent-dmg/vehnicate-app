@@ -545,7 +545,7 @@ class _ImuCollectorState extends State<ImuCollector> {
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: const Color(0xFF0E0E1A),
+          color: AppColors.darkBackground,
           border: Border.all(color: Theme.of(context).primaryColor, width: 2),
         ),
         child: const Center(
@@ -567,7 +567,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0E0E1A),
+        color: AppColors.darkBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).primaryColor.withOpacity(0.3),
@@ -640,8 +640,8 @@ class _ImuCollectorState extends State<ImuCollector> {
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     isCollecting
-                        ? const Color(0xFFF24E1E)
-                        : const Color(0xFF4CAF50),
+                        ? AppColors.danger
+                        : AppColors.success,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -664,7 +664,7 @@ class _ImuCollectorState extends State<ImuCollector> {
                 backgroundColor:
                     (_cameraService.pendingFramesCount == 0)
                         ? Colors.grey
-                        : const Color(0xFF765FD1),
+                        : AppColors.mutedPurple,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -685,11 +685,11 @@ class _ImuCollectorState extends State<ImuCollector> {
       decoration: BoxDecoration(
         color:
             isCollecting
-                ? const Color(0xFF4CAF50).withOpacity(0.2)
-                : const Color(0xFF0E0E1A),
+                ? AppColors.success.withOpacity(0.2)
+                : AppColors.darkBackground,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isCollecting ? const Color(0xFF4CAF50) : Colors.white24,
+          color: isCollecting ? AppColors.success : Colors.white24,
           width: 1,
         ),
       ),
@@ -700,13 +700,13 @@ class _ImuCollectorState extends State<ImuCollector> {
             isCollecting
                 ? Icons.radio_button_checked
                 : Icons.radio_button_unchecked,
-            color: isCollecting ? const Color(0xFF4CAF50) : Colors.white38,
+            color: isCollecting ? AppColors.success : Colors.white38,
           ),
           const SizedBox(width: 8),
           Text(
             isCollecting ? 'Data Collection Active' : 'Data Collection Stopped',
             style: TextStyle(
-              color: isCollecting ? const Color(0xFF4CAF50) : Colors.white60,
+              color: isCollecting ? AppColors.success : Colors.white60,
               fontWeight: FontWeight.bold,
             ),
           ),

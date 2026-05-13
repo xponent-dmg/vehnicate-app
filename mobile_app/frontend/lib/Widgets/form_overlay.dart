@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'glass_lite_container.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 /// Enum to define the type of form field
 enum FormFieldType { text, date }
@@ -65,7 +66,7 @@ class FormOverlay {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: GlassLiteContainer(
-                  backgroundColor: const Color(0xFF0E0E1A),
+                  backgroundColor: AppColors.darkBackground,
                   borderRadius: BorderRadius.circular(20),
                   hasBorder: true,
                   hasShadow: true,
@@ -311,7 +312,7 @@ class FormOverlay {
                     )
                     : null,
             filled: true,
-            fillColor: Color(0xFF3d3d54),
+            fillColor: AppColors.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -386,7 +387,7 @@ class FormOverlay {
               size: 20,
             ),
             filled: true,
-            fillColor: Color(0xFF3d3d54),
+            fillColor: AppColors.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

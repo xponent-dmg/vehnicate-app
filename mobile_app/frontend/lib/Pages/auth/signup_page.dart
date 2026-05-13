@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opsin/services/auth_service.dart';
 import 'package:opsin/Widgets/custom_snackbar.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class SignupPage extends StatefulWidget {
   final String? initialEmail;
@@ -87,7 +88,7 @@ class _SignupPageState extends State<SignupPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
           ),
         ),
         child: SafeArea(
@@ -226,7 +227,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _signUp,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF8E44AD),
+                          backgroundColor: AppColors.vibrantPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
@@ -269,7 +270,7 @@ class _SignupPageState extends State<SignupPage> {
                           child: const Text(
                             'Sign in',
                             style: TextStyle(
-                              color: Color(0xFF8E44AD),
+                              color: AppColors.vibrantPurple,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

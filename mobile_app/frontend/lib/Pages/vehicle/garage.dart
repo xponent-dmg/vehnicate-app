@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:opsin/services/supabase_service.dart';
 import 'package:opsin/Widgets/form_overlay.dart';
 import 'package:opsin/models/vehicle_model.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -155,7 +156,7 @@ class GaragePageState extends State<GaragePage> {
     return GlassLiteContainer(
       margin: const EdgeInsets.only(bottom: 20),
       height: 150,
-      backgroundColor: const Color(0xFF1B1D25),
+      backgroundColor: AppColors.darkGreyBackground,
       borderRadius: BorderRadius.circular(24),
       onTap: () {
         Navigator.pushNamed(context, "/vehicle-details", arguments: vehicle);
@@ -215,7 +216,7 @@ class GaragePageState extends State<GaragePage> {
                             Icon(
                               Icons.location_on,
                               size: 13,
-                              color: const Color(0xFF5B60F8),
+                              color: AppColors.buttonBlue,
                             ),
                             const SizedBox(width: 4),
                             Expanded(

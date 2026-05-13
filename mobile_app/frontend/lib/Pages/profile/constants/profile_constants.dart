@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class ProfileConstants {
   // Colors
-  static const Color primaryBackground = Color(0xFF01010D);
-  static const Color cardBackground = Color(0xFF0E0E1A);
-  static const Color accentPurple = Color(0xFF765FD1);
-  static const Color lightPurple = Color(0xFF9217BB);
-  static const Color darkPurple = Color(0xFF403862);
-  static const Color logoutRed = Color(0xFFF24E1E);
-  static const Color deleteRed = Color(0xA5FF0000);
-  static const Color dividerColor = Color(0x33B0A4AD);
+  static const Color primaryBackground = AppColors.deepBlack;
+  static const Color cardBackground = AppColors.darkBackground;
+  static const Color accentPurple = AppColors.mutedPurple;
+  static const Color lightPurple = AppColors.vividPurple;
+  static const Color darkPurple = AppColors.deepPurpleAccent;
+  static const Color logoutRed = AppColors.logout;
+  static const Color deleteRed = AppColors.delete;
+  static const Color dividerColor = AppColors.divider;
 
   static const LinearGradient gradient = LinearGradient(
     begin: Alignment.topCenter,

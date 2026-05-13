@@ -128,7 +128,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     onPressed: _nextPage,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF2D2D44),
+                      foregroundColor: AppColors.background,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),

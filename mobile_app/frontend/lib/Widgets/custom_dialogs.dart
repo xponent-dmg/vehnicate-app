@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'glass_lite_container.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class CustomConfirmationDialog extends StatelessWidget {
   final String title;
@@ -58,7 +59,7 @@ class CustomConfirmationDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: GlassLiteContainer(
-        backgroundColor: backgroundColor ?? const Color(0xFF0E0E1A),
+        backgroundColor: backgroundColor ?? AppColors.darkBackground,
         borderRadius: BorderRadius.circular(24),
         hasBorder: true,
         hasShadow: true,
@@ -167,7 +168,7 @@ class CustomLoadingDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: GlassLiteContainer(
-        backgroundColor: backgroundColor ?? const Color(0xFF2d2d44),
+        backgroundColor: backgroundColor ?? AppColors.background,
         borderRadius: BorderRadius.circular(20),
         hasBorder: true,
         hasShadow: true,

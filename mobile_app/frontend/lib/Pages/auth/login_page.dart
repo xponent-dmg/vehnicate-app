@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:opsin/services/auth_service.dart';
 import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class LoginPage extends StatefulWidget {
   final String? initialEmail;
@@ -123,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            backgroundColor: const Color(0xFF2d2d44),
+            backgroundColor: AppColors.background,
             title: const Text(
               "Reset Password",
               style: TextStyle(color: Colors.white),
@@ -148,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF8E44AD)),
+                      borderSide: BorderSide(color: AppColors.vibrantPurple),
                     ),
                   ),
                 ),
@@ -193,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8E44AD),
+                  backgroundColor: AppColors.vibrantPurple,
                 ),
                 child: const Text(
                   "Send Link",
@@ -215,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
           ),
         ),
         child: SafeArea(
@@ -357,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
                           'Forgot Password?',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF8E44AD),
+                            color: AppColors.vibrantPurple,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -373,7 +374,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _emailSignIn,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF8E44AD),
+                          backgroundColor: AppColors.vibrantPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
@@ -425,7 +426,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             'Sign up',
                             style: const TextStyle(
-                              color: Color(0xFF8E44AD),
+                              color: AppColors.vibrantPurple,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

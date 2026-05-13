@@ -171,7 +171,7 @@ class _DashboardPageState extends State<DashboardPage> {
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
           ),
-          backgroundColor: const Color(0xFF2d2d44),
+          backgroundColor: AppColors.background,
           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           child: Consumer<VehicleProvider>(
             builder: (context, vehicleProvider, child) {
@@ -297,7 +297,7 @@ class _DashboardPageState extends State<DashboardPage> {
           return GlassLiteContainer(
             hasBorder: false,
             height: 160,
-            backgroundColor: const Color(0xFF2d2d44),
+            backgroundColor: AppColors.background,
             padding: const EdgeInsets.all(17),
             child:
                 hasVehicle
@@ -384,7 +384,7 @@ class _VehicleInfoContent extends StatelessWidget {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF3d3d54),
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(child: Image.asset("assets/images/vehicle_def.png")),
@@ -459,7 +459,7 @@ class _CarCardShimmer extends StatelessWidget {
     return GlassLiteContainer(
       hasBorder: false,
       height: 160,
-      backgroundColor: const Color(0xFF2d2d44),
+      backgroundColor: AppColors.background,
       padding: const EdgeInsets.all(17),
       child: Shimmer.fromColors(
         baseColor: ShimmerConstants.shimmerBase,
@@ -532,7 +532,7 @@ class _CarCardShimmer extends StatelessWidget {
 Widget _startCard(BuildContext context) {
   return GlassLiteContainer(
     hasBorder: false,
-    backgroundColor: const Color(0xFF2d2d44),
+    backgroundColor: AppColors.background,
     padding: const EdgeInsets.all(20),
     child: Row(
       children: [
@@ -573,7 +573,7 @@ Widget _startCard(BuildContext context) {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
-              color: Color(0xFF3d3d54),
+              color: AppColors.surface,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.map, color: Colors.white70, size: 24),
@@ -594,7 +594,7 @@ Widget _rpsScoreCard(BuildContext context) {
 
         return GlassLiteContainer(
           hasBorder: false,
-          backgroundColor: const Color(0xFF2d2d44),
+          backgroundColor: AppColors.background,
           padding: const EdgeInsets.all(20),
           child: CircularPercentIndicator(
             radius: 60,

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class DriveDetailsConstants {
   // Colors
-  static const Color primaryBackground = Color(0xFF01010D);
-  static const Color cardBackground = Color(0xFF2d2d44);
-  static const Color accentPurple = Color(0xFF765FD1);
-  static const Color lightPurple = Color(0xFF9217BB);
-  static const Color darkPurple = Color(0xFF403862);
-  static const Color successGreen = Color(0xFF4CAF50);
-  static const Color warningRed = Color(0xFFF24E1E);
-  static const Color warningOrange = Color(0xFFFF9800);
-  static const Color dividerColor = Color(0x33B0A4AD);
+  static const Color primaryBackground = AppColors.deepBlack;
+  static const Color cardBackground = AppColors.background;
+  static const Color accentPurple = AppColors.mutedPurple;
+  static const Color lightPurple = AppColors.vividPurple;
+  static const Color darkPurple = AppColors.deepPurpleAccent;
+  static const Color successGreen = AppColors.success;
+  static const Color warningRed = AppColors.danger;
+  static const Color warningOrange = Colors.orange;
+  static const Color dividerColor = AppColors.divider;
 
   // Text Styles
   static const TextStyle titleStyle = TextStyle(

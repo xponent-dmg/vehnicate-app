@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class StepRotatingShape extends StatefulWidget {
   final double size;
@@ -12,7 +13,7 @@ class StepRotatingShape extends StatefulWidget {
     this.size = 100,
     this.rotationDuration = const Duration(milliseconds: 300),
     this.pauseDuration = const Duration(milliseconds: 200),
-    this.color = const Color(0xFF8157E8),
+    this.color = AppColors.accent,
   });
 
   @override

@@ -4,6 +4,7 @@ import 'package:opsin/Widgets/custom_snackbar.dart';
 import 'package:opsin/services/auth_service.dart';
 import 'package:opsin/services/supabase_service.dart';
 import 'package:opsin/Widgets/custom_dialogs.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   const EmailVerificationPage({super.key});
@@ -180,7 +181,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
+              colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
             ),
           ),
           child: const SafeArea(
@@ -191,7 +192,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                   Icon(
                     Icons.check_circle_outline_rounded,
                     size: 80,
-                    color: Color(0xFF8E44AD),
+                    color: AppColors.vibrantPurple,
                   ),
                   SizedBox(height: 24),
                   Text(
@@ -224,7 +225,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
           ),
         ),
         child: SafeArea(

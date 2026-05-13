@@ -11,6 +11,7 @@ import 'package:opsin/services/supabase_service.dart';
 import 'package:opsin/models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 // Constants and Theme (consistent with other pages)
 class DriveDetailsPage extends StatefulWidget {
@@ -625,17 +626,17 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
   Color _getEventColor(String type) {
     switch (type.toLowerCase()) {
       case 'pothole':
-        return Color(0xFFEF4444);
+        return AppColors.severityCritical;
       case 'road_defect':
-        return Color(0xFFDC2626);
+        return AppColors.severityHigh;
       case 'unmarked_speedbump':
-        return Color(0xFFF59E0B);
+        return AppColors.severityMedium;
       case 'marked_speedbump':
-        return Color(0xFF8B5CF6);
+        return AppColors.severityLow;
       case 'cracks':
-        return Color(0xFF06B6D4);
+        return AppColors.severityInfo;
       case 'unpaved_road':
-        return Color(0xFF10B981);
+        return AppColors.severitySuccess;
       case 'harsh_braking':
         return Color(0xFFFCD34D);
       case 'harsh_acceleration':

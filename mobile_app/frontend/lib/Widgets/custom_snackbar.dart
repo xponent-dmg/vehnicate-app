@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 /// A custom snackbar widget that matches the app's theme
 class CustomSnackBar {
@@ -25,7 +26,7 @@ class CustomSnackBar {
       context,
       message: message,
       icon: Icons.error_rounded,
-      backgroundColor: const Color(0xFFE74C3C),
+      backgroundColor: AppColors.error,
       iconColor: Colors.white,
     );
   }
@@ -36,7 +37,7 @@ class CustomSnackBar {
       context,
       message: message,
       icon: Icons.warning_rounded,
-      backgroundColor: const Color(0xFFF39C12),
+      backgroundColor: AppColors.warning,
       iconColor: Colors.white,
     );
   }
@@ -47,7 +48,7 @@ class CustomSnackBar {
       context,
       message: message,
       icon: Icons.info_rounded,
-      backgroundColor: const Color(0xFF3498DB),
+      backgroundColor: AppColors.info,
       iconColor: Colors.white,
     );
   }
@@ -66,7 +67,7 @@ class CustomSnackBar {
       context,
       message: message,
       icon: icon,
-      backgroundColor: backgroundColor ?? const Color(0xFF2d2d44),
+      backgroundColor: backgroundColor ?? AppColors.background,
       iconColor: iconColor ?? Colors.white,
       textColor: textColor ?? Colors.white,
       duration: duration,

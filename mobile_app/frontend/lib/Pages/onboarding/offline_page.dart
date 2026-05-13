@@ -175,12 +175,12 @@ class _IconCard extends StatelessWidget {
       width: 180,
       height: 180,
       decoration: BoxDecoration(
-        color: const Color(0xFF2d2d44),
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(36),
         border: Border.all(color: Colors.white.withOpacity(0.07), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF555FDB).withOpacity(0.25),
+            color: AppColors.primary.withOpacity(0.25),
             blurRadius: 60,
             spreadRadius: 4,
           ),
@@ -198,14 +198,14 @@ class _IconCard extends StatelessWidget {
                 height: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF555FDB).withOpacity(0.12),
+                  color: AppColors.primary.withOpacity(0.12),
                 ),
               ),
               // Icon
               const Icon(
                 Icons.wifi_off_rounded,
                 size: 64,
-                color: Color(0xFF7B86F0),
+                color: AppColors.lightPurple,
               ),
             ],
           ),
@@ -235,15 +235,11 @@ class _RetryButton extends StatelessWidget {
           gradient:
               isRetrying
                   ? null
-                  : const LinearGradient(
-                    colors: [Color(0xFF555FDB), Color(0xFF9217BB)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-          color: isRetrying ? const Color(0xFF2d2d44) : null,
+                  : AppGradients.primaryGradient,
+          color: isRetrying ? AppColors.background : null,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isRetrying ? const Color(0xFF555FDB) : Colors.transparent,
+            color: isRetrying ? AppColors.primary : Colors.transparent,
             width: 1.2,
           ),
           boxShadow:
@@ -251,7 +247,7 @@ class _RetryButton extends StatelessWidget {
                   ? []
                   : [
                     BoxShadow(
-                      color: const Color(0xFF555FDB).withOpacity(0.35),
+                      color: AppColors.primary.withOpacity(0.35),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -266,7 +262,7 @@ class _RetryButton extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Color(0xFF555FDB),
+                        AppColors.primary,
                       ),
                     ),
                   )

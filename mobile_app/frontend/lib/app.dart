@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 import 'package:opsin/Pages/onboarding/onboarding_page.dart';
 import 'package:opsin/Pages/onboarding/permissions_page.dart';
 import 'package:provider/provider.dart';
@@ -36,15 +37,15 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
-        primaryColor: Color(0xFF555FDB),
+        primaryColor: AppColors.primary,
 
         // primaryColor: Colors.deepPurple,
         useMaterial3: true,
         textTheme: GoogleFonts.outfitTextTheme(),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF555FDB),
+          seedColor: AppColors.primary,
           brightness: Brightness.light,
-          background: Color(0xFF2d2d44),
+          background: AppColors.background,
         ),
         cardTheme: CardThemeData(
           elevation: 2,

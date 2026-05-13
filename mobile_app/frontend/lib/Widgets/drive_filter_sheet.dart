@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:opsin/Providers/vehicle_provider.dart';
 import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 // Use local constants for the filter sheet to maintain modularity
 class _FilterSheetConstants {
@@ -85,7 +86,7 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
         top: 24,
         bottom: 24 + MediaQuery.of(context).viewInsets.bottom,
       ),
-      backgroundColor: const Color(0xFF0E0E1A),
+      backgroundColor: AppColors.darkBackground,
       hasBorder: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -171,7 +172,7 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                                       ? FontWeight.bold
                                       : FontWeight.normal,
                             ),
-                            backgroundColor: const Color(0xFF3d3d54),
+                            backgroundColor: AppColors.surface,
                             side: BorderSide(
                               color:
                                   isSelected

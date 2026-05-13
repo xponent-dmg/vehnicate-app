@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class PermissionsPage extends StatelessWidget {
   const PermissionsPage({super.key});
@@ -15,7 +16,7 @@ class PermissionsPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
           ),
         ),
         child: const SafeArea(
@@ -113,7 +114,7 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
 
     return GlassLiteContainer(
       hasBorder: false,
-      backgroundColor: const Color(0xFF2d2d44),
+      backgroundColor: AppColors.background,
       padding: EdgeInsets.all(widget.compact ? 12 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +215,7 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
               child: ElevatedButton(
                 onPressed: _continueToApp,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8E44AD),
+                  backgroundColor: AppColors.vibrantPurple,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -375,7 +376,7 @@ class _PermissionCard extends StatelessWidget {
           ElevatedButton(
             onPressed: onRequest,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isGranted ? const Color(0xFF2E7D32) : const Color(0xFF8E44AD),
+              backgroundColor: isGranted ? const Color(0xFF2E7D32) : AppColors.vibrantPurple,
               foregroundColor: Colors.white,
             ),
             child: Text(isGranted ? 'Granted' : 'Allow'),

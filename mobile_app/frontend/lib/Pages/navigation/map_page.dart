@@ -9,6 +9,7 @@ import '../../config/config.dart';
 import 'package:provider/provider.dart';
 import 'package:opsin/Providers/vehicle_provider.dart';
 import 'package:opsin/services/map_service.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -398,7 +399,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: AppColors.deepBlueBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -413,7 +414,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       //   onPressed: () {
       //     _mapController.move(_currentLatLng, Config.defaultZoom);
       //   },
-      //   backgroundColor: const Color(0xFF3d3d54),
+      //   backgroundColor: AppColors.surface,
       //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       //   child: const Icon(Icons.my_location, color: Colors.white),
       // ),
@@ -425,7 +426,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-        color: Color(0xFF2d2d44),
+        color: AppColors.background,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(20),
@@ -468,7 +469,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             focusNode: _fromFocusNode,
             hintText: "From",
             prefixIcon: FontAwesomeIcons.locationCrosshairs,
-            color: Color(0xFF8E44AD),
+            color: AppColors.vibrantPurple,
             onChanged: (value) => _searchAutocomplete(value, true),
             onSubmitted: (value) => _searchAndSetLocation(value, true),
             isFromFieldActive: true,
@@ -488,10 +489,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           if (_showAutocomplete && _autocompleteSuggestions.isNotEmpty) ...[
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1a1a2e),
+                color: AppColors.deepBlueBackground,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF8E44AD).withOpacity(0.3),
+                  color: AppColors.vibrantPurple.withOpacity(0.3),
                 ),
               ),
               constraints: const BoxConstraints(maxHeight: 200),
@@ -511,7 +512,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   switch (layer) {
                     case 'venue':
                       icon = Icons.place;
-                      iconColor = const Color(0xFF8E44AD);
+                      iconColor = AppColors.vibrantPurple;
                       break;
                     case 'address':
                       icon = Icons.home;
@@ -618,7 +619,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                           : const Icon(Icons.directions, color: Colors.white),
                   label: Text(_isLoading ? 'Loading...' : 'Get Route'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF8E44AD),
+                    backgroundColor: AppColors.vibrantPurple,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -631,7 +632,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 icon: const Icon(Icons.clear, color: Colors.white),
                 label: const Text('Clear'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3d3d54),
+                  backgroundColor: AppColors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -644,9 +645,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF8E44AD).withOpacity(0.2),
+                color: AppColors.vibrantPurple.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF8E44AD)),
+                border: Border.all(color: AppColors.vibrantPurple),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -655,7 +656,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     children: [
                       const Icon(
                         Icons.straighten,
-                        color: Color(0xFF8E44AD),
+                        color: AppColors.vibrantPurple,
                         size: 16,
                       ),
                       Text(
@@ -671,7 +672,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     children: [
                       const Icon(
                         Icons.access_time,
-                        color: Color(0xFF8E44AD),
+                        color: AppColors.vibrantPurple,
                         size: 16,
                       ),
                       Text(
@@ -717,7 +718,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               Polyline(
                 points: _routePoints,
                 strokeWidth: 5.0,
-                color: const Color(0xFF8E44AD),
+                color: AppColors.vibrantPurple,
                 pattern: const StrokePattern.solid(),
               ),
             ],
@@ -731,7 +732,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
-        color: Color(0xFF2d2d44),
+        color: AppColors.background,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -756,7 +757,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    _isCollectingData ? Colors.red : const Color(0xFF8E44AD),
+                    _isCollectingData ? Colors.red : AppColors.vibrantPurple,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -770,7 +771,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
               _mapController.move(_currentLatLng, Config.defaultZoom);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3d3d54),
+              backgroundColor: AppColors.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -795,7 +796,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1a1a2e),
+        color: AppColors.deepBlueBackground,
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(

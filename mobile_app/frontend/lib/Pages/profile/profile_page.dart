@@ -15,6 +15,7 @@ import 'package:opsin/Widgets/form_overlay.dart';
 import 'package:opsin/Widgets/custom_dialogs.dart';
 import 'package:opsin/Widgets/custom_snackbar.dart';
 import 'package:opsin/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 // Constants and Theme
 class ProfilePage extends StatefulWidget {
@@ -84,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (BuildContext context) {
           return const CustomLoadingDialog(
             message: 'Logging out...',
-            backgroundColor: Color(0xFF2d2d44),
+            backgroundColor: AppColors.background,
           );
         },
       );
@@ -197,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (BuildContext context) {
             return const CustomLoadingDialog(
               message: 'Confirming login...',
-              backgroundColor: Color(0xFF2d2d44),
+              backgroundColor: AppColors.background,
             );
           },
         );
@@ -258,7 +259,7 @@ class _ProfilePageState extends State<ProfilePage> {
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: 'Crop Image',
-              toolbarColor: const Color(0xFF2d2d44),
+              toolbarColor: AppColors.background,
               toolbarWidgetColor: Colors.white,
               initAspectRatio: CropAspectRatioPreset.square,
               lockAspectRatio: true,
@@ -296,7 +297,7 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (BuildContext context) {
             return const CustomLoadingDialog(
               message: 'Uploading profile picture...',
-              backgroundColor: Color(0xFF2d2d44),
+              backgroundColor: AppColors.background,
             );
           },
         );

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 enum ParticleShape { circle, star, diamond }
 
@@ -16,7 +17,7 @@ class RisingParticles extends StatefulWidget {
       Color(0xFF4C40BB), // Deep purple/blue
       // Color(0xFF5DEC88), // Bright green
       // Color(0xFFFF4423), // Bright red/orange
-      Color(0xFF8157E8), // Bright purple
+      AppColors.accent, // Bright purple
       Colors.white,
     ],
     this.maxSize = 8,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:opsin/Providers/vehicle_provider.dart';
 import 'package:opsin/Widgets/custom_dialogs.dart';
 import 'package:opsin/models/vehicle_model.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class VehicleDetailsPage extends StatelessWidget {
   final Vehicle vehicle;
@@ -64,7 +65,7 @@ class VehicleDetailsPage extends StatelessWidget {
             Text(
               "2023 | ${vehicle.registration}",
               style: TextStyle(
-                color: const Color(0xFF5B60F8),
+                color: AppColors.buttonBlue,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -163,7 +164,7 @@ class VehicleDetailsPage extends StatelessWidget {
             GlassLiteContainer(
               height: 150,
               width: double.infinity,
-              backgroundColor: const Color(0xFF1B1D25),
+              backgroundColor: AppColors.darkGreyBackground,
               borderRadius: BorderRadius.circular(20),
               child: Stack(
                 children: [
@@ -173,7 +174,7 @@ class VehicleDetailsPage extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.location_on,
-                          color: Color(0xFF5B60F8),
+                          color: AppColors.buttonBlue,
                           size: 30,
                         ),
                         SizedBox(height: 10),
@@ -281,11 +282,11 @@ class VehicleDetailsPage extends StatelessWidget {
       height: 100,
       backgroundColor:
           isHighlighted
-              ? const Color(0xFF5B60F8).withOpacity(0.2)
-              : const Color(0xFF1B1D25),
+              ? AppColors.buttonBlue.withOpacity(0.2)
+              : AppColors.darkGreyBackground,
       borderColor:
           isHighlighted
-              ? const Color(0xFF5B60F8)
+              ? AppColors.buttonBlue
               : Colors.white.withOpacity(0.1),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -331,7 +332,7 @@ class VehicleDetailsPage extends StatelessWidget {
     bool hasEdit = false,
   }) {
     return GlassLiteContainer(
-      backgroundColor: const Color(0xFF1B1D25),
+      backgroundColor: AppColors.darkGreyBackground,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -347,7 +348,7 @@ class VehicleDetailsPage extends StatelessWidget {
                 //     color: const Color(0xFF2A2D35),
                 //     borderRadius: BorderRadius.circular(8),
                 //   ),
-                //   child: Icon(icon, color: const Color(0xFF5B60F8), size: 16),
+                //   child: Icon(icon, color: AppColors.buttonBlue, size: 16),
                 // ),
                 Text(
                   title,
@@ -416,7 +417,7 @@ class VehicleDetailsPage extends StatelessWidget {
 
   Widget _buildCallActionCard() {
     return GlassLiteContainer(
-      backgroundColor: const Color(0xFF1B1D25),
+      backgroundColor: AppColors.darkGreyBackground,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -454,10 +455,10 @@ class VehicleDetailsPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               // decoration: BoxDecoration(
-              //   color: const Color(0xFF5B60F8),
+              //   color: AppColors.buttonBlue,
               //   borderRadius: BorderRadius.circular(12),
               // ),
-              backgroundColor: const Color(0xFF5B60F8),
+              backgroundColor: AppColors.buttonBlue,
               borderRadius: BorderRadius.circular(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -488,12 +489,12 @@ class VehicleDetailsPage extends StatelessWidget {
   }) {
     return GlassLiteContainer(
       height: 60,
-      backgroundColor: const Color(0xFF1B1D25).withOpacity(0.5),
+      backgroundColor: AppColors.darkGreyBackground.withOpacity(0.5),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFF5B60F8), size: 20),
+            Icon(icon, color: AppColors.buttonBlue, size: 20),
             const SizedBox(width: 16),
             Expanded(
               child: Text(

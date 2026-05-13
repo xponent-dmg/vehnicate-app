@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:opsin/Pages/profile/constants/profile_constants.dart';
 // ignore: unused_import
 import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class DocumentUploadPage extends StatefulWidget {
   final String
@@ -132,7 +133,7 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2d2d44),
+                  color: AppColors.background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -143,7 +144,7 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: const BoxDecoration(
-                            color: Color(0xFF3d3d54),
+                            color: AppColors.surface,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
