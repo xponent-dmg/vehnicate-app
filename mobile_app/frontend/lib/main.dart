@@ -6,16 +6,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:vehnicate_frontend/Providers/user_provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Providers/connectivity_provider.dart';
-import 'package:vehnicate_frontend/app.dart';
+import 'package:opsin/Providers/user_provider.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/Providers/connectivity_provider.dart';
+import 'package:opsin/app.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:vehnicate_frontend/services/cache_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:vehnicate_frontend/utils/app_logger.dart';
+import 'package:opsin/services/cache_service.dart';
+import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/utils/app_logger.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -34,9 +34,12 @@ void main() async {
         messagingSenderId: dotenv.get('FIREBASE_MESSAGING_SENDER_ID'),
         projectId: dotenv.get('FIREBASE_PROJECT_ID'),
       ),
-    ).timeout(const Duration(seconds: 15), onTimeout: () {
-      throw TimeoutException('Firebase initialization timed out');
-    });
+    ).timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {
+        throw TimeoutException('Firebase initialization timed out');
+      },
+    );
 
     // Pass all uncaught "fatal" errors from the framework to Crashlytics
     FlutterError.onError = (errorDetails) {
@@ -50,9 +53,12 @@ void main() async {
       return true;
     };
 
-    await SupabaseService.init().timeout(const Duration(seconds: 15), onTimeout: () {
-      throw TimeoutException('Supabase initialization timed out');
-    });
+    await SupabaseService.init().timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {
+        throw TimeoutException('Supabase initialization timed out');
+      },
+    );
 
     AppLogger.info('App initialized successfully');
   } catch (e, stack) {
@@ -84,10 +90,12 @@ void _validateEnv() {
     'SUPABASE_ANON_KEY',
   ];
 
-  final missingKeys = criticalKeys.where((key) => !dotenv.env.containsKey(key)).toList();
+  final missingKeys =
+      criticalKeys.where((key) => !dotenv.env.containsKey(key)).toList();
 
   if (missingKeys.isNotEmpty) {
-    final errorMsg = 'Missing critical environment variables: ${missingKeys.join(', ')}';
+    final errorMsg =
+        'Missing critical environment variables: ${missingKeys.join(', ')}';
     AppLogger.error(errorMsg, null, null);
     throw Exception(errorMsg);
   }

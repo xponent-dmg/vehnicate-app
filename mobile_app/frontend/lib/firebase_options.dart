@@ -18,7 +18,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDqznkvH2y93BYc3chD-ExV3MMFqkzvnc0',
-    appId: '1:1088463950262:android:62ac05eec7c376a40a3117',
+    appId: '1:1088463950262:android:2ec8908bea56ac070a3117',
     messagingSenderId: '1088463950262',
     projectId: 'vehnicatelogin',
     storageBucket: 'vehnicatelogin.firebasestorage.app',

@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/core/constants/app_config.dart';
-import 'package:vehnicate_frontend/utils/app_logger.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/core/constants/app_config.dart';
+import 'package:opsin/utils/app_logger.dart';
 import '../models/sensor_data.dart';
 import '../Widgets/custom_snackbar.dart';
 
 class SensorService {
-  static const EventChannel _eventChannel = EventChannel('vehnicate/sensors');
+  static const EventChannel _eventChannel = EventChannel('opsin/sensors');
   final SupabaseClient _supabase;
 
   SensorService({SupabaseClient? supabaseClient})
@@ -89,7 +89,9 @@ class SensorService {
         } else {
           // FIFO: Remove oldest record to make room for newest
           _imuBuffer.removeAt(0);
-          AppLogger.warning('SensorService: IMU Buffer overflow, discarding oldest data');
+          AppLogger.warning(
+            'SensorService: IMU Buffer overflow, discarding oldest data',
+          );
         }
       } catch (e, stack) {
         AppLogger.error('Error processing sensor event', e, stack);
@@ -116,24 +118,38 @@ class SensorService {
     _imuBuffer.clear();
 
     try {
-      await _supabase.from(AppConfig.tableDataTransmission).insert(dataToUpload);
+      await _supabase
+          .from(AppConfig.tableDataTransmission)
+          .insert(dataToUpload);
 
       // 3. Only update uploaded count on SUCCESS
       _uploadedCount += dataToUpload.length;
       onDataCountUpdate?.call(_processedCount, _uploadedCount);
 
-      AppLogger.info('Synced ${dataToUpload.length} sensor records to Supabase');
+      AppLogger.info(
+        'Synced ${dataToUpload.length} sensor records to Supabase',
+      );
     } catch (e, stack) {
       // 4. On failure, put data back at the START of the buffer if there's room
       if (_imuBuffer.length + dataToUpload.length < _maxBufferSize) {
         _imuBuffer.insertAll(0, dataToUpload);
       }
-      
-      AppLogger.warning('Sensor upload failed, pending retry: ${dataToUpload.length} records', e);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Sensor data transmission failed');
+
+      AppLogger.warning(
+        'Sensor upload failed, pending retry: ${dataToUpload.length} records',
+        e,
+      );
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Sensor data transmission failed',
+      );
 
       if (context.mounted) {
-        CustomSnackBar.showWarning(context, 'Connection weak. Retrying Sync...');
+        CustomSnackBar.showWarning(
+          context,
+          'Connection weak. Retrying Sync...',
+        );
       }
     } finally {
       _isUploading = false;

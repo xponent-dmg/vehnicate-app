@@ -2,12 +2,13 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/Pages/profile/constants/profile_constants.dart';
 // ignore: unused_import
-import 'package:vehnicate_frontend/services/supabase_service.dart';
+import 'package:opsin/services/supabase_service.dart';
 
 class DocumentUploadPage extends StatefulWidget {
-  final String documentType; // e.g., Registration Certificate, Vehicle Insurance, PUC, Driving License
+  final String
+  documentType; // e.g., Registration Certificate, Vehicle Insurance, PUC, Driving License
 
   const DocumentUploadPage({super.key, required this.documentType});
 
@@ -77,9 +78,9 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
 
     // Temporary behavior while upload is commented out
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Picked file, upload stub commented out.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Picked file, upload stub commented out.')),
+    );
   }
 
   @override
@@ -95,29 +96,45 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
                     child: Center(
                       child: Text(
                         'Upload ${widget.documentType}',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              Text('Select a document file to upload', style: ProfileConstants.sectionTitleStyle),
+              Text(
+                'Select a document file to upload',
+                style: ProfileConstants.sectionTitleStyle,
+              ),
               const SizedBox(height: 8),
-              const Text('Supported: PDF, JPG, PNG, HEIC', style: ProfileConstants.labelStyle),
+              const Text(
+                'Supported: PDF, JPG, PNG, HEIC',
+                style: ProfileConstants.labelStyle,
+              ),
               const SizedBox(height: 16),
 
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: const Color(0xFF2d2d44), borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2d2d44),
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -125,8 +142,14 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(color: Color(0xFF3d3d54), shape: BoxShape.circle),
-                          child: const Icon(Icons.insert_drive_file, color: Colors.white),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF3d3d54),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.insert_drive_file,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/services/cache_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:vehnicate_frontend/models/drive_model.dart';
-import 'package:vehnicate_frontend/models/vehicle_model.dart';
+import 'package:opsin/services/cache_service.dart';
+import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/models/drive_model.dart';
+import 'package:opsin/models/vehicle_model.dart';
 
 class VehicleProvider extends ChangeNotifier {
   List<Vehicle> _vehicles = [];
@@ -91,7 +91,7 @@ class VehicleProvider extends ChangeNotifier {
         _selectedVehicle = _vehicles.first;
       }
     }
-    
+
     notifyListeners();
 
     try {
@@ -122,7 +122,7 @@ class VehicleProvider extends ChangeNotifier {
     if (_selectedVehicle?.id != vehicle.id) {
       _selectedVehicle = vehicle;
       notifyListeners();
-      loadDrives(); 
+      loadDrives();
     }
   }
 
@@ -130,13 +130,13 @@ class VehicleProvider extends ChangeNotifier {
     if (_selectedVehicle == null) return;
 
     _isLoading = true;
-    
+
     // 1. Try Cache First
     final cachedData = CacheService().getTrips(_selectedVehicle!.id);
     if (cachedData.isNotEmpty) {
       _drives = cachedData.map((data) => Drive.fromJson(data)).toList();
     }
-    
+
     notifyListeners();
 
     try {
@@ -144,7 +144,7 @@ class VehicleProvider extends ChangeNotifier {
         _selectedVehicle!.id,
       );
       _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
-      
+
       // 2. Save to Cache
       await CacheService().setTrips(_selectedVehicle!.id, drivesData);
     } catch (e) {

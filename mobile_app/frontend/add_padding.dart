@@ -3,7 +3,7 @@ import 'package:image/image.dart' as img;
 
 void main() async {
   // Read the original logo
-  final originalFile = File('assets/images/vehnicate_logo.png');
+  final originalFile = File('assets/images/opsin_logo.png');
   final originalBytes = await originalFile.readAsBytes();
   final originalImage = img.decodeImage(originalBytes);
 
@@ -32,6 +32,6 @@ void main() async {
   img.compositeImage(newImage, originalImage, dstX: offsetX, dstY: offsetY);
 
   // Save the padded image
-  final paddedFile = File('assets/images/vehnicate_logo_padded.png');
+  final paddedFile = File('assets/images/opsin_logo_padded.png');
   await paddedFile.writeAsBytes(img.encodePng(newImage));
 }

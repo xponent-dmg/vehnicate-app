@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
-import 'package:vehnicate_frontend/models/vehicle_model.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/Widgets/custom_dialogs.dart';
+import 'package:opsin/models/vehicle_model.dart';
 
 class VehicleDetailsPage extends StatelessWidget {
   final Vehicle vehicle;

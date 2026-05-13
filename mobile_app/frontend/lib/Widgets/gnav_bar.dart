@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/Pages/profile/constants/profile_constants.dart';
 
 class GnavBar extends StatelessWidget {
   const GnavBar({
@@ -29,8 +29,16 @@ class GnavBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         tabs: [
           GButton(icon: Icons.home, text: 'Home', semanticLabel: "Home"),
-          GButton(icon: Icons.analytics, text: 'Analytics', semanticLabel: "Analytics"),
-          GButton(icon: Icons.directions_car, text: 'Garage', semanticLabel: "Garage"),
+          GButton(
+            icon: Icons.analytics,
+            text: 'Analytics',
+            semanticLabel: "Analytics",
+          ),
+          GButton(
+            icon: Icons.directions_car,
+            text: 'Garage',
+            semanticLabel: "Garage",
+          ),
         ],
         selectedIndex: selectedIndex,
         onTabChange: onTabChange,

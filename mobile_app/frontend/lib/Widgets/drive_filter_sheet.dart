@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
 
 // Use local constants for the filter sheet to maintain modularity
 class _FilterSheetConstants {
@@ -32,7 +32,8 @@ class DriveFilterSheet extends StatefulWidget {
     RangeValues? distance,
     TimeOfDay? startTime,
     TimeOfDay? endTime,
-  }) onApply;
+  })
+  onApply;
 
   const DriveFilterSheet({
     super.key,
@@ -70,7 +71,10 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
+    final vehicleProvider = Provider.of<VehicleProvider>(
+      context,
+      listen: false,
+    );
     final vehicles = vehicleProvider.vehicles;
 
     return GlassLiteContainer(
@@ -109,7 +113,10 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Filters", style: _FilterSheetConstants.titleStyle),
+                      const Text(
+                        "Filters",
+                        style: _FilterSheetConstants.titleStyle,
+                      ),
                       TextButton(
                         onPressed: () {
                           setState(() {
@@ -121,52 +128,80 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             _tempEndTime = null;
                           });
                         },
-                        child: Text("Reset", style: TextStyle(color: Theme.of(context).primaryColor)),
+                        child: Text(
+                          "Reset",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text("Select Vehicle", style: _FilterSheetConstants.subtitleStyle),
+                  const Text(
+                    "Select Vehicle",
+                    style: _FilterSheetConstants.subtitleStyle,
+                  ),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: vehicles.map((vehicle) {
-                      final isSelected = _tempVehicleId == vehicle.id;
-                      return FilterChip(
-                        label: Text(vehicle.model),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            _tempVehicleId = selected ? vehicle.id : null;
-                          });
-                        },
-                        selectedColor: Theme.of(context).primaryColor.withOpacity(0.3),
-                        checkmarkColor: Theme.of(context).primaryColor,
-                        labelStyle: TextStyle(
-                          color: isSelected ? Theme.of(context).primaryColor : Colors.white70,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                        backgroundColor: const Color(0xFF3d3d54),
-                        side: BorderSide(
-                          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      );
-                    }).toList(),
+                    children:
+                        vehicles.map((vehicle) {
+                          final isSelected = _tempVehicleId == vehicle.id;
+                          return FilterChip(
+                            label: Text(vehicle.model),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                _tempVehicleId = selected ? vehicle.id : null;
+                              });
+                            },
+                            selectedColor: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.3),
+                            checkmarkColor: Theme.of(context).primaryColor,
+                            labelStyle: TextStyle(
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).primaryColor
+                                      : Colors.white70,
+                              fontWeight:
+                                  isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                            ),
+                            backgroundColor: const Color(0xFF3d3d54),
+                            side: BorderSide(
+                              color:
+                                  isSelected
+                                      ? Theme.of(context).primaryColor
+                                      : Colors.transparent,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          );
+                        }).toList(),
                   ),
                   const SizedBox(height: 24),
                   // Date
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text("Date", style: _FilterSheetConstants.subtitleStyle),
+                    title: const Text(
+                      "Date",
+                      style: _FilterSheetConstants.subtitleStyle,
+                    ),
                     subtitle: Text(
-                      _tempDate != null ? DateFormat('dd MMM yyyy').format(_tempDate!) : "Any date",
+                      _tempDate != null
+                          ? DateFormat('dd MMM yyyy').format(_tempDate!)
+                          : "Any date",
                       style: const TextStyle(color: Colors.white),
                     ),
-                    trailing: const Icon(Icons.date_range, color: Colors.white70),
+                    trailing: const Icon(
+                      Icons.date_range,
+                      color: Colors.white70,
+                    ),
                     onTap: () async {
                       final date = await showDatePicker(
                         context: context,
@@ -216,9 +251,16 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                       Expanded(
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text("From Time", style: _FilterSheetConstants.subtitleStyle.copyWith(fontSize: 14)),
+                          title: Text(
+                            "From Time",
+                            style: _FilterSheetConstants.subtitleStyle.copyWith(
+                              fontSize: 14,
+                            ),
+                          ),
                           subtitle: Text(
-                            _tempStartTime != null ? _tempStartTime!.format(context) : "Any",
+                            _tempStartTime != null
+                                ? _tempStartTime!.format(context)
+                                : "Any",
                             style: const TextStyle(color: Colors.white),
                           ),
                           onTap: () async {
@@ -226,16 +268,24 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                               context: context,
                               initialTime: _tempStartTime ?? TimeOfDay.now(),
                             );
-                            if (time != null) setState(() => _tempStartTime = time);
+                            if (time != null)
+                              setState(() => _tempStartTime = time);
                           },
                         ),
                       ),
                       Expanded(
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text("To Time", style: _FilterSheetConstants.subtitleStyle.copyWith(fontSize: 14)),
+                          title: Text(
+                            "To Time",
+                            style: _FilterSheetConstants.subtitleStyle.copyWith(
+                              fontSize: 14,
+                            ),
+                          ),
                           subtitle: Text(
-                            _tempEndTime != null ? _tempEndTime!.format(context) : "Any",
+                            _tempEndTime != null
+                                ? _tempEndTime!.format(context)
+                                : "Any",
                             style: const TextStyle(color: Colors.white),
                           ),
                           onTap: () async {
@@ -243,7 +293,8 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                               context: context,
                               initialTime: _tempEndTime ?? TimeOfDay.now(),
                             );
-                            if (time != null) setState(() => _tempEndTime = time);
+                            if (time != null)
+                              setState(() => _tempEndTime = time);
                           },
                         ),
                       ),
@@ -260,7 +311,9 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
                 widget.onApply(
@@ -275,7 +328,11 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
               },
               child: const Text(
                 "Apply Filters",
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

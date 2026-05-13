@@ -7,19 +7,39 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1088463950262:android:01088632c30a133d0a3117",
+        "mobilesdk_app_id": "1:1088463950262:android:2ec8908bea56ac070a3117",
         "android_client_info": {
-          "package_name": "com.vehnicate.app"
+          "package_name": "com.opsin.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1088463950262-60mghi0t4vjr6leakshfmu46pn784smp.apps.googleusercontent.com",
+          "client_id": "1088463950262-ede3aqu5c553km65nfhnkbcgggq7amf0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.vehnicate.app",
+            "package_name": "com.opsin.app",
+            "certificate_hash": "97870ae8cf51e9a9bb082d46b4c6ee5801ecfac7"
+          }
+        },
+        {
+          "client_id": "1088463950262-hlrlpm4ro90lrh48ncjrh3o1tdhinmb0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.opsin.app",
+            "certificate_hash": "db9bf9730db13779ae7e6ee4aee7861dc2bf7426"
+          }
+        },
+        {
+          "client_id": "1088463950262-mt474ujjtu44bsvdk8r1v0nc9cplom25.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.opsin.app",
             "certificate_hash": "e47cd38ce3714afe9581e82ce80d64e4c0a3ea97"
           }
+        },
+        {
+          "client_id": "1088463950262-pk9604jooguhd8qtat372k3aopbjbsu2.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -29,7 +49,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088463950262-pk9604jooguhd8qtat372k3aopbjbsu2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088463950262-a47pmlnasunikr8ag3ala6qvu5ppesv8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.vehnicateFrontend"
+              }
+            }
+          ]
         }
       }
     }

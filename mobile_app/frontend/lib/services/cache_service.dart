@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:vehnicate_frontend/utils/app_logger.dart';
+import 'package:opsin/utils/app_logger.dart';
 
 class CacheService {
   static final CacheService _instance = CacheService._internal();
@@ -36,7 +36,10 @@ class CacheService {
   }
 
   // --- Vehicle Caching ---
-  Future<void> setVehicles(String uid, List<Map<String, dynamic>> vehicles) async {
+  Future<void> setVehicles(
+    String uid,
+    List<Map<String, dynamic>> vehicles,
+  ) async {
     final box = Hive.box(boxVehicleData);
     await box.put(uid, vehicles);
   }

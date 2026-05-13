@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
-import 'package:vehnicate_frontend/models/user_model.dart';
-import 'package:vehnicate_frontend/services/cache_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
+import 'package:opsin/models/user_model.dart';
+import 'package:opsin/services/cache_service.dart';
+import 'package:opsin/services/supabase_service.dart';
 
 class UserProvider extends ChangeNotifier {
   AppUser? _currentUser;
@@ -61,23 +61,25 @@ class UserProvider extends ChangeNotifier {
   Future<void> loadUserByFirebaseUid(String firebaseUid) async {
     _isLoading = true;
     _error = null;
-    
+
     // 1. Try Cache First
     final cachedData = CacheService().getUserDetail(firebaseUid);
     if (cachedData != null) {
       _setUser(AppUser.fromMap(cachedData));
     }
-    
+
     notifyListeners();
 
     try {
       final currentUser = firebase.FirebaseAuth.instance.currentUser;
-      
+
       // If user isn't verified (and isn't using a social provider), we don't load details yet
       if (currentUser != null &&
           currentUser.uid == firebaseUid &&
           !currentUser.emailVerified &&
-          currentUser.providerData.every((info) => info.providerId == 'password')) {
+          currentUser.providerData.every(
+            (info) => info.providerId == 'password',
+          )) {
         _setUser(null);
         return;
       }
@@ -91,7 +93,7 @@ class UserProvider extends ChangeNotifier {
       if (data != null) {
         final user = AppUser.fromMap(data);
         _setUser(user);
-        
+
         // 2. Save to Cache
         await CacheService().setUserDetail(firebaseUid, data);
       } else {

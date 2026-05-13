@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vehnicate_frontend/core/constants/app_config.dart';
-import 'package:vehnicate_frontend/utils/app_logger.dart';
+import 'package:opsin/core/constants/app_config.dart';
+import 'package:opsin/utils/app_logger.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
@@ -33,8 +33,16 @@ class SupabaseService {
         _client = Supabase.instance.client;
         return _client!;
       } catch (err, stack) {
-        AppLogger.error('Critical: Failed to initialize Supabase client', err, stack);
-        FirebaseCrashlytics.instance.recordError(err, stack, reason: 'Supabase Initialization Failed');
+        AppLogger.error(
+          'Critical: Failed to initialize Supabase client',
+          err,
+          stack,
+        );
+        FirebaseCrashlytics.instance.recordError(
+          err,
+          stack,
+          reason: 'Supabase Initialization Failed',
+        );
         throw Exception('Failed to initialize Supabase: $err');
       }
     }
@@ -42,7 +50,9 @@ class SupabaseService {
 
   SupabaseClient get client {
     if (_client == null) {
-      throw Exception('SupabaseService not initialized. Call SupabaseService.init() in main.dart');
+      throw Exception(
+        'SupabaseService not initialized. Call SupabaseService.init() in main.dart',
+      );
     }
     return _client!;
   }
@@ -96,7 +106,11 @@ class SupabaseService {
       AppLogger.info('User profile updated successfully for $userId');
     } catch (e, stack) {
       AppLogger.error('Failed to update profile for $userId', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'User profile update failed');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'User profile update failed',
+      );
       throw Exception('Failed to update profile: $e');
     }
   }
@@ -126,7 +140,11 @@ class SupabaseService {
       return imageUrl;
     } catch (e, stack) {
       AppLogger.error('Failed to upload profile picture for $userId', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Profile picture upload failed');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Profile picture upload failed',
+      );
       throw Exception('Failed to upload profile picture: $e');
     }
   }
@@ -146,8 +164,12 @@ class SupabaseService {
 
       return response;
     } catch (e, stack) {
-       AppLogger.warning('Error fetching user details for $firebaseUuid', e, stack);
-       return null;
+      AppLogger.warning(
+        'Error fetching user details for $firebaseUuid',
+        e,
+        stack,
+      );
+      return null;
     }
   }
 
@@ -164,7 +186,11 @@ class SupabaseService {
 
       return vehicle;
     } catch (e, stack) {
-      AppLogger.warning('Error fetching vehicle details for $vehicleId', e, stack);
+      AppLogger.warning(
+        'Error fetching vehicle details for $vehicleId',
+        e,
+        stack,
+      );
       return null;
     }
   }
@@ -182,7 +208,11 @@ class SupabaseService {
 
       return List<Map<String, dynamic>>.from(vehiclesResponse);
     } catch (e, stack) {
-      AppLogger.error('Error fetching vehicles for user $firebaseUuid', e, stack);
+      AppLogger.error(
+        'Error fetching vehicles for user $firebaseUuid',
+        e,
+        stack,
+      );
       return [];
     }
   }
@@ -196,16 +226,27 @@ class SupabaseService {
   }) async {
     try {
       final client = await _getOrInitClient();
-      await client.from(AppConfig.tableVehicleDetails).update({
-        'insurance': insurance,
-        'registration': registration,
-        'puc': puc,
-        'model': model,
-      }).eq('vehicleid', vehicleId);
+      await client
+          .from(AppConfig.tableVehicleDetails)
+          .update({
+            'insurance': insurance,
+            'registration': registration,
+            'puc': puc,
+            'model': model,
+          })
+          .eq('vehicleid', vehicleId);
       AppLogger.info('Vehicle details updated for $vehicleId');
     } catch (e, stack) {
-      AppLogger.error('Failed to update vehicle details for $vehicleId', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Vehicle details update failed');
+      AppLogger.error(
+        'Failed to update vehicle details for $vehicleId',
+        e,
+        stack,
+      );
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Vehicle details update failed',
+      );
       throw Exception('Failed to update vehicle details: $e');
     }
   }
@@ -277,18 +318,26 @@ class SupabaseService {
       };
 
       final response =
-          await client.from(AppConfig.tableUserDetails).insert(newData).select().single();
+          await client
+              .from(AppConfig.tableUserDetails)
+              .insert(newData)
+              .select()
+              .single();
 
       AppLogger.info('New user record created in Supabase for $uid');
       return response;
     } catch (e, stack) {
       AppLogger.error('Error in getOrCreateUser for $uid', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'getOrCreateUser failed');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'getOrCreateUser failed',
+      );
       return null;
     }
   }
 
-  // Keeping ensureUserExists for backward compatibility if needed, 
+  // Keeping ensureUserExists for backward compatibility if needed,
   // but redirected to getOrCreateUser or simplified.
   Future<void> ensureUserExists({
     required String uid,
@@ -313,12 +362,17 @@ class SupabaseService {
         'registration': registration,
         'insurance': insurance,
         'puc': puc,
-        'created_at': DateTime.now().toUtc().toIso8601String(), // Corrected to UTC
+        'created_at':
+            DateTime.now().toUtc().toIso8601String(), // Corrected to UTC
       });
       AppLogger.info('New vehicle created for user $firebaseUid');
     } catch (e, stack) {
       AppLogger.error('Failed to create vehicle for $firebaseUid', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Vehicle creation failed');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Vehicle creation failed',
+      );
       throw Exception('Failed to create vehicle: $e');
     }
   }
@@ -388,7 +442,11 @@ class SupabaseService {
       AppLogger.info('Vehicle $vehicleId deleted successfully');
     } catch (e, stack) {
       AppLogger.error('Failed to delete vehicle $vehicleId', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Vehicle deletion failed');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Vehicle deletion failed',
+      );
       throw Exception('Failed to delete vehicle: $e');
     }
   }
@@ -424,7 +482,11 @@ class SupabaseService {
       AppLogger.info('User $firebaseUid deleted successfully from Supabase');
     } catch (e, stack) {
       AppLogger.error('Failed to delete Supabase user $firebaseUid', e, stack);
-      FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Account deletion failed');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Account deletion failed',
+      );
       throw Exception('Failed to delete user: $e');
     }
   }
@@ -440,7 +502,11 @@ class SupabaseService {
               .maybeSingle();
       return response == null;
     } catch (e, stack) {
-      AppLogger.warning('Error checking username availability for $username', e, stack);
+      AppLogger.warning(
+        'Error checking username availability for $username',
+        e,
+        stack,
+      );
       throw Exception('Failed to check username availability: $e');
     }
   }

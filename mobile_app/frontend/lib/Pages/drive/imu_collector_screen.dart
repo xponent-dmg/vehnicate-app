@@ -6,15 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:camera/camera.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
-import 'package:vehnicate_frontend/services/camera_service_rgb.dart';
-import 'package:vehnicate_frontend/services/device_id_service.dart';
-import 'package:vehnicate_frontend/services/sensor_service.dart';
-import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/Widgets/custom_snackbar.dart';
+import 'package:opsin/services/camera_service_rgb.dart';
+import 'package:opsin/services/device_id_service.dart';
+import 'package:opsin/services/sensor_service.dart';
+import 'package:opsin/Widgets/form_overlay.dart';
 import 'package:location/location.dart' as loc;
-import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
-import 'package:vehnicate_frontend/utils/app_logger.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:opsin/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ImuCollector extends StatefulWidget {

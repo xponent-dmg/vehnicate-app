@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:opsin/Pages/drive/drive_analyze_page.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
 
 /// A reusable pull-to-refresh wrapper.
 ///

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 /// Full-screen page shown when the device has no internet connection.
 ///
@@ -59,10 +59,7 @@ class _OfflinePageState extends State<OfflinePage>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     )..forward();
-    _fadeAnim = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    );
+    _fadeAnim = CurvedAnimation(parent: _fadeController, curve: Curves.easeOut);
   }
 
   @override
@@ -104,10 +101,11 @@ class _OfflinePageState extends State<OfflinePage>
                     // ── Floating icon card ──────────────────────────────────
                     AnimatedBuilder(
                       animation: _floatAnim,
-                      builder: (context, child) => Transform.translate(
-                        offset: Offset(0, _floatAnim.value),
-                        child: child,
-                      ),
+                      builder:
+                          (context, child) => Transform.translate(
+                            offset: Offset(0, _floatAnim.value),
+                            child: child,
+                          ),
                       child: _IconCard(pulseAnim: _pulseAnim),
                     ),
 
@@ -141,10 +139,7 @@ class _OfflinePageState extends State<OfflinePage>
                     const SizedBox(height: 48),
 
                     // ── Retry button ────────────────────────────────────────
-                    _RetryButton(
-                      isRetrying: _isRetrying,
-                      onTap: _handleRetry,
-                    ),
+                    _RetryButton(isRetrying: _isRetrying, onTap: _handleRetry),
 
                     const SizedBox(height: 60),
 
@@ -237,58 +232,64 @@ class _RetryButton extends StatelessWidget {
         width: double.infinity,
         height: 56,
         decoration: BoxDecoration(
-          gradient: isRetrying
-              ? null
-              : const LinearGradient(
-                  colors: [Color(0xFF555FDB), Color(0xFF9217BB)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+          gradient:
+              isRetrying
+                  ? null
+                  : const LinearGradient(
+                    colors: [Color(0xFF555FDB), Color(0xFF9217BB)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
           color: isRetrying ? const Color(0xFF2d2d44) : null,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color:
-                isRetrying ? const Color(0xFF555FDB) : Colors.transparent,
+            color: isRetrying ? const Color(0xFF555FDB) : Colors.transparent,
             width: 1.2,
           ),
-          boxShadow: isRetrying
-              ? []
-              : [
-                  BoxShadow(
-                    color: const Color(0xFF555FDB).withOpacity(0.35),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-        ),
-        child: Center(
-          child: isRetrying
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Color(0xFF555FDB),
-                    ),
-                  ),
-                )
-              : const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Try again',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                      ),
+          boxShadow:
+              isRetrying
+                  ? []
+                  : [
+                    BoxShadow(
+                      color: const Color(0xFF555FDB).withOpacity(0.35),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
                   ],
-                ),
+        ),
+        child: Center(
+          child:
+              isRetrying
+                  ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF555FDB),
+                      ),
+                    ),
+                  )
+                  : const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.refresh_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Try again',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );

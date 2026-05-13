@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
-import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:opsin/Widgets/star_refresh_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
-import 'package:vehnicate_frontend/models/vehicle_model.dart';
+import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/Widgets/form_overlay.dart';
+import 'package:opsin/models/vehicle_model.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});

@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
-import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
-import 'package:vehnicate_frontend/Pages/drive/drive_details_page.dart';
-import 'package:vehnicate_frontend/Pages/navigation/map_webview_page.dart';
-import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
-import 'package:vehnicate_frontend/Pages/vehicle/document_upload_page.dart';
-import 'package:vehnicate_frontend/Pages/auth/login_page.dart';
-import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
-import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
-import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
-import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
-import 'package:vehnicate_frontend/Pages/onboarding/offline_page.dart';
-import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
-import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
-import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
-import 'package:vehnicate_frontend/Pages/auth/user_details_page.dart';
-import 'package:vehnicate_frontend/Pages/vehicle/vehicle_details.dart';
-import 'package:vehnicate_frontend/Providers/connectivity_provider.dart';
-import 'package:vehnicate_frontend/home.dart';
-import 'package:vehnicate_frontend/models/drive_model.dart';
-import 'package:vehnicate_frontend/models/vehicle_model.dart';
-import 'package:vehnicate_frontend/services/page_transitions.dart';
+import 'package:opsin/Pages/dashboard/dashboard.dart';
+import 'package:opsin/Pages/drive/drive_analyze_page.dart';
+import 'package:opsin/Pages/drive/drive_details_page.dart';
+import 'package:opsin/Pages/navigation/map_webview_page.dart';
+import 'package:opsin/Pages/vehicle/garage.dart';
+import 'package:opsin/Pages/vehicle/document_upload_page.dart';
+import 'package:opsin/Pages/auth/login_page.dart';
+import 'package:opsin/Pages/navigation/map_page.dart';
+import 'package:opsin/Pages/profile/profile_page.dart';
+import 'package:opsin/Pages/onboarding/loading_page.dart';
+import 'package:opsin/Pages/onboarding/splash_page.dart';
+import 'package:opsin/Pages/onboarding/offline_page.dart';
+import 'package:opsin/Pages/auth/signup_page.dart';
+import 'package:opsin/Pages/auth/email_verification_page.dart';
+import 'package:opsin/Pages/drive/imu_collector_screen.dart';
+import 'package:opsin/Pages/auth/user_details_page.dart';
+import 'package:opsin/Pages/vehicle/vehicle_details.dart';
+import 'package:opsin/Providers/connectivity_provider.dart';
+import 'package:opsin/home.dart';
+import 'package:opsin/models/drive_model.dart';
+import 'package:opsin/models/vehicle_model.dart';
+import 'package:opsin/services/page_transitions.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -30,7 +30,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'vehnicate',
+      title: 'Opsin',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
@@ -155,25 +155,26 @@ class ConnectivityWrapper extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
-      transitionBuilder: (widget, animation) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.06),
-            end: Offset.zero,
-          ).animate(animation),
-          child: widget,
-        ),
-      ),
-      child: isOnline
-          ? KeyedSubtree(key: const ValueKey('online'), child: child)
-          : KeyedSubtree(
-              key: const ValueKey('offline'),
-              child: OfflinePage(
-                onRetry: () =>
-                    context.read<ConnectivityProvider>().recheck(),
-              ),
+      transitionBuilder:
+          (widget, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.06),
+                end: Offset.zero,
+              ).animate(animation),
+              child: widget,
             ),
+          ),
+      child:
+          isOnline
+              ? KeyedSubtree(key: const ValueKey('online'), child: child)
+              : KeyedSubtree(
+                key: const ValueKey('offline'),
+                child: OfflinePage(
+                  onRetry: () => context.read<ConnectivityProvider>().recheck(),
+                ),
+              ),
     );
   }
 }

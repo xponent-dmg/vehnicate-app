@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
-import 'package:vehnicate_frontend/models/sensor_data.dart';
-import 'package:vehnicate_frontend/services/location_permission_service.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/Widgets/custom_snackbar.dart';
+import 'package:opsin/models/sensor_data.dart';
+import 'package:opsin/services/location_permission_service.dart';
 
-import 'package:vehnicate_frontend/services/sensor_service.dart';
+import 'package:opsin/services/sensor_service.dart';
 
 /// Debug page for visualizing sensor data and coordinate conversion
 class SensorDebugPage extends StatefulWidget {

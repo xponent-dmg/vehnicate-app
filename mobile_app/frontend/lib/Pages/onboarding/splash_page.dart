@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/Pages/profile/constants/profile_constants.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -69,7 +69,7 @@ class _SplashPageState extends State<SplashPage>
             mainAxisAlignment: MainAxisAlignment.center, // center vertically
             children: [
               Image.asset(
-                'assets/images/vehnicate_logo.png',
+                'assets/images/opsin_logo.png',
                 width: 150,
                 height: 150,
                 fit: BoxFit.contain,

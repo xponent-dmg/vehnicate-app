@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/models/drive_model.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/models/drive_model.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
-import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
-import 'package:vehnicate_frontend/Widgets/drive_filter_sheet.dart';
+import 'package:opsin/Widgets/star_refresh_indicator.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:opsin/Widgets/drive_filter_sheet.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
@@ -74,7 +74,10 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
   // Filter state
   int? _filterVehicleId;
   DateTime? _filterDate;
-  RangeValues _filterDuration = const RangeValues(0, 600); // 10 hours max default
+  RangeValues _filterDuration = const RangeValues(
+    0,
+    600,
+  ); // 10 hours max default
   RangeValues _filterDistance = const RangeValues(0, 2000); // in km
   TimeOfDay? _filterStartTime;
   TimeOfDay? _filterEndTime;
@@ -92,14 +95,7 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
           initialDistance: _filterDistance,
           initialStartTime: _filterStartTime,
           initialEndTime: _filterEndTime,
-          onApply: ({
-            vehicleId,
-            date,
-            duration,
-            distance,
-            startTime,
-            endTime,
-          }) {
+          onApply: ({vehicleId, date, duration, distance, startTime, endTime}) {
             setState(() {
               _filterVehicleId = vehicleId;
               _filterDate = date;

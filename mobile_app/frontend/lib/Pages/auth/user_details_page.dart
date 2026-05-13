@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/user_provider.dart';
+import 'package:opsin/Providers/user_provider.dart';
 
-import 'package:vehnicate_frontend/services/supabase_service.dart';
+import 'package:opsin/services/supabase_service.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final String userId;

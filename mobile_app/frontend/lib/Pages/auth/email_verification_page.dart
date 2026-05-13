@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
-import 'package:vehnicate_frontend/services/auth_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
+import 'package:opsin/Widgets/custom_snackbar.dart';
+import 'package:opsin/services/auth_service.dart';
+import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/Widgets/custom_dialogs.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   const EmailVerificationPage({super.key});

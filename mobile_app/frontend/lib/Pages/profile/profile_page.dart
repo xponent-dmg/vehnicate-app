@@ -7,14 +7,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vehnicate_frontend/Providers/user_provider.dart';
-import 'package:vehnicate_frontend/Widgets/avatar.dart';
-import 'package:vehnicate_frontend/services/auth_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
-import 'package:vehnicate_frontend/Widgets/custom_dialogs.dart';
-import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/Providers/user_provider.dart';
+import 'package:opsin/Widgets/avatar.dart';
+import 'package:opsin/services/auth_service.dart';
+import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/Widgets/form_overlay.dart';
+import 'package:opsin/Widgets/custom_dialogs.dart';
+import 'package:opsin/Widgets/custom_snackbar.dart';
+import 'package:opsin/Pages/profile/constants/profile_constants.dart';
 
 // Constants and Theme
 class ProfilePage extends StatefulWidget {

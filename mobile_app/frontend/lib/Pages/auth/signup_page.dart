@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/services/auth_service.dart';
-import 'package:vehnicate_frontend/Widgets/custom_snackbar.dart';
+import 'package:opsin/services/auth_service.dart';
+import 'package:opsin/Widgets/custom_snackbar.dart';
 
 class SignupPage extends StatefulWidget {
   final String? initialEmail;
@@ -50,16 +50,17 @@ class _SignupPageState extends State<SignupPage> {
       if (mounted) {
         String errorMessage = e.toString();
         // Check for specific error or clean up the generic Exception prefix
-        if (errorMessage.contains('email-already-in-use') || 
+        if (errorMessage.contains('email-already-in-use') ||
             errorMessage.contains('account already exists')) {
-          errorMessage = 'This email is already registered. Please sign in instead.';
+          errorMessage =
+              'This email is already registered. Please sign in instead.';
           CustomSnackBar.showError(context, errorMessage);
-          
+
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
               Navigator.pushReplacementNamed(
-                context, 
-                "/login", 
+                context,
+                "/login",
                 arguments: _emailController.text.trim(),
               );
             }
@@ -100,7 +101,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     const SizedBox(height: 80),
                     const Text(
-                      'vehnicate',
+                      'Opsin',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

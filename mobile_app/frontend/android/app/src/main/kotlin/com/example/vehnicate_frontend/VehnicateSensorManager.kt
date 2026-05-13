@@ -1,4 +1,4 @@
-package com.vehnicate.app
+package com.opsin.app
 
 import android.Manifest
 import android.content.Context

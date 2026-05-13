@@ -1,4 +1,4 @@
-package com.vehnicate.app
+package com.opsin.app
 
 /**
  * Data class representing raw sensor readings from the device.

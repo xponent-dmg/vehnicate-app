@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 import '../../Widgets/animations/rising_particles.dart';
 import '../../Widgets/animations/step_rotating_shape.dart';
 
@@ -31,6 +31,7 @@ class _LoadingPageState extends State<LoadingPage> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     // Determine background color based on theme
@@ -47,9 +48,7 @@ class _LoadingPageState extends State<LoadingPage> {
             alignment: Alignment.center,
             children: [
               // Rising Particles Background
-              Positioned.fill(
-                child: RisingParticles(),
-              ),
+              Positioned.fill(child: RisingParticles()),
 
               // Central Loading Indicator
               Column(

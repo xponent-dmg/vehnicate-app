@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
-import 'package:vehnicate_frontend/config/config.dart';
+import 'package:opsin/config/config.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class MapRouteResult {
@@ -13,7 +13,11 @@ class MapRouteResult {
   final double totalDistanceKm;
   final double durationSeconds;
 
-  const MapRouteResult({required this.points, required this.totalDistanceKm, required this.durationSeconds});
+  const MapRouteResult({
+    required this.points,
+    required this.totalDistanceKm,
+    required this.durationSeconds,
+  });
 
   String get formattedDuration {
     return MapService.formatDuration(durationSeconds);
@@ -41,12 +45,20 @@ class MapService {
       throw Exception('Location permissions permanently denied');
     }
 
-    return Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
   }
 
-  Stream<Position> positionStream({LocationAccuracy accuracy = LocationAccuracy.high, int distanceFilter = 1}) {
+  Stream<Position> positionStream({
+    LocationAccuracy accuracy = LocationAccuracy.high,
+    int distanceFilter = 1,
+  }) {
     return Geolocator.getPositionStream(
-      locationSettings: LocationSettings(accuracy: accuracy, distanceFilter: distanceFilter),
+      locationSettings: LocationSettings(
+        accuracy: accuracy,
+        distanceFilter: distanceFilter,
+      ),
     );
   }
 
@@ -149,11 +161,16 @@ class MapService {
     final coordinates = route['geometry']['coordinates'] as List;
     final summary = route['properties']['summary'];
 
-    final points = coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
+    final points =
+        coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
     final totalDistanceKm = (summary['distance'] as num).toDouble() / 1000.0;
     final durationSeconds = (summary['duration'] as num).toDouble();
 
-    return MapRouteResult(points: points, totalDistanceKm: totalDistanceKm, durationSeconds: durationSeconds);
+    return MapRouteResult(
+      points: points,
+      totalDistanceKm: totalDistanceKm,
+      durationSeconds: durationSeconds,
+    );
   }
 
   // Bounds for a set of points

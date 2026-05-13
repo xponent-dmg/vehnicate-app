@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
-import 'package:vehnicate_frontend/Widgets/star_refresh_indicator.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:opsin/Widgets/star_refresh_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/user_provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
-import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
+import 'package:opsin/Providers/user_provider.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/Widgets/form_overlay.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 

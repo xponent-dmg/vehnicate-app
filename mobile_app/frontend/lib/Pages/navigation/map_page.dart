@@ -4,11 +4,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:vehnicate_frontend/services/sensor_service.dart';
+import 'package:opsin/services/sensor_service.dart';
 import '../../config/config.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/services/map_service.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/services/map_service.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -166,7 +166,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     // Debounce the search - wait 300ms after user stops typing
     _autocompleteTimer = Timer(const Duration(milliseconds: 300), () async {
       try {
-        
         final suggestions = await _mapService.fetchAutocompleteSuggestions(
           query,
         );
@@ -175,7 +174,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
           _showAutocomplete = suggestions.isNotEmpty;
           _isFromFieldActive = isFromField;
         });
-        
       } catch (e) {
         throw Exception(e);
       }
@@ -267,13 +265,11 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       _updateMarkers();
       _fitMapToRoute();
 
-      
       _showSnackBar(
         'Route calculated: ${_totalDistance.toStringAsFixed(1)} km',
         Colors.green,
       );
     } catch (e) {
-      
       _showSnackBar('Error calculating route: $e', Colors.red);
     } finally {
       setState(() => _isLoading = false);
@@ -584,11 +580,6 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       _isLoading
                           ? null
                           : () async {
-                            
-                            
-                            
-                            
-
                             if (_toController.text.isNotEmpty &&
                                 _toLocation == null) {
                               _showSnackBar(

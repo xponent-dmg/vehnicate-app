@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:vehnicate_frontend/services/auth_service.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
+import 'package:opsin/services/auth_service.dart';
+import 'package:opsin/services/supabase_service.dart';
 
 class LoginPage extends StatefulWidget {
   final String? initialEmail;
@@ -52,7 +52,11 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!user.emailVerified) {
         if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(context, "/verify-email", (route) => false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            "/verify-email",
+            (route) => false,
+          );
         }
         return;
       }
@@ -203,7 +207,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -228,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Logo and Title
                     const Text(
-                      'vehnicate',
+                      'Opsin',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

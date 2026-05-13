@@ -1,4 +1,4 @@
-package com.vehnicate.app
+package com.opsin.app
 
 import android.content.Context
 import io.flutter.plugin.common.EventChannel

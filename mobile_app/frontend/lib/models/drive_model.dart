@@ -1,4 +1,4 @@
-import 'package:vehnicate_frontend/models/event_model.dart';
+import 'package:opsin/models/event_model.dart';
 
 // Drive Model matching Supabase 'trips' table
 class Drive {
@@ -38,7 +38,10 @@ class Drive {
 
   Duration get duration => endTime.difference(startTime);
 
-  Drive copyWith({List<SensorDataPoint>? sensorData, List<DriveEvent>? events}) {
+  Drive copyWith({
+    List<SensorDataPoint>? sensorData,
+    List<DriveEvent>? events,
+  }) {
     return Drive(
       tripId: tripId,
       vehicleId: vehicleId,

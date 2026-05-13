@@ -4,13 +4,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'package:fl_chart/fl_chart.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:vehnicate_frontend/Providers/vehicle_provider.dart';
-import 'package:vehnicate_frontend/models/drive_model.dart';
-import 'package:vehnicate_frontend/Pages/drive/constants/drive_constants.dart';
-import 'package:vehnicate_frontend/services/supabase_service.dart';
-import 'package:vehnicate_frontend/models/event_model.dart';
+import 'package:opsin/Providers/vehicle_provider.dart';
+import 'package:opsin/models/drive_model.dart';
+import 'package:opsin/Pages/drive/constants/drive_constants.dart';
+import 'package:opsin/services/supabase_service.dart';
+import 'package:opsin/models/event_model.dart';
 import 'package:intl/intl.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
 
 // Constants and Theme (consistent with other pages)
 class DriveDetailsPage extends StatefulWidget {

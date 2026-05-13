@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class DeviceIdService {
-  static const String _deviceIdKey = 'vehnicate_unique_device_id';
+  static const String _deviceIdKey = 'opsin_unique_device_id';
 
   Future<String> getPersistentDeviceId() async {
     final prefs = await SharedPreferences.getInstance();

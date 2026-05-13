@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:vehnicate_frontend/Pages/dashboard/dashboard.dart';
-import 'package:vehnicate_frontend/Pages/drive/drive_analyze_page.dart';
-import 'package:vehnicate_frontend/Pages/vehicle/garage.dart';
-import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
-import 'package:vehnicate_frontend/Widgets/gnav_bar.dart';
-import 'package:vehnicate_frontend/Widgets/header.dart';
-import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
+import 'package:opsin/Pages/dashboard/dashboard.dart';
+import 'package:opsin/Pages/drive/drive_analyze_page.dart';
+import 'package:opsin/Pages/vehicle/garage.dart';
+import 'package:opsin/Pages/navigation/map_page.dart';
+import 'package:opsin/Widgets/gnav_bar.dart';
+import 'package:opsin/Widgets/header.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -51,13 +51,13 @@ class _HomeState extends State<Home> {
   String _getPageName(int index) {
     switch (index) {
       case 0:
-        return 'vehnicate';
+        return 'Opsin';
       case 1:
         return 'analytics';
       case 2:
         return 'your garage';
       default:
-        return 'vehnicate';
+        return 'Opsin';
     }
   }
 
