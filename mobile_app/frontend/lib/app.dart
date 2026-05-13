@@ -65,6 +65,10 @@ class App extends StatelessWidget {
         switch (settings.name) {
           case "/splash":
             return PageTransitions.fade(SplashPage());
+          case "/onboarding":
+            return PageTransitions.slideFromRight(OnboardingPage());
+          case "/permissions":
+            return PageTransitions.slideFromRight(PermissionsPage());
           case "/login":
             final emailArgs = settings.arguments as String?;
             return PageTransitions.fade(LoginPage(initialEmail: emailArgs));

@@ -79,7 +79,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       await userProvider.refresh();
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          "/permissions",
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -261,7 +265,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                                 : () {
                                   Navigator.pushNamedAndRemoveUntil(
                                     context,
-                                    "/home",
+                                    "/permissions",
                                     (route) => false,
                                   );
                                 },
