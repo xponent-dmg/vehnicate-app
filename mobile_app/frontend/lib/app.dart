@@ -11,6 +11,8 @@ import 'package:vehnicate_frontend/Pages/navigation/map_page.dart';
 import 'package:vehnicate_frontend/Pages/profile/profile_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/loading_page.dart';
 import 'package:vehnicate_frontend/Pages/onboarding/splash_page.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/onboarding_page.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/permissions_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/signup_page.dart';
 import 'package:vehnicate_frontend/Pages/auth/email_verification_page.dart';
 import 'package:vehnicate_frontend/Pages/drive/imu_collector_screen.dart';
@@ -61,6 +63,10 @@ class App extends StatelessWidget {
         switch (settings.name) {
           case "/splash":
             return PageTransitions.fade(SplashPage());
+          case "/onboarding":
+            return PageTransitions.slideFromRight(OnboardingPage());
+          case "/permissions":
+            return PageTransitions.slideFromRight(PermissionsPage());
           case "/login":
             final emailArgs = settings.arguments as String?;
             return PageTransitions.fade(LoginPage(initialEmail: emailArgs));

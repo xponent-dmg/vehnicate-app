@@ -10,6 +10,7 @@ import 'package:vehnicate_frontend/Widgets/form_overlay.dart';
 import 'package:vehnicate_frontend/core/constants/app_gradients.dart';
 import 'package:vehnicate_frontend/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vehnicate_frontend/Pages/onboarding/permissions_page.dart';
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 const SizedBox(height: 16),
                 _weeklyChallenge(context),
+                const SizedBox(height: 16),
+                Center(
+                  child: FractionallySizedBox(
+                    child: const PermissionsWidget(compact: true),
+                  ),
+                ),
               ],
             ),
           ),
