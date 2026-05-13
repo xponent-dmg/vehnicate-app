@@ -44,6 +44,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: StarRefreshIndicator(
@@ -69,8 +70,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _weeklyChallenge(context),
-                const SizedBox(height: 16),
+                // _weeklyChallenge(context),
+                // const SizedBox(height: 16),
                 Center(
                   child: FractionallySizedBox(
                     child: const PermissionsWidget(compact: true),
@@ -574,15 +575,7 @@ Widget _startCard(BuildContext context) {
           ),
         ),
         const Spacer(),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.home, color: Colors.white, size: 20),
-        ),
-        const SizedBox(width: 8),
+
         GestureDetector(
           onTap: () => Navigator.pushNamed(context, "/map-webview"),
           onLongPress: () => Navigator.pushNamed(context, "/map"),
@@ -592,7 +585,7 @@ Widget _startCard(BuildContext context) {
               color: Color(0xFF3d3d54),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.map, color: Colors.white70, size: 20),
+            child: const Icon(Icons.map, color: Colors.white70, size: 24),
           ),
         ),
         const SizedBox(width: 8),
