@@ -43,12 +43,10 @@ dependencies:
   supabase_flutter: ^2.10.0
 
   # Location & Maps
-  sensors_plus: ^6.1.1
   geolocator: ^14.0.2
   location: ^8.0.1
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
-  flutter_polyline_points: ^2.1.0
 
   # UI Components & Navigation
   font_awesome_flutter: ^10.9.1
@@ -57,7 +55,6 @@ dependencies:
   google_nav_bar: ^5.0.7
   animated_text_kit: ^4.3.0
   shimmer: ^3.0.0
-  glass_kit: ^4.0.2
   google_fonts: ^8.0.1
   webview_flutter: ^4.8.0
 
@@ -67,31 +64,27 @@ dependencies:
   http: ^1.2.2
   shared_preferences: ^2.5.3
   intl: ^0.20.2
-  vector_math: ^2.1.4
   wakelock_plus: ^1.4.0
 
   # Camera & Image Processing
   camera: ^0.11.2
   permission_handler: ^12.0.1
   path_provider: ^2.1.5
-  gal: ^2.3.0
   image: ^4.2.0
   flutter_image_compress: ^2.3.0
   file_picker: ^8.1.2
   image_cropper: ^11.0.0
 
   # Notifications
-  flutter_local_notifications: ^18.0.1
-  flutter_localization: ^0.3.3
   flutter_native_splash: ^2.4.7
   custom_refresh_indicator: ^4.0.1
-  cached_network_image: ^3.4.1
   firebase_crashlytics: ^5.1.0
   logger: ^2.7.0
   device_info_plus: ^12.4.0
   connectivity_plus: ^7.1.1
   uuid: ^4.5.3
   hive_flutter: ^1.1.0
+  localization: ^2.1.1
 
 dev_dependencies:
   flutter_test:

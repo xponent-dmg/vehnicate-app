@@ -72,7 +72,7 @@ class VehnicateSensorManager(
 
     private var isRunning = false
     private var lastUpdateTime = 0L
-    private val UPDATE_INTERVAL_MS = 10  // Update at ~100 Hz
+    private val UPDATE_INTERVAL_MS = 20  // Update at ~50 Hz
 
     /**
      * Starts listening to all sensors and location updates.
@@ -82,19 +82,19 @@ class VehnicateSensorManager(
         
         // Start IMU sensors
         accelerometer?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
+            sensorManager.registerListener(this, it, 20000)
         }
         
         linearAcceleration?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
+            sensorManager.registerListener(this, it, 20000)
         }
         
         gyroscope?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
+            sensorManager.registerListener(this, it, 20000)
         }
         
         magnetometer?.let {
-            sensorManager.registerListener(this, it, AndroidSensorManager.SENSOR_DELAY_FASTEST)
+            sensorManager.registerListener(this, it, 20000)
         }
         
         // Start location updates if permission granted
