@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:opsin/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
 
 class GnavBar extends StatelessWidget {
   const GnavBar({
@@ -13,21 +14,19 @@ class GnavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassLiteContainer(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       margin: const EdgeInsets.symmetric(horizontal: 17, vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-        color: ProfileConstants.cardBackground,
-      ),
+      borderRadius: BorderRadius.circular(50),
+      backgroundColor: ProfileConstants.cardBackground,
       child: GNav(
         gap: 8,
         color: Colors.grey[800],
         activeColor: Theme.of(context).primaryColor,
         iconSize: 25,
         tabBackgroundColor: Theme.of(context).primaryColor.withAlpha(30),
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        tabs: [
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        tabs: const [
           GButton(icon: Icons.home, text: 'Home', semanticLabel: "Home"),
           GButton(
             icon: Icons.analytics,

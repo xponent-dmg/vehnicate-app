@@ -172,7 +172,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           onPressed:
                               _isVerifyingUsername ? null : _verifyUsername,
                           style: TextButton.styleFrom(
-                            foregroundColor: AppColors.vibrantPurple,
+                            foregroundColor: AppColors.buttonBlue,
                             textStyle: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
@@ -228,7 +228,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _saveUserDetails,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.vibrantPurple,
+                          backgroundColor: AppColors.buttonBlue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),

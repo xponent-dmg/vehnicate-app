@@ -149,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.vibrantPurple),
+                      borderSide: BorderSide(color: AppColors.buttonBlue),
                     ),
                   ),
                 ),
@@ -194,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.vibrantPurple,
+                  backgroundColor: AppColors.buttonBlue,
                 ),
                 child: const Text(
                   "Send Link",
@@ -212,13 +212,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.mainBackground),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -358,7 +352,7 @@ class _LoginPageState extends State<LoginPage> {
                           'Forgot Password?',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.vibrantPurple,
+                            color: AppColors.buttonBlue,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -374,7 +368,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _emailSignIn,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.vibrantPurple,
+                          backgroundColor: AppColors.buttonBlue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
@@ -426,7 +420,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             'Sign up',
                             style: const TextStyle(
-                              color: AppColors.vibrantPurple,
+                              color: AppColors.buttonBlue,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

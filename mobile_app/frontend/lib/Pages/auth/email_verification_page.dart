@@ -192,7 +192,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                   Icon(
                     Icons.check_circle_outline_rounded,
                     size: 80,
-                    color: AppColors.vibrantPurple,
+                    color: AppColors.buttonBlue,
                   ),
                   SizedBox(height: 24),
                   Text(

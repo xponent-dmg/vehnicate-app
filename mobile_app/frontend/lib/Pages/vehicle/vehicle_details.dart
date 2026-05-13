@@ -24,12 +24,7 @@ class VehicleDetailsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+        actions: const [],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -112,37 +107,31 @@ class VehicleDetailsPage extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              childAspectRatio: 1.2,
+              childAspectRatio: 1.6,
               crossAxisSpacing: 15,
               mainAxisSpacing: 15,
               children: [
                 _buildDocumentCard(
+                  context: context,
                   title: "Insurance Policy",
-                  status: "Active",
-                  statusColor: Colors.green,
-                  subtitle: "Expires: 14 Nov 2024",
+                  isUploaded: true,
                   icon: Icons.security,
                   hasEdit: true,
                 ),
                 _buildDocumentCard(
+                  context: context,
                   title: "RC Details",
-                  status: "Verified",
-                  statusColor: Colors.grey,
-                  subtitle: vehicle.registration,
+                  isUploaded: true,
                   icon: Icons.article,
                   hasEdit: true,
                 ),
                 _buildDocumentCard(
+                  context: context,
                   title: "PUC Certificate",
-                  status: "Expiring Soon",
-                  statusColor: Colors.orange,
-                  subtitle:
-                      vehicle.puc != null
-                          ? "Expires: ${vehicle.puc}"
-                          : "Not Uploaded",
+                  isUploaded: vehicle.puc != null,
                   icon: Icons.cloud_queue,
                 ),
-                _buildCallActionCard(),
+                _buildCallActionCard(context),
               ],
             ),
 
@@ -179,7 +168,7 @@ class VehicleDetailsPage extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          "Parked near Orchard Avenue, Mumbai",
+                          "Parked near Hill View, Mumbai",
                           style: TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                         Text(
@@ -197,17 +186,6 @@ class VehicleDetailsPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 10),
-            _buildListTile(
-              icon: Icons.build_circle_outlined,
-              title: "Service History",
-              trailing: "Last: Oil Change (Jan 24)",
-            ),
-            const SizedBox(height: 10),
-            _buildListTile(
-              icon: Icons.wallet,
-              title: "Total Expenses",
-              trailing: "Rs 31,200",
-            ),
             const SizedBox(height: 30),
 
             // Delete Vehicle Button
@@ -285,9 +263,7 @@ class VehicleDetailsPage extends StatelessWidget {
               ? AppColors.buttonBlue.withOpacity(0.2)
               : AppColors.darkGreyBackground,
       borderColor:
-          isHighlighted
-              ? AppColors.buttonBlue
-              : Colors.white.withOpacity(0.1),
+          isHighlighted ? AppColors.buttonBlue : Colors.white.withOpacity(0.1),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
@@ -324,98 +300,86 @@ class VehicleDetailsPage extends StatelessWidget {
   }
 
   Widget _buildDocumentCard({
+    required BuildContext context,
     required String title,
-    required String status,
-    required Color statusColor,
-    required String subtitle,
+    required bool isUploaded,
     required IconData icon,
     bool hasEdit = false,
   }) {
-    return GlassLiteContainer(
-      backgroundColor: AppColors.darkGreyBackground,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Container(
-                //   padding: const EdgeInsets.all(6),
-                //   decoration: BoxDecoration(
-                //     color: const Color(0xFF2A2D35),
-                //     borderRadius: BorderRadius.circular(8),
-                //   ),
-                //   child: Icon(icon, color: AppColors.buttonBlue, size: 16),
-                // ),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12, // Adjusted font size
-                    fontWeight: FontWeight.w600,
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Document upload is yet to be implemented"),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+      child: GlassLiteContainer(
+        backgroundColor: AppColors.darkGreyBackground,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  maxLines: 1, // Prevent overflow
-                  overflow: TextOverflow.ellipsis,
+                  if (hasEdit)
+                    Icon(Icons.chevron_right, color: Colors.grey[600], size: 16),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey.withOpacity(0.5)),
                 ),
-                if (hasEdit)
-                  Icon(Icons.edit, color: Colors.grey[600], size: 14),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Text(
-                //   title,
-                //   style: GoogleFonts.outfit(
-                //     color: Colors.white,
-                //     fontSize: 12, // Adjusted font size
-                //     fontWeight: FontWeight.w600,
-                //   ),
-                //   maxLines: 1, // Prevent overflow
-                //   overflow: TextOverflow.ellipsis,
-                // ),
-                // const SizedBox(height: 4),
-                Row(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       width: 6,
                       height: 6,
-                      decoration: BoxDecoration(
-                        color: statusColor,
+                      decoration: const BoxDecoration(
+                        color: Colors.grey,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Expanded(
-                      // Prevent overflow
-                      child: Text(
-                        status,
-                        style: TextStyle(color: Colors.grey[400], fontSize: 10),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    Text(
+                      isUploaded ? "Done" : "Pending",
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(color: Colors.grey[500], fontSize: 10),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCallActionCard() {
+  Widget _buildCallActionCard(BuildContext context) {
     return GlassLiteContainer(
       backgroundColor: AppColors.darkGreyBackground,
       child: Padding(
@@ -427,12 +391,12 @@ class VehicleDetailsPage extends StatelessWidget {
             Row(
               children: [
                 Icon(Icons.two_wheeler, color: Colors.grey[500], size: 18),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Roadside Assist",
                         style: TextStyle(
                           color: Colors.white,
@@ -451,69 +415,37 @@ class VehicleDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
-            GlassLiteContainer(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              // decoration: BoxDecoration(
-              //   color: AppColors.buttonBlue,
-              //   borderRadius: BorderRadius.circular(12),
-              // ),
-              backgroundColor: AppColors.buttonBlue,
-              borderRadius: BorderRadius.circular(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.call, color: Colors.white, size: 14),
-                  const SizedBox(width: 6),
-                  Text(
-                    "Tap to Call",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Feature not implemented yet"),
+                    behavior: SnackBarBehavior.floating,
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildListTile({
-    required IconData icon,
-    required String title,
-    required String trailing,
-  }) {
-    return GlassLiteContainer(
-      height: 60,
-      backgroundColor: AppColors.darkGreyBackground.withOpacity(0.5),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.buttonBlue, size: 20),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                );
+              },
+              child: GlassLiteContainer(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                backgroundColor: AppColors.buttonBlue,
+                borderRadius: BorderRadius.circular(12),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.call, color: Colors.white, size: 14),
+                    SizedBox(width: 6),
+                    Text(
+                      "Tap to Call",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
-            Text(
-              trailing,
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.chevron_right, color: Colors.grey[500], size: 16),
           ],
         ),
       ),

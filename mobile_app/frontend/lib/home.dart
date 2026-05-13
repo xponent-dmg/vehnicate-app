@@ -105,58 +105,51 @@ class _HomeState extends State<Home> {
         selectedIndex: selectedIndex,
         onTabChange: onTabChange,
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(right: 12.0),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            switch (selectedIndex) {
-              case 0:
-                Navigator.pushNamed(context, "/map-webview");
-                break;
-              case 1:
-                _driveAnalyzeKey.currentState?.showFilterSheet();
-                break;
-              case 2:
-                _garageKey.currentState?.showAddVehicleOverlay(context);
-                break;
-            }
-          },
-          backgroundColor: Theme.of(context).primaryColor,
-          icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return ScaleTransition(scale: animation, child: child);
-            },
-            child: Icon(
-              selectedIndex == 0
-                  ? Icons.map_rounded
-                  : selectedIndex == 1
-                  ? Icons.tune_rounded
-                  : Icons.add_rounded,
-              key: ValueKey<int>(selectedIndex),
-              color: Colors.white,
-            ),
-          ),
-          label: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            child: Text(
-              selectedIndex == 0
-                  ? 'Map'
-                  : selectedIndex == 1
-                  ? 'Filter'
-                  : 'Add Vehicle',
-              key: ValueKey<int>(selectedIndex),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+      floatingActionButton: selectedIndex == 0
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  switch (selectedIndex) {
+                    case 1:
+                      _driveAnalyzeKey.currentState?.showFilterSheet();
+                      break;
+                    case 2:
+                      _garageKey.currentState?.showAddVehicleOverlay(context);
+                      break;
+                  }
+                },
+                backgroundColor: Theme.of(context).primaryColor,
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return ScaleTransition(scale: animation, child: child);
+                  },
+                  child: Icon(
+                    selectedIndex == 1 ? Icons.tune_rounded : Icons.add_rounded,
+                    key: ValueKey<int>(selectedIndex),
+                    color: Colors.white,
+                  ),
+                ),
+                label: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                  child: Text(
+                    selectedIndex == 1 ? 'Filter' : 'Add Vehicle',
+                    key: ValueKey<int>(selectedIndex),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

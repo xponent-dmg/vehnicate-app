@@ -227,7 +227,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _signUp,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.vibrantPurple,
+                          backgroundColor: AppColors.buttonBlue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
@@ -270,7 +270,7 @@ class _SignupPageState extends State<SignupPage> {
                           child: const Text(
                             'Sign in',
                             style: TextStyle(
-                              color: AppColors.vibrantPurple,
+                              color: AppColors.buttonBlue,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
