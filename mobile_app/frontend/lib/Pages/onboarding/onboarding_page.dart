@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vehnicate_frontend/Pages/profile/constants/profile_constants.dart';
+import 'package:opsin/core/constants/app_gradients.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -69,7 +69,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: ProfileConstants.gradient),
+        decoration: BoxDecoration(gradient: AppGradients.mainBackground),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),

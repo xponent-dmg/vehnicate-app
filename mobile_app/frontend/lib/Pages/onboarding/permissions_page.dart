@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:vehnicate_frontend/Widgets/glass_lite_container.dart';
+import 'package:opsin/Widgets/glass_lite_container.dart';
 
 class PermissionsPage extends StatelessWidget {
   const PermissionsPage({super.key});
@@ -402,6 +402,7 @@ class _PermissionTileData {
     required this.subtitle,
     required this.icon,
     required this.permission,
+    // ignore: unused_element_parameter
     this.status = PermissionStatus.denied,
   });
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:opsin/Pages/onboarding/permissions_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:opsin/Widgets/glass_lite_container.dart';
 import 'package:opsin/Widgets/star_refresh_indicator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:opsin/Providers/user_provider.dart';
 import 'package:opsin/Providers/vehicle_provider.dart';
 import 'package:opsin/Widgets/form_overlay.dart';
@@ -651,94 +651,6 @@ Widget _rpsScoreCard(BuildContext context) {
           ),
         );
       },
-    ),
-  );
-}
-
-Widget _weeklyChallenge(BuildContext context) {
-  return GlassLiteContainer(
-    hasBorder: false,
-    backgroundColor: const Color(0xFF2d2d44),
-    padding: const EdgeInsets.all(20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Drive smoothly',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withAlpha(30),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Theme.of(context).primaryColor,
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                'Weekly',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          'Maintain constant acceleration for 50 km',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
-        ),
-        const SizedBox(height: 16),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Reward: 500 points',
-              style: TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-            Text(
-              '50%',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          height: 6,
-          decoration: BoxDecoration(
-            color: const Color(0xFF3d3d54),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Stack(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.5 * 0.5,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     ),
   );
 }

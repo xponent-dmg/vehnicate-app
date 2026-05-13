@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opsin/Pages/onboarding/onboarding_page.dart';
+import 'package:opsin/Pages/onboarding/permissions_page.dart';
 import 'package:provider/provider.dart';
 import 'package:opsin/Pages/dashboard/dashboard.dart';
 import 'package:opsin/Pages/drive/drive_analyze_page.dart';
