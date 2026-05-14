@@ -13,7 +13,7 @@ class SensorEventChannel(private val context: Context) : EventChannel.StreamHand
     private var eventSink: EventChannel.EventSink? = null
 
     companion object {
-        const val CHANNEL_NAME = "vehnicate/sensors"
+        const val CHANNEL_NAME = "opsin/sensors"
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
