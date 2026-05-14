@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,6 +31,7 @@ class SupabaseService {
         await Supabase.initialize(
           url: dotenv.get('SUPABASE_URL'),
           anonKey: dotenv.get('SUPABASE_ANON_KEY'),
+          accessToken: _getFirebaseAccessToken,
         );
         _client = Supabase.instance.client;
         return _client!;
@@ -57,6 +60,46 @@ class SupabaseService {
     return _client!;
   }
 
+  Future<String?> _getFirebaseAccessToken() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      return null;
+    }
+
+    return firebaseUser.getIdToken(true);
+  }
+
+  /// Returns an authenticated Supabase client with the current Firebase user's JWT.
+  /// This token is used by RLS policies to verify auth.uid() server-side.
+  Future<SupabaseClient> _getAuthenticatedClient() async {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      throw Exception('Not authenticated: Firebase user is null');
+    }
+
+    try {
+      // Ensure Supabase client is initialized with the Firebase accessToken callback.
+      final client = await _getOrInitClient();
+
+      AppLogger.info(
+        'Authenticated Supabase client created for user ${firebaseUser.uid}',
+      );
+      return client;
+    } catch (e, stack) {
+      AppLogger.error(
+        'Failed to create authenticated Supabase client',
+        e,
+        stack,
+      );
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        stack,
+        reason: 'Authenticated client creation failed',
+      );
+      rethrow;
+    }
+  }
+
   // Register user in Supabase
   Future<void> registerUser({
     required String uid,
@@ -72,7 +115,6 @@ class SupabaseService {
 
   // Update user profile
   Future<void> updateUserProfile({
-    required String userId,
     required String fullName,
     required String username,
     String? phone,
@@ -80,7 +122,7 @@ class SupabaseService {
     String? profilePictureUrl,
   }) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
       final Map<String, dynamic> updateData = {
         'name': fullName,
@@ -93,19 +135,19 @@ class SupabaseService {
         updateData['profile_picture_url'] = profilePictureUrl;
       }
 
+      // RLS policy enforces that users can only update their own record
       final response =
           await client
               .from(AppConfig.tableUserDetails)
               .update(updateData)
-              .eq('firebaseuid', userId)
               .select();
 
       if ((response as List).isEmpty) {
-        throw Exception('User record not found');
+        throw Exception('User record not found or RLS policy blocked update');
       }
-      AppLogger.info('User profile updated successfully for $userId');
+      AppLogger.info('User profile updated successfully');
     } catch (e, stack) {
-      AppLogger.error('Failed to update profile for $userId', e, stack);
+      AppLogger.error('Failed to update profile', e, stack);
       FirebaseCrashlytics.instance.recordError(
         e,
         stack,
@@ -149,23 +191,26 @@ class SupabaseService {
     }
   }
 
-  Future<Map<String, dynamic>?> getUserdetails(String firebaseUuid) async {
+  Future<Map<String, dynamic>?> getUserdetails() async {
     try {
-      if (firebaseUuid.isEmpty) return null;
+      final client = await _getAuthenticatedClient();
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        throw Exception('Not authenticated: Firebase user is null');
+      }
 
-      final client = await _getOrInitClient();
-
+      // Filter by the signed-in Firebase UID so the query stays single-row safe.
       final response =
           await client
               .from(AppConfig.tableUserDetails)
               .select()
-              .eq('firebaseuid', firebaseUuid)
+              .eq('firebaseuid', firebaseUser.uid)
               .maybeSingle();
 
       return response;
     } catch (e, stack) {
       AppLogger.warning(
-        'Error fetching user details for $firebaseUuid',
+        'Error fetching user details',
         e,
         stack,
       );
@@ -195,21 +240,19 @@ class SupabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getVehiclesByUserId(
-    String firebaseUuid,
-  ) async {
+  Future<List<Map<String, dynamic>>> getVehiclesByUserId() async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
+      // RLS policy ensures users can only see their own vehicles
       final vehiclesResponse = await client
           .from(AppConfig.tableVehicleDetails)
-          .select()
-          .eq('firebaseuid', firebaseUuid);
+          .select();
 
       return List<Map<String, dynamic>>.from(vehiclesResponse);
     } catch (e, stack) {
       AppLogger.error(
-        'Error fetching vehicles for user $firebaseUuid',
+        'Error fetching vehicles',
         e,
         stack,
       );
@@ -225,7 +268,8 @@ class SupabaseService {
     required String model,
   }) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
+      // RLS policy ensures users can only update their own vehicles
       await client
           .from(AppConfig.tableVehicleDetails)
           .update({
@@ -253,7 +297,7 @@ class SupabaseService {
 
   Future<List<Map<String, dynamic>>> fetchDrives(int vehicleId) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
       final response = await client
           .from(AppConfig.tableTrips)
@@ -264,6 +308,7 @@ class SupabaseService {
       final List<Map<String, dynamic>> allDrives =
           List<Map<String, dynamic>>.from(response);
 
+      // RLS policy ensures users can only see trips for their own vehicles
       // Filter drives that are greater than 1 minute
       final filteredDrives =
           allDrives.where((drive) {
@@ -286,14 +331,16 @@ class SupabaseService {
 
   /// Retrieves user details, or creates a new record if it doesn't exist.
   /// This encapsulates the logic previously held in the UserProvider.
+  /// The authenticated Firebase token ensures the user can only access their own record.
   Future<Map<String, dynamic>?> getOrCreateUser({
     required String uid,
     required String email,
     String? displayName,
   }) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
+      // Filter by uid to avoid fetching every row when multiple profiles exist.
       final existingUser =
           await client
               .from(AppConfig.tableUserDetails)
@@ -308,8 +355,14 @@ class SupabaseService {
       final name = displayName ?? 'New User';
       final username = name.split(' ')[0];
 
+      // Get the current Firebase user to ensure we set the correct firebaseuid
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        throw Exception('Firebase user is null during user creation');
+      }
+
       final newData = {
-        'firebaseuid': uid,
+        'firebaseuid': firebaseUser.uid,
         'email': email,
         'name': name,
         'username': username,
@@ -348,26 +401,34 @@ class SupabaseService {
   }
 
   Future<void> createVehicle({
-    required String firebaseUid,
     required String model,
     required String registration,
     required String insurance,
     String? puc,
   }) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
+
+      // Get the current Firebase user to ensure we set the correct firebaseuid
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        throw Exception('Firebase user is null during vehicle creation');
+      }
+
+      // Set firebaseuid explicitly from the authenticated user
+      // This prevents users from creating vehicles for other users
       await client.from(AppConfig.tableVehicleDetails).insert({
-        'firebaseuid': firebaseUid,
+        'firebaseuid': firebaseUser.uid,
         'model': model,
         'registration': registration,
         'insurance': insurance,
         'puc': puc,
         'created_at':
-            DateTime.now().toUtc().toIso8601String(), // Corrected to UTC
+            DateTime.now().toUtc().toIso8601String(),
       });
-      AppLogger.info('New vehicle created for user $firebaseUid');
+      AppLogger.info('New vehicle created');
     } catch (e, stack) {
-      AppLogger.error('Failed to create vehicle for $firebaseUid', e, stack);
+      AppLogger.error('Failed to create vehicle', e, stack);
       FirebaseCrashlytics.instance.recordError(
         e,
         stack,
@@ -383,7 +444,7 @@ class SupabaseService {
     required DateTime endTime,
   }) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
       final response = await client
           .from(AppConfig.tableDrivingEvents)
@@ -405,7 +466,7 @@ class SupabaseService {
     required DateTime endTime,
   }) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
       final response = await client.rpc(
         'get_clean_route',
@@ -425,7 +486,7 @@ class SupabaseService {
 
   Future<void> deleteVehicle(int vehicleId) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
 
       final response =
           await client
@@ -451,27 +512,32 @@ class SupabaseService {
     }
   }
 
-  Future<void> deleteUser(String firebaseUid) async {
+  Future<void> deleteUser() async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        throw Exception('Not authenticated: Firebase user is null');
+      }
 
-      // Check if user exists first to distinguish between RLS block and already-deleted
+      // Check if the current user's row exists first.
       final checkUser =
           await client
               .from('userdetails')
               .select()
-              .eq('firebaseuid', firebaseUid)
+              .eq('firebaseuid', firebaseUser.uid)
               .maybeSingle();
 
       if (checkUser == null) {
         return;
       }
 
+      // RLS policy ensures users can only delete their own record
       final response =
           await client
               .from(AppConfig.tableUserDetails)
               .delete()
-              .eq('firebaseuid', firebaseUid)
+            .eq('firebaseuid', firebaseUser.uid)
               .select();
 
       if ((response as List).isEmpty) {
@@ -479,9 +545,9 @@ class SupabaseService {
           "Supabase RLS Error: Your Supabase database is blocking account deletion. Check your DELETE policy on 'userdetails'.",
         );
       }
-      AppLogger.info('User $firebaseUid deleted successfully from Supabase');
+      AppLogger.info('User deleted successfully from Supabase');
     } catch (e, stack) {
-      AppLogger.error('Failed to delete Supabase user $firebaseUid', e, stack);
+      AppLogger.error('Failed to delete Supabase user', e, stack);
       FirebaseCrashlytics.instance.recordError(
         e,
         stack,
@@ -493,7 +559,7 @@ class SupabaseService {
 
   Future<bool> isUsernameAvailable(String username) async {
     try {
-      final client = await _getOrInitClient();
+      final client = await _getAuthenticatedClient();
       final response =
           await client
               .from(AppConfig.tableUserDetails)

@@ -72,7 +72,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       final userProvider = context.read<UserProvider>();
 
       await SupabaseService().updateUserProfile(
-        userId: widget.userId, // Pass the Firebase UID
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
       );
