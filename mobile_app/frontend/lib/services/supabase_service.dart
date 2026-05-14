@@ -122,6 +122,10 @@ class SupabaseService {
   }) async {
     try {
       final client = await _getAuthenticatedClient();
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser == null) {
+        throw Exception('Not authenticated: Firebase user is null');
+      }
 
       final Map<String, dynamic> updateData = {
         'name': fullName,
@@ -134,11 +138,12 @@ class SupabaseService {
         updateData['profile_picture_url'] = profilePictureUrl;
       }
 
-      // RLS policy enforces that users can only update their own record
+      // Filter by firebaseuid so users only update their own record
       final response =
           await client
               .from(AppConfig.tableUserDetails)
               .update(updateData)
+              .eq('firebaseuid', firebaseUser.uid)
               .select();
 
       if ((response as List).isEmpty) {
