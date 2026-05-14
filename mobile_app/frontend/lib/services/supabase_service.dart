@@ -370,7 +370,7 @@ class SupabaseService {
         'email': email,
         'name': name,
         'username': username,
-        'created_at': DateTime.now().toUtc().toIso8601String(),
+        'created_at': DateTime.now().toLocal().toIso8601String(),
         'role': 'User',
       };
 
@@ -428,7 +428,7 @@ class SupabaseService {
         'insurance': insurance,
         'puc': puc,
         'created_at':
-            DateTime.now().toUtc().toIso8601String(),
+            DateTime.now().toLocal().toIso8601String(),
       });
       AppLogger.info('New vehicle created');
     } catch (e, stack) {
