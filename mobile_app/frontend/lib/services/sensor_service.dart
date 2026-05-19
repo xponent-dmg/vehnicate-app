@@ -66,7 +66,7 @@ class SensorService {
             'vehicleid': vehicleId,
             'timesent':
                 DateTime.now()
-                    .toUtc()
+                    .toLocal()
                     .add(const Duration(hours: 5, minutes: 30))
                     .toIso8601String(), // Use local time as requested by existing logic
             'accelx': packet.raw.ax,

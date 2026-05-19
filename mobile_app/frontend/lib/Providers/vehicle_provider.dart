@@ -95,7 +95,7 @@ class VehicleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await SupabaseService().getVehiclesByUserId(firebaseUuid);
+      final data = await SupabaseService().getVehiclesByUserId();
       _vehicles = data.map((json) => Vehicle.fromJson(json)).toList();
 
       if (_vehicles.isNotEmpty) {
@@ -170,7 +170,6 @@ class VehicleProvider extends ChangeNotifier {
 
     try {
       await SupabaseService().createVehicle(
-        firebaseUid: uid,
         model: model,
         registration: registration,
         insurance: insurance,
