@@ -65,7 +65,7 @@ class SupabaseService {
       return null;
     }
 
-    return firebaseUser.getIdToken(true);
+    return firebaseUser.getIdToken();
   }
 
   /// Returns an authenticated Supabase client with the current Firebase user's JWT.
@@ -527,7 +527,7 @@ class SupabaseService {
       // Check if the current user's row exists first.
       final checkUser =
           await client
-              .from('userdetails')
+              .from(AppConfig.tableUserDetails)
               .select()
               .eq('firebaseuid', firebaseUser.uid)
               .maybeSingle();
@@ -541,7 +541,7 @@ class SupabaseService {
           await client
               .from(AppConfig.tableUserDetails)
               .delete()
-            .eq('firebaseuid', firebaseUser.uid)
+              .eq('firebaseuid', firebaseUser.uid)
               .select();
 
       if ((response as List).isEmpty) {
