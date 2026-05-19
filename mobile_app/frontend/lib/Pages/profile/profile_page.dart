@@ -167,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
           );
           final user = userProvider.currentUser;
           if (user != null) {
-            await SupabaseService().deleteUser(user.firebaseUid);
+            await SupabaseService().deleteUser();
             await AuthService().deleteAccount();
           }
         },
@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (user != null) {
           // 1. Delete from Supabase
-          await SupabaseService().deleteUser(user.firebaseUid);
+          await SupabaseService().deleteUser();
 
           // 2. Delete from Firebase and Sign out
           await AuthService().deleteAccount();
@@ -308,7 +308,6 @@ class _ProfilePageState extends State<ProfilePage> {
         );
 
         await SupabaseService().updateUserProfile(
-          userId: user.firebaseUid,
           fullName: user.name,
           username: user.username,
           profilePictureUrl: imageUrl,
@@ -397,7 +396,6 @@ class _ProfilePageState extends State<ProfilePage> {
         }
 
         await SupabaseService().updateUserProfile(
-          userId: firebaseUser.uid,
           fullName: _nameController.text.trim(),
           username: _usernameController.text.trim(),
           phone:
