@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:opsin/Providers/vehicle_provider.dart';
-import 'package:opsin/core/constants/app_config.dart';
-import 'package:opsin/utils/app_logger.dart';
+import 'package:vehnway/Providers/vehicle_provider.dart';
+import 'package:vehnway/core/constants/app_config.dart';
+import 'package:vehnway/utils/app_logger.dart';
 import '../models/sensor_data.dart';
 import '../Widgets/custom_snackbar.dart';
 
 class SensorService {
-  static const EventChannel _eventChannel = EventChannel('opsin/sensors');
+  static const EventChannel _eventChannel = EventChannel('vehnway/sensors');
   final SupabaseClient _supabase;
 
   SensorService({SupabaseClient? supabaseClient})

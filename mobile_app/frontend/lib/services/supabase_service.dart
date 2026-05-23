@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:opsin/core/constants/app_config.dart';
-import 'package:opsin/utils/app_logger.dart';
+import 'package:vehnway/core/constants/app_config.dart';
+import 'package:vehnway/utils/app_logger.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
@@ -213,11 +213,7 @@ class SupabaseService {
 
       return response;
     } catch (e, stack) {
-      AppLogger.warning(
-        'Error fetching user details',
-        e,
-        stack,
-      );
+      AppLogger.warning('Error fetching user details', e, stack);
       return null;
     }
   }
@@ -249,17 +245,12 @@ class SupabaseService {
       final client = await _getAuthenticatedClient();
 
       // RLS policy ensures users can only see their own vehicles
-      final vehiclesResponse = await client
-          .from(AppConfig.tableVehicleDetails)
-          .select();
+      final vehiclesResponse =
+          await client.from(AppConfig.tableVehicleDetails).select();
 
       return List<Map<String, dynamic>>.from(vehiclesResponse);
     } catch (e, stack) {
-      AppLogger.error(
-        'Error fetching vehicles',
-        e,
-        stack,
-      );
+      AppLogger.error('Error fetching vehicles', e, stack);
       return [];
     }
   }
@@ -427,8 +418,7 @@ class SupabaseService {
         'registration': registration,
         'insurance': insurance,
         'puc': puc,
-        'created_at':
-            DateTime.now().toLocal().toIso8601String(),
+        'created_at': DateTime.now().toLocal().toIso8601String(),
       });
       AppLogger.info('New vehicle created');
     } catch (e, stack) {

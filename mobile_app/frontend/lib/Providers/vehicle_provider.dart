@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
-import 'package:opsin/services/cache_service.dart';
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/models/drive_model.dart';
-import 'package:opsin/models/vehicle_model.dart';
+import 'package:vehnway/services/cache_service.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/models/drive_model.dart';
+import 'package:vehnway/models/vehicle_model.dart';
 
 class VehicleProvider extends ChangeNotifier {
   List<Vehicle> _vehicles = [];

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:opsin/services/auth_service.dart';
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/services/auth_service.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class LoginPage extends StatefulWidget {
   final String? initialEmail;
@@ -226,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Logo and Title
                     const Text(
-                      'Opsin',
+                      'VehnWay',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

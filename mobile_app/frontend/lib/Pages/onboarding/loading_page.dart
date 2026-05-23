@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 import '../../Widgets/animations/rising_particles.dart';
 import '../../Widgets/animations/step_rotating_shape.dart';
 

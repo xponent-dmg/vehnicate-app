@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
-import 'package:opsin/Pages/onboarding/onboarding_page.dart';
-import 'package:opsin/Pages/onboarding/permissions_page.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/Pages/onboarding/onboarding_page.dart';
+import 'package:vehnway/Pages/onboarding/permissions_page.dart';
 import 'package:provider/provider.dart';
-import 'package:opsin/Pages/dashboard/dashboard.dart';
-import 'package:opsin/Pages/drive/drive_analyze_page.dart';
-import 'package:opsin/Pages/drive/drive_details_page.dart';
-import 'package:opsin/Pages/navigation/map_webview_page.dart';
-import 'package:opsin/Pages/vehicle/garage.dart';
-import 'package:opsin/Pages/vehicle/document_upload_page.dart';
-import 'package:opsin/Pages/auth/login_page.dart';
-import 'package:opsin/Pages/navigation/map_page.dart';
-import 'package:opsin/Pages/profile/profile_page.dart';
-import 'package:opsin/Pages/onboarding/loading_page.dart';
-import 'package:opsin/Pages/onboarding/splash_page.dart';
-import 'package:opsin/Pages/onboarding/offline_page.dart';
-import 'package:opsin/Pages/auth/signup_page.dart';
-import 'package:opsin/Pages/auth/email_verification_page.dart';
-import 'package:opsin/Pages/drive/imu_collector_screen.dart';
-import 'package:opsin/Pages/auth/user_details_page.dart';
-import 'package:opsin/Pages/vehicle/vehicle_details.dart';
-import 'package:opsin/Providers/connectivity_provider.dart';
-import 'package:opsin/home.dart';
-import 'package:opsin/models/drive_model.dart';
-import 'package:opsin/models/vehicle_model.dart';
-import 'package:opsin/services/page_transitions.dart';
+import 'package:vehnway/Pages/dashboard/dashboard.dart';
+import 'package:vehnway/Pages/drive/drive_analyze_page.dart';
+import 'package:vehnway/Pages/drive/drive_details_page.dart';
+import 'package:vehnway/Pages/navigation/map_webview_page.dart';
+import 'package:vehnway/Pages/vehicle/garage.dart';
+import 'package:vehnway/Pages/vehicle/document_upload_page.dart';
+import 'package:vehnway/Pages/auth/login_page.dart';
+import 'package:vehnway/Pages/navigation/map_page.dart';
+import 'package:vehnway/Pages/profile/profile_page.dart';
+import 'package:vehnway/Pages/onboarding/loading_page.dart';
+import 'package:vehnway/Pages/onboarding/splash_page.dart';
+import 'package:vehnway/Pages/onboarding/offline_page.dart';
+import 'package:vehnway/Pages/auth/signup_page.dart';
+import 'package:vehnway/Pages/auth/email_verification_page.dart';
+import 'package:vehnway/Pages/drive/imu_collector_screen.dart';
+import 'package:vehnway/Pages/auth/user_details_page.dart';
+import 'package:vehnway/Pages/vehicle/vehicle_details.dart';
+import 'package:vehnway/Providers/connectivity_provider.dart';
+import 'package:vehnway/home.dart';
+import 'package:vehnway/models/drive_model.dart';
+import 'package:vehnway/models/vehicle_model.dart';
+import 'package:vehnway/services/page_transitions.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -33,7 +33,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Opsin',
+      title: 'VehnWay',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,

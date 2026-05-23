@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:opsin/Providers/vehicle_provider.dart';
-import 'package:opsin/Widgets/glass_lite_container.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Providers/vehicle_provider.dart';
+import 'package:vehnway/Widgets/glass_lite_container.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 // Use local constants for the filter sheet to maintain modularity
 class _FilterSheetConstants {

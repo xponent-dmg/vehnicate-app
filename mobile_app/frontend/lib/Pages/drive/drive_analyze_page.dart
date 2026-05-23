@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:opsin/Providers/vehicle_provider.dart';
-import 'package:opsin/models/drive_model.dart';
+import 'package:vehnway/Providers/vehicle_provider.dart';
+import 'package:vehnway/models/drive_model.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:opsin/Widgets/star_refresh_indicator.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
-import 'package:opsin/Widgets/drive_filter_sheet.dart';
+import 'package:vehnway/Widgets/star_refresh_indicator.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/Widgets/drive_filter_sheet.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {

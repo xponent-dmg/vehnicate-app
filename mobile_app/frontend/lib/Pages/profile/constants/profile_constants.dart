@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class ProfileConstants {
   // Colors

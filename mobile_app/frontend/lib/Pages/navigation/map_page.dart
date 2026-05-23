@@ -4,12 +4,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:opsin/services/sensor_service.dart';
+import 'package:vehnway/services/sensor_service.dart';
 import '../../config/config.dart';
 import 'package:provider/provider.dart';
-import 'package:opsin/Providers/vehicle_provider.dart';
-import 'package:opsin/services/map_service.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Providers/vehicle_provider.dart';
+import 'package:vehnway/services/map_service.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});

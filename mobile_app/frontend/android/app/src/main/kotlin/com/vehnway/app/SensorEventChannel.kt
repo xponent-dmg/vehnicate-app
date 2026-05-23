@@ -1,4 +1,4 @@
-package com.opsin.app
+package com.vehnway.app
 
 import android.content.Context
 import io.flutter.plugin.common.EventChannel
@@ -13,7 +13,7 @@ class SensorEventChannel(private val context: Context) : EventChannel.StreamHand
     private var eventSink: EventChannel.EventSink? = null
 
     companion object {
-        const val CHANNEL_NAME = "opsin/sensors"
+        const val CHANNEL_NAME = "vehnway/sensors"
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {

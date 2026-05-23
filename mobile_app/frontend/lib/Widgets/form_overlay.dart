@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'glass_lite_container.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 /// Enum to define the type of form field
 enum FormFieldType { text, date }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:opsin/Widgets/glass_lite_container.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Widgets/glass_lite_container.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class PermissionsPage extends StatelessWidget {
   const PermissionsPage({super.key});

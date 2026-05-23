@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:opsin/Widgets/custom_snackbar.dart';
-import 'package:opsin/services/auth_service.dart';
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/Widgets/custom_dialogs.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Widgets/custom_snackbar.dart';
+import 'package:vehnway/services/auth_service.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/Widgets/custom_dialogs.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   const EmailVerificationPage({super.key});

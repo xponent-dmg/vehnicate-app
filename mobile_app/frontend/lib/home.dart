@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:opsin/Pages/dashboard/dashboard.dart';
-import 'package:opsin/Pages/drive/drive_analyze_page.dart';
-import 'package:opsin/Pages/vehicle/garage.dart';
-import 'package:opsin/Pages/navigation/map_page.dart';
-import 'package:opsin/Widgets/gnav_bar.dart';
-import 'package:opsin/Widgets/header.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Pages/dashboard/dashboard.dart';
+import 'package:vehnway/Pages/drive/drive_analyze_page.dart';
+import 'package:vehnway/Pages/vehicle/garage.dart';
+import 'package:vehnway/Pages/navigation/map_page.dart';
+import 'package:vehnway/Widgets/gnav_bar.dart';
+import 'package:vehnway/Widgets/header.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -51,13 +51,13 @@ class _HomeState extends State<Home> {
   String _getPageName(int index) {
     switch (index) {
       case 0:
-        return 'Opsin';
+        return 'VehnWay';
       case 1:
         return 'analytics';
       case 2:
         return 'your garage';
       default:
-        return 'Opsin';
+        return 'VehnWay';
     }
   }
 
@@ -105,51 +105,58 @@ class _HomeState extends State<Home> {
         selectedIndex: selectedIndex,
         onTabChange: onTabChange,
       ),
-      floatingActionButton: selectedIndex == 0
-          ? null
-          : Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  switch (selectedIndex) {
-                    case 1:
-                      _driveAnalyzeKey.currentState?.showFilterSheet();
-                      break;
-                    case 2:
-                      _garageKey.currentState?.showAddVehicleOverlay(context);
-                      break;
-                  }
-                },
-                backgroundColor: Theme.of(context).primaryColor,
-                icon: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    return ScaleTransition(scale: animation, child: child);
+      floatingActionButton:
+          selectedIndex == 0
+              ? null
+              : Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    switch (selectedIndex) {
+                      case 1:
+                        _driveAnalyzeKey.currentState?.showFilterSheet();
+                        break;
+                      case 2:
+                        _garageKey.currentState?.showAddVehicleOverlay(context);
+                        break;
+                    }
                   },
-                  child: Icon(
-                    selectedIndex == 1 ? Icons.tune_rounded : Icons.add_rounded,
-                    key: ValueKey<int>(selectedIndex),
-                    color: Colors.white,
-                  ),
-                ),
-                label: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                  child: Text(
-                    selectedIndex == 1 ? 'Filter' : 'Add Vehicle',
-                    key: ValueKey<int>(selectedIndex),
-                    style: const TextStyle(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (
+                      Widget child,
+                      Animation<double> animation,
+                    ) {
+                      return ScaleTransition(scale: animation, child: child);
+                    },
+                    child: Icon(
+                      selectedIndex == 1
+                          ? Icons.tune_rounded
+                          : Icons.add_rounded,
+                      key: ValueKey<int>(selectedIndex),
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  label: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (
+                      Widget child,
+                      Animation<double> animation,
+                    ) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                    child: Text(
+                      selectedIndex == 1 ? 'Filter' : 'Add Vehicle',
+                      key: ValueKey<int>(selectedIndex),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
     );
   }
 }

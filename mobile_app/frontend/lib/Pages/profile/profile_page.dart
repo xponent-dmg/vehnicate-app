@@ -7,15 +7,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:opsin/Providers/user_provider.dart';
-import 'package:opsin/Widgets/avatar.dart';
-import 'package:opsin/services/auth_service.dart';
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/Widgets/form_overlay.dart';
-import 'package:opsin/Widgets/custom_dialogs.dart';
-import 'package:opsin/Widgets/custom_snackbar.dart';
-import 'package:opsin/Pages/profile/constants/profile_constants.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Providers/user_provider.dart';
+import 'package:vehnway/Widgets/avatar.dart';
+import 'package:vehnway/services/auth_service.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/Widgets/form_overlay.dart';
+import 'package:vehnway/Widgets/custom_dialogs.dart';
+import 'package:vehnway/Widgets/custom_snackbar.dart';
+import 'package:vehnway/Pages/profile/constants/profile_constants.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 // Constants and Theme
 class ProfilePage extends StatefulWidget {

@@ -64,6 +64,42 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088463950262:android:f9b8cfd890d12a6b0a3117",
+        "android_client_info": {
+          "package_name": "com.vehnway.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088463950262-pk9604jooguhd8qtat372k3aopbjbsu2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqznkvH2y93BYc3chD-ExV3MMFqkzvnc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088463950262-pk9604jooguhd8qtat372k3aopbjbsu2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088463950262-a47pmlnasunikr8ag3ala6qvu5ppesv8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.vehnicateFrontend"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

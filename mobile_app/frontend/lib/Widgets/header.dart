@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:opsin/Providers/user_provider.dart';
-import 'package:opsin/Widgets/avatar.dart';
-import 'package:opsin/Widgets/typewriter_text.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Providers/user_provider.dart';
+import 'package:vehnway/Widgets/avatar.dart';
+import 'package:vehnway/Widgets/typewriter_text.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class Header extends StatefulWidget {
   final String pageName;

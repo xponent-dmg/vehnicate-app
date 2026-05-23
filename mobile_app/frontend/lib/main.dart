@@ -6,16 +6,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:opsin/Providers/user_provider.dart';
-import 'package:opsin/Providers/vehicle_provider.dart';
-import 'package:opsin/Providers/connectivity_provider.dart';
-import 'package:opsin/app.dart';
+import 'package:vehnway/Providers/user_provider.dart';
+import 'package:vehnway/Providers/vehicle_provider.dart';
+import 'package:vehnway/Providers/connectivity_provider.dart';
+import 'package:vehnway/app.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:opsin/services/cache_service.dart';
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/utils/app_logger.dart';
+import 'package:vehnway/services/cache_service.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/utils/app_logger.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

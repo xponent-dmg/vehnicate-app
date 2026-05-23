@@ -1,4 +1,4 @@
-package com.opsin.app
+package com.vehnway.app
 
 /**
  * Data class representing raw sensor readings from the device.

@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});

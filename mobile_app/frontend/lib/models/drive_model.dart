@@ -1,4 +1,4 @@
-import 'package:opsin/models/event_model.dart';
+import 'package:vehnway/models/event_model.dart';
 
 // Drive Model matching Supabase 'trips' table
 class Drive {

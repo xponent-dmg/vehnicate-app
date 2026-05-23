@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class StepRotatingShape extends StatefulWidget {
   final double size;

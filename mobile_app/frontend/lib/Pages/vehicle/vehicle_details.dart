@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:provider/provider.dart';
-import 'package:opsin/Providers/vehicle_provider.dart';
-import 'package:opsin/Widgets/custom_dialogs.dart';
-import 'package:opsin/models/vehicle_model.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/Providers/vehicle_provider.dart';
+import 'package:vehnway/Widgets/custom_dialogs.dart';
+import 'package:vehnway/models/vehicle_model.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class VehicleDetailsPage extends StatelessWidget {
   final Vehicle vehicle;
@@ -114,21 +114,21 @@ class VehicleDetailsPage extends StatelessWidget {
                 _buildDocumentCard(
                   context: context,
                   title: "Insurance Policy",
-                  isUploaded: true,
+                  isUploaded: false,
                   icon: Icons.security,
                   hasEdit: true,
                 ),
                 _buildDocumentCard(
                   context: context,
                   title: "RC Details",
-                  isUploaded: true,
+                  isUploaded: false,
                   icon: Icons.article,
                   hasEdit: true,
                 ),
                 _buildDocumentCard(
                   context: context,
                   title: "PUC Certificate",
-                  isUploaded: vehicle.puc != null,
+                  isUploaded: false,
                   icon: Icons.cloud_queue,
                 ),
                 _buildCallActionCard(context),
@@ -140,7 +140,7 @@ class VehicleDetailsPage extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Logistics & History",
+                "Last seen",
                 style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 14,
@@ -339,7 +339,11 @@ class VehicleDetailsPage extends StatelessWidget {
                     ),
                   ),
                   if (hasEdit)
-                    Icon(Icons.chevron_right, color: Colors.grey[600], size: 16),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey[600],
+                      size: 16,
+                    ),
                 ],
               ),
               Container(

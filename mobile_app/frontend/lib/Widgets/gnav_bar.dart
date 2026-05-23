@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:opsin/Pages/profile/constants/profile_constants.dart';
-import 'package:opsin/Widgets/glass_lite_container.dart';
+import 'package:vehnway/Pages/profile/constants/profile_constants.dart';
+import 'package:vehnway/Widgets/glass_lite_container.dart';
 
 class GnavBar extends StatelessWidget {
   const GnavBar({

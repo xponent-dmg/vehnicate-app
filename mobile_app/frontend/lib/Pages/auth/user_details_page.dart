@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:opsin/Providers/user_provider.dart';
+import 'package:vehnway/Providers/user_provider.dart';
 
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final String userId;

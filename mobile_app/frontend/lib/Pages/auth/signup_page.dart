@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:opsin/services/auth_service.dart';
-import 'package:opsin/Widgets/custom_snackbar.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/services/auth_service.dart';
+import 'package:vehnway/Widgets/custom_snackbar.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class SignupPage extends StatefulWidget {
   final String? initialEmail;
@@ -102,7 +102,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     const SizedBox(height: 80),
                     const Text(
-                      'Opsin',
+                      'VehnWay',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

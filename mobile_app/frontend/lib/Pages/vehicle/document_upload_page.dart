@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:opsin/Pages/profile/constants/profile_constants.dart';
+import 'package:vehnway/Pages/profile/constants/profile_constants.dart';
 // ignore: unused_import
-import 'package:opsin/services/supabase_service.dart';
-import 'package:opsin/core/constants/app_gradients.dart';
+import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class DocumentUploadPage extends StatefulWidget {
   final String

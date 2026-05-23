@@ -1,5 +1,5 @@
-name: opsin
-description: "Opsin app"
+name: vehnway
+description: "VehnWay app"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -142,10 +142,10 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/opsin_logo_padded.png"
+  image_path: "assets/images/vehnway_logo_padded.png"
   remove_alpha_ios: true
   adaptive_icon_background: "#1a1a1a"
-  adaptive_icon_foreground: "assets/images/opsin_logo_padded.png"
+  adaptive_icon_foreground: "assets/images/vehnway_logo_padded.png"
   min_sdk_android: 21
 flutter_intl:
   enabled: true
@@ -156,7 +156,7 @@ flutter_native_splash:
 
   # 2. Use the same icon/logo you use in your Flutter code
   # Ensure this asset is actually in your assets folder
-  image: assets/images/opsin_logo_padded.png
+  image: assets/images/vehnway_logo_padded.png
 
   # 3. Branding (Optional - if you want text at the bottom like in your code)
   # branding: assets/branding_text.png
@@ -165,7 +165,7 @@ flutter_native_splash:
   android_12:
     color: "#ffffff"
     icon_background_color: "#ffffff"
-    image: assets/images/opsin_logo_padded.png
+    image: assets/images/vehnway_logo_padded.png
 
   # 5. Keeps the status bar hidden for a cleaner look
   fullscreen: true

@@ -7,8 +7,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:opsin/core/constants/app_config.dart';
-import 'package:opsin/utils/app_logger.dart';
+import 'package:vehnway/core/constants/app_config.dart';
+import 'package:vehnway/utils/app_logger.dart';
 
 // A service that:
 // - Captures full RGB images using takePicture()

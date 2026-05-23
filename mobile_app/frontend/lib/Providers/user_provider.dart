@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
-import 'package:opsin/models/user_model.dart';
-import 'package:opsin/services/cache_service.dart';
-import 'package:opsin/services/supabase_service.dart';
+import 'package:vehnway/models/user_model.dart';
+import 'package:vehnway/services/cache_service.dart';
+import 'package:vehnway/services/supabase_service.dart';
 
 class UserProvider extends ChangeNotifier {
   AppUser? _currentUser;
