@@ -2,9 +2,7 @@ import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/core/constants/app_config.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import '../models/sensor_data.dart';
@@ -18,36 +16,32 @@ class SensorService {
     : _supabase = supabaseClient ?? Supabase.instance.client;
 
   StreamSubscription? _subscription;
-  final StreamController<SensorPacket> _controller =
-      StreamController<SensorPacket>.broadcast();
+  final StreamController<dynamic> _controller = StreamController<dynamic>.broadcast();
 
   // --- Robust Buffer Management ---
   final List<Map<String, dynamic>> _imuBuffer = [];
-  final int _maxBufferSize = 10000; // Cap to prevent OOM (Out of Memory)
+  final List<Map<String, dynamic>> _gpsBuffer = [];
+  final int _maxBufferSize = 10000; // Cap to prevent OOM
   bool _isUploading = false; // The "Lock"
 
   Timer? _uploadTimer;
   int _processedCount = 0;
   int _uploadedCount = 0;
   bool _isCollecting = false;
+  String? _sessionId;
 
   bool get isCollecting => _isCollecting;
-  Stream<SensorPacket> get sensorStream => _controller.stream;
+  Stream<dynamic> get sensorStream => _controller.stream;
   Function(int processed, int uploaded)? onDataCountUpdate;
 
   Future<void> start({
     required BuildContext context,
+    required String sessionId,
     Function(int processed, int uploaded)? onDataCountUpdate,
   }) async {
     if (_isCollecting) return;
 
-    final vehicleId = context.read<VehicleProvider>().vehicleId;
-    if (vehicleId == null) {
-      AppLogger.warning('SensorService: No vehicle selected!');
-      CustomSnackBar.showError(context, 'No vehicle selected!');
-      return;
-    }
-
+    _sessionId = sessionId;
     _isCollecting = true;
     _processedCount = 0; // Reset counters on new session
     _uploadedCount = 0;
@@ -57,41 +51,47 @@ class SensorService {
       dynamic event,
     ) {
       try {
-        final packet = SensorPacket.fromMap(event as Map<dynamic, dynamic>);
-        _controller.add(packet);
+        final map = event as Map<dynamic, dynamic>;
+        _controller.add(map);
 
-        // Buffer logic
-        if (_imuBuffer.length < _maxBufferSize) {
-          _imuBuffer.add({
-            'vehicleid': vehicleId,
-            'timesent':
-                DateTime.now()
-                    .toLocal()
-                    .add(const Duration(hours: 5, minutes: 30))
-                    .toIso8601String(), // Use local time as requested by existing logic
-            'accelx': packet.raw.ax,
-            'accely': packet.raw.ay,
-            'accelz': packet.raw.az,
-            'gyrox': packet.raw.Gx,
-            'gyroy': packet.raw.Gy,
-            'gyroz': packet.raw.Gz,
-            'magx': packet.raw.Mx, 'magy': packet.raw.My, 'magz': packet.raw.Mz,
-            'useraccelx': packet.raw.Ax,
-            'useraccely': packet.raw.Ay,
-            'useraccelz': packet.raw.Az,
-            'latitude': packet.location.latitude,
-            'longitude': packet.location.longitude,
-            'speed': packet.location.speed,
-            'bearing': packet.location.bearing,
-          });
-          _processedCount++;
-          this.onDataCountUpdate?.call(_processedCount, _uploadedCount);
-        } else {
-          // FIFO: Remove oldest record to make room for newest
-          _imuBuffer.removeAt(0);
-          AppLogger.warning(
-            'SensorService: IMU Buffer overflow, discarding oldest data',
-          );
+        if (map['type'] == 'imu') {
+          final imuData = ImuData.fromMap(map);
+          if (_imuBuffer.length < _maxBufferSize) {
+            _imuBuffer.add({
+              'session_id': _sessionId,
+              'timestamp_ms': imuData.timestamp,
+              'accel_x': imuData.ax,
+              'accel_y': imuData.ay,
+              'accel_z': imuData.az,
+              'gyro_x': imuData.gx,
+              'gyro_y': imuData.gy,
+              'gyro_z': imuData.gz,
+              'user_accel_x': imuData.Ax,
+              'user_accel_y': imuData.Ay,
+              'user_accel_z': imuData.Az,
+            });
+            _processedCount++;
+            this.onDataCountUpdate?.call(_processedCount, _uploadedCount);
+          } else {
+            // FIFO: Remove oldest record
+            _imuBuffer.removeAt(0);
+            AppLogger.warning('SensorService: IMU Buffer overflow, discarding oldest data');
+          }
+        } else if (map['type'] == 'gps') {
+          final gpsData = GpsData.fromMap(map);
+          if (_gpsBuffer.length < _maxBufferSize) {
+            _gpsBuffer.add({
+              'session_id': _sessionId,
+              'timestamp_ms': gpsData.timestamp,
+              'latitude': gpsData.latitude,
+              'longitude': gpsData.longitude,
+              'speed': gpsData.speed,
+              'bearing': gpsData.bearing,
+            });
+          } else {
+            _gpsBuffer.removeAt(0);
+            AppLogger.warning('SensorService: GPS Buffer overflow, discarding oldest data');
+          }
         }
       } catch (e, stack) {
         AppLogger.error('Error processing sensor event', e, stack);
@@ -104,39 +104,51 @@ class SensorService {
       _attemptUpload(context);
     });
 
-    AppLogger.info('SensorService started for vehicle $vehicleId');
+    AppLogger.info('SensorService started for session $_sessionId');
   }
 
   Future<void> _attemptUpload(BuildContext context) async {
-    // 1. Check if we are already uploading or have nothing to send
-    if (_isUploading || _imuBuffer.isEmpty) return;
+    if (_isUploading || (_imuBuffer.isEmpty && _gpsBuffer.isEmpty)) return;
 
     _isUploading = true;
 
-    // 2. Snapshot the current buffer and clear it immediately
-    final List<Map<String, dynamic>> dataToUpload = List.from(_imuBuffer);
+    // Snapshot the current buffers and clear them immediately
+    final List<Map<String, dynamic>> imuDataToUpload = List.from(_imuBuffer);
+    final List<Map<String, dynamic>> gpsDataToUpload = List.from(_gpsBuffer);
+    
     _imuBuffer.clear();
+    _gpsBuffer.clear();
 
     try {
-      await _supabase
-          .from(AppConfig.tableDataTransmission)
-          .insert(dataToUpload);
+      if (imuDataToUpload.isNotEmpty) {
+        await _supabase
+            .from(AppConfig.tableImuData)
+            .insert(imuDataToUpload);
+        _uploadedCount += imuDataToUpload.length;
+      }
+      
+      if (gpsDataToUpload.isNotEmpty) {
+        await _supabase
+            .from(AppConfig.tableGpsData)
+            .insert(gpsDataToUpload);
+      }
 
-      // 3. Only update uploaded count on SUCCESS
-      _uploadedCount += dataToUpload.length;
       onDataCountUpdate?.call(_processedCount, _uploadedCount);
 
       AppLogger.info(
-        'Synced ${dataToUpload.length} sensor records to Supabase',
+        'Synced ${imuDataToUpload.length} IMU records and ${gpsDataToUpload.length} GPS records to Supabase',
       );
     } catch (e, stack) {
-      // 4. On failure, put data back at the START of the buffer if there's room
-      if (_imuBuffer.length + dataToUpload.length < _maxBufferSize) {
-        _imuBuffer.insertAll(0, dataToUpload);
+      // On failure, put data back at the START of the buffer if there's room
+      if (_imuBuffer.length + imuDataToUpload.length < _maxBufferSize) {
+        _imuBuffer.insertAll(0, imuDataToUpload);
+      }
+      if (_gpsBuffer.length + gpsDataToUpload.length < _maxBufferSize) {
+        _gpsBuffer.insertAll(0, gpsDataToUpload);
       }
 
       AppLogger.warning(
-        'Sensor upload failed, pending retry: ${dataToUpload.length} records',
+        'Sensor upload failed, pending retry: ${imuDataToUpload.length} IMU, ${gpsDataToUpload.length} GPS',
         e,
       );
       FirebaseCrashlytics.instance.recordError(
@@ -162,7 +174,7 @@ class SensorService {
     _isCollecting = false;
 
     // Final Flush
-    if (_imuBuffer.isNotEmpty) {
+    if (_imuBuffer.isNotEmpty || _gpsBuffer.isNotEmpty) {
       await _attemptUpload(context);
     }
 
@@ -177,3 +189,4 @@ class SensorService {
     _controller.close();
   }
 }
+

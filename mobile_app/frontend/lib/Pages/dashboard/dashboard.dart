@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:vehnway/Pages/onboarding/permissions_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/Widgets/star_refresh_indicator.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 
 import 'package:vehnway/Providers/user_provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Widgets/form_overlay.dart';
+import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 
 // ─── Page ────────────────────────────────────────────────────────────────────
@@ -62,8 +63,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 _startCard(context),
                 const SizedBox(height: 16),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _rpsScoreCard(context),
+                    Expanded(
+                      child: const PermissionsWidget(compact: true),
+                    ),
                     const SizedBox(width: 16),
                     _selectedCarCard(context),
                   ],
@@ -71,11 +75,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 16),
                 // _weeklyChallenge(context),
                 // const SizedBox(height: 16),
-                Center(
-                  child: FractionallySizedBox(
-                    child: const PermissionsWidget(compact: true),
-                  ),
-                ),
+                _lastDriveStatsCard(context),
               ],
             ),
           ),
@@ -538,6 +538,15 @@ Widget _startCard(BuildContext context) {
       children: [
         GestureDetector(
           onTap: () {
+            final vehicleProvider =
+                Provider.of<VehicleProvider>(context, listen: false);
+            if (vehicleProvider.vehicleId == null) {
+              CustomSnackBar.showWarning(
+                context,
+                "Please select or add a vehicle before starting your drive.",
+              );
+              return;
+            }
             Navigator.pushNamed(
               context,
               "/loading",
@@ -585,72 +594,212 @@ Widget _startCard(BuildContext context) {
   );
 }
 
-Widget _rpsScoreCard(BuildContext context) {
-  return Expanded(
-    child: Consumer<UserProvider>(
-      builder: (context, userProvider, child) {
-        final isLoading = userProvider.isLoading;
-        final rpsScore = userProvider.currentUser?.rpsScore;
+Widget _lastDriveStatsCard(BuildContext context) {
+  final vehicleProvider = Provider.of<VehicleProvider>(context);
+  final latestDrive = vehicleProvider.latestDrive;
 
-        return GlassLiteContainer(
-          hasBorder: false,
-          backgroundColor: AppColors.background,
-          padding: const EdgeInsets.all(20),
-          child: CircularPercentIndicator(
-            radius: 60,
-            lineWidth: 10,
-            percent: isLoading ? 0 : (rpsScore ?? 0) / 100,
-            backgroundColor: Theme.of(context).primaryColor.withAlpha(50),
-            progressColor: Theme.of(context).primaryColor,
-            circularStrokeCap: CircularStrokeCap.round,
-            animation: true,
-            center: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // shimmer only the score number while loading
-                if (isLoading)
-                  Shimmer.fromColors(
-                    baseColor: ShimmerConstants.shimmerBase,
-                    highlightColor: ShimmerConstants.shimmerHighlight,
-                    child: Container(
-                      width: 44,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: ShimmerConstants.shimmerBase,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  )
-                else
-                  Text(
-                    rpsScore?.toString() ?? '- -',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4.5,
-                    vertical: 2.5,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).primaryColor),
-                    borderRadius: BorderRadius.circular(10),
-                    color: Theme.of(context).primaryColor.withAlpha(51),
-                  ),
-                  child: const Text(
-                    'RPS Score',
-                    style: TextStyle(color: Colors.white70, fontSize: 8),
-                  ),
-                ),
-              ],
-            ),
+  if (vehicleProvider.isLoading) {
+    return GlassLiteContainer(
+      hasBorder: false,
+      backgroundColor: AppColors.background,
+      padding: const EdgeInsets.all(20),
+      child: const SizedBox(
+        height: 120,
+        child: Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  if (latestDrive == null) {
+    return GlassLiteContainer(
+      hasBorder: false,
+      backgroundColor: AppColors.background,
+      padding: const EdgeInsets.all(20),
+      child: const SizedBox(
+        height: 120,
+        child: Center(
+          child: Text(
+            "No drives recorded yet. Start a drive to see your stats!",
+            style: TextStyle(color: Colors.white70, fontSize: 14),
+            textAlign: TextAlign.center,
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  final liquidEllar = latestDrive.liquidEllar;
+  final frozenEllar = latestDrive.frozenEllar;
+  final roadDefects = latestDrive.roadDefects;
+  final distance = latestDrive.distance;
+  final duration = latestDrive.duration;
+  
+  final formattedDate = DateFormat('MMM dd, yyyy • hh:mm a').format(latestDrive.startTime.toLocal());
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  final formattedDuration = hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
+
+  return GlassLiteContainer(
+    hasBorder: false,
+    backgroundColor: AppColors.background,
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Last Drive Details",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).primaryColor.withOpacity(0.3),
+                ),
+              ),
+              child: Text(
+                formattedDuration,
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          formattedDate,
+          style: const TextStyle(
+            color: Colors.white54,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            Expanded(
+              child: _newStatItem(
+                context, 
+                "Liq Ellar", 
+                liquidEllar.toString(), 
+                Icons.water_drop,
+                const Color(0xFF38BDF8),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _newStatItem(
+                context, 
+                "Frozen Ellar", 
+                frozenEllar.toString(), 
+                Icons.ac_unit,
+                const Color(0xFFFFB0B0),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _newStatItem(
+                context, 
+                "Defects", 
+                roadDefects.toString(), 
+                Icons.warning_amber_rounded,
+                const Color(0xFFFBBF24),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _newStatItem(
+                context, 
+                "Distance", 
+                "${distance.toStringAsFixed(1)} km", 
+                Icons.directions_run_rounded,
+                const Color(0xFF34D399),
+              ),
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }
+
+Widget _newStatItem(
+  BuildContext context, 
+  String label, 
+  String value, 
+  IconData icon,
+  Color iconColor,
+) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.04),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: Colors.white.withOpacity(0.08),
+      ),
+    ),
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: iconColor,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+

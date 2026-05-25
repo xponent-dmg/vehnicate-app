@@ -2,13 +2,16 @@ import 'package:vehnway/models/event_model.dart';
 
 // Drive Model matching Supabase 'trips' table
 class Drive {
-  final int tripId;
+  final String tripId;
   final int vehicleId;
   final DateTime startTime;
   final DateTime endTime;
   final double distance;
   // Score is not in the trips table, but kept optional if needed later or calculated
   final double? score;
+  final int liquidEllar;
+  final int frozenEllar;
+  final int roadDefects;
 
   // Data points fetched separately from 'datatransmission'
   final List<SensorDataPoint>? sensorData;
@@ -23,16 +26,22 @@ class Drive {
     this.score,
     this.sensorData,
     this.events,
+    this.liquidEllar = 0,
+    this.frozenEllar = 0,
+    this.roadDefects = 0,
   });
 
   factory Drive.fromJson(Map<String, dynamic> json) {
     return Drive(
-      tripId: json['tripid'] as int,
-      vehicleId: json['vehicleid'] as int,
-      startTime: DateTime.parse(json['starttime']),
-      endTime: DateTime.parse(json['endtime']),
+      tripId: json['session_id'] as String,
+      vehicleId: json['vehicle_id'] as int,
+      startTime: DateTime.parse(json['start_time']),
+      endTime: DateTime.parse(json['end_time']),
       // Handle double or int for distance
       distance: (json['distance'] as num?)?.toDouble() ?? 0.0,
+      liquidEllar: (json['liquid_ellar'] as num?)?.toInt() ?? 0,
+      frozenEllar: (json['frozen_ellar'] as num?)?.toInt() ?? 0,
+      roadDefects: (json['road_defects'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -49,6 +58,9 @@ class Drive {
       endTime: endTime,
       distance: distance,
       score: score,
+      liquidEllar: liquidEllar,
+      frozenEllar: frozenEllar,
+      roadDefects: roadDefects,
       sensorData: sensorData ?? this.sensorData,
       events: events ?? this.events,
     );

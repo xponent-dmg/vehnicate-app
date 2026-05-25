@@ -11,7 +11,6 @@ import 'package:vehnway/Pages/navigation/map_webview_page.dart';
 import 'package:vehnway/Pages/vehicle/garage.dart';
 import 'package:vehnway/Pages/vehicle/document_upload_page.dart';
 import 'package:vehnway/Pages/auth/login_page.dart';
-import 'package:vehnway/Pages/navigation/map_page.dart';
 import 'package:vehnway/Pages/profile/profile_page.dart';
 import 'package:vehnway/Pages/onboarding/loading_page.dart';
 import 'package:vehnway/Pages/onboarding/splash_page.dart';
@@ -97,8 +96,8 @@ class App extends StatelessWidget {
             return PageTransitions.slideFromBottom(DriveAnalyzePage());
           case "/home":
             return PageTransitions.fade(Home());
-          case "/map":
-            return PageTransitions.scaleFade(MapPage());
+          // case "/map":
+          //   return PageTransitions.scaleFade(MapPage());
           case "/user-details":
             final args = settings.arguments as Map<String, dynamic>;
             return PageTransitions.slideFromRight(

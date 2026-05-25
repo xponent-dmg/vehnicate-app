@@ -20,9 +20,9 @@ class SensorEventChannel(private val context: Context) : EventChannel.StreamHand
         eventSink = events
 
         // Create and start sensor manager
-        sensorManager = VehnicateSensorManager(context) { packet ->
+        sensorManager = VehnicateSensorManager(context) { dataMap ->
             // Send data to Flutter
-            eventSink?.success(packet.toMap())
+            eventSink?.success(dataMap)
         }
 
         // Check if sensors are available

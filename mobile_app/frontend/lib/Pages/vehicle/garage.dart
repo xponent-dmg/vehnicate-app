@@ -8,6 +8,7 @@ import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/Widgets/form_overlay.dart';
 import 'package:vehnway/models/vehicle_model.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/Widgets/vehicle_location_text.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -148,8 +149,6 @@ class GaragePageState extends State<GaragePage> {
 
   Widget _buildVehicleCard(Vehicle vehicle) {
     // Placeholder data
-
-    final String location = "Hill view, Mumbai"; // Placeholder
     final String image = 'assets/images/vehicle_def.png';
 
     return GlassLiteContainer(
@@ -219,13 +218,12 @@ class GaragePageState extends State<GaragePage> {
                             ),
                             const SizedBox(width: 4),
                             Expanded(
-                              child: Text(
-                                location,
+                              child: VehicleLocationText(
+                                vehicleId: vehicle.id,
                                 style: TextStyle(
                                   color: Colors.grey[400],
                                   fontSize: 12,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

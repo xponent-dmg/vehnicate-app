@@ -39,12 +39,12 @@ class CameraServiceRGB {
   // Supabase config
   final SupabaseClient _supabase = Supabase.instance.client;
   final String _bucketName = AppConfig.bucketVehicleImages;
-  final String _imageTable = AppConfig.tableImageData;
+  final String _imageTable = AppConfig.tableFrames;
 
   // Current session config
   String? _vehicleId;
   String? _deviceId;
-  String? _imuBatchId;
+  String? _sessionId;
 
   // Stats
   int _processedCount = 0;
@@ -98,7 +98,7 @@ class CameraServiceRGB {
           _FrameRecord(
             filePath: file.path,
             timestampMs: timestamp,
-            imuBatchId: 'restored_batch',
+            sessionId: 'restored_batch',
             deviceId: deviceId,
             vehicleId: 'unknown_vehicle',
           ),
@@ -130,7 +130,7 @@ class CameraServiceRGB {
   Future<void> startStreaming({
     required String vehicleId,
     required String deviceId,
-    required String imuBatchId,
+    required String sessionId,
   }) async {
     if (!_isReady || _controller == null) {
       AppLogger.warning('Attempted to start streaming but camera is not ready');
@@ -140,7 +140,7 @@ class CameraServiceRGB {
 
     _vehicleId = vehicleId;
     _deviceId = deviceId;
-    _imuBatchId = imuBatchId;
+    _sessionId = sessionId;
 
     _processedCount = 0;
     _uploadedCount = 0;
@@ -248,7 +248,7 @@ class CameraServiceRGB {
         _FrameRecord(
           filePath: newPath,
           timestampMs: timestamp,
-          imuBatchId: _imuBatchId ?? 'unknown_batch',
+          sessionId: _sessionId ?? 'unknown_batch',
           deviceId: _deviceId ?? 'unknown_device',
           vehicleId: _vehicleId ?? 'unknown_vehicle',
         ),
@@ -313,13 +313,9 @@ class CameraServiceRGB {
             .getPublicUrl(storagePath);
 
         rows.add({
-          'timestamp':
-              DateTime.fromMillisecondsSinceEpoch(
-                rec.timestampMs,
-              ).toLocal().toIso8601String(),
-          'file_url': publicUrl,
-          'vehicle_id': finalVehicleId,
-          'imu_batch_id': rec.imuBatchId,
+          'session_id': rec.sessionId,
+          'timestamp_ms': rec.timestampMs,
+          'image_path': publicUrl,
         });
         recordsForInsert.add(rec);
       }
@@ -432,13 +428,13 @@ class CameraServiceRGB {
 class _FrameRecord {
   final String filePath;
   final int timestampMs;
-  final String imuBatchId;
+  final String sessionId;
   final String deviceId;
   final String vehicleId;
   _FrameRecord({
     required this.filePath,
     required this.timestampMs,
-    required this.imuBatchId,
+    required this.sessionId,
     required this.deviceId,
     required this.vehicleId,
   });

@@ -2,10 +2,11 @@ class AppConfig {
   // Supabase Table Names
   static const String tableUserDetails = 'userdetails';
   static const String tableVehicleDetails = 'vehicledetails';
-  static const String tableTrips = 'trips';
+  static const String tableSessions = 'sessions';
   static const String tableDrivingEvents = 'driving_events';
-  static const String tableDataTransmission = 'datatransmission';
-  static const String tableImageData = 'image_data';
+  static const String tableImuData = 'imu_data';
+  static const String tableGpsData = 'gps_data';
+  static const String tableFrames = 'frames';
 
   // Supabase Storage Buckets
   static const String bucketUserAvatars = 'user_avatars';

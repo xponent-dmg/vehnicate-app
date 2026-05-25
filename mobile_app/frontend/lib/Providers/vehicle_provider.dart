@@ -15,6 +15,9 @@ class VehicleProvider extends ChangeNotifier {
   List<Drive> _drives = [];
   List<Drive> get drives => _drives;
 
+  Drive? _latestDrive;
+  Drive? get latestDrive => _latestDrive;
+
   List<Vehicle> get vehicles => _vehicles;
   Vehicle? get selectedVehicle => _selectedVehicle;
 
@@ -43,6 +46,7 @@ class VehicleProvider extends ChangeNotifier {
         _vehicles = [];
         _selectedVehicle = null;
         _drives = [];
+        _latestDrive = null;
         CacheService().clearAuthCache();
         return;
       }
@@ -60,6 +64,7 @@ class VehicleProvider extends ChangeNotifier {
       _vehicles = [];
       _selectedVehicle = null;
       _drives = [];
+      _latestDrive = null;
       return;
     }
     await loadVehicleByUserId(uid);
@@ -147,6 +152,13 @@ class VehicleProvider extends ChangeNotifier {
 
       // 2. Save to Cache
       await CacheService().setTrips(_selectedVehicle!.id, drivesData);
+
+      final latestData = await SupabaseService().fetchLatestDrive(_selectedVehicle!.id);
+      if (latestData != null) {
+        _latestDrive = Drive.fromJson(latestData);
+      } else {
+        _latestDrive = null;
+      }
     } catch (e) {
       _error = e;
     } finally {
@@ -203,6 +215,7 @@ class VehicleProvider extends ChangeNotifier {
           await loadDrives();
         } else {
           _drives = [];
+          _latestDrive = null;
         }
       }
 

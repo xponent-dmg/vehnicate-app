@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnway/Providers/user_provider.dart';
@@ -547,39 +546,54 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildStatsSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          final user = userProvider.currentUser;
+          final liquid = user?.liquidEllar ?? 0;
+          final frozen = user?.frozenEllar ?? 0;
+
+          return Column(
             children: [
-              _buildStatMetric(
-                icon: FontAwesomeIcons.road,
-                iconColor: Colors.blueGrey,
-                value: 0,
-                unit: 'km',
-                label: 'Covered',
-                backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStatMetric(
+                    icon: FontAwesomeIcons.road,
+                    iconColor: Colors.blueGrey,
+                    value: (user?.distance ?? 0).toInt(),
+                    unit: 'km',
+                    label: 'Covered',
+                    backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+                  ),
+                  _buildStatMetric(
+                    icon: FontAwesomeIcons.droplet,
+                    iconColor: Colors.cyan,
+                    value: liquid,
+                    unit: '',
+                    label: 'Liquid Ellar',
+                    backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+                  ),
+                  _buildStatMetric(
+                    icon: FontAwesomeIcons.snowflake,
+                    iconColor: Colors.lightBlueAccent,
+                    value: frozen,
+                    unit: '',
+                    label: 'Frozen Ellar',
+                    backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+                  ),
+                ],
               ),
-              _buildStatMetric(
-                icon: FontAwesomeIcons.fire,
-                iconColor: Colors.deepOrangeAccent,
-                value: 0,
-                unit: 'days',
-                label: 'Streak',
-                backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+              const SizedBox(height: 30),
+              Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  color: ProfileConstants.dividerColor,
+                  borderRadius: BorderRadius.circular(67),
+                ),
               ),
-              _buildProgressIndicator(context),
             ],
-          ),
-          const SizedBox(height: 30),
-          Container(
-            height: 2,
-            decoration: BoxDecoration(
-              color: ProfileConstants.dividerColor,
-              borderRadius: BorderRadius.circular(67),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -616,7 +630,7 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           width: 64,
           child: Text(
-            '${value.toString()} $unit',
+            unit.isEmpty ? value.toString() : '${value.toString()} $unit',
             textAlign: TextAlign.center,
             style: ProfileConstants.metricLabelStyle,
           ),
@@ -627,39 +641,6 @@ class _ProfilePageState extends State<ProfilePage> {
             label,
             textAlign: TextAlign.center,
             style: ProfileConstants.metricLabelStyle,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProgressIndicator(BuildContext context) {
-    final rpsScore = context.watch<UserProvider>().currentUser?.rpsScore;
-    return Column(
-      children: [
-        Hero(
-          tag: 'rps-score-indicator',
-          child: CircularPercentIndicator(
-            radius: 30,
-            lineWidth: 8,
-            percent: (rpsScore ?? 0) / 100,
-            backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
-            progressColor: Theme.of(context).primaryColor,
-            circularStrokeCap: CircularStrokeCap.round, // rounded ends
-            animation: true,
-            center: Text(
-              "${rpsScore ?? '--'}",
-              style: ProfileConstants.metricValueStyle,
-            ),
-          ),
-        ),
-        SizedBox(height: 5),
-        SizedBox(
-          width: 70,
-          child: Text(
-            "Overall Performance",
-            style: ProfileConstants.metricLabelStyle,
-            textAlign: TextAlign.center,
           ),
         ),
       ],

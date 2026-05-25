@@ -5,6 +5,7 @@ class Vehicle {
   final String insurance;
   final String registration;
   final String? puc;
+  final double? distance;
 
   const Vehicle({
     required this.id,
@@ -13,6 +14,7 @@ class Vehicle {
     required this.insurance,
     required this.registration,
     this.puc,
+    this.distance,
   });
 
   factory Vehicle.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class Vehicle {
       insurance: json['insurance'] as String? ?? '',
       registration: json['registration'] as String? ?? '',
       puc: json['puc']?.toString(), // Handle potential non-string types safely
+      distance: (json['distance'] as num?)?.toDouble(),
     );
   }
 
@@ -36,6 +39,7 @@ class Vehicle {
       'insurance': insurance,
       'registration': registration,
       'puc': puc,
+      'distance': distance,
     };
   }
 

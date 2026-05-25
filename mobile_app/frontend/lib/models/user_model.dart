@@ -7,6 +7,9 @@ class AppUser {
   final String? address;
   final String? profilePictureUrl;
   final int? rpsScore;
+  final int? liquidEllar;
+  final int? frozenEllar;
+  final double? distance;
 
   const AppUser({
     required this.firebaseUid,
@@ -17,6 +20,9 @@ class AppUser {
     this.address,
     this.profilePictureUrl,
     this.rpsScore,
+    this.liquidEllar,
+    this.frozenEllar,
+    this.distance,
   });
 
   factory AppUser.fromMap(Map<String, dynamic> map) {
@@ -30,6 +36,9 @@ class AppUser {
       profilePictureUrl:
           (map['profile_picture_url'] ?? map['profilepictureurl']) as String?,
       rpsScore: (map['rpsscore'] as num?)?.toInt(),
+      liquidEllar: (map['liquid_ellar'] as num?)?.toInt(),
+      frozenEllar: (map['frozen_ellar'] as num?)?.toInt(),
+      distance: (map['distance'] as num?)?.toDouble(),
     );
   }
 
@@ -43,6 +52,9 @@ class AppUser {
       'address': address,
       'profile_picture_url': profilePictureUrl,
       'rpsscore': rpsScore,
+      'liquid_ellar': liquidEllar,
+      'frozen_ellar': frozenEllar,
+      'distance': distance,
     }..removeWhere((key, value) => value == null);
   }
 
@@ -56,6 +68,9 @@ class AppUser {
     String? address,
     String? profilePictureUrl,
     int? rpsScore,
+    int? liquidEllar,
+    int? frozenEllar,
+    double? distance,
   }) {
     return AppUser(
       firebaseUid: firebaseUid ?? this.firebaseUid,
@@ -66,6 +81,9 @@ class AppUser {
       address: address ?? this.address,
       profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
       rpsScore: rpsScore ?? this.rpsScore,
+      liquidEllar: liquidEllar ?? this.liquidEllar,
+      frozenEllar: frozenEllar ?? this.frozenEllar,
+      distance: distance ?? this.distance,
     );
   }
 }

@@ -25,7 +25,7 @@ void main() async {
 
   try {
     await dotenv.load(fileName: ".env");
-    _validateEnv();
+    // _validateEnv();
 
     await Firebase.initializeApp(
       options: FirebaseOptions(

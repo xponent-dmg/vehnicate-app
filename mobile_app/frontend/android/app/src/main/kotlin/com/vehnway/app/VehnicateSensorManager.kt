@@ -14,12 +14,12 @@ import com.google.android.gms.location.*
 
 /**
  * Manages sensor acquisition and coordinate conversion.
- * Collects data from accelerometer, linear accelerometer, gyroscope, magnetometer, and GPS,
- * then applies coordinate conversion formulas.
+ * Collects data from accelerometer, linear accelerometer, gyroscope, and GPS,
+ * emitting them as separate maps.
  */
 class VehnicateSensorManager(
     private val context: Context,
-    private val onDataCallback: (SensorPacket) -> Unit
+    private val onDataCallback: (Map<String, Any>) -> Unit
 ) : SensorEventListener {
 
     private val sensorManager: AndroidSensorManager =
@@ -29,20 +29,18 @@ class VehnicateSensorManager(
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     
-    private var latestLocation: LocationData = LocationData()
-    
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
-                latestLocation = LocationData(
-                    latitude = location.latitude,
-                    longitude = location.longitude,
-                    altitude = location.altitude,
-                    speed = location.speed,
-                    bearing = location.bearing,
-                    accuracy = location.accuracy,
-                    hasLocation = true
+                val locationMap = mapOf(
+                    "type" to "gps",
+                    "timestamp" to System.currentTimeMillis(),
+                    "latitude" to location.latitude,
+                    "longitude" to location.longitude,
+                    "speed" to location.speed,
+                    "bearing" to location.bearing
                 )
+                onDataCallback(locationMap)
             }
         }
     }
@@ -51,7 +49,6 @@ class VehnicateSensorManager(
     private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     private val linearAcceleration: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
     private val gyroscope: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-    private val magnetometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
     // Latest sensor values
     private var ax = 0f
@@ -65,10 +62,6 @@ class VehnicateSensorManager(
     private var Gx = 0f
     private var Gy = 0f
     private var Gz = 0f
-    
-    private var Mx = 0f
-    private var My = 0f
-    private var Mz = 0f
 
     private var isRunning = false
     private var lastUpdateTime = 0L
@@ -90,10 +83,6 @@ class VehnicateSensorManager(
         }
         
         gyroscope?.let {
-            sensorManager.registerListener(this, it, 20000)
-        }
-        
-        magnetometer?.let {
             sensorManager.registerListener(this, it, 20000)
         }
         
@@ -161,11 +150,6 @@ class VehnicateSensorManager(
                 Gy = Math.toDegrees(event.values[1].toDouble()).toFloat()
                 Gz = Math.toDegrees(event.values[2].toDouble()).toFloat()
             }
-            Sensor.TYPE_MAGNETIC_FIELD -> {
-                Mx = event.values[0]
-                My = event.values[1]
-                Mz = event.values[2]
-            }
         }
 
         // Process and send data at controlled rate
@@ -177,8 +161,7 @@ class VehnicateSensorManager(
     }
 
     /**
-     * Processes sensor data and sends it via callback.
-     * Uses STATIC CALIBRATION with rotation matrix for accurate coordinate conversion.
+     * Processes IMU data and sends it via callback.
      * Includes throttling to avoid overwhelming the event channel.
      */
     private fun processAndSendData() {
@@ -192,44 +175,20 @@ class VehnicateSensorManager(
         lastUpdateTime = currentTime
 
         try {
-            // Create raw sensor data
-            val rawData = RawSensorData(
-                timestamp = currentTime,
-                ax = ax,
-                ay = ay,
-                az = az,
-                Ax = Ax,
-                Ay = Ay,
-                Az = Az,
-                Gx = Gx,
-                Gy = Gy,
-                Gz = Gz,
-                Mx = Mx,
-                My = My,
-                Mz = Mz
+            val imuMap = mapOf(
+                "type" to "imu",
+                "timestamp" to currentTime,
+                "ax" to ax,
+                "ay" to ay,
+                "az" to az,
+                "gx" to Gx,
+                "gy" to Gy,
+                "gz" to Gz,
+                "Ax" to Ax,
+                "Ay" to Ay,
+                "Az" to Az
             )
-
-            // Skip static calibration/rotation as requested
-            // Just pass raw values (Ax, Ay, Az are linear accel, Gx, Gy, Gz are gyro in deg/s)
-            val AX = Ax
-            val AY = Ay
-            val AZ = Az
-            val GX = Gx
-            val GY = Gy
-            val GZ = Gz
-            
-            // Use 0 for angles since we aren't calculating them
-
-            // Create converted data with speed and bearing from latestLocation
-            val convertedData = ConvertedData(
-                AX, AY, AZ, GX, GY, GZ,
-                latestLocation.speed,
-                latestLocation.bearing
-            )
-
-            // Create and send packet with location
-            val packet = SensorPacket(rawData, convertedData, latestLocation)
-            onDataCallback(packet)
+            onDataCallback(imuMap)
         } catch (e: Exception) {
             // Log error but don't crash
             e.printStackTrace()

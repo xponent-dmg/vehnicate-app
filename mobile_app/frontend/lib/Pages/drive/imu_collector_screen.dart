@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -14,8 +15,10 @@ import 'package:vehnway/services/sensor_service.dart';
 import 'package:vehnway/Widgets/form_overlay.dart';
 import 'package:location/location.dart' as loc;
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/core/constants/app_config.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:uuid/uuid.dart';
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key});
@@ -44,8 +47,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   // Config
   String _deviceId = 'pending...';
-  final String _currentImuBatchId =
-      'imu-batch-${DateTime.now().millisecondsSinceEpoch}';
+  String _sessionId = '';
 
   // Start position coordinates
   double? _startX;
@@ -222,15 +224,32 @@ class _ImuCollectorState extends State<ImuCollector> {
       return;
     }
 
-
     try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not logged in');
+      }
 
       // Capture start time
       _driveStartTime = DateTime.now().toLocal();
 
+      // Generate session UUID
+      _sessionId = const Uuid().v4();
+
+      // Create session in database first (so frames can reference it)
+      await supabase.from(AppConfig.tableSessions).insert({
+        'session_id': _sessionId,
+        'user_id': currentUser.uid,
+        'vehicle_id': vehicleId,
+        'start_time': _driveStartTime!.toIso8601String(),
+        'status': 'active',
+        'distance': 0.0,
+      });
+
       // Start Sensor collection
       await _sensorService.start(
         context: context,
+        sessionId: _sessionId,
         onDataCountUpdate: (processed, uploaded) {
           if (mounted) {
             setState(() {
@@ -245,7 +264,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       await _cameraService.startStreaming(
         vehicleId: vehicleId.toString(), // Ensure string
         deviceId: _deviceId,
-        imuBatchId: _currentImuBatchId,
+        sessionId: _sessionId,
       );
 
       setState(() => isCollecting = true);
@@ -269,7 +288,6 @@ class _ImuCollectorState extends State<ImuCollector> {
     });
 
     try {
-
       // Capture end time
       _driveEndTime = DateTime.now().toLocal();
 
@@ -307,28 +325,18 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   Future<void> _saveDriveSession() async {
     try {
-      final vehicleId = context.read<VehicleProvider>().vehicleId;
-      if (vehicleId == null ||
-          _driveStartTime == null ||
-          _driveEndTime == null) {
+      if (_driveStartTime == null || _driveEndTime == null) {
         return;
       }
 
-      final _ = _driveEndTime!.difference(_driveStartTime!);
-
-
-      // Save to your existing trips table
-      await supabase.from('trips').insert({
-        'vehicleid': vehicleId,
-        'starttime': _driveStartTime!.toIso8601String(),
-        'endtime': _driveEndTime!.toIso8601String(),
-        'distance':
-            0.0, // You can calculate actual distance if you have GPS data
-        'startx': _startX,
-        'starty': _startY,
-        'startz': _startZ,
-      });
-
+      // Update existing session
+      await supabase
+          .from(AppConfig.tableSessions)
+          .update({
+            'end_time': _driveEndTime!.toIso8601String(),
+            'status': 'completed',
+          })
+          .eq('session_id', _sessionId);
     } catch (e, st) {
       AppLogger.error('Failed to save drive session times', e, st);
       if (mounted) {
@@ -595,9 +603,7 @@ class _ImuCollectorState extends State<ImuCollector> {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isCollecting
-                        ? AppColors.danger
-                        : AppColors.success,
+                    isCollecting ? AppColors.danger : AppColors.success,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(

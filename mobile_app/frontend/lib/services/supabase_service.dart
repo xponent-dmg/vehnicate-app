@@ -28,8 +28,8 @@ class SupabaseService {
     } catch (_) {
       try {
         await Supabase.initialize(
-          url: dotenv.get('SUPABASE_URL'),
-          anonKey: dotenv.get('SUPABASE_ANON_KEY'),
+          url: dotenv.get('SUPABASE_PROD_URL'),
+          anonKey: dotenv.get('SUPABASE_PROD_ANON_KEY'),
           accessToken: _getFirebaseAccessToken,
         );
         _client = Supabase.instance.client;
@@ -295,32 +295,98 @@ class SupabaseService {
       final client = await _getAuthenticatedClient();
 
       final response = await client
-          .from(AppConfig.tableTrips)
+          .from(AppConfig.tableSessions)
           .select()
-          .eq('vehicleid', vehicleId)
-          .order('starttime', ascending: false);
+          .eq('vehicle_id', vehicleId)
+          .order('start_time', ascending: false);
 
       final List<Map<String, dynamic>> allDrives =
           List<Map<String, dynamic>>.from(response);
 
       // RLS policy ensures users can only see trips for their own vehicles
       // Filter drives that are greater than 1 minute
+      /*
       final filteredDrives =
           allDrives.where((drive) {
-            if (drive['starttime'] == null || drive['endtime'] == null) {
+            if (drive['start_time'] == null || drive['end_time'] == null) {
               return false;
             }
-            final start = DateTime.tryParse(drive['starttime']);
-            final end = DateTime.tryParse(drive['endtime']);
+            final start = DateTime.tryParse(drive['start_time']);
+            final end = DateTime.tryParse(drive['end_time']);
             if (start == null || end == null) return false;
 
             return end.difference(start).inMinutes > 1;
           }).toList();
+      */
 
-      return filteredDrives;
+      return allDrives;
     } catch (e, stack) {
       AppLogger.error('Error fetching drives for vehicle $vehicleId', e, stack);
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchLatestDrive(int vehicleId) async {
+    try {
+      final client = await _getAuthenticatedClient();
+
+      final response = await client
+          .from(AppConfig.tableSessions)
+          .select()
+          .eq('vehicle_id', vehicleId)
+          .order('start_time', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      return response;
+    } catch (e, stack) {
+      AppLogger.error('Error fetching latest drive for vehicle $vehicleId', e, stack);
+      return null;
+    }
+  }
+
+  /// Fetches the last known GPS location coordinates for a specific vehicle by checking
+  /// its latest session and querying the most recent gps_data log.
+  Future<Map<String, double>?> getLastKnownLocation(int vehicleId) async {
+    try {
+      final client = await _getAuthenticatedClient();
+      
+      // 1. Fetch the latest session for the given vehicleId
+      final latestSession = await client
+          .from(AppConfig.tableSessions)
+          .select('session_id')
+          .eq('vehicle_id', vehicleId)
+          .order('start_time', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      if (latestSession == null) return null;
+      final String? sessionId = latestSession['session_id'] as String?;
+      if (sessionId == null) return null;
+
+      // 2. Fetch the latest GPS coordinate recorded in this session from the gps_data table
+      final latestGps = await client
+          .from(AppConfig.tableGpsData)
+          .select('latitude, longitude')
+          .eq('session_id', sessionId)
+          .order('timestamp_ms', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      if (latestGps == null) return null;
+
+      final double? lat = (latestGps['latitude'] as num?)?.toDouble();
+      final double? lng = (latestGps['longitude'] as num?)?.toDouble();
+
+      if (lat == null || lng == null) return null;
+
+      return {
+        'latitude': lat,
+        'longitude': lng,
+      };
+    } catch (e, stack) {
+      AppLogger.warning('Error fetching last known location for vehicle $vehicleId', e, stack);
+      return null;
     }
   }
 
@@ -361,8 +427,6 @@ class SupabaseService {
         'email': email,
         'name': name,
         'username': username,
-        'created_at': DateTime.now().toLocal().toIso8601String(),
-        'role': 'User',
       };
 
       final response =
@@ -375,6 +439,24 @@ class SupabaseService {
       AppLogger.info('New user record created in Supabase for $uid');
       return response;
     } catch (e, stack) {
+      // Handle race condition where another parallel call already created the record
+      if (e is PostgrestException && e.code == '23505') {
+        AppLogger.info('Conflict (23505) in getOrCreateUser for $uid. Retrying select...');
+        try {
+          final client = await _getAuthenticatedClient();
+          final existingUser = await client
+              .from(AppConfig.tableUserDetails)
+              .select()
+              .eq('firebaseuid', uid)
+              .maybeSingle();
+          if (existingUser != null) {
+            return existingUser;
+          }
+        } catch (retryError, retryStack) {
+          AppLogger.error('Failed to refetch user after conflict', retryError, retryStack);
+        }
+      }
+
       AppLogger.error('Error in getOrCreateUser for $uid', e, stack);
       FirebaseCrashlytics.instance.recordError(
         e,

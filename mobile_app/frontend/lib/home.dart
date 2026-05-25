@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:vehnway/Pages/dashboard/dashboard.dart';
 import 'package:vehnway/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnway/Pages/vehicle/garage.dart';
-import 'package:vehnway/Pages/navigation/map_page.dart';
 import 'package:vehnway/Widgets/gnav_bar.dart';
 import 'package:vehnway/Widgets/header.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
@@ -16,7 +15,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int selectedIndex = 0;
-  final GlobalKey<MapPageState> _mapPageKey = GlobalKey<MapPageState>();
   final GlobalKey<DriveAnalyzePageState> _driveAnalyzeKey =
       GlobalKey<DriveAnalyzePageState>();
   final GlobalKey<GaragePageState> _garageKey = GlobalKey<GaragePageState>();
@@ -29,11 +27,6 @@ class _HomeState extends State<Home> {
       duration: const Duration(milliseconds: 250),
       curve: Curves.ease,
     );
-    if (index == 1) {
-      _mapPageKey.currentState?.startLiveTracking();
-    } else {
-      _mapPageKey.currentState?.stopLiveTracking();
-    }
   }
 
   @override
@@ -84,11 +77,6 @@ class _HomeState extends State<Home> {
                   controller: _pageController,
                   onPageChanged: (index) {
                     setState(() => selectedIndex = index);
-                    if (index == 1) {
-                      _mapPageKey.currentState?.startLiveTracking();
-                    } else {
-                      _mapPageKey.currentState?.stopLiveTracking();
-                    }
                   },
                   children: [
                     DashboardPage(),

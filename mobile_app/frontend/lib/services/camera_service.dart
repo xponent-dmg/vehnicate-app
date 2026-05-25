@@ -38,7 +38,7 @@ class CameraService {
   // Current session config
   String? _vehicleId;
   String? _deviceId;
-  String? _imuBatchId;
+  String? _sessionId;
 
   // Stats
   int _processedCount = 0;
@@ -78,7 +78,7 @@ class CameraService {
         _FrameRecord(
           filePath: file.path,
           timestampMs: timestamp,
-          imuBatchId: 'restored_batch',
+          sessionId: 'restored_batch',
           deviceId: deviceId,
           vehicleId: 'unknown_vehicle',
         ),
@@ -103,7 +103,7 @@ class CameraService {
     _isReady = true;
   }
 
-  Future<void> startStreaming({required String vehicleId, required String deviceId, required String imuBatchId}) async {
+  Future<void> startStreaming({required String vehicleId, required String deviceId, required String sessionId}) async {
     if (!_isReady || _controller == null) {
       return;
     }
@@ -111,7 +111,7 @@ class CameraService {
 
     _vehicleId = vehicleId;
     _deviceId = deviceId;
-    _imuBatchId = imuBatchId;
+    _sessionId = sessionId;
 
     _processedCount = 0;
     _uploadedCount = 0;
@@ -189,7 +189,7 @@ class CameraService {
         _FrameRecord(
           filePath: newPath,
           timestampMs: now,
-          imuBatchId: _imuBatchId ?? 'unknown_batch',
+          sessionId: _sessionId ?? 'unknown_batch',
           deviceId: _deviceId ?? 'unknown_device',
           vehicleId: _vehicleId ?? 'unknown_vehicle',
         ),
@@ -247,11 +247,9 @@ class CameraService {
         final String publicUrl = _supabase.storage.from(_bucketName).getPublicUrl(storagePath);
 
         rows.add({
-          'timestamp': DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal().toIso8601String(),
-          'file_url': publicUrl,
-          'vehicle_id': finalVehicleId,
-          // 'device_id': rec.deviceId, // Removed from schema
-          'imu_batch_id': rec.imuBatchId,
+          'session_id': rec.sessionId,
+          'timestamp_ms': rec.timestampMs,
+          'image_path': publicUrl,
         });
         recordsForInsert.add(rec);
       }
@@ -343,13 +341,13 @@ class CameraService {
 class _FrameRecord {
   final String filePath;
   final int timestampMs;
-  final String imuBatchId;
+  final String sessionId;
   final String deviceId;
   final String vehicleId;
   _FrameRecord({
     required this.filePath,
     required this.timestampMs,
-    required this.imuBatchId,
+    required this.sessionId,
     required this.deviceId,
     required this.vehicleId,
   });

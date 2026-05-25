@@ -5,6 +5,7 @@ import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Widgets/custom_dialogs.dart';
 import 'package:vehnway/models/vehicle_model.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/Widgets/vehicle_location_text.dart';
 
 class VehicleDetailsPage extends StatelessWidget {
   final Vehicle vehicle;
@@ -74,18 +75,18 @@ class VehicleDetailsPage extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.speed,
                     label: "Distance Covered",
-                    value: "24,500 km",
+                    value: "${vehicle.distance?.toStringAsFixed(1) ?? '0'} km",
                   ),
                 ),
                 const SizedBox(width: 15),
-                Expanded(
-                  child: _buildStatCard(
-                    icon: Icons.electric_bolt,
-                    label: "RPS Score",
-                    value: "85",
-                    isHighlighted: true,
-                  ),
-                ),
+                // Expanded(
+                //   child: _buildStatCard(
+                //     icon: Icons.electric_bolt,
+                //     label: "RPS Score",
+                //     value: "85",
+                //     isHighlighted: true,
+                //   ),
+                // ),
               ],
             ),
 
@@ -167,9 +168,10 @@ class VehicleDetailsPage extends StatelessWidget {
                           size: 30,
                         ),
                         SizedBox(height: 10),
-                        Text(
-                          "Parked near Hill View, Mumbai",
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                        VehicleLocationText(
+                          vehicleId: vehicle.id,
+                          prefix: 'Parked near ',
+                          style: const TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                         Text(
                           "2 hours ago",
