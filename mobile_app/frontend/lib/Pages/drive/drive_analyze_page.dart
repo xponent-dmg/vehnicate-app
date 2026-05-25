@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:vehnway/Widgets/star_refresh_indicator.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/Widgets/drive_filter_sheet.dart';
+import 'package:vehnway/Widgets/glass_lite_container.dart';
 
 // Constants and Theme (consistent with ProfilePage)
 class DriveAnalyzeConstants {
@@ -177,20 +178,17 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                     },
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 10,
+                      ),
                       itemCount:
                           vehicleProvider.isLoading && rawDrives.isEmpty
                               ? 4
                               : drives.length,
                       itemBuilder: (context, index) {
                         if (vehicleProvider.isLoading && rawDrives.isEmpty) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal:
-                                  DriveAnalyzeConstants.horizontalPadding,
-                              vertical: 8,
-                            ),
-                            child: _buildShimmerCard(context),
-                          );
+                          return _buildShimmerCard(context);
                         }
 
                         if (index >= drives.length) {
@@ -198,13 +196,7 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                         }
 
                         final drive = drives[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: DriveAnalyzeConstants.horizontalPadding,
-                            vertical: 8,
-                          ),
-                          child: _buildDriveCard(context, drive, carName),
-                        );
+                        return _buildDriveCard(context, drive, carName);
                       },
                     ),
                   );
@@ -218,43 +210,35 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
   }
 
   Widget _buildShimmerCard(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            (DriveAnalyzeConstants.cardBackground),
-            (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
-          ],
-        ),
-      ),
+    return GlassLiteContainer(
+      margin: const EdgeInsets.only(bottom: 20),
+      height: 130,
+      backgroundColor: AppColors.darkGreyBackground,
+      borderRadius: BorderRadius.circular(24),
       child: Shimmer.fromColors(
         baseColor: ShimmerConstants.shimmerBase,
         highlightColor: ShimmerConstants.shimmerHighlight,
         direction: ShimmerDirection.ttb,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          height: 128,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
             children: [
-              // Leading icon box
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: ShimmerConstants.shimmerBase,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: Container(width: 10, color: AppColors.primary),
               ),
-              const SizedBox(width: 16),
-              // Title + subtitle column
-              Expanded(
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 48.0,
+                  top: 20.0,
+                  right: 60.0,
+                  bottom: 12.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
                       width: 100,
@@ -264,21 +248,21 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Container(
                       width: 140,
-                      height: 16,
+                      height: 14,
                       decoration: BoxDecoration(
                         color: ShimmerConstants.shimmerBase,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Container(
                           width: 60,
-                          height: 20,
+                          height: 18,
                           decoration: BoxDecoration(
                             color: ShimmerConstants.shimmerBase,
                             borderRadius: BorderRadius.circular(4),
@@ -287,7 +271,7 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                         const SizedBox(width: 16),
                         Container(
                           width: 60,
-                          height: 20,
+                          height: 18,
                           decoration: BoxDecoration(
                             color: ShimmerConstants.shimmerBase,
                             borderRadius: BorderRadius.circular(4),
@@ -298,10 +282,17 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.arrow_right_rounded,
-                color: Colors.white,
-                size: 35,
+              Positioned(
+                right: 25,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: Icon(
+                    Icons.arrow_right_rounded,
+                    color: Colors.grey[500],
+                    size: 30,
+                  ),
+                ),
               ),
             ],
           ),
@@ -313,86 +304,82 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
   Widget _buildDriveCard(BuildContext context, Drive drive, String carName) {
     final duration = drive.endTime.difference(drive.startTime);
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(DriveAnalyzeConstants.cardRadius),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            (DriveAnalyzeConstants.cardBackground),
-            (DriveAnalyzeConstants.cardBackground).withOpacity(0.2),
-          ],
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        onTap: () {
-          Navigator.pushNamed(context, "/drive-details", arguments: drive);
-        },
-        leading: _buildCarIcon(carName, context),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassLiteContainer(
+      margin: const EdgeInsets.only(bottom: 20),
+      height: 130,
+      backgroundColor: AppColors.darkGreyBackground,
+      borderRadius: BorderRadius.circular(24),
+      onTap: () {
+        Navigator.pushNamed(context, "/drive-details", arguments: drive);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
           children: [
-            Text(carName, style: DriveAnalyzeConstants.carNameStyle),
-            const SizedBox(height: 4),
-            Text(
-              _formatDate(drive.startTime),
-              style: DriveAnalyzeConstants.dateStyle,
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(width: 8, color: AppColors.primary),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 48.0,
+                top: 22,
+                right: 60.0,
+                bottom: 12.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    carName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _formatDate(drive.startTime),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      _buildMetric(
+                        icon: FontAwesomeIcons.road,
+                        value: '${drive.distance.toStringAsFixed(1)} km',
+                      ),
+                      const SizedBox(width: 16),
+                      _buildMetric(
+                        icon: FontAwesomeIcons.clock,
+                        value: _formatDuration(duration),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              right: 25,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Icon(
+                  Icons.arrow_right_rounded,
+                  color: Colors.grey[500],
+                  size: 30,
+                ),
+              ),
             ),
           ],
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(
-            children: [
-              _buildMetric(
-                icon: FontAwesomeIcons.road,
-                value: '${drive.distance.toStringAsFixed(1)} km',
-              ),
-              const SizedBox(width: 16),
-              _buildMetric(
-                icon: FontAwesomeIcons.clock,
-                value: _formatDuration(duration),
-              ),
-            ],
-          ),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Icon(
-              Icons.arrow_right_rounded,
-              color: Theme.of(context).primaryColor,
-              size: 35,
-            ),
-          ],
-        ),
       ),
-    );
-  }
-
-  Widget _buildCarIcon(String carName, BuildContext context) {
-    IconData icon;
-    if (carName.toLowerCase().contains('tesla')) {
-      icon = FontAwesomeIcons.bolt;
-    } else if (carName.toLowerCase().contains('bmw')) {
-      icon = FontAwesomeIcons.car;
-    } else if (carName.toLowerCase().contains('audi')) {
-      icon = FontAwesomeIcons.carSide;
-    } else {
-      icon = FontAwesomeIcons.car;
-    }
-
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withAlpha(70),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
     );
   }
 
@@ -400,8 +387,8 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.white70, size: 14),
-        const SizedBox(width: 4),
+        Icon(icon, color: Colors.grey[400], size: 14),
+        const SizedBox(width: 6),
         Text(value, style: DriveAnalyzeConstants.metricStyle),
       ],
     );

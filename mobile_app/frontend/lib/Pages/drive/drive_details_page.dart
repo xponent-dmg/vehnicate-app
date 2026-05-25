@@ -111,65 +111,74 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
         Provider.of<VehicleProvider>(context).vehicleModel ?? 'Vehicle';
 
     return Scaffold(
-      backgroundColor: DriveDetailsConstants.primaryBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context, vehicleName),
-            Expanded(
-              child:
-                  _isLoading
-                      ? Center(
-                        child: CircularProgressIndicator(
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      )
-                      : SingleChildScrollView(
-                        padding: EdgeInsets.only(bottom: 24),
-                        child: Column(
-                          children: [
-                            _buildMapSection(),
-                            SizedBox(height: 40),
-                            // _buildChartsSection(),
-                            // SizedBox(height: 40),
-                            _buildMetricsGrid(),
-                          ],
-                        ),
-                      ),
-            ),
-          ],
+      backgroundColor: const Color(
+        0xFF0F1115,
+      ), // Dark premium background matching VehicleDetails
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 80,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, String vehicleName) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: DriveDetailsConstants.horizontalPadding,
-        vertical: 16,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+        title: Text(
+          vehicleName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          SizedBox(width: 8),
-          Expanded(
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 25.0, top: 10.0, bottom: 4.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(vehicleName, style: DriveDetailsConstants.titleStyle),
                 Text(
-                  _formatDate(widget.drive.startTime),
-                  style: DriveDetailsConstants.subtitleStyle,
+                  DateFormat(
+                    'dd MMM yyyy',
+                  ).format(widget.drive.startTime.toLocal()),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  DateFormat('HH:mm').format(widget.drive.startTime.toLocal()),
+                  style: const TextStyle(
+                    color: AppColors.buttonBlue,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
           ),
         ],
       ),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: AppColors.buttonBlue),
+              )
+              : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10),
+                    _buildMapSection(),
+                    const SizedBox(height: 30),
+                    _buildMetricsGrid(),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
     );
   }
 
@@ -177,10 +186,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     if (_routePoints.isEmpty) {
       return GlassLiteContainer(
         height: 200,
-        margin: EdgeInsets.symmetric(
-          horizontal: DriveDetailsConstants.horizontalPadding,
-        ),
-        borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
+        backgroundColor: AppColors.darkGreyBackground,
+        borderRadius: BorderRadius.circular(20),
         child: Center(
           child: Text(
             "No GPS data available for this trip",
@@ -191,23 +198,23 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     }
 
     return GlassLiteContainer(
-      margin: EdgeInsets.symmetric(
-        horizontal: DriveDetailsConstants.horizontalPadding,
-      ),
-      padding: EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(DriveDetailsConstants.cardRadius),
-      borderColor: Theme.of(context).primaryColor.withOpacity(0.3),
+      padding: const EdgeInsets.all(12),
+      borderRadius: BorderRadius.circular(20),
+      backgroundColor: AppColors.darkGreyBackground,
+      hasBorder: true,
+      borderColor: Colors.white.withOpacity(0.1),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 "Route Preview",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
               IconButton(
@@ -234,7 +241,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
 
                   _animatedMapMove(targetCenter, targetZoom, 0.0);
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.fit_screen_rounded,
                   color: Colors.white54,
                   size: 20,
@@ -242,24 +249,20 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Container(
             height: 300,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(
-                DriveDetailsConstants.cardRadius,
-              ),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white10),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(
-                DriveDetailsConstants.cardRadius,
-              ),
+              borderRadius: BorderRadius.circular(20),
               child: _routePreviewWidget(_routePoints),
             ),
           ),
-          SizedBox(height: 12),
-          Text(
+          const SizedBox(height: 12),
+          const Text(
             "Event Legend",
             style: TextStyle(
               color: Colors.white,
@@ -267,7 +270,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
               fontSize: 14,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildMapLegend(),
         ],
       ),
@@ -458,45 +461,40 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                 ? widget.drive.distance / (duration.inMinutes / 60)
                 : 0.0);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: DriveDetailsConstants.horizontalPadding,
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricItem(
-                  icon: FontAwesomeIcons.clock,
-                  label: 'Duration',
-                  value: _formatDuration(duration),
-                ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildMetricItem(
+                icon: FontAwesomeIcons.clock,
+                label: 'Duration',
+                value: _formatDuration(duration),
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: _buildMetricItem(
-                  icon: FontAwesomeIcons.road,
-                  label: 'Distance',
-                  value: '${widget.drive.distance.toStringAsFixed(1)} km',
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildMetricItem(
+                icon: FontAwesomeIcons.road,
+                label: 'Distance',
+                value: '${widget.drive.distance.toStringAsFixed(1)} km',
               ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricItem(
-                  icon: FontAwesomeIcons.tachometerAlt,
-                  label: 'Avg Speed',
-                  value: '${avgSpeed.toStringAsFixed(1)} km/h',
-                ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildMetricItem(
+                icon: FontAwesomeIcons.tachometerAlt,
+                label: 'Avg Speed',
+                value: '${avgSpeed.toStringAsFixed(1)} km/h',
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -506,21 +504,39 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     required String value,
   }) {
     return GlassLiteContainer(
-      padding: EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: Theme.of(context).primaryColor, size: 16),
-              SizedBox(width: 6),
-              Text(label, style: DriveDetailsConstants.metricLabelStyle),
-            ],
-          ),
-          SizedBox(height: 4),
-          Text(value, style: DriveDetailsConstants.metricValueStyle),
-        ],
+      height: 100,
+      backgroundColor: AppColors.darkGreyBackground,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Colors.grey[400], size: 18),
+                const SizedBox(width: 8),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -578,7 +594,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
             Polyline(
               points: uniquePath,
               strokeWidth: 4.0,
-              color: Theme.of(context).primaryColor,
+              color: AppColors.buttonBlue,
             ),
           ],
         ),
@@ -694,9 +710,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(
+                child: const Text(
                   'Close',
-                  style: TextStyle(color: DriveDetailsConstants.accentPurple),
+                  style: TextStyle(color: AppColors.buttonBlue),
                 ),
               ),
             ],
@@ -779,8 +795,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                       children: [
                         Text(
                           "${index + 1}. ",
-                          style: TextStyle(
-                            color: DriveDetailsConstants.accentPurple,
+                          style: const TextStyle(
+                            color: AppColors.buttonBlue,
                             fontFamily: 'monospace',
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -803,9 +819,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(
+                child: const Text(
                   "Close",
-                  style: TextStyle(color: DriveDetailsConstants.accentPurple),
+                  style: TextStyle(color: AppColors.buttonBlue),
                 ),
               ),
             ],

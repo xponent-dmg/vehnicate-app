@@ -115,7 +115,10 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
     return GlassLiteContainer(
       hasBorder: false,
       backgroundColor: AppColors.background,
-      padding: EdgeInsets.all(widget.compact ? 12 : 20),
+      height: widget.compact ? 160 : null,
+      padding: widget.compact
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+          : const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -142,7 +145,7 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
               children: [
                 const Expanded(
                   child: Text(
-                    'Quick Permissions',
+                    'Permissions',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -150,43 +153,34 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
                     ),
                   ),
                 ),
-                Text(
-                  '$grantedCount/${_permissions.length}',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.72),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(width: 4),
                 IconButton(
                   onPressed: openAppSettings,
                   tooltip: 'Settings',
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(width: 30, height: 30),
-                  icon: const Icon(Icons.settings_rounded, color: Colors.white70, size: 18),
+                  constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+                  icon: const Icon(Icons.settings_rounded, color: Colors.white70, size: 16),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
           ],
           ListView.separated(
             itemCount: _permissions.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: 6),
             itemBuilder: (context, index) {
               final item = _permissions[index];
               return widget.compact
                   ? _CompactPermissionTile(
-                    item: item,
-                    onRequest: () => _requestOne(item),
-                  )
+                      item: item,
+                      onRequest: () => _requestOne(item),
+                    )
                   : _PermissionCard(
-                    item: item,
-                    onRequest: () => _requestOne(item),
-                  );
+                      item: item,
+                      onRequest: () => _requestOne(item),
+                    );
             },
           ),
           if (!widget.compact) ...[
@@ -253,62 +247,60 @@ class _CompactPermissionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isGranted = item.status.isGranted || item.status.isLimited;
+    final Color statusColor;
+    final IconData statusIcon;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.10),
+    if (item.status.isGranted || item.status.isLimited) {
+      statusColor = const Color(0xFF88E39A); // green
+      statusIcon = Icons.check_circle_rounded;
+    } else if (item.status.isPermanentlyDenied || item.status.isRestricted) {
+      statusColor = const Color(0xFFFF6B6B); // red
+      statusIcon = Icons.error_rounded;
+    } else {
+      statusColor = Colors.white.withValues(alpha: 0.3); // grey
+      statusIcon = Icons.radio_button_unchecked_rounded;
+    }
+
+    return InkWell(
+      onTap: onRequest,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+              child: Icon(item.icon, color: Colors.white, size: 16),
             ),
-            child: Icon(item.icon, color: Colors.white, size: 18),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                item.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
                 ),
-                const SizedBox(height: 2),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
-          TextButton(
-            onPressed: onRequest,
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor:
-                  isGranted ? const Color(0xFF2E7D32) : Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            const SizedBox(width: 6),
+            Icon(
+              statusIcon,
+              color: statusColor,
+              size: 18,
             ),
-            child: Text(
-              isGranted ? 'Granted' : 'Allow',
-              style: const TextStyle(fontSize: 11),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
