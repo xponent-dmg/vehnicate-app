@@ -12,6 +12,29 @@ class VehicleDetailsPage extends StatelessWidget {
 
   const VehicleDetailsPage({super.key, required this.vehicle});
 
+  String _formatRelativeTime(DateTime? dateTime) {
+    if (dateTime == null) return "Not seen yet";
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.isNegative) {
+      return "Just now";
+    }
+
+    if (difference.inSeconds < 60) {
+      return "Just now";
+    } else if (difference.inMinutes < 60) {
+      final minutes = difference.inMinutes;
+      return "$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago";
+    } else if (difference.inHours < 24) {
+      final hours = difference.inHours;
+      return "$hours ${hours == 1 ? 'hour' : 'hours'} ago";
+    } else {
+      final days = difference.inDays;
+      return "$days ${days == 1 ? 'day' : 'days'} ago";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Placeholder image if not available (ideally this should come from vehicle model)
@@ -59,7 +82,7 @@ class VehicleDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "2023 | ${vehicle.registration}",
+              "2023 | ${vehicle.formattedRegistration}",
               style: TextStyle(
                 color: AppColors.buttonBlue,
                 fontSize: 14,
@@ -171,14 +194,21 @@ class VehicleDetailsPage extends StatelessWidget {
                         VehicleLocationText(
                           vehicleId: vehicle.id,
                           prefix: 'Parked near ',
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                        Text(
-                          "2 hours ago",
-                          style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 12,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
                           ),
+                        ),
+                        Consumer<VehicleProvider>(
+                          builder: (context, provider, child) {
+                            return Text(
+                              _formatRelativeTime(provider.lastSeenTime),
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 12,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

@@ -330,17 +330,22 @@ class SupabaseService {
     try {
       final client = await _getAuthenticatedClient();
 
-      final response = await client
-          .from(AppConfig.tableSessions)
-          .select()
-          .eq('vehicle_id', vehicleId)
-          .order('start_time', ascending: false)
-          .limit(1)
-          .maybeSingle();
+      final response =
+          await client
+              .from(AppConfig.tableSessions)
+              .select()
+              .eq('vehicle_id', vehicleId)
+              .order('start_time', ascending: false)
+              .limit(1)
+              .maybeSingle();
 
       return response;
     } catch (e, stack) {
-      AppLogger.error('Error fetching latest drive for vehicle $vehicleId', e, stack);
+      AppLogger.error(
+        'Error fetching latest drive for vehicle $vehicleId',
+        e,
+        stack,
+      );
       return null;
     }
   }
@@ -350,28 +355,30 @@ class SupabaseService {
   Future<Map<String, double>?> getLastKnownLocation(int vehicleId) async {
     try {
       final client = await _getAuthenticatedClient();
-      
+
       // 1. Fetch the latest session for the given vehicleId
-      final latestSession = await client
-          .from(AppConfig.tableSessions)
-          .select('session_id')
-          .eq('vehicle_id', vehicleId)
-          .order('start_time', ascending: false)
-          .limit(1)
-          .maybeSingle();
+      final latestSession =
+          await client
+              .from(AppConfig.tableSessions)
+              .select('session_id')
+              .eq('vehicle_id', vehicleId)
+              .order('start_time', ascending: false)
+              .limit(1)
+              .maybeSingle();
 
       if (latestSession == null) return null;
       final String? sessionId = latestSession['session_id'] as String?;
       if (sessionId == null) return null;
 
       // 2. Fetch the latest GPS coordinate recorded in this session from the gps_data table
-      final latestGps = await client
-          .from(AppConfig.tableGpsData)
-          .select('latitude, longitude')
-          .eq('session_id', sessionId)
-          .order('timestamp_ms', ascending: false)
-          .limit(1)
-          .maybeSingle();
+      final latestGps =
+          await client
+              .from(AppConfig.tableGpsData)
+              .select('latitude, longitude')
+              .eq('session_id', sessionId)
+              .order('timestamp_ms', ascending: false)
+              .limit(1)
+              .maybeSingle();
 
       if (latestGps == null) return null;
 
@@ -380,12 +387,13 @@ class SupabaseService {
 
       if (lat == null || lng == null) return null;
 
-      return {
-        'latitude': lat,
-        'longitude': lng,
-      };
+      return {'latitude': lat, 'longitude': lng};
     } catch (e, stack) {
-      AppLogger.warning('Error fetching last known location for vehicle $vehicleId', e, stack);
+      AppLogger.warning(
+        'Error fetching last known location for vehicle $vehicleId',
+        e,
+        stack,
+      );
       return null;
     }
   }
@@ -441,19 +449,26 @@ class SupabaseService {
     } catch (e, stack) {
       // Handle race condition where another parallel call already created the record
       if (e is PostgrestException && e.code == '23505') {
-        AppLogger.info('Conflict (23505) in getOrCreateUser for $uid. Retrying select...');
+        AppLogger.info(
+          'Conflict (23505) in getOrCreateUser for $uid. Retrying select...',
+        );
         try {
           final client = await _getAuthenticatedClient();
-          final existingUser = await client
-              .from(AppConfig.tableUserDetails)
-              .select()
-              .eq('firebaseuid', uid)
-              .maybeSingle();
+          final existingUser =
+              await client
+                  .from(AppConfig.tableUserDetails)
+                  .select()
+                  .eq('firebaseuid', uid)
+                  .maybeSingle();
           if (existingUser != null) {
             return existingUser;
           }
         } catch (retryError, retryStack) {
-          AppLogger.error('Failed to refetch user after conflict', retryError, retryStack);
+          AppLogger.error(
+            'Failed to refetch user after conflict',
+            retryError,
+            retryStack,
+          );
         }
       }
 

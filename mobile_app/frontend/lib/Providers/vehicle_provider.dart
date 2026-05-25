@@ -18,6 +18,9 @@ class VehicleProvider extends ChangeNotifier {
   Drive? _latestDrive;
   Drive? get latestDrive => _latestDrive;
 
+  DateTime? _lastSeenTime;
+  DateTime? get lastSeenTime => _lastSeenTime;
+
   List<Vehicle> get vehicles => _vehicles;
   Vehicle? get selectedVehicle => _selectedVehicle;
 
@@ -47,6 +50,7 @@ class VehicleProvider extends ChangeNotifier {
         _selectedVehicle = null;
         _drives = [];
         _latestDrive = null;
+        _lastSeenTime = null;
         CacheService().clearAuthCache();
         return;
       }
@@ -65,6 +69,7 @@ class VehicleProvider extends ChangeNotifier {
       _selectedVehicle = null;
       _drives = [];
       _latestDrive = null;
+      _lastSeenTime = null;
       return;
     }
     await loadVehicleByUserId(uid);
@@ -140,6 +145,10 @@ class VehicleProvider extends ChangeNotifier {
     final cachedData = CacheService().getTrips(_selectedVehicle!.id);
     if (cachedData.isNotEmpty) {
       _drives = cachedData.map((data) => Drive.fromJson(data)).toList();
+      if (_drives.isNotEmpty) {
+        final latest = _drives.first;
+        _lastSeenTime = latest.endTime.isAfter(latest.startTime) ? latest.endTime : latest.startTime;
+      }
     }
 
     notifyListeners();
@@ -156,8 +165,13 @@ class VehicleProvider extends ChangeNotifier {
       final latestData = await SupabaseService().fetchLatestDrive(_selectedVehicle!.id);
       if (latestData != null) {
         _latestDrive = Drive.fromJson(latestData);
+        final endTimeStr = latestData['end_time'] as String?;
+        final startTimeStr = latestData['start_time'] as String?;
+        final parsedTime = endTimeStr != null ? DateTime.tryParse(endTimeStr) : (startTimeStr != null ? DateTime.tryParse(startTimeStr) : null);
+        _lastSeenTime = parsedTime?.toLocal();
       } else {
         _latestDrive = null;
+        _lastSeenTime = null;
       }
     } catch (e) {
       _error = e;
@@ -216,6 +230,7 @@ class VehicleProvider extends ChangeNotifier {
         } else {
           _drives = [];
           _latestDrive = null;
+          _lastSeenTime = null;
         }
       }
 
