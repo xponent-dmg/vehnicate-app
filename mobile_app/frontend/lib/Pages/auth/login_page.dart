@@ -226,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Logo and Title
                     const Text(
-                      'VehnWay',
+                      'vehnWay',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -460,72 +460,36 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 32),
 
-                    // Social Login Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Google Sign In
-                        GestureDetector(
-                          onTap: _isLoading ? null : _googleSignIn,
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.1),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Icon(
-                              FontAwesomeIcons.google,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-
-                        // Apple Sign In (non functional)
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.1),
-                            border: Border.all(
+                    // Google Sign In
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _googleSignIn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.1),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            side: BorderSide(
                               color: Colors.white.withOpacity(0.2),
                               width: 1,
                             ),
                           ),
-                          child: const Icon(
-                            FontAwesomeIcons.apple,
-                            color: Colors.white,
-                            size: 24,
+                          elevation: 0,
+                        ),
+                        icon: const Icon(
+                          FontAwesomeIcons.google,
+                          size: 20,
+                        ),
+                        label: const Text(
+                          'Continue with Google',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-
-                        // Skip Sign In (temp)
-                        // Container(
-                        //   width: 60,
-                        //   height: 60,
-                        //   decoration: BoxDecoration(
-                        //     shape: BoxShape.circle,
-                        //     color: Colors.white.withOpacity(0.1),
-                        //     border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-                        //   ),
-                        //   child: IconButton(
-                        //     onPressed: () {
-                        //       Navigator.pushNamedAndRemoveUntil(
-                        //         context,
-                        //         "/home",
-                        //         (route)=>false,
-                        //       );
-                        //     },
-                        //     icon: Icon(FontAwesomeIcons.forwardStep, color: Colors.white, size: 24),
-                        //   ),
-                        // ),
-                      ],
+                      ),
                     ),
 
                     const SizedBox(height: 40),

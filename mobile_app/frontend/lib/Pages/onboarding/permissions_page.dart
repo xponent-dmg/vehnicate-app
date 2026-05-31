@@ -209,7 +209,7 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
               child: ElevatedButton(
                 onPressed: _continueToApp,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.vibrantPurple,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -368,7 +368,7 @@ class _PermissionCard extends StatelessWidget {
           ElevatedButton(
             onPressed: onRequest,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isGranted ? const Color(0xFF2E7D32) : AppColors.vibrantPurple,
+              backgroundColor: isGranted ? const Color(0xFF2E7D32) : AppColors.primary,
               foregroundColor: Colors.white,
             ),
             child: Text(isGranted ? 'Granted' : 'Allow'),

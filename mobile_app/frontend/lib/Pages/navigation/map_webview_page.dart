@@ -57,9 +57,9 @@ class _MapWebviewScreenState extends State<MapWebviewScreen> {
               top: 10,
               left: 10,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withOpacity(0.8),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
                 ),
                 onPressed: () async {
                   if (await _controller.canGoBack()) {

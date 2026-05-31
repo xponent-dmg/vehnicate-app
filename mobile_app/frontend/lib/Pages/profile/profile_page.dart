@@ -563,7 +563,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     value: (user?.distance ?? 0).toInt(),
                     unit: 'km',
                     label: 'Covered',
-                    backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha(70),
                   ),
                   _buildStatMetric(
                     icon: FontAwesomeIcons.droplet,
@@ -571,7 +573,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     value: liquid,
                     unit: '',
                     label: 'Liquid Ellar',
-                    backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha(70),
                   ),
                   _buildStatMetric(
                     icon: FontAwesomeIcons.snowflake,
@@ -579,7 +583,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     value: frozen,
                     unit: '',
                     label: 'Frozen Ellar',
-                    backgroundColor: Theme.of(context).primaryColor.withAlpha(70),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha(70),
                   ),
                 ],
               ),
@@ -678,15 +684,15 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 8),
               _buildInfoRow(
                 'Email',
-                user?.email ?? 'mail not given',
+                user?.email ?? 'not provided',
                 isFirst: true,
               ),
               SizedBox(height: 3),
-              _buildInfoRow('Phone', user?.phone ?? 'phone not given'),
+              _buildInfoRow('Phone', user?.phone ?? 'not provided'),
               SizedBox(height: 3),
               _buildInfoRow(
                 'Address',
-                user?.address ?? 'Address not updated',
+                user?.address ?? 'not provided',
                 isLast: true,
               ),
             ],
@@ -704,7 +710,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           const Text('Settings', style: ProfileConstants.sectionTitleStyle),
           const SizedBox(height: 8),
-          _buildSettingRow('Notification', true, isFirst: true),
+          _buildSettingRow('Notification', false, isFirst: true),
           SizedBox(height: 3),
           _buildSettingRow('Dark Mode', true),
           SizedBox(height: 3),
@@ -761,22 +767,29 @@ class _ProfilePageState extends State<ProfilePage> {
     bool isEnabled, {
     bool isFirst = false,
   }) {
-    return Container(
-      height: ProfileConstants.cardHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: ProfileConstants.cardBackground,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
-          topRight: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
+    return GestureDetector(
+      onTap: () {
+        CustomSnackBar.showInfo(context, 'Feature not yet implemented');
+      },
+      child: Container(
+        height: ProfileConstants.cardHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          color: ProfileConstants.cardBackground,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
+            topRight: Radius.circular(
+              isFirst ? ProfileConstants.cardRadius : 0,
+            ),
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: ProfileConstants.labelStyle),
-          _buildToggleSwitch(isEnabled),
-        ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: ProfileConstants.labelStyle),
+            _buildToggleSwitch(isEnabled),
+          ],
+        ),
       ),
     );
   }
@@ -786,7 +799,10 @@ class _ProfilePageState extends State<ProfilePage> {
       width: 38,
       height: 20,
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withAlpha(70),
+        color:
+            isEnabled
+                ? Theme.of(context).primaryColor.withAlpha(70)
+                : Colors.grey.withAlpha(70),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Align(

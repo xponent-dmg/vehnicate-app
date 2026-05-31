@@ -102,7 +102,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     const SizedBox(height: 80),
                     const Text(
-                      'VehnWay',
+                      'vehnWay',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

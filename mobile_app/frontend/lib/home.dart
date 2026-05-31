@@ -44,13 +44,13 @@ class _HomeState extends State<Home> {
   String _getPageName(int index) {
     switch (index) {
       case 0:
-        return 'VehnWay';
+        return 'vehnWay';
       case 1:
         return 'analytics';
       case 2:
         return 'your garage';
       default:
-        return 'VehnWay';
+        return 'vehnWay';
     }
   }
 
