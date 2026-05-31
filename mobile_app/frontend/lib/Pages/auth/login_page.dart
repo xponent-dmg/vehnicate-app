@@ -442,7 +442,7 @@ class _LoginPageState extends State<LoginPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'or connect with',
+                            'or',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.6),
                               fontSize: 14,
@@ -478,10 +478,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           elevation: 0,
                         ),
-                        icon: const Icon(
-                          FontAwesomeIcons.google,
-                          size: 20,
-                        ),
+                        icon: const Icon(FontAwesomeIcons.google, size: 20),
                         label: const Text(
                           'Continue with Google',
                           style: TextStyle(
