@@ -48,7 +48,7 @@ class StartCard extends StatelessWidget {
               ),
               child: const Text(
                 'Start Drive',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,

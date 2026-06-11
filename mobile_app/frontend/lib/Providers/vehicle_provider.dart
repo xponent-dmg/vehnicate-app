@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
 import 'package:vehnway/services/cache_service.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/models/drive_model.dart';
 import 'package:vehnway/models/vehicle_model.dart';
+import 'package:vehnway/services/supabase/supabase_vehicle_service.dart';
+import 'package:vehnway/services/supabase/supabase_drive_service.dart';
 
 class VehicleProvider extends ChangeNotifier {
   List<Vehicle> _vehicles = [];
@@ -105,7 +106,7 @@ class VehicleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await SupabaseService().getVehiclesByUserId();
+      final data = await SupabaseVehicleService().getVehiclesByUserId();
       _vehicles = data.map((json) => Vehicle.fromJson(json)).toList();
 
       if (_vehicles.isNotEmpty) {
@@ -147,14 +148,17 @@ class VehicleProvider extends ChangeNotifier {
       _drives = cachedData.map((data) => Drive.fromJson(data)).toList();
       if (_drives.isNotEmpty) {
         final latest = _drives.first;
-        _lastSeenTime = latest.endTime.isAfter(latest.startTime) ? latest.endTime : latest.startTime;
+        _lastSeenTime =
+            latest.endTime.isAfter(latest.startTime)
+                ? latest.endTime
+                : latest.startTime;
       }
     }
 
     notifyListeners();
 
     try {
-      final drivesData = await SupabaseService().fetchDrives(
+      final drivesData = await SupabaseDriveService().fetchDrives(
         _selectedVehicle!.id,
       );
       _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
@@ -162,12 +166,19 @@ class VehicleProvider extends ChangeNotifier {
       // 2. Save to Cache
       await CacheService().setTrips(_selectedVehicle!.id, drivesData);
 
-      final latestData = await SupabaseService().fetchLatestDrive(_selectedVehicle!.id);
+      final latestData = await SupabaseDriveService().fetchLatestDrive(
+        _selectedVehicle!.id,
+      );
       if (latestData != null) {
         _latestDrive = Drive.fromJson(latestData);
         final endTimeStr = latestData['end_time'] as String?;
         final startTimeStr = latestData['start_time'] as String?;
-        final parsedTime = endTimeStr != null ? DateTime.tryParse(endTimeStr) : (startTimeStr != null ? DateTime.tryParse(startTimeStr) : null);
+        final parsedTime =
+            endTimeStr != null
+                ? DateTime.tryParse(endTimeStr)
+                : (startTimeStr != null
+                    ? DateTime.tryParse(startTimeStr)
+                    : null);
         _lastSeenTime = parsedTime?.toLocal();
       } else {
         _latestDrive = null;
@@ -195,7 +206,7 @@ class VehicleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await SupabaseService().createVehicle(
+      await SupabaseVehicleService().createVehicle(
         model: model,
         registration: registration,
         insurance: insurance,
@@ -219,7 +230,7 @@ class VehicleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await SupabaseService().deleteVehicle(vehicleId);
+      await SupabaseVehicleService().deleteVehicle(vehicleId);
 
       _vehicles.removeWhere((v) => v.id == vehicleId);
 

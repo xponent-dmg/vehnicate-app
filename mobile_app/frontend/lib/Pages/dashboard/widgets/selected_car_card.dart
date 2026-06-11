@@ -32,19 +32,34 @@ class SelectedCarCard extends StatelessWidget {
             height: 160,
             backgroundColor: AppColors.background,
             padding: const EdgeInsets.all(17),
-            child: hasVehicle
-                // ── vehicle exists ──────────────────────────────────
-                ? _VehicleInfoContent(
-                    model: vehicleProvider.vehicleModel ?? 'No vehicle',
-                    registration:
-                        vehicleProvider.selectedVehicle?.formattedRegistration ??
+            child:
+                hasVehicle
+                    // ── vehicle exists ──────────────────────────────────
+                    ? GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        if (vehicleProvider.selectedVehicle != null) {
+                          Navigator.pushNamed(
+                            context,
+                            '/vehicle-details',
+                            arguments: vehicleProvider.selectedVehicle,
+                          );
+                        }
+                      },
+                      onLongPress: onSwap,
+                      child: _VehicleInfoContent(
+                        model: vehicleProvider.vehicleModel ?? 'No vehicle',
+                        registration:
+                            vehicleProvider
+                                .selectedVehicle
+                                ?.formattedRegistration ??
                             '------',
-                    onSwap: onSwap,
-                  )
-                // ── no vehicle yet ──────────────────────────────────
-                : _NoVehicleContent(
-                    onAddVehicle: onAddVehicle,
-                  ),
+                        onSwap: onSwap,
+                        vehicleId: vehicleProvider.vehicleId!,
+                      ),
+                    )
+                    // ── no vehicle yet ──────────────────────────────────
+                    : _NoVehicleContent(onAddVehicle: onAddVehicle),
           );
         },
       ),
@@ -58,11 +73,13 @@ class _VehicleInfoContent extends StatelessWidget {
     required this.model,
     required this.registration,
     required this.onSwap,
+    required this.vehicleId,
   });
 
   final String model;
   final String registration;
   final VoidCallback onSwap;
+  final int vehicleId;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +132,12 @@ class _VehicleInfoContent extends StatelessWidget {
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Center(child: Image.asset("assets/images/vehicle_def.png")),
+            child: Center(
+              child: Hero(
+                tag: 'vehicle_image_$vehicleId',
+                child: Image.asset("assets/images/vehicle_def.png"),
+              ),
+            ),
           ),
         ),
       ],

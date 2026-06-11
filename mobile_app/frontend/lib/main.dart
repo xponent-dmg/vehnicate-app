@@ -14,8 +14,8 @@ import 'package:vehnway/app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:vehnway/services/cache_service.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/utils/app_logger.dart';
+import 'package:vehnway/services/supabase/supabase_core_service.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +53,7 @@ void main() async {
       return true;
     };
 
-    await SupabaseService.init().timeout(
+    await SupabaseCoreService.init().timeout(
       const Duration(seconds: 15),
       onTimeout: () {
         throw TimeoutException('Supabase initialization timed out');

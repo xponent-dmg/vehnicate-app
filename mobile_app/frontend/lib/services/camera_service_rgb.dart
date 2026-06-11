@@ -8,6 +8,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vehnway/core/constants/app_config.dart';
+import 'package:vehnway/services/supabase/supabase_core_service.dart';
 import 'package:vehnway/utils/app_logger.dart';
 
 // A service that:
@@ -36,8 +37,6 @@ class CameraServiceRGB {
   // Config
   static const int _batchSize = 10;
 
-  // Supabase config
-  final SupabaseClient _supabase = Supabase.instance.client;
   final String _bucketName = AppConfig.bucketVehicleImages;
   final String _imageTable = AppConfig.tableFrames;
 
@@ -88,21 +87,30 @@ class CameraServiceRGB {
           _framesDir.listSync().whereType<File>().toList()
             ..sort((a, b) => a.path.compareTo(b.path));
       for (final file in entries) {
-        final timestamp =
-            _extractTimestampFromFilename(file.path) ??
-            DateTime.now().toLocal().millisecondsSinceEpoch;
-        final deviceId =
-            _extractDeviceIdFromFilename(file.path) ?? 'unknown_device';
+        final name = file.path.split(Platform.pathSeparator).last;
+        final parts = name.split('_');
+        
+        if (parts.length >= 5 && parts[0] == 'frame') {
+          final sessionId = parts[1];
+          final vehicleId = parts[2];
+          final timestamp = int.tryParse(parts[3]) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
+          final deviceId = parts[4].replaceAll('.jpg', '');
 
-        _pendingFrames.add(
-          _FrameRecord(
-            filePath: file.path,
-            timestampMs: timestamp,
-            sessionId: 'restored_batch',
-            deviceId: deviceId,
-            vehicleId: 'unknown_vehicle',
-          ),
-        );
+          _pendingFrames.add(
+            _FrameRecord(
+              filePath: file.path,
+              timestampMs: timestamp,
+              sessionId: sessionId,
+              deviceId: deviceId,
+              vehicleId: vehicleId,
+            ),
+          );
+        } else {
+          // Old format or invalid file, cannot be uploaded safely due to RLS.
+          try {
+            await file.delete();
+          } catch (_) {}
+        }
       }
     } catch (e, stack) {
       AppLogger.warning('Error preparing cache directories', e, stack);
@@ -204,6 +212,8 @@ class CameraServiceRGB {
       final String rawPath = file.path;
       final String framesDirPath = _framesDir.path;
       final String deviceId = _deviceId ?? 'unknown';
+      final String sessionId = _sessionId ?? 'unknown_session';
+      final String vehicleId = _vehicleId ?? 'unknown_vehicle';
       final RootIsolateToken? rootIsolateToken = RootIsolateToken.instance;
 
       if (rootIsolateToken == null) {
@@ -230,7 +240,7 @@ class CameraServiceRGB {
         }
 
         // 2. Save locally
-        final String fileName = 'frame_${now}_$deviceId.jpg';
+        final String fileName = 'frame_${sessionId}_${vehicleId}_${now}_$deviceId.jpg';
         final String fullPath = '$framesDirPath/$fileName';
         final File newFile = File(fullPath);
         await newFile.writeAsBytes(compressedBytes, flush: true);
@@ -240,15 +250,14 @@ class CameraServiceRGB {
 
       if (newPath == null) return;
 
-      final int timestamp =
-          _extractTimestampFromFilename(newPath) ??
-          DateTime.now().toLocal().millisecondsSinceEpoch;
+      final parts = newPath.split(Platform.pathSeparator).last.split('_');
+      final int timestamp = parts.length >= 5 ? (int.tryParse(parts[3]) ?? DateTime.now().toLocal().millisecondsSinceEpoch) : DateTime.now().toLocal().millisecondsSinceEpoch;
 
       _pendingFrames.add(
         _FrameRecord(
           filePath: newPath,
           timestampMs: timestamp,
-          sessionId: _sessionId ?? 'unknown_batch',
+          sessionId: _sessionId ?? 'unknown_session',
           deviceId: _deviceId ?? 'unknown_device',
           vehicleId: _vehicleId ?? 'unknown_vehicle',
         ),
@@ -280,6 +289,8 @@ class CameraServiceRGB {
     try {
       final List<Map<String, dynamic>> rows = <Map<String, dynamic>>[];
       final List<_FrameRecord> recordsForInsert = <_FrameRecord>[];
+      
+      final client = await SupabaseCoreService().getAuthenticatedClient();
 
       for (final _FrameRecord rec in batch) {
         final File f = File(rec.filePath);
@@ -301,14 +312,14 @@ class CameraServiceRGB {
 
         final String storagePath = _buildStoragePath(rec);
 
-        await _supabase.storage
+        await client.storage
             .from(_bucketName)
             .upload(
               storagePath,
               f,
               fileOptions: const FileOptions(upsert: true),
             );
-        final String publicUrl = _supabase.storage
+        final String publicUrl = client.storage
             .from(_bucketName)
             .getPublicUrl(storagePath);
 
@@ -326,7 +337,7 @@ class CameraServiceRGB {
       }
 
       try {
-        await _supabase.from(_imageTable).insert(rows);
+        await client.from(_imageTable).insert(rows);
 
         for (final rec in recordsForInsert) {
           _pendingFrames.remove(rec);
@@ -344,14 +355,15 @@ class CameraServiceRGB {
           final row = rows[i];
           final rec = recordsForInsert[i];
           try {
-            await _supabase.from(_imageTable).insert(row);
+            await client.from(_imageTable).insert(row);
             _pendingFrames.remove(rec);
             final f = File(rec.filePath);
             if (await f.exists()) await f.delete();
             _uploadedCount++;
           } catch (singleErr) {
             if (singleErr is PostgrestException &&
-                (singleErr.code == '23505')) {
+                (singleErr.code == '23505' || singleErr.code == '42501' || singleErr.code == '23503')) {
+              // 23505 = duplicate key, 42501 = RLS violation, 23503 = foreign key violation
               _pendingFrames.remove(rec);
               final f = File(rec.filePath);
               if (await f.exists()) await f.delete();
@@ -400,23 +412,23 @@ class CameraServiceRGB {
     return '$dateDir/$name';
   }
 
-  int? _extractTimestampFromFilename(String path) {
-    final RegExp re = RegExp(r'frame_(\d+)');
-    final match = re.firstMatch(path);
-    if (match != null) {
-      return int.tryParse(match.group(1)!);
-    }
-    return null;
-  }
+  // int? _extractTimestampFromFilename(String path) {
+  //   final RegExp re = RegExp(r'frame_(\d+)');
+  //   final match = re.firstMatch(path);
+  //   if (match != null) {
+  //     return int.tryParse(match.group(1)!);
+  //   }
+  //   return null;
+  // }
 
-  String? _extractDeviceIdFromFilename(String path) {
-    final RegExp re = RegExp(r'frame_\d+_(.+)\.jpg');
-    final match = re.firstMatch(path);
-    if (match != null) {
-      return match.group(1);
-    }
-    return null;
-  }
+  // String? _extractDeviceIdFromFilename(String path) {
+  //   final RegExp re = RegExp(r'frame_\d+_(.+)\.jpg');
+  //   final match = re.firstMatch(path);
+  //   if (match != null) {
+  //     return match.group(1);
+  //   }
+  //   return null;
+  // }
 
   void dispose() {
     _captureTimer?.cancel();

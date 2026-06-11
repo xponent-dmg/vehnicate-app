@@ -232,11 +232,7 @@ class _RetryButton extends StatelessWidget {
         width: double.infinity,
         height: 56,
         decoration: BoxDecoration(
-          gradient:
-              isRetrying
-                  ? null
-                  : AppGradients.primaryGradient,
-          color: isRetrying ? AppColors.background : null,
+          color: isRetrying ? AppColors.background : AppColors.primary,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isRetrying ? AppColors.primary : Colors.transparent,

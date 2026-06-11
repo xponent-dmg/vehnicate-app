@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:vehnway/models/user_model.dart';
 import 'package:vehnway/services/cache_service.dart';
-import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/services/supabase/supabase_user_service.dart';
 
 class UserProvider extends ChangeNotifier {
   AppUser? _currentUser;
@@ -84,7 +84,7 @@ class UserProvider extends ChangeNotifier {
         return;
       }
 
-      final data = await SupabaseService().getOrCreateUser(
+      final data = await SupabaseUserService().getOrCreateUser(
         uid: firebaseUid,
         email: currentUser?.email ?? '',
         displayName: currentUser?.displayName,

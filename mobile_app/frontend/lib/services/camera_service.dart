@@ -18,12 +18,15 @@ class CameraService {
 
   // Throttle state
   Timer? _captureTimer;
-  static const Duration _captureInterval = Duration(milliseconds: 500); // ~2 fps
+  static const Duration _captureInterval = Duration(
+    milliseconds: 500,
+  ); // ~2 fps
 
   // Cache/batching state
   late Directory _cacheDir;
   late Directory _framesDir;
-  final List<_FrameRecord> _pendingFrames = <_FrameRecord>[]; // FIFO of cached frames
+  final List<_FrameRecord> _pendingFrames =
+      <_FrameRecord>[]; // FIFO of cached frames
   Timer? _batchTimer;
 
   // Config
@@ -69,10 +72,15 @@ class CameraService {
       await _framesDir.create(recursive: true);
     }
     // On startup, load any leftover frames for retry.
-    final entries = _framesDir.listSync().whereType<File>().toList()..sort((a, b) => a.path.compareTo(b.path));
+    final entries =
+        _framesDir.listSync().whereType<File>().toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
     for (final file in entries) {
-      final timestamp = _extractTimestampFromFilename(file.path) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
-      final deviceId = _extractDeviceIdFromFilename(file.path) ?? 'unknown_device';
+      final timestamp =
+          _extractTimestampFromFilename(file.path) ??
+          DateTime.now().toLocal().millisecondsSinceEpoch;
+      final deviceId =
+          _extractDeviceIdFromFilename(file.path) ?? 'unknown_device';
 
       _pendingFrames.add(
         _FrameRecord(
@@ -94,7 +102,8 @@ class CameraService {
     final CameraDescription cam = cameras.first;
     _controller = CameraController(
       cam,
-      ResolutionPreset.medium, // Use medium to avoid massive files if high isn't needed
+      ResolutionPreset
+          .medium, // Use medium to avoid massive files if high isn't needed
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.jpeg, // We want JPEGs from takePicture
     );
@@ -103,7 +112,11 @@ class CameraService {
     _isReady = true;
   }
 
-  Future<void> startStreaming({required String vehicleId, required String deviceId, required String sessionId}) async {
+  Future<void> startStreaming({
+    required String vehicleId,
+    required String deviceId,
+    required String sessionId,
+  }) async {
     if (!_isReady || _controller == null) {
       return;
     }
@@ -148,13 +161,18 @@ class CameraService {
 
   void _startBatchTimer() {
     _batchTimer?.cancel();
-    _batchTimer = Timer.periodic(const Duration(seconds: _batchIntervalSeconds), (_) async {
-      await uploadBatch();
-    });
+    _batchTimer = Timer.periodic(
+      const Duration(seconds: _batchIntervalSeconds),
+      (_) async {
+        await uploadBatch();
+      },
+    );
   }
 
   Future<void> _captureFrame() async {
-    if (_controller == null || !_controller!.value.isInitialized || _controller!.value.isTakingPicture) {
+    if (_controller == null ||
+        !_controller!.value.isInitialized ||
+        _controller!.value.isTakingPicture) {
       return;
     }
 
@@ -201,8 +219,11 @@ class CameraService {
       if (_pendingFrames.length >= _batchSize) {
         uploadBatch();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error in _captureFrame: $e');
+    }
   }
+  
 
   Future<String> _saveLocally(Uint8List bytes, int timestampMs) async {
     final devId = _deviceId ?? 'unknown';
@@ -243,8 +264,16 @@ class CameraService {
 
         final String storagePath = _buildStoragePath(rec);
 
-        await _supabase.storage.from(_bucketName).upload(storagePath, f, fileOptions: const FileOptions(upsert: true));
-        final String publicUrl = _supabase.storage.from(_bucketName).getPublicUrl(storagePath);
+        await _supabase.storage
+            .from(_bucketName)
+            .upload(
+              storagePath,
+              f,
+              fileOptions: const FileOptions(upsert: true),
+            );
+        final String publicUrl = _supabase.storage
+            .from(_bucketName)
+            .getPublicUrl(storagePath);
 
         rows.add({
           'session_id': rec.sessionId,
@@ -303,12 +332,16 @@ class CameraService {
           await file.delete();
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error in clearCache: $e');
+    }
   }
 
   String _buildStoragePath(_FrameRecord rec) {
-    final DateTime dt = DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal();
-    final String dateDir = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+    final DateTime dt =
+        DateTime.fromMillisecondsSinceEpoch(rec.timestampMs).toLocal();
+    final String dateDir =
+        '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
     final String name = 'frame_${rec.timestampMs}_${rec.deviceId}.jpg';
     return '$dateDir/$name';
   }

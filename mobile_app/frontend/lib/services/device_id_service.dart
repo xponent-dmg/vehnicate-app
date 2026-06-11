@@ -15,7 +15,7 @@ class DeviceIdService {
     }
 
     final deviceInfo = DeviceInfoPlugin();
-    
+
     try {
       if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;

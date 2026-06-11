@@ -9,12 +9,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vehnway/Providers/user_provider.dart';
 import 'package:vehnway/Widgets/avatar.dart';
 import 'package:vehnway/services/auth_service.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/Widgets/form_overlay.dart';
 import 'package:vehnway/Widgets/custom_dialogs.dart';
 import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/services/supabase/supabase_user_service.dart';
 
 // Constants and Theme
 class ProfilePage extends StatefulWidget {
@@ -166,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
           );
           final user = userProvider.currentUser;
           if (user != null) {
-            await SupabaseService().deleteUser();
+            await SupabaseUserService().deleteUser();
             await AuthService().deleteAccount();
           }
         },
@@ -208,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
         if (user != null) {
           // 1. Delete from Supabase
-          await SupabaseService().deleteUser();
+          await SupabaseUserService().deleteUser();
 
           // 2. Delete from Firebase and Sign out
           await AuthService().deleteAccount();
@@ -301,12 +301,12 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         );
 
-        final imageUrl = await SupabaseService().uploadProfilePicture(
+        final imageUrl = await SupabaseUserService().uploadProfilePicture(
           finalFile,
           user.firebaseUid,
         );
 
-        await SupabaseService().updateUserProfile(
+        await SupabaseUserService().updateUserProfile(
           fullName: user.name,
           username: user.username,
           profilePictureUrl: imageUrl,
@@ -394,7 +394,7 @@ class _ProfilePageState extends State<ProfilePage> {
           throw Exception('User not logged in');
         }
 
-        await SupabaseService().updateUserProfile(
+        await SupabaseUserService().updateUserProfile(
           fullName: _nameController.text.trim(),
           username: _usernameController.text.trim(),
           phone:

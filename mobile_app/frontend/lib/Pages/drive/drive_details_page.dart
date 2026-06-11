@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/models/drive_model.dart';
 import 'package:vehnway/Pages/drive/constants/drive_constants.dart';
-import 'package:vehnway/services/supabase_service.dart';
+import 'package:vehnway/services/supabase/supabase_drive_service.dart';
 import 'package:vehnway/models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
@@ -41,7 +41,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
 
   Future<void> _fetchDriveData() async {
     try {
-      final s = SupabaseService();
+      final s = SupabaseDriveService();
       // final dataFuture = s.fetchDriveData(
       //   vehicleId: widget.drive.vehicleId,
       //   startTime: widget.drive.startTime,
@@ -541,9 +541,9 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     );
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy, HH:mm').format(date.toLocal());
-  }
+  // String _formatDate(DateTime date) {
+  //   return DateFormat('dd MMM yyyy, HH:mm').format(date.toLocal());
+  // }
 
   String _formatDuration(Duration duration) {
     final hours = duration.inHours;
@@ -781,7 +781,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
               "Route Data (${_routePoints.length} points)",
               style: DriveDetailsConstants.titleStyle,
             ),
-            content: Container(
+            content: SizedBox(
               width: double.maxFinite,
               height: 400,
               child: ListView.builder(

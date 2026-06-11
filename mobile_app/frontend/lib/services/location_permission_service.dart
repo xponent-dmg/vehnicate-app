@@ -29,7 +29,10 @@ class LocationPermissionService {
     final permissionGranted = await isLocationPermissionGranted();
     final serviceEnabled = await isLocationServiceEnabled();
 
-    return LocationStatus(permissionGranted: permissionGranted, serviceEnabled: serviceEnabled);
+    return LocationStatus(
+      permissionGranted: permissionGranted,
+      serviceEnabled: serviceEnabled,
+    );
   }
 
   /// Requests both permission and prompts to enable service if needed
@@ -44,7 +47,10 @@ class LocationPermissionService {
     // Request permission
     final permissionGranted = await requestLocationPermission();
 
-    return LocationStatus(permissionGranted: permissionGranted, serviceEnabled: serviceEnabled);
+    return LocationStatus(
+      permissionGranted: permissionGranted,
+      serviceEnabled: serviceEnabled,
+    );
   }
 }
 
@@ -53,7 +59,10 @@ class LocationStatus {
   final bool permissionGranted;
   final bool serviceEnabled;
 
-  LocationStatus({required this.permissionGranted, required this.serviceEnabled});
+  LocationStatus({
+    required this.permissionGranted,
+    required this.serviceEnabled,
+  });
 
   bool get isFullyEnabled => permissionGranted && serviceEnabled;
 }

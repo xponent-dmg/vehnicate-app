@@ -88,7 +88,11 @@ class _SignupPageState extends State<SignupPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [
+              AppColors.deepBlueBackground,
+              Color(0xFF16213e),
+              Color(0xFF0f3460),
+            ],
           ),
         ),
         child: SafeArea(

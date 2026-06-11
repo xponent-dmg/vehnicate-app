@@ -3,9 +3,9 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
-    
+
 class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {  
+  static FirebaseOptions get currentPlatform {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;

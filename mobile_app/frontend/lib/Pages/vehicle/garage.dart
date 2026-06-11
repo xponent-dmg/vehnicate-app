@@ -4,11 +4,11 @@ import 'package:vehnway/Widgets/star_refresh_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/Widgets/form_overlay.dart';
 import 'package:vehnway/models/vehicle_model.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/Widgets/vehicle_location_text.dart';
+import 'package:vehnway/services/supabase/supabase_vehicle_service.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -71,7 +71,7 @@ class GaragePageState extends State<GaragePage> {
           throw Exception('User not logged in');
         }
 
-        await SupabaseService().createVehicle(
+        await SupabaseVehicleService().createVehicle(
           model: _vehicleModelController.text.trim(),
           registration: _registrationController.text.trim().toUpperCase(),
           insurance: _insuranceController.text.trim().toUpperCase(),
@@ -81,7 +81,7 @@ class GaragePageState extends State<GaragePage> {
                   : _pucDateController.text.trim(),
         );
 
-        if (mounted) {
+        if (context.mounted) {
           await Provider.of<VehicleProvider>(context, listen: false).refresh();
         }
 

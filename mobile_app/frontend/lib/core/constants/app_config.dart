@@ -1,7 +1,7 @@
 class AppConfig {
   // Supabase Table Names
-  static const String tableUserDetails = 'userdetails';
-  static const String tableVehicleDetails = 'vehicledetails';
+  static const String tableUserDetails = 'user_details';
+  static const String tableVehicleDetails = 'vehicle_details';
   static const String tableSessions = 'sessions';
   static const String tableDrivingEvents = 'driving_events';
   static const String tableImuData = 'imu_data';

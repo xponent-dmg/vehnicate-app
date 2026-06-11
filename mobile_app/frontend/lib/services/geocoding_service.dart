@@ -29,7 +29,8 @@ class GeocodingService {
     // 3. It groups nearby location requests together to conserve user API limits and device battery.
     final double roundedLat = double.parse(latitude.toStringAsFixed(3));
     final double roundedLng = double.parse(longitude.toStringAsFixed(3));
-    final String cacheKey = 'geo_${roundedLat.toStringAsFixed(3)}_${roundedLng.toStringAsFixed(3)}';
+    final String cacheKey =
+        'geo_${roundedLat.toStringAsFixed(3)}_${roundedLng.toStringAsFixed(3)}';
 
     // 1. Check cache first
     try {
@@ -39,18 +40,28 @@ class GeocodingService {
         return cachedLoc;
       }
     } catch (e, stack) {
-      AppLogger.warning('Error reading from Hive cache for key $cacheKey', e, stack);
+      AppLogger.warning(
+        'Error reading from Hive cache for key $cacheKey',
+        e,
+        stack,
+      );
     }
 
     // 2. Check/deduplicate active network requests
     final pending = _pendingRequests[cacheKey];
     if (pending != null) {
-      AppLogger.info('Deduplicating geocoding API request for cache key: $cacheKey');
+      AppLogger.info(
+        'Deduplicating geocoding API request for cache key: $cacheKey',
+      );
       return pending;
     }
 
     // 3. Initiate the request and track its Future
-    final Future<String> requestFuture = _fetchFromApi(roundedLat, roundedLng, cacheKey);
+    final Future<String> requestFuture = _fetchFromApi(
+      roundedLat,
+      roundedLng,
+      cacheKey,
+    );
     _pendingRequests[cacheKey] = requestFuture;
 
     try {
@@ -62,18 +73,26 @@ class GeocodingService {
     }
   }
 
-  Future<String> _fetchFromApi(double latitude, double longitude, String cacheKey) async {
+  Future<String> _fetchFromApi(
+    double latitude,
+    double longitude,
+    String cacheKey,
+  ) async {
     try {
       // Accessing via dotenv.env prevents AssertionErrors when key isn't hot-reloaded yet or is asynchronously loaded.
       final apiKey = dotenv.env['BIGDATACLOUD_API_KEY'] ?? '';
-      
+
       final Uri uri;
       if (apiKey.isNotEmpty) {
-        uri = Uri.parse('https://api.bigdatacloud.net/data/reverse-geocode'
-            '?latitude=$latitude&longitude=$longitude&localityLanguage=en&key=$apiKey');
+        uri = Uri.parse(
+          'https://api.bigdatacloud.net/data/reverse-geocode'
+          '?latitude=$latitude&longitude=$longitude&localityLanguage=en&key=$apiKey',
+        );
       } else {
-        uri = Uri.parse('https://api.bigdatacloud.net/data/reverse-geocode-client'
-            '?latitude=$latitude&longitude=$longitude&localityLanguage=en');
+        uri = Uri.parse(
+          'https://api.bigdatacloud.net/data/reverse-geocode-client'
+          '?latitude=$latitude&longitude=$longitude&localityLanguage=en',
+        );
       }
 
       AppLogger.info('Calling BigDataCloud Reverse Geocoding API: $uri');
@@ -81,10 +100,13 @@ class GeocodingService {
       final response = await http.get(uri).timeout(const Duration(seconds: 5));
 
       if (response.statusCode != 200) {
-        throw HttpException('BigDataCloud API returned HTTP status ${response.statusCode}');
+        throw HttpException(
+          'BigDataCloud API returned HTTP status ${response.statusCode}',
+        );
       }
 
-      final Map<String, dynamic> data = json.decode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic> data =
+          json.decode(response.body) as Map<String, dynamic>;
 
       final String? locality = data['locality'] as String?;
       final String? city = data['city'] as String?;
@@ -92,7 +114,10 @@ class GeocodingService {
 
       String resolved = 'Unknown Location';
 
-      if (locality != null && locality.isNotEmpty && city != null && city.isNotEmpty) {
+      if (locality != null &&
+          locality.isNotEmpty &&
+          city != null &&
+          city.isNotEmpty) {
         if (locality.trim().toLowerCase() == city.trim().toLowerCase()) {
           resolved = city;
         } else {
@@ -121,13 +146,21 @@ class GeocodingService {
 
       return resolved;
     } on SocketException catch (e, stack) {
-      AppLogger.warning('No internet connection during reverse geocoding', e, stack);
+      AppLogger.warning(
+        'No internet connection during reverse geocoding',
+        e,
+        stack,
+      );
       return 'Unknown Location'; // Soft fallback
     } on TimeoutException catch (e, stack) {
       AppLogger.warning('Reverse geocoding request timed out', e, stack);
       return 'Unknown Location';
     } catch (e, stack) {
-      AppLogger.error('Failed to reverse geocode coordinate ($latitude, $longitude)', e, stack);
+      AppLogger.error(
+        'Failed to reverse geocode coordinate ($latitude, $longitude)',
+        e,
+        stack,
+      );
       return 'Unknown Location';
     }
   }

@@ -19,9 +19,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<_OnboardingItem> _items = const [
     _OnboardingItem(
       icon: Icons.directions_car_filled_rounded,
-      title: 'Welcome to Vehnicate',
+      title: 'Welcome to vehnicate',
       description:
-          'Vehnicate is your connected driving companion for smarter and safer vehicle journeys.',
+          'vehnicate is your connected driving companion for smarter and safer vehicle journeys.',
     ),
     _OnboardingItem(
       icon: Icons.analytics_rounded,
@@ -113,9 +113,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       height: 8,
                       width: isActive ? 26 : 8,
                       decoration: BoxDecoration(
-                        color: isActive
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.35),
+                        color:
+                            isActive
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(12),
                       ),
                     );

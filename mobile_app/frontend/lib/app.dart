@@ -9,7 +9,6 @@ import 'package:vehnway/Pages/drive/drive_analyze_page.dart';
 import 'package:vehnway/Pages/drive/drive_details_page.dart';
 import 'package:vehnway/Pages/navigation/map_webview_page.dart';
 import 'package:vehnway/Pages/vehicle/garage.dart';
-import 'package:vehnway/Pages/vehicle/document_upload_page.dart';
 import 'package:vehnway/Pages/auth/login_page.dart';
 import 'package:vehnway/Pages/profile/profile_page.dart';
 import 'package:vehnway/Pages/onboarding/loading_page.dart';
@@ -102,15 +101,6 @@ class App extends StatelessWidget {
             final args = settings.arguments as Map<String, dynamic>;
             return PageTransitions.slideFromRight(
               UserDetailsPage(userId: args["userId"], email: args["email"]),
-            );
-          case "/document-upload":
-            final args = settings.arguments as Map<String, dynamic>?;
-            final docType =
-                args != null
-                    ? (args['documentType'] as String? ?? 'Document')
-                    : 'Document';
-            return PageTransitions.slideFromBottom(
-              DocumentUploadPage(documentType: docType),
             );
           case "/loading":
             final args = settings.arguments as Map<String, dynamic>?;

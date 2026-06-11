@@ -37,10 +37,7 @@ class _StepRotatingShapeState extends State<StepRotatingShape>
     _rotationAnimation = Tween<double>(
       begin: 0,
       end: math.pi / 2,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -100,10 +97,7 @@ class StarPainter extends CustomPainter {
   final double rotationAngle;
   final Color color;
 
-  StarPainter({
-    required this.rotationAngle,
-    required this.color,
-  });
+  StarPainter({required this.rotationAngle, required this.color});
 
   void _drawStar(Canvas canvas, Offset center, double size, Paint paint) {
     final path = Path();
@@ -149,12 +143,14 @@ class StarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+    final paint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final shapeSize = size.width /
+    final shapeSize =
+        size.width /
         2; // Use half of the width directly, since we're working with radius
 
     _drawStar(canvas, center, shapeSize, paint);

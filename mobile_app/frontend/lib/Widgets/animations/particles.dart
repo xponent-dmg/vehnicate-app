@@ -128,7 +128,12 @@ class _ParticlesState extends State<Particles>
   }
 
   double _remapValue(
-      double value, double start1, double end1, double start2, double end2) {
+    double value,
+    double start1,
+    double end1,
+    double start2,
+    double end2,
+  ) {
     return ((value - start1) * (end2 - start2)) / (end1 - start1) + start2;
   }
 
@@ -174,25 +179,19 @@ class ParticlesPainter extends CustomPainter {
   final List<Particle> particles;
   final Color color;
 
-  ParticlesPainter({
-    required this.particles,
-    required this.color,
-  });
+  ParticlesPainter({required this.particles, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final particle in particles) {
-      final paint = Paint()
-        ..color = color.withOpacity(particle.alpha)
-        ..style = PaintingStyle.fill;
+      final paint =
+          Paint()
+            ..color = color.withOpacity(particle.alpha)
+            ..style = PaintingStyle.fill;
 
       canvas.save();
       canvas.translate(particle.translateX, particle.translateY);
-      canvas.drawCircle(
-        Offset(particle.x, particle.y),
-        particle.size,
-        paint,
-      );
+      canvas.drawCircle(Offset(particle.x, particle.y), particle.size, paint);
       canvas.restore();
     }
   }

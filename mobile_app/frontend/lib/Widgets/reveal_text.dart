@@ -19,12 +19,15 @@ class RevealText extends StatelessWidget {
   Widget build(BuildContext context) {
     // Calculate speed based on duration and text length
     final int charCount = text.isNotEmpty ? text.length : 1;
-    final Duration speed = Duration(milliseconds: duration.inMilliseconds ~/ charCount);
+    final Duration speed = Duration(
+      milliseconds: duration.inMilliseconds ~/ charCount,
+    );
 
     return FutureBuilder(
       future: Future.delayed(delay),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done && delay != Duration.zero) {
+        if (snapshot.connectionState != ConnectionState.done &&
+            delay != Duration.zero) {
           return Text('', style: style); // Show nothing while waiting for delay
         }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/services/geocoding_service.dart';
+import 'package:vehnway/services/supabase/supabase_drive_service.dart';
 
 class VehicleLocationText extends StatefulWidget {
   final int vehicleId;
@@ -37,7 +37,9 @@ class _VehicleLocationTextState extends State<VehicleLocationText> {
 
   Future<void> _loadLocation() async {
     try {
-      final coords = await SupabaseService().getLastKnownLocation(widget.vehicleId);
+      final coords = await SupabaseDriveService().getLastKnownLocation(
+        widget.vehicleId,
+      );
       if (coords == null) {
         if (mounted) {
           setState(() {
@@ -66,7 +68,10 @@ class _VehicleLocationTextState extends State<VehicleLocationText> {
 
   @override
   Widget build(BuildContext context) {
-    final textToShow = widget.prefix.isNotEmpty ? '${widget.prefix}$_resolvedLocation' : _resolvedLocation;
+    final textToShow =
+        widget.prefix.isNotEmpty
+            ? '${widget.prefix}$_resolvedLocation'
+            : _resolvedLocation;
     return Text(
       textToShow,
       style: widget.style,

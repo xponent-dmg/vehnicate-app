@@ -54,7 +54,8 @@ class LastDriveStatsCard extends StatelessWidget {
     ).format(latestDrive.startTime.toLocal());
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
-    final formattedDuration = hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
+    final formattedDuration =
+        hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
 
     return GlassLiteContainer(
       hasBorder: false,
@@ -75,7 +76,10 @@ class LastDriveStatsCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),

@@ -16,7 +16,11 @@ class PermissionsPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [
+              AppColors.deepBlueBackground,
+              Color(0xFF16213e),
+              Color(0xFF0f3460),
+            ],
           ),
         ),
         child: const SafeArea(
@@ -86,7 +90,9 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
       if (status.isPermanentlyDenied || status.isRestricted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('"${item.title}" is blocked. Please enable it in app settings.'),
+            content: Text(
+              '"${item.title}" is blocked. Please enable it in app settings.',
+            ),
             action: SnackBarAction(
               label: 'Open Settings',
               onPressed: openAppSettings,
@@ -110,15 +116,18 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
   @override
   Widget build(BuildContext context) {
     final grantedCount =
-        _permissions.where((p) => p.status.isGranted || p.status.isLimited).length;
+        _permissions
+            .where((p) => p.status.isGranted || p.status.isLimited)
+            .length;
 
     return GlassLiteContainer(
       hasBorder: false,
       backgroundColor: AppColors.background,
       height: widget.compact ? 160 : null,
-      padding: widget.compact
-          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
-          : const EdgeInsets.all(20),
+      padding:
+          widget.compact
+              ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+              : const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,8 +167,15 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
                   tooltip: 'Settings',
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(width: 24, height: 24),
-                  icon: const Icon(Icons.settings_rounded, color: Colors.white70, size: 16),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 24,
+                    height: 24,
+                  ),
+                  icon: const Icon(
+                    Icons.settings_rounded,
+                    color: Colors.white70,
+                    size: 16,
+                  ),
                 ),
               ],
             ),
@@ -174,13 +190,13 @@ class _PermissionsWidgetState extends State<PermissionsWidget> {
               final item = _permissions[index];
               return widget.compact
                   ? _CompactPermissionTile(
-                      item: item,
-                      onRequest: () => _requestOne(item),
-                    )
+                    item: item,
+                    onRequest: () => _requestOne(item),
+                  )
                   : _PermissionCard(
-                      item: item,
-                      onRequest: () => _requestOne(item),
-                    );
+                    item: item,
+                    onRequest: () => _requestOne(item),
+                  );
             },
           ),
           if (!widget.compact) ...[
@@ -294,11 +310,7 @@ class _CompactPermissionTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            Icon(
-              statusIcon,
-              color: statusColor,
-              size: 18,
-            ),
+            Icon(statusIcon, color: statusColor, size: 18),
           ],
         ),
       ),
@@ -357,7 +369,10 @@ class _PermissionCard extends StatelessWidget {
                 Text(
                   statusLabel,
                   style: TextStyle(
-                    color: isGranted ? const Color(0xFF88E39A) : const Color(0xFFFFC67A),
+                    color:
+                        isGranted
+                            ? const Color(0xFF88E39A)
+                            : const Color(0xFFFFC67A),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -368,7 +383,8 @@ class _PermissionCard extends StatelessWidget {
           ElevatedButton(
             onPressed: onRequest,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isGranted ? const Color(0xFF2E7D32) : AppColors.primary,
+              backgroundColor:
+                  isGranted ? const Color(0xFF2E7D32) : AppColors.primary,
               foregroundColor: Colors.white,
             ),
             child: Text(isGranted ? 'Granted' : 'Allow'),

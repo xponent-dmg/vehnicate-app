@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/services/auth_service.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/Widgets/custom_dialogs.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/services/supabase/supabase_user_service.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   const EmailVerificationPage({super.key});
@@ -72,7 +72,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         await user.reload();
         if (user.emailVerified) {
           // Explicitly create Supabase user and wait for it
-          await SupabaseService().ensureUserExists(
+          await SupabaseUserService().ensureUserExists(
             uid: user.uid,
             email: user.email ?? '',
             displayName: user.displayName,
@@ -181,7 +181,11 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
+              colors: [
+                AppColors.deepBlueBackground,
+                Color(0xFF16213e),
+                Color(0xFF0f3460),
+              ],
             ),
           ),
           child: const SafeArea(
@@ -225,7 +229,11 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [
+              AppColors.deepBlueBackground,
+              Color(0xFF16213e),
+              Color(0xFF0f3460),
+            ],
           ),
         ),
         child: SafeArea(

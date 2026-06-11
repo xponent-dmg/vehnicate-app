@@ -43,6 +43,7 @@ class _SplashPageState extends State<SplashPage>
     if (!mounted || _navigated) return;
 
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final hasSeenOnboarding = prefs.getBool(_prefsOnboardingSeenKey) ?? false;
 
     if (!hasSeenOnboarding) {

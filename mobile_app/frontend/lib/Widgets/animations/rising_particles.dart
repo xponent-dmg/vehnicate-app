@@ -94,7 +94,9 @@ class _RisingParticlesState extends State<RisingParticles>
       color: widget.colors[random.nextInt(widget.colors.length)],
       shape: ParticleShape.values[random.nextInt(ParticleShape.values.length)],
       progress: initialProgress, // Use the provided initial progress
-      speed: 0.15 + random.nextDouble() * 0.2, // Slightly slower speed (0.15 - 0.35)
+      speed:
+          0.15 +
+          random.nextDouble() * 0.2, // Slightly slower speed (0.15 - 0.35)
     );
   }
 

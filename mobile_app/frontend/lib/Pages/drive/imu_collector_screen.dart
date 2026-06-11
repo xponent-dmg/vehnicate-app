@@ -12,7 +12,6 @@ import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/services/camera_service_rgb.dart';
 import 'package:vehnway/services/device_id_service.dart';
 import 'package:vehnway/services/sensor_service.dart';
-import 'package:vehnway/Widgets/form_overlay.dart';
 import 'package:location/location.dart' as loc;
 import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/core/constants/app_config.dart';
@@ -49,10 +48,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   String _deviceId = 'pending...';
   String _sessionId = '';
 
-  // Start position coordinates
-  double? _startX;
-  double? _startY;
-  double? _startZ;
+
 
   @override
   void initState() {
@@ -79,7 +75,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       );
     } catch (e, st) {
       AppLogger.error('ImuCollector initialization failed', e, st);
-      CustomSnackBar.showError(context, 'Initialization failed: $e');
+      if (mounted) CustomSnackBar.showError(context, 'Initialization failed: $e');
     }
   }
 
@@ -88,7 +84,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       await _cameraService.initialize();
       if (mounted) setState(() {}); // Rebuild to show preview
     } catch (e) {
-      CustomSnackBar.showError(context, 'Camera initialization failed: $e');
+      if (mounted) CustomSnackBar.showError(context, 'Camera initialization failed: $e');
     }
   }
 
@@ -111,76 +107,11 @@ class _ImuCollectorState extends State<ImuCollector> {
         throw Exception('Location permissions are permanently denied');
       }
     } catch (e) {
-      CustomSnackBar.showError(context, 'Location initialization failed: $e');
+      if (mounted) CustomSnackBar.showError(context, 'Location initialization failed: $e');
     }
   }
 
-  Future<bool> _showStartPositionDialog() async {
-    final TextEditingController xController = TextEditingController();
-    final TextEditingController yController = TextEditingController();
-    final TextEditingController zController = TextEditingController();
 
-    // Flag to track if the form was successfully submitted
-    bool success = false;
-
-    await FormOverlay.show(
-      context: context,
-      title: 'Enter Start Position',
-      submitButtonText: 'Start Collection',
-      fields: [
-        FormFieldConfig(
-          label: 'Start X',
-          hint: '0.0',
-          icon: Icons.location_on_outlined,
-          controller: xController,
-          keyboardType: const TextInputType.numberWithOptions(
-            decimal: true,
-            signed: true,
-          ),
-        ),
-        FormFieldConfig(
-          label: 'Start Y',
-          hint: '0.0',
-          icon: Icons.location_on_outlined,
-          controller: yController,
-          keyboardType: const TextInputType.numberWithOptions(
-            decimal: true,
-            signed: true,
-          ),
-        ),
-        FormFieldConfig(
-          label: 'Start Z',
-          hint: '0.0',
-          icon: Icons.height,
-          controller: zController,
-          keyboardType: const TextInputType.numberWithOptions(
-            decimal: true,
-            signed: true,
-          ),
-        ),
-      ],
-      onSubmit: () async {
-        // Validate inputs
-        final x = double.tryParse(xController.text);
-        final y = double.tryParse(yController.text);
-        final z = double.tryParse(zController.text);
-
-        if (x == null || y == null || z == null) {
-          throw 'Please enter valid numeric values for X, Y, and Z';
-        }
-
-        _startX = x;
-        _startY = y;
-        _startZ = z;
-        success = true;
-      },
-      onError: (error) {
-        CustomSnackBar.showError(context, error.toString());
-      },
-    );
-
-    return success;
-  }
 
   void startCollection() async {
     if (isCollecting) return;
@@ -205,6 +136,7 @@ class _ImuCollectorState extends State<ImuCollector> {
     // 2. Enable Wakelock
     await WakelockPlus.enable();
 
+    if (!mounted) return;
     final vehicleId = context.read<VehicleProvider>().vehicleId;
     if (vehicleId == null) {
       if (mounted) {
@@ -217,12 +149,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       return;
     }
 
-    // Show dialog to get start position before starting collection
-    final confirmed = await _showStartPositionDialog();
-    if (!confirmed) {
-      await WakelockPlus.disable();
-      return;
-    }
+
 
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -247,6 +174,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       });
 
       // Start Sensor collection
+      if (!mounted) return;
       await _sensorService.start(
         context: context,
         sessionId: _sessionId,
@@ -390,9 +318,9 @@ class _ImuCollectorState extends State<ImuCollector> {
             },
           );
 
-          if (shouldPop == true && mounted) {
+          if (shouldPop == true) {
             stopCollection();
-            if (mounted) {
+            if (context.mounted) {
               Navigator.of(context).pop();
             }
           }
@@ -617,7 +545,7 @@ class _ImuCollectorState extends State<ImuCollector> {
             child: ElevatedButton.icon(
               onPressed: () async {
                 await _cameraService.uploadBatch();
-                CustomSnackBar.showSuccess(context, 'Upload triggered');
+                if (mounted) CustomSnackBar.showSuccess(context, 'Upload triggered');
               },
               icon: const Icon(Icons.upload),
               label: const Text('Upload Now'),

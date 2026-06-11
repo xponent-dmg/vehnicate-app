@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vehnway/services/auth_service.dart';
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/services/supabase/supabase_user_service.dart';
 
 class LoginPage extends StatefulWidget {
   final String? initialEmail;
@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       // Self-healing: ensure user exists in Supabase
-      await SupabaseService().ensureUserExists(
+      await SupabaseUserService().ensureUserExists(
         uid: user.uid,
         email: user.email ?? '',
         displayName: user.displayName,
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
         throw Exception("Authentication failed, user is null.");
       }
 
-      await SupabaseService().ensureUserExists(
+      await SupabaseUserService().ensureUserExists(
         uid: user.uid,
         email: user.email ?? '',
         displayName: user.displayName,

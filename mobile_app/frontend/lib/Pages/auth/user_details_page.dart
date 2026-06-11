@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/user_provider.dart';
 
-import 'package:vehnway/services/supabase_service.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/services/supabase/supabase_user_service.dart';
 
 class UserDetailsPage extends StatefulWidget {
   final String userId;
@@ -37,7 +37,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     setState(() => _isVerifyingUsername = true);
 
     try {
-      final isAvailable = await SupabaseService().isUsernameAvailable(username);
+      final isAvailable = await SupabaseUserService().isUsernameAvailable(
+        username,
+      );
       if (mounted) {
         setState(() {
           _isUsernameAvailable = isAvailable;
@@ -69,9 +71,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     setState(() => _isLoading = true);
 
     try {
+      if (!mounted) return;
       final userProvider = context.read<UserProvider>();
 
-      await SupabaseService().updateUserProfile(
+      await SupabaseUserService().updateUserProfile(
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
       );
@@ -106,7 +109,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.deepBlueBackground, Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [
+              AppColors.deepBlueBackground,
+              Color(0xFF16213e),
+              Color(0xFF0f3460),
+            ],
           ),
         ),
         child: SafeArea(

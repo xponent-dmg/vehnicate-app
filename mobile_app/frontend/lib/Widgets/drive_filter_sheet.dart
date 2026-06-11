@@ -269,8 +269,9 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                               context: context,
                               initialTime: _tempStartTime ?? TimeOfDay.now(),
                             );
-                            if (time != null)
+                            if (time != null) {
                               setState(() => _tempStartTime = time);
+                            }
                           },
                         ),
                       ),
@@ -294,8 +295,9 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                               context: context,
                               initialTime: _tempEndTime ?? TimeOfDay.now(),
                             );
-                            if (time != null)
+                            if (time != null) {
                               setState(() => _tempEndTime = time);
+                            }
                           },
                         ),
                       ),

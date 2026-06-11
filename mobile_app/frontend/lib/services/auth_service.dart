@@ -29,7 +29,6 @@ class AuthService {
     String password,
   ) async {
     try {
-      
       firebase.UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -40,8 +39,6 @@ class AuthService {
 
       return result;
     } on firebase.FirebaseAuthException catch (e) {
-      
-
       // Log analytics event for failed login
       await _analytics.logEvent(
         name: 'login_failed',
@@ -50,7 +47,6 @@ class AuthService {
 
       throw _handleAuthException(e);
     } catch (e) {
-      
       throw Exception('Failed to sign in: $e');
     }
   }
@@ -91,7 +87,6 @@ class AuthService {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      
       // Create a new credential
       final credential = firebase.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -108,7 +103,6 @@ class AuthService {
 
       return result;
     } on firebase.FirebaseAuthException catch (e) {
-
       // Log analytics event for failed Google login
       await _analytics.logEvent(
         name: 'login_failed',
@@ -117,7 +111,6 @@ class AuthService {
 
       throw Exception('Firebase Auth Error: ${e.message}');
     } catch (e) {
-      
       throw Exception('Failed to sign in with Google: $e');
     }
   }
@@ -125,15 +118,13 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
-      
-
       // Log analytics event for logout
       await _analytics.logEvent(name: 'logout');
 
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
-       // Debug print
+      // Debug print
       throw Exception('Failed to sign out: $e');
     }
   }
@@ -158,7 +149,6 @@ class AuthService {
       );
 
       await user.reauthenticateWithCredential(credential);
-      
     } on firebase.FirebaseAuthException catch (e) {
       throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
     } catch (e) {
@@ -179,7 +169,6 @@ class AuthService {
       );
 
       await user.reauthenticateWithCredential(credential);
-      
     } on firebase.FirebaseAuthException catch (e) {
       throw Exception('Failed to reauthenticate: ${_handleAuthException(e)}');
     } catch (e) {
@@ -190,19 +179,16 @@ class AuthService {
   // Delete account
   Future<void> deleteAccount() async {
     try {
-      
       final user = currentUser;
       if (user != null) {
         // Delete user from Firebase Auth
         await user.delete();
-        
 
         // Ensure user is also signed out from Google if they used it
         await _googleSignIn.signOut();
 
         // Log analytics event for account deletion
         await _analytics.logEvent(name: 'account_deleted');
-        
       }
     } on firebase.FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
@@ -212,7 +198,6 @@ class AuthService {
       }
       throw _handleAuthException(e);
     } catch (e) {
-      
       throw Exception('Failed to delete account: $e');
     }
   }
@@ -232,8 +217,8 @@ class AuthService {
       case 'user-not-found':
         return 'No account found with this email. Please sign up first.';
       case 'invalid-credential':
-        // Modern Firebase Auth uses 'invalid-credential' for both wrong password 
-        // and non-existent user for security. We can give a slightly more tailored 
+        // Modern Firebase Auth uses 'invalid-credential' for both wrong password
+        // and non-existent user for security. We can give a slightly more tailored
         // hint if the user wants clarity.
         return 'Invalid email or password. If you don\'t have an account, please sign up.';
       case 'wrong-password':

@@ -16,7 +16,8 @@ class SensorService {
     : _supabase = supabaseClient ?? Supabase.instance.client;
 
   StreamSubscription? _subscription;
-  final StreamController<dynamic> _controller = StreamController<dynamic>.broadcast();
+  final StreamController<dynamic> _controller =
+      StreamController<dynamic>.broadcast();
 
   // --- Robust Buffer Management ---
   final List<Map<String, dynamic>> _imuBuffer = [];
@@ -75,7 +76,9 @@ class SensorService {
           } else {
             // FIFO: Remove oldest record
             _imuBuffer.removeAt(0);
-            AppLogger.warning('SensorService: IMU Buffer overflow, discarding oldest data');
+            AppLogger.warning(
+              'SensorService: IMU Buffer overflow, discarding oldest data',
+            );
           }
         } else if (map['type'] == 'gps') {
           final gpsData = GpsData.fromMap(map);
@@ -90,7 +93,9 @@ class SensorService {
             });
           } else {
             _gpsBuffer.removeAt(0);
-            AppLogger.warning('SensorService: GPS Buffer overflow, discarding oldest data');
+            AppLogger.warning(
+              'SensorService: GPS Buffer overflow, discarding oldest data',
+            );
           }
         }
       } catch (e, stack) {
@@ -115,22 +120,18 @@ class SensorService {
     // Snapshot the current buffers and clear them immediately
     final List<Map<String, dynamic>> imuDataToUpload = List.from(_imuBuffer);
     final List<Map<String, dynamic>> gpsDataToUpload = List.from(_gpsBuffer);
-    
+
     _imuBuffer.clear();
     _gpsBuffer.clear();
 
     try {
       if (imuDataToUpload.isNotEmpty) {
-        await _supabase
-            .from(AppConfig.tableImuData)
-            .insert(imuDataToUpload);
+        await _supabase.from(AppConfig.tableImuData).insert(imuDataToUpload);
         _uploadedCount += imuDataToUpload.length;
       }
-      
+
       if (gpsDataToUpload.isNotEmpty) {
-        await _supabase
-            .from(AppConfig.tableGpsData)
-            .insert(gpsDataToUpload);
+        await _supabase.from(AppConfig.tableGpsData).insert(gpsDataToUpload);
       }
 
       onDataCountUpdate?.call(_processedCount, _uploadedCount);
@@ -189,4 +190,3 @@ class SensorService {
     _controller.close();
   }
 }
-

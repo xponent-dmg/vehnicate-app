@@ -122,9 +122,10 @@ class _DashboardPageState extends State<DashboardPage> {
           model: _vehicleModelController.text.trim(),
           registration: _registrationController.text.trim(),
           insurance: _insuranceController.text.trim(),
-          puc: _pucDateController.text.trim().isEmpty
-              ? null
-              : _pucDateController.text.trim(),
+          puc:
+              _pucDateController.text.trim().isEmpty
+                  ? null
+                  : _pucDateController.text.trim(),
         );
 
         _vehicleModelController.clear();
@@ -201,67 +202,74 @@ class _DashboardPageState extends State<DashboardPage> {
                     )
                   else
                     Wrap(
-                      children: vehicles.map((vehicle) {
-                        final isSelected = vehicle.id ==
-                            vehicleProvider.selectedVehicle?.id;
-                        return InkWell(
-                          onTap: () {
-                            vehicleProvider.selectVehicle(vehicle);
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor.withOpacity(0.2)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.white12,
+                      children:
+                          vehicles.map((vehicle) {
+                            final isSelected =
+                                vehicle.id ==
+                                vehicleProvider.selectedVehicle?.id;
+                            return InkWell(
+                              onTap: () {
+                                vehicleProvider.selectVehicle(vehicle);
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color:
+                                      isSelected
+                                          ? Theme.of(
+                                            context,
+                                          ).primaryColor.withOpacity(0.2)
+                                          : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color:
+                                        isSelected
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.white12,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.directions_car,
+                                      color: Colors.white70,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            vehicle.model,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          Text(
+                                            vehicle.formattedRegistration,
+                                            style: const TextStyle(
+                                              color: Colors.white54,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.directions_car,
-                                  color: Colors.white70,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        vehicle.model,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        vehicle.formattedRegistration,
-                                        style: const TextStyle(
-                                          color: Colors.white54,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
                     ),
                 ],
               );
