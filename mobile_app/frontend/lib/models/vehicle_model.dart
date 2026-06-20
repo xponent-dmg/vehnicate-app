@@ -2,7 +2,7 @@ class Vehicle {
   final int id;
   final String name;
   final String model;
-  final String insurance;
+  final String? insurance;
   final String registration;
   final String? puc;
   final double? distance;
@@ -11,7 +11,7 @@ class Vehicle {
     required this.id,
     required this.name,
     required this.model,
-    required this.insurance,
+    this.insurance,
     required this.registration,
     this.puc,
     this.distance,
@@ -24,7 +24,7 @@ class Vehicle {
           json['name'] as String? ??
           'My Vehicle', // Default name if not present
       model: json['model'] as String? ?? 'Unknown Model',
-      insurance: json['insurance'] as String? ?? '',
+      insurance: json['insurance'] as String?,
       registration: json['registration'] as String? ?? '',
       puc: json['puc']?.toString(), // Handle potential non-string types safely
       distance: (json['distance'] as num?)?.toDouble(),
