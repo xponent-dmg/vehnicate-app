@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:vehnway/Pages/profile/constants/profile_constants.dart';
-import 'package:vehnway/Widgets/glass_lite_container.dart';
+import 'package:vehnway/core/constants/app_gradients.dart';
 
 class GnavBar extends StatelessWidget {
   const GnavBar({
@@ -14,11 +13,13 @@ class GnavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassLiteContainer(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       margin: const EdgeInsets.symmetric(horizontal: 17, vertical: 20),
-      borderRadius: BorderRadius.circular(50),
-      backgroundColor: ProfileConstants.cardBackground,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: AppColors.darkGreyBackground,
+      ),
       child: GNav(
         gap: 8,
         color: Colors.grey[800],

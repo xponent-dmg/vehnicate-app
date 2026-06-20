@@ -107,6 +107,7 @@ class _DashboardPageState extends State<DashboardPage> {
           hint: 'e.g., INS123456789',
           icon: Icons.shield,
           controller: _insuranceController,
+          isRequired: false,
         ),
         FormFieldConfig(
           label: 'PUC Date',
@@ -114,6 +115,7 @@ class _DashboardPageState extends State<DashboardPage> {
           icon: Icons.calendar_today,
           controller: _pucDateController,
           type: FormFieldType.date,
+          isRequired: false,
         ),
       ],
       submitButtonText: 'Add Vehicle',
@@ -121,7 +123,10 @@ class _DashboardPageState extends State<DashboardPage> {
         await Provider.of<VehicleProvider>(context, listen: false).addVehicle(
           model: _vehicleModelController.text.trim(),
           registration: _registrationController.text.trim(),
-          insurance: _insuranceController.text.trim(),
+          insurance:
+              _insuranceController.text.trim().isEmpty
+                  ? null
+                  : _insuranceController.text.trim(),
           puc:
               _pucDateController.text.trim().isEmpty
                   ? null

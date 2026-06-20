@@ -145,13 +145,18 @@ class VehicleProvider extends ChangeNotifier {
     // 1. Try Cache First
     final cachedData = CacheService().getTrips(_selectedVehicle!.id);
     if (cachedData.isNotEmpty) {
-      _drives = cachedData.map((data) => Drive.fromJson(data)).toList();
+      final allCached = cachedData.map((data) => Drive.fromJson(data)).toList();
+      _drives = allCached.where((drive) => drive.duration.inSeconds > 120).toList();
       if (_drives.isNotEmpty) {
+        _latestDrive = _drives.first;
         final latest = _drives.first;
         _lastSeenTime =
             latest.endTime.isAfter(latest.startTime)
                 ? latest.endTime
                 : latest.startTime;
+      } else {
+        _latestDrive = null;
+        _lastSeenTime = null;
       }
     }
 
@@ -161,25 +166,27 @@ class VehicleProvider extends ChangeNotifier {
       final drivesData = await SupabaseDriveService().fetchDrives(
         _selectedVehicle!.id,
       );
-      _drives = drivesData.map((data) => Drive.fromJson(data)).toList();
+      final allDrives = drivesData.map((data) => Drive.fromJson(data)).toList();
+      _drives = allDrives.where((drive) => drive.duration.inSeconds > 120).toList();
 
-      // 2. Save to Cache
-      await CacheService().setTrips(_selectedVehicle!.id, drivesData);
+      // 2. Save to Cache (only saving trips > 2 minutes)
+      final filteredDrivesData = drivesData.where((data) {
+        final startStr = data['start_time'] as String?;
+        final endStr = data['end_time'] as String?;
+        if (startStr == null || endStr == null) return false;
+        final start = DateTime.tryParse(startStr);
+        final end = DateTime.tryParse(endStr);
+        if (start == null || end == null) return false;
+        return end.difference(start).inSeconds > 120;
+      }).toList();
+      await CacheService().setTrips(_selectedVehicle!.id, filteredDrivesData);
 
-      final latestData = await SupabaseDriveService().fetchLatestDrive(
-        _selectedVehicle!.id,
-      );
-      if (latestData != null) {
-        _latestDrive = Drive.fromJson(latestData);
-        final endTimeStr = latestData['end_time'] as String?;
-        final startTimeStr = latestData['start_time'] as String?;
-        final parsedTime =
-            endTimeStr != null
-                ? DateTime.tryParse(endTimeStr)
-                : (startTimeStr != null
-                    ? DateTime.tryParse(startTimeStr)
-                    : null);
-        _lastSeenTime = parsedTime?.toLocal();
+      if (_drives.isNotEmpty) {
+        _latestDrive = _drives.first;
+        final parsedTime = _latestDrive!.endTime.isAfter(_latestDrive!.startTime)
+            ? _latestDrive!.endTime
+            : _latestDrive!.startTime;
+        _lastSeenTime = parsedTime.toLocal();
       } else {
         _latestDrive = null;
         _lastSeenTime = null;
@@ -195,7 +202,7 @@ class VehicleProvider extends ChangeNotifier {
   Future<void> addVehicle({
     required String model,
     required String registration,
-    required String insurance,
+    String? insurance,
     String? puc,
   }) async {
     final uid = firebase.FirebaseAuth.instance.currentUser?.uid;

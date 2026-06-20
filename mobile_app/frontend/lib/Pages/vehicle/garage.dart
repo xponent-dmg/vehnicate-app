@@ -74,7 +74,10 @@ class GaragePageState extends State<GaragePage> {
         await SupabaseVehicleService().createVehicle(
           model: _vehicleModelController.text.trim(),
           registration: _registrationController.text.trim().toUpperCase(),
-          insurance: _insuranceController.text.trim().toUpperCase(),
+          insurance:
+              _insuranceController.text.trim().isEmpty
+                  ? null
+                  : _insuranceController.text.trim().toUpperCase(),
           puc:
               _pucDateController.text.trim().isEmpty
                   ? null

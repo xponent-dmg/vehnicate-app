@@ -215,9 +215,81 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                   ),
                   const Divider(color: Colors.white24),
                   // Duration Range
-                  Text(
-                    "Duration (mins): ${_tempDuration.start.toInt()} - ${_tempDuration.end.toInt()}",
-                    style: _FilterSheetConstants.subtitleStyle,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Duration (mins)",
+                        style: _FilterSheetConstants.subtitleStyle,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildAdjustmentButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              setState(() {
+                                final newStart = (_tempDuration.start - 1).clamp(0, _tempDuration.end).toDouble();
+                                _tempDuration = RangeValues(newStart, _tempDuration.end);
+                              });
+                            },
+                          ),
+                          _PrecisionTextField(
+                            value: _tempDuration.start.toInt(),
+                            onChanged: (val) {
+                              setState(() {
+                                final newStart = val.toDouble().clamp(0, _tempDuration.end).toDouble();
+                                _tempDuration = RangeValues(newStart, _tempDuration.end);
+                              });
+                            },
+                            min: 0,
+                            max: 600,
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              setState(() {
+                                final newStart = (_tempDuration.start + 1).clamp(0, _tempDuration.end).toDouble();
+                                _tempDuration = RangeValues(newStart, _tempDuration.end);
+                              });
+                            },
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Text("to", style: TextStyle(color: Colors.white38, fontSize: 12)),
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              setState(() {
+                                final newEnd = (_tempDuration.end - 1).clamp(_tempDuration.start, 600).toDouble();
+                                _tempDuration = RangeValues(_tempDuration.start, newEnd);
+                              });
+                            },
+                          ),
+                          _PrecisionTextField(
+                            value: _tempDuration.end.toInt(),
+                            onChanged: (val) {
+                              setState(() {
+                                final newEnd = val.toDouble().clamp(_tempDuration.start, 600).toDouble();
+                                _tempDuration = RangeValues(_tempDuration.start, newEnd);
+                              });
+                            },
+                            min: 0,
+                            max: 600,
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              setState(() {
+                                final newEnd = (_tempDuration.end + 1).clamp(_tempDuration.start, 600).toDouble();
+                                _tempDuration = RangeValues(_tempDuration.start, newEnd);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   RangeSlider(
                     values: _tempDuration,
@@ -231,9 +303,81 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                   ),
                   const Divider(color: Colors.white24),
                   // Distance Range
-                  Text(
-                    "Distance (km): ${_tempDistance.start.toInt()} - ${_tempDistance.end.toInt()}",
-                    style: _FilterSheetConstants.subtitleStyle,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Distance (km)",
+                        style: _FilterSheetConstants.subtitleStyle,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildAdjustmentButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              setState(() {
+                                final newStart = (_tempDistance.start - 1).clamp(0, _tempDistance.end).toDouble();
+                                _tempDistance = RangeValues(newStart, _tempDistance.end);
+                              });
+                            },
+                          ),
+                          _PrecisionTextField(
+                            value: _tempDistance.start.toInt(),
+                            onChanged: (val) {
+                              setState(() {
+                                final newStart = val.toDouble().clamp(0, _tempDistance.end).toDouble();
+                                _tempDistance = RangeValues(newStart, _tempDistance.end);
+                              });
+                            },
+                            min: 0,
+                            max: 2000,
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              setState(() {
+                                final newStart = (_tempDistance.start + 1).clamp(0, _tempDistance.end).toDouble();
+                                _tempDistance = RangeValues(newStart, _tempDistance.end);
+                              });
+                            },
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Text("to", style: TextStyle(color: Colors.white38, fontSize: 12)),
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              setState(() {
+                                final newEnd = (_tempDistance.end - 1).clamp(_tempDistance.start, 2000).toDouble();
+                                _tempDistance = RangeValues(_tempDistance.start, newEnd);
+                              });
+                            },
+                          ),
+                          _PrecisionTextField(
+                            value: _tempDistance.end.toInt(),
+                            onChanged: (val) {
+                              setState(() {
+                                final newEnd = val.toDouble().clamp(_tempDistance.start, 2000).toDouble();
+                                _tempDistance = RangeValues(_tempDistance.start, newEnd);
+                              });
+                            },
+                            min: 0,
+                            max: 2000,
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              setState(() {
+                                final newEnd = (_tempDistance.end + 1).clamp(_tempDistance.start, 2000).toDouble();
+                                _tempDistance = RangeValues(_tempDistance.start, newEnd);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   RangeSlider(
                     values: _tempDistance,
@@ -340,6 +484,125 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAdjustmentButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 24,
+        height: 24,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.06),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          size: 14,
+          color: Colors.white70,
+        ),
+      ),
+    );
+  }
+}
+
+class _PrecisionTextField extends StatefulWidget {
+  final int value;
+  final ValueChanged<int> onChanged;
+  final int min;
+  final int max;
+
+  const _PrecisionTextField({
+    required this.value,
+    required this.onChanged,
+    required this.min,
+    required this.max,
+  });
+
+  @override
+  State<_PrecisionTextField> createState() => _PrecisionTextFieldState();
+}
+
+class _PrecisionTextFieldState extends State<_PrecisionTextField> {
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value.toString());
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void didUpdateWidget(covariant _PrecisionTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value && !_focusNode.hasFocus) {
+      _controller.text = widget.value.toString();
+    }
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      _submitValue();
+    }
+  }
+
+  void _submitValue() {
+    final val = int.tryParse(_controller.text);
+    if (val != null) {
+      final clamped = val.clamp(widget.min, widget.max);
+      widget.onChanged(clamped);
+      _controller.text = clamped.toString();
+    } else {
+      _controller.text = widget.value.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 28,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Center(
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.zero,
+            border: InputBorder.none,
+            isDense: true,
+          ),
+          onSubmitted: (_) => _submitValue(),
+        ),
       ),
     );
   }

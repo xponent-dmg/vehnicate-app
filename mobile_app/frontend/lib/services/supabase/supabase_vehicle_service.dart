@@ -51,7 +51,7 @@ class SupabaseVehicleService {
 
   Future<void> updateVehicleDetails({
     required int vehicleId,
-    required String insurance,
+    required String? insurance,
     required String registration,
     required String? puc,
     required String model,
@@ -87,7 +87,7 @@ class SupabaseVehicleService {
   Future<void> createVehicle({
     required String model,
     required String registration,
-    required String insurance,
+    String? insurance,
     String? puc,
   }) async {
     try {
