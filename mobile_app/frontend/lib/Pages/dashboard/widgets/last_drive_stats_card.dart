@@ -33,10 +33,17 @@ class LastDriveStatsCard extends StatelessWidget {
         child: const SizedBox(
           height: 120,
           child: Center(
-            child: Text(
-              "No drives recorded yet. Start a drive to see your stats!",
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-              textAlign: TextAlign.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.route_rounded, color: Colors.white54, size: 30),
+                SizedBox(height: 10),
+                Text(
+                  "Start a drive to see your analytics",
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
