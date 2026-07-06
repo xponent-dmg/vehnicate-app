@@ -180,16 +180,22 @@ class AuthService {
   Future<void> deleteAccount() async {
     try {
       final user = currentUser;
-      if (user != null) {
-        // Delete user from Firebase Auth
-        await user.delete();
-
-        // Ensure user is also signed out from Google if they used it
-        await _googleSignIn.signOut();
-
-        // Log analytics event for account deletion
-        await _analytics.logEvent(name: 'account_deleted');
+      if (user == null) {
+        throw Exception('No current user to delete.');
       }
+
+      // Refresh the Firebase user before deletion to ensure the auth session is current.
+      await user.reload();
+
+      // Delete user from Firebase Auth
+      await user.delete();
+
+      // Ensure the local Firebase and Google sessions are cleared after deletion
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+
+      // Log analytics event for account deletion
+      await _analytics.logEvent(name: 'account_deleted');
     } on firebase.FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         throw Exception(
