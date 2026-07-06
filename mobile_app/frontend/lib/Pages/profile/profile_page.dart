@@ -139,8 +139,6 @@ class _ProfilePageState extends State<ProfilePage> {
     final firebaseUser = FirebaseAuth.instance.currentUser;
     if (firebaseUser == null) return;
 
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-
     final isPasswordUser = firebaseUser.providerData.any(
       (userInfo) => userInfo.providerId == 'password',
     );
@@ -164,11 +162,8 @@ class _ProfilePageState extends State<ProfilePage> {
           await AuthService().reauthenticateWithPassword(
             passwordController.text,
           );
-          final user = userProvider.currentUser;
-          if (user != null) {
-            await SupabaseUserService().deleteUser();
-            await AuthService().deleteAccount();
-          }
+          await SupabaseUserService().deleteUser();
+          await AuthService().deleteAccount();
         },
         onSuccess: () {
           if (mounted) {
@@ -204,15 +199,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
         await AuthService().reauthenticateWithGoogle();
 
-        final user = userProvider.currentUser;
+        // 1. Delete from Supabase
+        await SupabaseUserService().deleteUser();
 
-        if (user != null) {
-          // 1. Delete from Supabase
-          await SupabaseUserService().deleteUser();
-
-          // 2. Delete from Firebase and Sign out
-          await AuthService().deleteAccount();
-        }
+        // 2. Delete from Firebase and sign out
+        await AuthService().deleteAccount();
 
         if (mounted) {
           // Close loading dialog
