@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -150,29 +151,73 @@ class SupabaseUserService {
       }
 
       final name = displayName ?? 'New User';
-      final username = name.split(' ')[0];
+      final usernameBase = _buildUsernameBase(name);
+      final usernameCandidates = _buildUsernameCandidates(
+        usernameBase: usernameBase,
+        uid: uid,
+      );
 
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser == null) {
         throw Exception('Firebase user is null during user creation');
       }
 
-      final newData = {
-        'firebaseuid': firebaseUser.uid,
-        'email': email,
-        'name': name,
-        'username': username,
-      };
+      for (final username in usernameCandidates) {
+        final newData = {
+          'firebaseuid': firebaseUser.uid,
+          'email': email,
+          'name': name,
+          'username': username,
+        };
 
-      final response =
-          await client
-              .from(AppConfig.tableUserDetails)
-              .insert(newData)
-              .select()
-              .single();
+        try {
+          final response =
+              await client
+                  .from(AppConfig.tableUserDetails)
+                  .insert(newData)
+                  .select()
+                  .single();
 
-      AppLogger.info('New user record created in Supabase for $uid');
-      return response;
+          AppLogger.info('New user record created in Supabase for $uid');
+          return response;
+        } on PostgrestException catch (insertError, insertStack) {
+          if (insertError.code == '23505') {
+            final existingAfterConflict = await client
+                .from(AppConfig.tableUserDetails)
+                .select()
+                .eq('firebaseuid', uid)
+                .maybeSingle();
+
+            if (existingAfterConflict != null) {
+              AppLogger.info(
+                'Existing user row found after conflict while creating $uid',
+              );
+              return existingAfterConflict;
+            }
+
+            AppLogger.warning(
+              'Username conflict while creating user $uid with username $username',
+              insertError,
+              insertStack,
+            );
+            continue;
+          }
+          rethrow;
+        }
+      }
+
+      final existingAfterRetries = await client
+          .from(AppConfig.tableUserDetails)
+          .select()
+          .eq('firebaseuid', uid)
+          .maybeSingle();
+      if (existingAfterRetries != null) {
+        return existingAfterRetries;
+      }
+
+      throw Exception(
+        'Failed to create user_details after trying multiple username candidates.',
+      );
     } catch (e, stack) {
       if (e is PostgrestException && e.code == '23505') {
         AppLogger.info(
@@ -206,6 +251,36 @@ class SupabaseUserService {
       );
       return null;
     }
+  }
+
+  String _buildUsernameBase(String name) {
+    final normalized = name
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
+
+    if (normalized.isEmpty) {
+      return 'new_user';
+    }
+
+    final firstToken = normalized.split('_').first;
+    return firstToken.isEmpty ? 'new_user' : firstToken;
+  }
+
+  List<String> _buildUsernameCandidates({
+    required String usernameBase,
+    required String uid,
+  }) {
+    final uidSuffix = uid.length >= 6 ? uid.substring(uid.length - 6) : uid;
+    final randomSuffix = Random().nextInt(10000).toString().padLeft(4, '0');
+
+    return [
+      usernameBase,
+      '${usernameBase}_$uidSuffix',
+      '${usernameBase}_${uidSuffix}_$randomSuffix',
+    ];
   }
 
   Future<void> ensureUserExists({
