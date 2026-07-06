@@ -172,6 +172,61 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                         return true;
                       }).toList();
 
+                  if (!vehicleProvider.isLoading && drives.isEmpty) {
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final bottomNavigationOffset =
+                            MediaQuery.of(context).padding.bottom + 104.0;
+                        final visibleHeight =
+                            (constraints.maxHeight - bottomNavigationOffset)
+                                .clamp(0.0, constraints.maxHeight);
+
+                        return ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                          ),
+                          children: [
+                            SizedBox(
+                              height: visibleHeight,
+                              child: const Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.route_rounded,
+                                      color: Colors.white54,
+                                      size: 42,
+                                    ),
+                                    SizedBox(height: 14),
+                                    Text(
+                                      'Start a drive to see your analytics',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Your drive stats and trends will appear here.',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+
                   return StarRefreshIndicator(
                     onRefresh: () async {
                       await vehicleProvider.loadDrives();

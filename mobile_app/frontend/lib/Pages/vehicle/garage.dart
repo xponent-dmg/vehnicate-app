@@ -140,6 +140,57 @@ class GaragePageState extends State<GaragePage> {
   Widget _buildVehicleList(VehicleProvider vehicleProvider) {
     final vehicles = vehicleProvider.vehicles;
 
+    if (vehicles.isEmpty) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final bottomNavigationOffset = MediaQuery.of(context).padding.bottom + 104.0;
+          final visibleHeight =
+              (constraints.maxHeight - bottomNavigationOffset).clamp(
+                0.0,
+                constraints.maxHeight,
+              );
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            children: [
+              SizedBox(
+                height: visibleHeight,
+                child: const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.directions_car_filled_rounded,
+                        color: Colors.white54,
+                        size: 42,
+                      ),
+                      SizedBox(height: 14),
+                      Text(
+                        'Add your first car',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Your garage will appear here once you add a vehicle.',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
