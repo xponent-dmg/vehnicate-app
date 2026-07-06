@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:vehnway/services/auth_service.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/Providers/user_provider.dart';
 import 'package:vehnway/services/supabase/supabase_user_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -69,6 +71,8 @@ class _LoginPageState extends State<LoginPage> {
         displayName: user.displayName,
       );
 
+      await context.read<UserProvider>().refresh();
+
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
@@ -101,6 +105,8 @@ class _LoginPageState extends State<LoginPage> {
         email: user.email ?? '',
         displayName: user.displayName,
       );
+
+      await context.read<UserProvider>().refresh();
 
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
