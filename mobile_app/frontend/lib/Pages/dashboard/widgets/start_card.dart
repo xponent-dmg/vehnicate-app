@@ -8,6 +8,61 @@ import 'package:vehnway/core/constants/app_gradients.dart';
 class StartCard extends StatelessWidget {
   const StartCard({super.key});
 
+  Future<void> _startDrive(BuildContext context) async {
+    final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
+    if (vehicleProvider.vehicleId == null) {
+      CustomSnackBar.showWarning(
+        context,
+        "Please select or add a vehicle before starting your drive.",
+      );
+      return;
+    }
+
+    final orientation = MediaQuery.of(context).orientation;
+    if (orientation == Orientation.portrait) {
+      final shouldContinue = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            icon: const Icon(Icons.screen_rotation_rounded, size: 34),
+            title: const Text('Rotate your phone'),
+            content: const Text(
+              'Please hold your phone horizontally for the best drive experience before starting the drive.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Continue'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldContinue != true || !context.mounted) {
+        return;
+      }
+    }
+
+    if (!context.mounted) return;
+
+    Navigator.pushNamed(
+      context,
+      "/loading",
+      arguments: {
+        "duration": const Duration(seconds: 3),
+        "onComplete": () {
+          Navigator.pushReplacementNamed(context, "/imu");
+        },
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GlassLiteContainer(
@@ -17,29 +72,7 @@ class StartCard extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {
-              final vehicleProvider = Provider.of<VehicleProvider>(
-                context,
-                listen: false,
-              );
-              if (vehicleProvider.vehicleId == null) {
-                CustomSnackBar.showWarning(
-                  context,
-                  "Please select or add a vehicle before starting your drive.",
-                );
-                return;
-              }
-              Navigator.pushNamed(
-                context,
-                "/loading",
-                arguments: {
-                  "duration": const Duration(seconds: 3),
-                  "onComplete": () {
-                    Navigator.pushReplacementNamed(context, "/imu");
-                  },
-                },
-              );
-            },
+            onTap: () => _startDrive(context),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
