@@ -41,7 +41,7 @@ class _MapWebviewScreenState extends State<MapWebviewScreen> {
               },
             ),
           )
-          ..loadRequest(Uri.parse('https://vehnicate-maps.vercel.app/map'));
+          ..loadRequest(Uri.parse('https://vehnicate.com/map'));
   }
 
   @override
