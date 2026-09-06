@@ -6,6 +6,15 @@ class Config {
   static String get openRouteServiceApiKey =>
       dotenv.env['OPEN_MAPS_API_KEY'] ?? '';
 
+  // CARTO Basemaps API Configuration
+  // Reads from .env file: CARTO_BASEMAPS_API_KEY
+  static String get cartoBasemapsApiKey =>
+      dotenv.env['CARTO_BASEMAPS_API_KEY'] ?? '';
+
+  // CARTO Basemaps Voyager Tile URL
+  static String get cartoVoyagerUrl =>
+      'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=$cartoBasemapsApiKey';
+
   // OpenRouteService API Base URL
   static const String openRouteServiceBaseUrl =
       'https://api.openrouteservice.org';

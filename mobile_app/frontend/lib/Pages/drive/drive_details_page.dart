@@ -12,6 +12,7 @@ import 'package:vehnway/models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
+import 'package:vehnway/config/config.dart';
 
 // Constants and Theme (consistent with other pages)
 class DriveDetailsPage extends StatefulWidget {
@@ -584,9 +585,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
       ),
       children: [
         TileLayer(
-          urlTemplate:
-              'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-          subdomains: ['a', 'b', 'c', 'd'],
+          urlTemplate: Config.cartoVoyagerUrl,
           userAgentPackageName: 'com.vehnicate.app',
         ),
         PolylineLayer(

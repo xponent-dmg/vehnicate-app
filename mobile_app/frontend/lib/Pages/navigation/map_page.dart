@@ -707,9 +707,7 @@
 //       ),
 //       children: [
 //         TileLayer(
-//           urlTemplate:
-//               'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-//           subdomains: ['a', 'b', 'c', 'd'],
+//           urlTemplate: Config.cartoVoyagerUrl,
 //           userAgentPackageName: 'com.vehnicate.app',
 //         ),
 //         if (_routePoints.isNotEmpty)
