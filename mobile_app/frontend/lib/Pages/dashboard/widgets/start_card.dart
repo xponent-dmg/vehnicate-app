@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Widgets/custom_snackbar.dart';
@@ -7,6 +9,95 @@ import 'package:vehnway/core/constants/app_gradients.dart';
 
 class StartCard extends StatelessWidget {
   const StartCard({super.key});
+
+  Future<bool?> _chooseCameraMode(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Start drive'),
+          content: const Text('Would you like to use the camera for this drive?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Without camera'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('With camera'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _requestDrivePermissions(
+    BuildContext context, {
+    required bool useCamera,
+  }) async {
+    final locationStatus = await Permission.location.request();
+    if (!locationStatus.isGranted && !locationStatus.isLimited) {
+      if (context.mounted) {
+        CustomSnackBar.showError(context, 'Location permission is required to start a drive.');
+      }
+      return false;
+    }
+
+    if (useCamera) {
+      final cameraStatus = await Permission.camera.request();
+      if (!cameraStatus.isGranted && !cameraStatus.isLimited) {
+        if (context.mounted) {
+          CustomSnackBar.showError(context, 'Camera permission is required for this drive.');
+        }
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> _showLandscapeTransition(BuildContext context) async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    if (!context.mounted) return;
+
+    Future<void>.delayed(const Duration(milliseconds: 1200), () {
+      if (context.mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 900),
+          builder: (context, value, child) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Transform.rotate(
+                    angle: value * 1.5708,
+                    child: const Icon(Icons.screen_rotation_rounded, size: 54),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text('Switching to horizontal view'),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   Future<void> _startDrive(BuildContext context) async {
     final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
@@ -18,38 +109,22 @@ class StartCard extends StatelessWidget {
       return;
     }
 
-    final orientation = MediaQuery.of(context).orientation;
-    if (orientation == Orientation.portrait) {
-      final shouldContinue = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) {
-          return AlertDialog(
-            icon: const Icon(Icons.screen_rotation_rounded, size: 34),
-            title: const Text('Rotate your phone'),
-            content: const Text(
-              'Please hold your phone horizontally for the best drive experience before starting the drive.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('Continue'),
-              ),
-            ],
-          );
-        },
-      );
+    final useCamera = await _chooseCameraMode(context);
+    if (useCamera == null || !context.mounted) {
+      return;
+    }
 
-      if (shouldContinue != true || !context.mounted) {
+    if (!await _requestDrivePermissions(context, useCamera: useCamera) ||
+        !context.mounted) {
+      return;
+    }
+
+    if (useCamera) {
+      await _showLandscapeTransition(context);
+      if (!context.mounted) {
         return;
       }
     }
-
-    if (!context.mounted) return;
 
     Navigator.pushNamed(
       context,
@@ -57,7 +132,11 @@ class StartCard extends StatelessWidget {
       arguments: {
         "duration": const Duration(seconds: 3),
         "onComplete": () {
-          Navigator.pushReplacementNamed(context, "/imu");
+          Navigator.pushReplacementNamed(
+            context,
+            "/imu",
+            arguments: useCamera,
+          );
         },
       },
     );

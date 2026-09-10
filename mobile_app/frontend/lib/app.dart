@@ -83,7 +83,10 @@ class App extends StatelessWidget {
           case "/dash":
             return PageTransitions.fade(DashboardPage());
           case "/imu":
-            return PageTransitions.slideFromBottom(ImuCollector());
+            final useCamera = settings.arguments as bool? ?? true;
+            return PageTransitions.slideFromBottom(
+              ImuCollector(useCamera: useCamera),
+            );
           case "/garage":
             return PageTransitions.scaleFade(GaragePage());
           case "/vehicle-details":
