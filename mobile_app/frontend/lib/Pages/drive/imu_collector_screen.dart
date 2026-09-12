@@ -21,7 +21,9 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:uuid/uuid.dart';
 
 class ImuCollector extends StatefulWidget {
-  const ImuCollector({super.key});
+  const ImuCollector({super.key, this.useCamera = true});
+
+  final bool useCamera;
 
   @override
   State<ImuCollector> createState() => _ImuCollectorState();
@@ -54,10 +56,17 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    SystemChrome.setPreferredOrientations(
+      widget.useCamera
+          ? [
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]
+          : [
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ],
+    );
     AppLogger.info('ImuCollector initialized');
     _initAll();
 
@@ -73,7 +82,9 @@ class _ImuCollectorState extends State<ImuCollector> {
       _deviceId = await _deviceIdService.getPersistentDeviceId();
       AppLogger.info('Persistent Device ID: $_deviceId');
 
-      await _initCamera();
+      if (widget.useCamera) {
+        await _initCamera();
+      }
       await _initLocation();
       AppLogger.info(
         'ImuCollector initialized successfully with deviceId: $_deviceId',
@@ -100,15 +111,9 @@ class _ImuCollectorState extends State<ImuCollector> {
         throw Exception('Location services are disabled');
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception('Location permissions are denied');
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
         throw Exception('Location permissions are permanently denied');
       }
     } catch (e) {
@@ -193,12 +198,13 @@ class _ImuCollectorState extends State<ImuCollector> {
         },
       );
 
-      // Start camera streaming
-      await _cameraService.startStreaming(
-        vehicleId: vehicleId.toString(), // Ensure string
-        deviceId: _deviceId,
-        sessionId: _sessionId,
-      );
+      if (widget.useCamera) {
+        await _cameraService.startStreaming(
+          vehicleId: vehicleId.toString(),
+          deviceId: _deviceId,
+          sessionId: _sessionId,
+        );
+      }
 
       setState(() => isCollecting = true);
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
@@ -225,10 +231,11 @@ class _ImuCollectorState extends State<ImuCollector> {
       _driveEndTime = DateTime.now().toLocal();
 
       // Stop Sensor collection and Camera streaming in parallel
-      await Future.wait([
-        _sensorService.stop(context),
-        _cameraService.stopStreaming(),
-      ]);
+      final stopTasks = <Future<void>>[_sensorService.stop(context)];
+      if (widget.useCamera) {
+        stopTasks.add(_cameraService.stopStreaming());
+      }
+      await Future.wait(stopTasks);
 
       // Send start and end times to backend
       if (_driveStartTime != null && _driveEndTime != null) {
@@ -346,6 +353,10 @@ class _ImuCollectorState extends State<ImuCollector> {
           ),
           child: OrientationBuilder(
             builder: (context, orientation) {
+              if (!widget.useCamera) {
+                return _buildImuOnlyLayout();
+              }
+
               if (orientation == Orientation.landscape) {
                 return _buildLandscapeLayout();
               } else {
@@ -356,6 +367,18 @@ class _ImuCollectorState extends State<ImuCollector> {
         ),
       ), // Close Scaffold
     ); // Close PopScope
+  }
+
+  Widget _buildImuOnlyLayout() {
+    return Column(
+      children: [
+        SizedBox(height: MediaQuery.of(context).size.height * 0.09),
+        _buildStatisticsCard(),
+        _buildControlButtons(),
+        const Spacer(),
+        _buildStatusIndicator(),
+      ],
+    );
   }
 
   Widget _buildPortraitLayout() {
@@ -413,6 +436,24 @@ class _ImuCollectorState extends State<ImuCollector> {
   }
 
   Widget _buildCameraPreview({double? height, bool isLandscape = false}) {
+    if (!widget.useCamera) {
+      return Container(
+        height: height ?? 200,
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: AppColors.darkBackground,
+          border: Border.all(color: Colors.white24, width: 2),
+        ),
+        child: const Center(
+          child: Text(
+            'Camera disabled for this drive',
+            style: TextStyle(color: Colors.white60),
+          ),
+        ),
+      );
+    }
+
     if (_cameraService.isReady && _cameraService.controller != null) {
       // Use reciprocal aspect ratio for landscape mode
       final aspectRatio =
