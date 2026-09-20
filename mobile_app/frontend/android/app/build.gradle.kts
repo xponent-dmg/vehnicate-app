@@ -32,8 +32,8 @@ android {
     productFlavors {
         create("dev") {
             dimension = "environment"
-            applicationIdSuffix = ".test"
-            versionNameSuffix = "-test"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
         }
 
         create("prod") {

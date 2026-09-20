@@ -272,8 +272,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                     .toList();
                               },
                               onChanged: (val) {
-                                if (val != null)
+                                if (val != null) {
                                   setState(() => selectedType = val);
+                                }
                               },
                             ),
                           ),
@@ -356,14 +357,16 @@ class _DashboardPageState extends State<DashboardPage> {
                                   isSubmitting
                                       ? null
                                       : () async {
-                                        if (!formKey.currentState!.validate())
+                                        if (!formKey.currentState!.validate()) {
                                           return;
+                                        }
                                         setState(() => isSubmitting = true);
                                         try {
                                           String finalName =
                                               vehicleNameController.text.trim();
-                                          if (finalName.isEmpty)
+                                          if (finalName.isEmpty) {
                                             finalName = 'Untitled';
+                                          }
 
                                           await Provider.of<VehicleProvider>(
                                             context,
@@ -399,7 +402,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           }
                                           cleanup();
                                         } catch (e) {
-                                          if (context.mounted)
+                                          if (context.mounted) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
@@ -408,11 +411,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 backgroundColor: Colors.red,
                                               ),
                                             );
+                                          }
                                         } finally {
-                                          if (context.mounted)
+                                          if (context.mounted) {
                                             setState(
                                               () => isSubmitting = false,
                                             );
+                                          }
                                         }
                                       },
                               style: ElevatedButton.styleFrom(
