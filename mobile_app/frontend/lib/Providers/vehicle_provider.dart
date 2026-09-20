@@ -202,6 +202,8 @@ class VehicleProvider extends ChangeNotifier {
   Future<void> addVehicle({
     required String model,
     required String registration,
+    required String vehicleType,
+    required double? averageMileage,
     String? insurance,
     String? puc,
   }) async {
@@ -216,6 +218,8 @@ class VehicleProvider extends ChangeNotifier {
       await SupabaseVehicleService().createVehicle(
         model: model,
         registration: registration,
+        vehicleType: vehicleType,
+        averageMileage: averageMileage,
         insurance: insurance,
         puc: puc,
       );

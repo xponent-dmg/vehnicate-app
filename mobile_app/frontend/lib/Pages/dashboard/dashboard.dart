@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:vehnway/Pages/onboarding/permissions_page.dart';
 import 'package:vehnway/Providers/user_provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
-import 'package:vehnway/Widgets/form_overlay.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/Widgets/star_refresh_indicator.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
@@ -15,7 +14,6 @@ import 'package:vehnway/Pages/dashboard/widgets/last_drive_stats_card.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
-
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
@@ -86,80 +84,162 @@ class _DashboardPageState extends State<DashboardPage> {
   // ─── Add vehicle overlay ────────────────────────────────────────────────────
 
   void _showAddVehicleOverlay(BuildContext context) {
-    FormOverlay.show(
+    String selectedType = 'Non-EV';
+    bool isSubmitting = false;
+    final formKey = GlobalKey<FormState>();
+
+    // Reuse these controllers if they are not disposed
+    final vehicleModelController = TextEditingController();
+    final registrationController = TextEditingController();
+    final mileageController = TextEditingController();
+    
+    // Cleanup on close
+    void cleanup() {
+      vehicleModelController.dispose();
+      registrationController.dispose();
+      mileageController.dispose();
+    }
+
+    showGeneralDialog(
       context: context,
-      title: 'Add Vehicle',
-      fields: [
-        FormFieldConfig(
-          label: 'Model',
-          hint: 'e.g., Honda City',
-          icon: Icons.car_rental,
-          controller: _vehicleModelController,
-        ),
-        FormFieldConfig(
-          label: 'Registration Number',
-          hint: 'e.g., KA01AB1234',
-          icon: Icons.confirmation_number,
-          controller: _registrationController,
-        ),
-        FormFieldConfig(
-          label: 'Insurance Number',
-          hint: 'e.g., INS123456789',
-          icon: Icons.shield,
-          controller: _insuranceController,
-          isRequired: false,
-        ),
-        FormFieldConfig(
-          label: 'PUC Date',
-          hint: 'Select date',
-          icon: Icons.calendar_today,
-          controller: _pucDateController,
-          type: FormFieldType.date,
-          isRequired: false,
+      barrierDismissible: false,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Dialog(
+                backgroundColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                child: GlassLiteContainer(
+                  backgroundColor: AppColors.darkBackground,
+                  borderRadius: BorderRadius.circular(20),
+                  hasBorder: true,
+                  hasShadow: true,
+                  padding: const EdgeInsets.all(24),
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Add Vehicle', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                              if (!isSubmitting)
+                                IconButton(icon: const Icon(Icons.close, color: Colors.white70), onPressed: () {
+                                  cleanup();
+                                  Navigator.pop(context);
+                                }),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Type Dropdown
+                          const Text('Vehicle Type *', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            value: selectedType,
+                            dropdownColor: AppColors.surface,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.electric_car, color: Theme.of(context).primaryColor, size: 20),
+                              filled: true,
+                              fillColor: AppColors.surface,
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            ),
+                            items: ['Non-EV', 'EV'].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
+                            onChanged: (val) {
+                              if (val != null) setState(() => selectedType = val);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          // Model
+                          _buildCustomTextField(context, 'Model', 'e.g., Honda City', Icons.car_rental, vehicleModelController),
+                          const SizedBox(height: 16),
+                          // Registration
+                          _buildCustomTextField(context, 'Registration Number', 'e.g., KA01AB1234', Icons.confirmation_number, registrationController),
+                          const SizedBox(height: 16),
+                          // Average Mileage
+                          _buildCustomTextField(context, 'Average Mileage', 'e.g., 15', Icons.speed, mileageController, 
+                           suffixText: selectedType == 'EV' ? 'km/kWh' : 'km/L', isNumber: true),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isSubmitting ? null : () async {
+                                if (!formKey.currentState!.validate()) return;
+                                setState(() => isSubmitting = true);
+                                try {
+                                  await Provider.of<VehicleProvider>(context, listen: false).addVehicle(
+                                    model: vehicleModelController.text.trim(),
+                                    registration: registrationController.text.trim().toUpperCase(),
+                                    vehicleType: selectedType,
+                                    averageMileage: double.tryParse(mileageController.text.trim()),
+                                  );
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Vehicle added successfully!'), backgroundColor: Theme.of(context).primaryColor));
+                                  }
+                                  cleanup();
+                                } catch (e) {
+                                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
+                                } finally {
+                                  if (context.mounted) setState(() => isSubmitting = false);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: isSubmitting ? const SizedBox(width:20, height:20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Add Vehicle', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomTextField(BuildContext context, String label, String hint, IconData icon, TextEditingController controller, {String? suffixText, bool isNumber = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label *', style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          keyboardType: isNumber ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.white38),
+            prefixIcon: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
+            suffixText: suffixText,
+            suffixStyle: const TextStyle(color: Colors.white70),
+            filled: true,
+            fillColor: AppColors.surface,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2)),
+            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 1)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          validator: (value) => (value == null || value.trim().isEmpty) ? 'Required' : null,
         ),
       ],
-      submitButtonText: 'Add Vehicle',
-      onSubmit: () async {
-        await Provider.of<VehicleProvider>(context, listen: false).addVehicle(
-          model: _vehicleModelController.text.trim(),
-          registration: _registrationController.text.trim(),
-          insurance:
-              _insuranceController.text.trim().isEmpty
-                  ? null
-                  : _insuranceController.text.trim(),
-          puc:
-              _pucDateController.text.trim().isEmpty
-                  ? null
-                  : _pucDateController.text.trim(),
-        );
-
-        _vehicleModelController.clear();
-        _registrationController.clear();
-        _insuranceController.clear();
-        _pucDateController.clear();
-      },
-      onSuccess: () {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Vehicle added successfully!'),
-              backgroundColor: Theme.of(context).primaryColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-      onError: (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to add vehicle: ${error.toString()}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
     );
   }
 

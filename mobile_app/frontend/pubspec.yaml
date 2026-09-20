@@ -88,6 +88,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   path: ^1.9.1
+  flutter_foreground_task: ^9.2.2
 
 dev_dependencies:
   flutter_test:

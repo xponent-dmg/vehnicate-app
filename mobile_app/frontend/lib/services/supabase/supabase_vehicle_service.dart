@@ -87,6 +87,8 @@ class SupabaseVehicleService {
   Future<void> createVehicle({
     required String model,
     required String registration,
+    required String vehicleType,
+    required double? averageMileage,
     String? insurance,
     String? puc,
   }) async {
@@ -102,6 +104,8 @@ class SupabaseVehicleService {
         'firebaseuid': firebaseUser.uid,
         'model': model,
         'registration': registration,
+        'vehicle_type': vehicleType,
+        'average_mileage': averageMileage,
         'insurance': insurance,
         'puc': puc,
         'created_at': DateTime.now().toLocal().toIso8601String(),

@@ -2,6 +2,8 @@ class Vehicle {
   final int id;
   final String name;
   final String model;
+  final String? vehicleType;
+  final double? averageMileage;
   final String? insurance;
   final String registration;
   final String? puc;
@@ -11,6 +13,8 @@ class Vehicle {
     required this.id,
     required this.name,
     required this.model,
+    this.vehicleType,
+    this.averageMileage,
     this.insurance,
     required this.registration,
     this.puc,
@@ -24,6 +28,8 @@ class Vehicle {
           json['name'] as String? ??
           'My Vehicle', // Default name if not present
       model: json['model'] as String? ?? 'Unknown Model',
+      vehicleType: json['vehicle_type'] as String?,
+      averageMileage: (json['average_mileage'] as num?)?.toDouble(),
       insurance: json['insurance'] as String?,
       registration: json['registration'] as String? ?? '',
       puc: json['puc']?.toString(), // Handle potential non-string types safely
@@ -36,6 +42,8 @@ class Vehicle {
       'vehicleid': id,
       'name': name,
       'model': model,
+      'vehicle_type': vehicleType,
+      'average_mileage': averageMileage,
       'insurance': insurance,
       'registration': registration,
       'puc': puc,

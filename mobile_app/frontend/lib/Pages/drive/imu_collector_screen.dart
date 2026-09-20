@@ -19,6 +19,29 @@ import 'package:vehnway/core/constants/app_config.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'dart:isolate';
+
+@pragma('vm:entry-point')
+void startCallback() {
+  FlutterForegroundTask.setTaskHandler(MyTaskHandler());
+}
+
+class MyTaskHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
+  
+  @override
+  void onRepeatEvent(DateTime timestamp) {}
+  
+  @override
+  Future<void> onDestroy(DateTime timestamp, bool isBackground) async {}
+  
+  @override
+  void onNotificationPressed() {
+    FlutterForegroundTask.launchApp();
+  }
+}
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key, this.useCamera = true});
@@ -29,7 +52,7 @@ class ImuCollector extends StatefulWidget {
   State<ImuCollector> createState() => _ImuCollectorState();
 }
 
-class _ImuCollectorState extends State<ImuCollector> {
+class _ImuCollectorState extends State<ImuCollector> with WidgetsBindingObserver {
   final SensorService _sensorService = SensorService();
   final CameraServiceRGB _cameraService = CameraServiceRGB();
   final DeviceIdService _deviceIdService = DeviceIdService();
@@ -56,6 +79,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations(
       widget.useCamera
           ? [
@@ -68,12 +92,45 @@ class _ImuCollectorState extends State<ImuCollector> {
           ],
     );
     AppLogger.info('ImuCollector initialized');
+    _initForegroundTask();
     _initAll();
 
     // Listen to camera service stats updates
     _cameraService.onStatsUpdated = () {
       if (mounted) setState(() {});
     };
+  }
+
+  void _initForegroundTask() {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'vehnicate_background',
+        channelName: 'Vehnicate Data Collection',
+        channelDescription: 'Keeps data collection running in the background',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(5000),
+        autoRunOnBoot: false,
+        allowWakeLock: false,
+        allowWifiLock: false,
+      ),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      if (widget.useCamera && isCollecting) {
+        CustomSnackBar.showWarning(context, 'Camera recording stopped because app was put in background.');
+        stopCollection();
+      }
+    }
   }
 
   Future<void> _initAll() async {
@@ -144,7 +201,9 @@ class _ImuCollectorState extends State<ImuCollector> {
     }
 
     // 2. Enable Wakelock
-    await WakelockPlus.enable();
+    if (widget.useCamera) {
+      await WakelockPlus.enable();
+    }
 
     if (!mounted) return;
     final vehicleId = context.read<VehicleProvider>().vehicleId;
@@ -155,7 +214,7 @@ class _ImuCollectorState extends State<ImuCollector> {
           'Error: No vehicle selected. Please go to Garage and select a vehicle.',
         );
       }
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
       return;
     }
 
@@ -207,6 +266,16 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
 
       setState(() => isCollecting = true);
+
+      if (!widget.useCamera) {
+        if (await FlutterForegroundTask.isRunningService == false) {
+          FlutterForegroundTask.startService(
+            notificationTitle: 'vehnWay',
+            notificationText: 'Data collection is active in background',
+            callback: startCallback,
+          );
+        }
+      }
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e, st) {
       AppLogger.error('Failed to start collection', e, st);
@@ -215,7 +284,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
       _driveStartTime = null; // Reset if failed
       // CustomSnackBar.showError(context, 'Failed to start collection: $e');
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
     }
   }
 
@@ -249,7 +318,11 @@ class _ImuCollectorState extends State<ImuCollector> {
         });
       }
 
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
+      
+      if (!widget.useCamera) {
+        FlutterForegroundTask.stopService();
+      }
 
       // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
     } catch (e, st) {
@@ -259,7 +332,8 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
+      if (!widget.useCamera) FlutterForegroundTask.stopService();
     }
   }
 
@@ -290,7 +364,8 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   @override
   void dispose() {
-    WakelockPlus.disable();
+    WidgetsBinding.instance.removeObserver(this);
+    if (widget.useCamera) WakelockPlus.disable();
     _cameraService.dispose();
     _sensorService.dispose();
     SystemChrome.setPreferredOrientations([
