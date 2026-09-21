@@ -1,3 +1,5 @@
+import 'package:vehnway/utils/ist_date_time.dart';
+
 class DriveEvent {
   final int id;
   final int vehicleId;
@@ -29,7 +31,7 @@ class DriveEvent {
     // Determine end timestamp, default to 1 sec later if not provided (e.g. for discrete events)
     // Note: Schema currently doesn't have end_timestamp, so we infer or might add it later.
     // For now, let's assume point events or short duration.
-    final start = DateTime.parse(json['timestamp']);
+    final start = parseUtc(json['timestamp']);
     return DriveEvent(
       id: json['id'] as int,
       vehicleId: json['vehicle_id'] as int,

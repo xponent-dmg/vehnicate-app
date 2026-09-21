@@ -24,7 +24,9 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   try {
-    await dotenv.load(fileName: ".env");
+    const String environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
+    AppLogger.info('Active Environment: $environment');
+    await dotenv.load(fileName: ".env.$environment");
     _validateEnv();
 
     await Firebase.initializeApp(

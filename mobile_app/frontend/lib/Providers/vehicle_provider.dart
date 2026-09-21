@@ -31,6 +31,7 @@ class VehicleProvider extends ChangeNotifier {
   String? get vehicleInsurance => _selectedVehicle?.insurance;
   String? get vehicleRegistration => _selectedVehicle?.registration;
   String? get vehiclePUC => _selectedVehicle?.puc;
+  double? get vehicleDistance => _selectedVehicle?.distance;
 
   bool get isLoading => _isLoading;
   Object? get error => _error;
@@ -150,10 +151,10 @@ class VehicleProvider extends ChangeNotifier {
       if (_drives.isNotEmpty) {
         _latestDrive = _drives.first;
         final latest = _drives.first;
-        _lastSeenTime =
-            latest.endTime.isAfter(latest.startTime)
-                ? latest.endTime
-                : latest.startTime;
+        final lastTime = latest.endTime.isAfter(latest.startTime)
+            ? latest.endTime
+            : latest.startTime;
+        _lastSeenTime = lastTime.toUtc();
       } else {
         _latestDrive = null;
         _lastSeenTime = null;
@@ -186,7 +187,7 @@ class VehicleProvider extends ChangeNotifier {
         final parsedTime = _latestDrive!.endTime.isAfter(_latestDrive!.startTime)
             ? _latestDrive!.endTime
             : _latestDrive!.startTime;
-        _lastSeenTime = parsedTime.toLocal();
+        _lastSeenTime = parsedTime.toUtc();
       } else {
         _latestDrive = null;
         _lastSeenTime = null;
@@ -200,6 +201,7 @@ class VehicleProvider extends ChangeNotifier {
   }
 
   Future<void> addVehicle({
+    required String name,
     required String model,
     required String registration,
     required String vehicleType,
@@ -216,6 +218,7 @@ class VehicleProvider extends ChangeNotifier {
 
     try {
       await SupabaseVehicleService().createVehicle(
+        name: name,
         model: model,
         registration: registration,
         vehicleType: vehicleType,

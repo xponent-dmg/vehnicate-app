@@ -20,7 +20,6 @@ import 'package:vehnway/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'dart:isolate';
 
 @pragma('vm:entry-point')
 void startCallback() {
@@ -227,7 +226,7 @@ class _ImuCollectorState extends State<ImuCollector> with WidgetsBindingObserver
       }
 
       // Capture start time
-      _driveStartTime = DateTime.now().toLocal();
+      _driveStartTime = DateTime.now().toUtc();
 
       // Generate session UUID
       _sessionId = const Uuid().v4();
@@ -297,7 +296,7 @@ class _ImuCollectorState extends State<ImuCollector> with WidgetsBindingObserver
 
     try {
       // Capture end time
-      _driveEndTime = DateTime.now().toLocal();
+      _driveEndTime = DateTime.now().toUtc();
 
       // Stop Sensor collection and Camera streaming in parallel
       final stopTasks = <Future<void>>[_sensorService.stop(context)];

@@ -55,8 +55,8 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
 
   String _formatRelativeTime(DateTime? dateTime) {
     if (dateTime == null) return "Not seen yet";
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
+    final now = DateTime.now().toUtc();
+    final difference = now.difference(dateTime.toUtc());
 
     if (difference.isNegative) {
       return "Just now";

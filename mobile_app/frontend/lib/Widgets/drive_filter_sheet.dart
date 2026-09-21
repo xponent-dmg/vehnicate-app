@@ -215,12 +215,70 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                   ),
                   const Divider(color: Colors.white24),
                   // Duration Range
+                  const Text(
+                    "Duration (mins)",
+                    style: _FilterSheetConstants.subtitleStyle,
+                  ),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildAdjustmentButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              setState(() {
+                                final newStart =
+                                    (_tempDuration.start - 1)
+                                        .clamp(0, _tempDuration.end)
+                                        .toDouble();
+                                _tempDuration = RangeValues(
+                                  newStart,
+                                  _tempDuration.end,
+                                );
+                              });
+                            },
+                          ),
+                          _PrecisionTextField(
+                            value: _tempDuration.start.toInt(),
+                            onChanged: (val) {
+                              setState(() {
+                                final newStart =
+                                    val
+                                        .toDouble()
+                                        .clamp(0, _tempDuration.end)
+                                        .toDouble();
+                                _tempDuration = RangeValues(
+                                  newStart,
+                                  _tempDuration.end,
+                                );
+                              });
+                            },
+                            min: 0,
+                            max: 600,
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              setState(() {
+                                final newStart =
+                                    (_tempDuration.start + 1)
+                                        .clamp(0, _tempDuration.end)
+                                        .toDouble();
+                                _tempDuration = RangeValues(
+                                  newStart,
+                                  _tempDuration.end,
+                                );
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                       const Text(
-                        "Duration (mins)",
-                        style: _FilterSheetConstants.subtitleStyle,
+                        "to",
+                        style: TextStyle(color: Colors.white38, fontSize: 12),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -229,41 +287,14 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             icon: Icons.remove,
                             onPressed: () {
                               setState(() {
-                                final newStart = (_tempDuration.start - 1).clamp(0, _tempDuration.end).toDouble();
-                                _tempDuration = RangeValues(newStart, _tempDuration.end);
-                              });
-                            },
-                          ),
-                          _PrecisionTextField(
-                            value: _tempDuration.start.toInt(),
-                            onChanged: (val) {
-                              setState(() {
-                                final newStart = val.toDouble().clamp(0, _tempDuration.end).toDouble();
-                                _tempDuration = RangeValues(newStart, _tempDuration.end);
-                              });
-                            },
-                            min: 0,
-                            max: 600,
-                          ),
-                          _buildAdjustmentButton(
-                            icon: Icons.add,
-                            onPressed: () {
-                              setState(() {
-                                final newStart = (_tempDuration.start + 1).clamp(0, _tempDuration.end).toDouble();
-                                _tempDuration = RangeValues(newStart, _tempDuration.end);
-                              });
-                            },
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Text("to", style: TextStyle(color: Colors.white38, fontSize: 12)),
-                          ),
-                          _buildAdjustmentButton(
-                            icon: Icons.remove,
-                            onPressed: () {
-                              setState(() {
-                                final newEnd = (_tempDuration.end - 1).clamp(_tempDuration.start, 600).toDouble();
-                                _tempDuration = RangeValues(_tempDuration.start, newEnd);
+                                final newEnd =
+                                    (_tempDuration.end - 1)
+                                        .clamp(_tempDuration.start, 600)
+                                        .toDouble();
+                                _tempDuration = RangeValues(
+                                  _tempDuration.start,
+                                  newEnd,
+                                );
                               });
                             },
                           ),
@@ -271,8 +302,15 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             value: _tempDuration.end.toInt(),
                             onChanged: (val) {
                               setState(() {
-                                final newEnd = val.toDouble().clamp(_tempDuration.start, 600).toDouble();
-                                _tempDuration = RangeValues(_tempDuration.start, newEnd);
+                                final newEnd =
+                                    val
+                                        .toDouble()
+                                        .clamp(_tempDuration.start, 600)
+                                        .toDouble();
+                                _tempDuration = RangeValues(
+                                  _tempDuration.start,
+                                  newEnd,
+                                );
                               });
                             },
                             min: 0,
@@ -282,8 +320,14 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             icon: Icons.add,
                             onPressed: () {
                               setState(() {
-                                final newEnd = (_tempDuration.end + 1).clamp(_tempDuration.start, 600).toDouble();
-                                _tempDuration = RangeValues(_tempDuration.start, newEnd);
+                                final newEnd =
+                                    (_tempDuration.end + 1)
+                                        .clamp(_tempDuration.start, 600)
+                                        .toDouble();
+                                _tempDuration = RangeValues(
+                                  _tempDuration.start,
+                                  newEnd,
+                                );
                               });
                             },
                           ),
@@ -303,12 +347,70 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                   ),
                   const Divider(color: Colors.white24),
                   // Distance Range
+                  const Text(
+                    "Distance (km)",
+                    style: _FilterSheetConstants.subtitleStyle,
+                  ),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildAdjustmentButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              setState(() {
+                                final newStart =
+                                    (_tempDistance.start - 1)
+                                        .clamp(0, _tempDistance.end)
+                                        .toDouble();
+                                _tempDistance = RangeValues(
+                                  newStart,
+                                  _tempDistance.end,
+                                );
+                              });
+                            },
+                          ),
+                          _PrecisionTextField(
+                            value: _tempDistance.start.toInt(),
+                            onChanged: (val) {
+                              setState(() {
+                                final newStart =
+                                    val
+                                        .toDouble()
+                                        .clamp(0, _tempDistance.end)
+                                        .toDouble();
+                                _tempDistance = RangeValues(
+                                  newStart,
+                                  _tempDistance.end,
+                                );
+                              });
+                            },
+                            min: 0,
+                            max: 2000,
+                          ),
+                          _buildAdjustmentButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              setState(() {
+                                final newStart =
+                                    (_tempDistance.start + 1)
+                                        .clamp(0, _tempDistance.end)
+                                        .toDouble();
+                                _tempDistance = RangeValues(
+                                  newStart,
+                                  _tempDistance.end,
+                                );
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                       const Text(
-                        "Distance (km)",
-                        style: _FilterSheetConstants.subtitleStyle,
+                        "to",
+                        style: TextStyle(color: Colors.white38, fontSize: 12),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -317,41 +419,14 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             icon: Icons.remove,
                             onPressed: () {
                               setState(() {
-                                final newStart = (_tempDistance.start - 1).clamp(0, _tempDistance.end).toDouble();
-                                _tempDistance = RangeValues(newStart, _tempDistance.end);
-                              });
-                            },
-                          ),
-                          _PrecisionTextField(
-                            value: _tempDistance.start.toInt(),
-                            onChanged: (val) {
-                              setState(() {
-                                final newStart = val.toDouble().clamp(0, _tempDistance.end).toDouble();
-                                _tempDistance = RangeValues(newStart, _tempDistance.end);
-                              });
-                            },
-                            min: 0,
-                            max: 2000,
-                          ),
-                          _buildAdjustmentButton(
-                            icon: Icons.add,
-                            onPressed: () {
-                              setState(() {
-                                final newStart = (_tempDistance.start + 1).clamp(0, _tempDistance.end).toDouble();
-                                _tempDistance = RangeValues(newStart, _tempDistance.end);
-                              });
-                            },
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Text("to", style: TextStyle(color: Colors.white38, fontSize: 12)),
-                          ),
-                          _buildAdjustmentButton(
-                            icon: Icons.remove,
-                            onPressed: () {
-                              setState(() {
-                                final newEnd = (_tempDistance.end - 1).clamp(_tempDistance.start, 2000).toDouble();
-                                _tempDistance = RangeValues(_tempDistance.start, newEnd);
+                                final newEnd =
+                                    (_tempDistance.end - 1)
+                                        .clamp(_tempDistance.start, 2000)
+                                        .toDouble();
+                                _tempDistance = RangeValues(
+                                  _tempDistance.start,
+                                  newEnd,
+                                );
                               });
                             },
                           ),
@@ -359,8 +434,15 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             value: _tempDistance.end.toInt(),
                             onChanged: (val) {
                               setState(() {
-                                final newEnd = val.toDouble().clamp(_tempDistance.start, 2000).toDouble();
-                                _tempDistance = RangeValues(_tempDistance.start, newEnd);
+                                final newEnd =
+                                    val
+                                        .toDouble()
+                                        .clamp(_tempDistance.start, 2000)
+                                        .toDouble();
+                                _tempDistance = RangeValues(
+                                  _tempDistance.start,
+                                  newEnd,
+                                );
                               });
                             },
                             min: 0,
@@ -370,8 +452,14 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
                             icon: Icons.add,
                             onPressed: () {
                               setState(() {
-                                final newEnd = (_tempDistance.end + 1).clamp(_tempDistance.start, 2000).toDouble();
-                                _tempDistance = RangeValues(_tempDistance.start, newEnd);
+                                final newEnd =
+                                    (_tempDistance.end + 1)
+                                        .clamp(_tempDistance.start, 2000)
+                                        .toDouble();
+                                _tempDistance = RangeValues(
+                                  _tempDistance.start,
+                                  newEnd,
+                                );
                               });
                             },
                           ),
@@ -502,11 +590,7 @@ class _DriveFilterSheetState extends State<DriveFilterSheet> {
           color: Colors.white.withOpacity(0.06),
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          size: 14,
-          color: Colors.white70,
-        ),
+        child: Icon(icon, size: 14, color: Colors.white70),
       ),
     );
   }

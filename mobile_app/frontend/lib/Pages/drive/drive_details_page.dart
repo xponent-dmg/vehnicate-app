@@ -8,8 +8,11 @@ import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/models/drive_model.dart';
 import 'package:vehnway/Pages/drive/constants/drive_constants.dart';
 import 'package:vehnway/services/supabase/supabase_drive_service.dart';
+import 'package:vehnway/services/supabase/supabase_vehicle_service.dart';
+import 'package:vehnway/models/vehicle_model.dart';
 import 'package:vehnway/models/event_model.dart';
 import 'package:intl/intl.dart';
+import 'package:vehnway/utils/ist_date_time.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/config/config.dart';
@@ -32,6 +35,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
   // List<SensorDataPoint> _sensorData = [];
   List<LatLng> _routePoints = [];
   List<DriveEvent> _events = [];
+  Vehicle? _vehicle;
   final MapController _mapController = MapController();
 
   @override
@@ -43,11 +47,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
   Future<void> _fetchDriveData() async {
     try {
       final s = SupabaseDriveService();
-      // final dataFuture = s.fetchDriveData(
-      //   vehicleId: widget.drive.vehicleId,
-      //   startTime: widget.drive.startTime,
-      //   endTime: widget.drive.endTime,
-      // );
+      final v = SupabaseVehicleService();
+
       final eventsFuture = s.fetchDriveEvents(
         vehicleId: widget.drive.vehicleId,
         startTime: widget.drive.startTime,
@@ -58,17 +59,16 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
         startTime: widget.drive.startTime,
         endTime: widget.drive.endTime,
       );
+      final vehicleFuture = v.getVehicleDetails(widget.drive.vehicleId);
 
       final results = await Future.wait([
-        // dataFuture,
         eventsFuture,
         routeFuture,
+        vehicleFuture,
       ]);
-      // final data = results[0];
-      final eventsData = results[0];
-      final routeData = results[1];
-
-      // final points = data.map((e) => SensorDataPoint.fromJson(e)).toList();
+      final eventsData = results[0] as List<dynamic>;
+      final routeData = results[1] as List<Map<String, dynamic>>;
+      final vehicleData = results[2] as Map<String, dynamic>?;
 
       // Route points come pre-filtered (lat/long != 0) with lat, lng columns from Supabase
       final route =
@@ -82,12 +82,15 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
               .toList();
 
       final events = eventsData.map((e) => DriveEvent.fromJson(e)).toList();
+      final vehicle = vehicleData != null ? Vehicle.fromJson(vehicleData) : null;
 
       if (mounted) {
         setState(() {
-          // _sensorData = points;
           _routePoints = route;
           _events = events;
+          if (vehicle != null) {
+            _vehicle = vehicle;
+          }
           _isLoading = false;
         });
       }
@@ -108,8 +111,22 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
 
   @override
   Widget build(BuildContext context) {
+    final vehicleProvider = Provider.of<VehicleProvider>(context);
+    Vehicle? currentVehicle = _vehicle;
+    if (currentVehicle == null) {
+      try {
+        currentVehicle = vehicleProvider.vehicles.firstWhere(
+          (v) => v.id == widget.drive.vehicleId,
+        );
+      } catch (_) {
+        currentVehicle = vehicleProvider.selectedVehicle;
+      }
+    }
+
     final vehicleName =
-        Provider.of<VehicleProvider>(context).vehicleModel ?? 'Vehicle';
+        (currentVehicle != null && currentVehicle.name.isNotEmpty)
+            ? currentVehicle.name
+            : (currentVehicle?.model ?? vehicleProvider.vehicleModel ?? 'Vehicle');
 
     return Scaffold(
       backgroundColor: const Color(
@@ -141,7 +158,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                 Text(
                   DateFormat(
                     'dd MMM yyyy',
-                  ).format(widget.drive.startTime.toLocal()),
+                  ).format(widget.drive.startTime.toIst()),
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
@@ -150,7 +167,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  DateFormat('HH:mm').format(widget.drive.startTime.toLocal()),
+                  DateFormat('HH:mm').format(widget.drive.startTime.toIst()),
                   style: const TextStyle(
                     color: AppColors.buttonBlue,
                     fontSize: 12,
@@ -175,7 +192,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                     const SizedBox(height: 10),
                     _buildMapSection(),
                     const SizedBox(height: 30),
-                    _buildMetricsGrid(),
+                    _buildMetricsGrid(currentVehicle?.distance),
                     const SizedBox(height: 30),
                   ],
                 ),
@@ -453,7 +470,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
 
   */
 
-  Widget _buildMetricsGrid() {
+  Widget _buildMetricsGrid(double? totalVehicleDistance) {
     final duration = widget.drive.endTime.difference(widget.drive.startTime);
     final avgSpeed =
         duration.inHours > 0
@@ -476,8 +493,8 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricItem(
-                icon: FontAwesomeIcons.road,
-                label: 'Distance',
+                icon: FontAwesomeIcons.route,
+                label: 'Trip Distance',
                 value: '${widget.drive.distance.toStringAsFixed(1)} km',
               ),
             ),
@@ -491,6 +508,16 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                 icon: FontAwesomeIcons.tachometerAlt,
                 label: 'Avg Speed',
                 value: '${avgSpeed.toStringAsFixed(1)} km/h',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildMetricItem(
+                icon: Icons.speed,
+                label: 'Total Distance',
+                value: totalVehicleDistance != null
+                    ? '${totalVehicleDistance.toStringAsFixed(1)} km'
+                    : '0.0 km',
               ),
             ),
           ],
@@ -701,7 +728,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
                   style: DriveDetailsConstants.metricLabelStyle,
                 ),
                 Text(
-                  'Time: ${DateFormat('HH:mm:ss').format(event.timestamp.toLocal())}',
+                  'Time: ${DateFormat('HH:mm:ss').format(event.timestamp.toIst())}',
                   style: DriveDetailsConstants.metricLabelStyle,
                 ),
               ],

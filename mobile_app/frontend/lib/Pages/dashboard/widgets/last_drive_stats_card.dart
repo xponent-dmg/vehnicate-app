@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:vehnway/utils/ist_date_time.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
@@ -58,7 +59,7 @@ class LastDriveStatsCard extends StatelessWidget {
 
     final formattedDate = DateFormat(
       'MMM dd, yyyy • hh:mm a',
-    ).format(latestDrive.startTime.toLocal());
+    ).format(latestDrive.startTime.toIst());
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final formattedDuration =

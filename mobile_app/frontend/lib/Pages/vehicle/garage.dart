@@ -7,6 +7,7 @@ import 'package:vehnway/models/vehicle_model.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/Widgets/vehicle_location_text.dart';
 import 'package:vehnway/services/supabase/supabase_vehicle_service.dart';
+import 'package:vehnway/utils/vehicle_type_helper.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -30,18 +31,18 @@ class GaragePageState extends State<GaragePage> {
   }
 
   void showAddVehicleOverlay(BuildContext context) {
-    String selectedType = 'Non-EV';
+    String selectedType = 'sedan';
     bool isSubmitting = false;
     final formKey = GlobalKey<FormState>();
 
     // Reuse these controllers if they are not disposed
-    final vehicleModelController = TextEditingController();
+    final vehicleNameController = TextEditingController();
     final registrationController = TextEditingController();
     final mileageController = TextEditingController();
     
     // Cleanup on close
     void cleanup() {
-      vehicleModelController.dispose();
+      vehicleNameController.dispose();
       registrationController.dispose();
       mileageController.dispose();
     }
@@ -85,34 +86,89 @@ class GaragePageState extends State<GaragePage> {
                             ],
                           ),
                           const SizedBox(height: 16),
+                          // Name
+                          _buildCustomTextField(context, 'Name', 'My Car', Icons.edit, vehicleNameController, isRequired: false),
+                          const SizedBox(height: 16),
                           // Type Dropdown
                           const Text('Vehicle Type *', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
                           const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            value: selectedType,
-                            dropdownColor: AppColors.surface,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.electric_car, color: Theme.of(context).primaryColor, size: 20),
-                              filled: true,
-                              fillColor: AppColors.surface,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButtonFormField<String>(
+                              value: selectedType,
+                              isExpanded: true,
+                              dropdownColor: AppColors.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70),
+                              elevation: 4,
+                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: AppColors.surface,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              ),
+                              items: VehicleTypeHelper.types.map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      VehicleTypeHelper.getIcon(type),
+                                      size: 18,
+                                      color: Colors.white70,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      VehicleTypeHelper.formatName(type),
+                                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              )).toList(),
+                              selectedItemBuilder: (context) {
+                                return VehicleTypeHelper.types.map((type) => Row(
+                                  children: [
+                                    Icon(
+                                      VehicleTypeHelper.getIcon(type),
+                                      color: Theme.of(context).primaryColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        VehicleTypeHelper.formatName(type),
+                                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                )).toList();
+                              },
+                              onChanged: (val) {
+                                if (val != null) setState(() => selectedType = val);
+                              },
                             ),
-                            items: ['Non-EV', 'EV'].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
-                            onChanged: (val) {
-                              if (val != null) setState(() => selectedType = val);
-                            },
                           ),
                           const SizedBox(height: 16),
-                          // Model
-                          _buildCustomTextField(context, 'Model', 'e.g., Honda City', Icons.car_rental, vehicleModelController),
-                          const SizedBox(height: 16),
                           // Registration
-                          _buildCustomTextField(context, 'Registration Number', 'e.g., KA01AB1234', Icons.confirmation_number, registrationController),
+                          _buildCustomTextField(context, 'Registration Number', 'KA01AB1234', Icons.confirmation_number, registrationController),
                           const SizedBox(height: 16),
                           // Average Mileage
-                          _buildCustomTextField(context, 'Average Mileage', 'e.g., 15', Icons.speed, mileageController, 
+                          _buildCustomTextField(context, 'Average Mileage', '15', Icons.speed, mileageController, 
                            suffixText: selectedType == 'EV' ? 'km/kWh' : 'km/L', isNumber: true),
                           const SizedBox(height: 24),
                           SizedBox(
@@ -122,8 +178,12 @@ class GaragePageState extends State<GaragePage> {
                                 if (!formKey.currentState!.validate()) return;
                                 setState(() => isSubmitting = true);
                                 try {
+                                  String finalName = vehicleNameController.text.trim();
+                                  if (finalName.isEmpty) finalName = 'Untitled';
+                                  
                                   await SupabaseVehicleService().createVehicle(
-                                    model: vehicleModelController.text.trim(),
+                                    name: finalName,
+                                    model: 'Unknown Model',
                                     registration: registrationController.text.trim().toUpperCase(),
                                     vehicleType: selectedType,
                                     averageMileage: double.tryParse(mileageController.text.trim()),
@@ -161,11 +221,11 @@ class GaragePageState extends State<GaragePage> {
     );
   }
 
-  Widget _buildCustomTextField(BuildContext context, String label, String hint, IconData icon, TextEditingController controller, {String? suffixText, bool isNumber = false}) {
+  Widget _buildCustomTextField(BuildContext context, String label, String hint, IconData icon, TextEditingController controller, {String? suffixText, bool isNumber = false, bool isRequired = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label *', style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(isRequired ? '$label *' : label, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -173,7 +233,7 @@ class GaragePageState extends State<GaragePage> {
           keyboardType: isNumber ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white38),
+            hintStyle: const TextStyle(color: Colors.white24),
             prefixIcon: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
             suffixText: suffixText,
             suffixStyle: const TextStyle(color: Colors.white70),
@@ -184,7 +244,7 @@ class GaragePageState extends State<GaragePage> {
             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 1)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
-          validator: (value) => (value == null || value.trim().isEmpty) ? 'Required' : null,
+          validator: (value) => isRequired && (value == null || value.trim().isEmpty) ? 'Required' : null,
         ),
       ],
     );

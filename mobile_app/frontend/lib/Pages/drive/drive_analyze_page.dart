@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/models/drive_model.dart';
 import 'package:intl/intl.dart';
+import 'package:vehnway/utils/ist_date_time.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vehnway/Widgets/star_refresh_indicator.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
@@ -131,10 +132,13 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                           return false;
                         }
 
+                        final driveStartIst = drive.startTime.toIst();
+                        final driveEndIst = drive.endTime.toIst();
+
                         if (_filterDate != null) {
-                          if (drive.startTime.year != _filterDate!.year ||
-                              drive.startTime.month != _filterDate!.month ||
-                              drive.startTime.day != _filterDate!.day) {
+                          if (driveStartIst.year != _filterDate!.year ||
+                              driveStartIst.month != _filterDate!.month ||
+                              driveStartIst.day != _filterDate!.day) {
                             return false;
                           }
                         }
@@ -152,18 +156,18 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
                         }
 
                         if (_filterStartTime != null) {
-                          if (drive.startTime.hour < _filterStartTime!.hour ||
-                              (drive.startTime.hour == _filterStartTime!.hour &&
-                                  drive.startTime.minute <
+                          if (driveStartIst.hour < _filterStartTime!.hour ||
+                              (driveStartIst.hour == _filterStartTime!.hour &&
+                                  driveStartIst.minute <
                                       _filterStartTime!.minute)) {
                             return false;
                           }
                         }
 
                         if (_filterEndTime != null) {
-                          if (drive.endTime.hour > _filterEndTime!.hour ||
-                              (drive.endTime.hour == _filterEndTime!.hour &&
-                                  drive.endTime.minute >
+                          if (driveEndIst.hour > _filterEndTime!.hour ||
+                              (driveEndIst.hour == _filterEndTime!.hour &&
+                                  driveEndIst.minute >
                                       _filterEndTime!.minute)) {
                             return false;
                           }
@@ -450,7 +454,7 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy, HH:mm').format(date);
+    return DateFormat('dd MMM yyyy, HH:mm').format(date.toIst());
   }
 
   String _formatDuration(Duration duration) {
