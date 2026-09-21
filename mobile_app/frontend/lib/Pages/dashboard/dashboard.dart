@@ -166,6 +166,16 @@ class _DashboardPageState extends State<DashboardPage> {
                             isRequired: false,
                           ),
                           const SizedBox(height: 16),
+                          // Name
+                          _buildCustomTextField(
+                            context,
+                            'Name',
+                            'My Car',
+                            Icons.edit,
+                            vehicleNameController,
+                            isRequired: false,
+                          ),
+                          const SizedBox(height: 16),
                           // Type Dropdown
                           const Text(
                             'Vehicle Type *',
