@@ -425,18 +425,37 @@ class _ImuCollectorState extends State<ImuCollector> with WidgetsBindingObserver
           decoration: const BoxDecoration(
             gradient: AppGradients.mainBackground,
           ),
-          child: OrientationBuilder(
-            builder: (context, orientation) {
-              if (!widget.useCamera) {
-                return _buildImuOnlyLayout();
-              }
+          child: SafeArea(
+            child: Stack(
+              children: [
+                OrientationBuilder(
+                  builder: (context, orientation) {
+                    if (!widget.useCamera) {
+                      return _buildImuOnlyLayout();
+                    }
 
-              if (orientation == Orientation.landscape) {
-                return _buildLandscapeLayout();
-              } else {
-                return _buildPortraitLayout();
-              }
-            },
+                    if (orientation == Orientation.landscape) {
+                      return _buildLandscapeLayout();
+                    } else {
+                      return _buildPortraitLayout();
+                    }
+                  },
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.maybePop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ), // Close Scaffold

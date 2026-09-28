@@ -86,6 +86,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void _showAddVehicleOverlay(BuildContext context) {
     String selectedType = 'sedan';
+    String selectedFuelType = 'Petrol';
     bool isSubmitting = false;
     final formKey = GlobalKey<FormState>();
 
@@ -277,6 +278,56 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          // Fuel Type Dropdown
+                          const Text(
+                            'Fuel Type *',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ButtonTheme(
+                            alignedDropdown: true,
+                            child: DropdownButtonFormField<String>(
+                              value: selectedFuelType,
+                              isExpanded: true,
+                              dropdownColor: AppColors.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70),
+                              elevation: 4,
+                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: AppColors.surface,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              ),
+                              items: ['Petrol', 'Diesel', 'CNG', 'Electric'].map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                              )).toList(),
+                              onChanged: (val) {
+                                if (val != null) setState(() => selectedFuelType = val);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           // Registration
                           _buildCustomTextField(
                             context,
@@ -325,6 +376,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                                     .trim()
                                                     .toUpperCase(),
                                             vehicleType: selectedType,
+                                            fuelType: selectedFuelType.toLowerCase(),
                                             averageMileage: double.tryParse(
                                               mileageController.text.trim(),
                                             ),

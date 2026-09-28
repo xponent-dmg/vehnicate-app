@@ -3,6 +3,7 @@ class Vehicle {
   final String name;
   final String model;
   final String? vehicleType;
+  final String? fuelType;
   final double? averageMileage;
   final String? insurance;
   final String registration;
@@ -14,6 +15,7 @@ class Vehicle {
     required this.name,
     required this.model,
     this.vehicleType,
+    this.fuelType,
     this.averageMileage,
     this.insurance,
     required this.registration,
@@ -29,6 +31,7 @@ class Vehicle {
           'My Vehicle', // Default name if not present
       model: json['model'] as String? ?? 'Unknown Model',
       vehicleType: json['vehicle_type'] as String?,
+      fuelType: json['fuel_type'] as String?,
       averageMileage: (json['average_mileage'] as num?)?.toDouble(),
       insurance: json['insurance'] as String?,
       registration: json['registration'] as String? ?? '',
@@ -43,6 +46,7 @@ class Vehicle {
       'name': name,
       'model': model,
       'vehicle_type': vehicleType,
+      'fuel_type': fuelType,
       'average_mileage': averageMileage,
       'insurance': insurance,
       'registration': registration,
