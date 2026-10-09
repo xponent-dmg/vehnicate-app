@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
@@ -7,8 +10,39 @@ import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 
-class StartCard extends StatelessWidget {
+class StartCard extends StatefulWidget {
   const StartCard({super.key});
+
+  @override
+  State<StartCard> createState() => _StartCardState();
+}
+
+class _StartCardState extends State<StartCard> {
+  bool _isCollecting = false;
+  Timer? _serviceStateTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshServiceState();
+    _serviceStateTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _refreshServiceState(),
+    );
+  }
+
+  Future<void> _refreshServiceState() async {
+    final isRunning = await FlutterForegroundTask.isRunningService;
+    if (mounted && isRunning != _isCollecting) {
+      setState(() => _isCollecting = isRunning);
+    }
+  }
+
+  @override
+  void dispose() {
+    _serviceStateTimer?.cancel();
+    super.dispose();
+  }
 
   Future<bool?> _chooseCameraMode(BuildContext context) {
     return showDialog<bool>(
@@ -121,6 +155,11 @@ class StartCard extends StatelessWidget {
   }
 
   Future<void> _startDrive(BuildContext context) async {
+    if (_isCollecting) {
+      Navigator.pushNamed(context, '/imu', arguments: false);
+      return;
+    }
+
     final vehicleProvider = Provider.of<VehicleProvider>(
       context,
       listen: false,
@@ -175,13 +214,18 @@ class StartCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                color: _isCollecting ? Colors.transparent : Theme.of(context).primaryColor,
+                border: _isCollecting
+                    ? Border.all(color: Theme.of(context).primaryColor)
+                    : null,
                 borderRadius: BorderRadius.circular(25),
               ),
-              child: const Text(
-                'Start Drive',
+              child: Text(
+                _isCollecting ? 'Data is being collected' : 'Start Drive',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: _isCollecting
+                      ? Theme.of(context).primaryColor
+                      : Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

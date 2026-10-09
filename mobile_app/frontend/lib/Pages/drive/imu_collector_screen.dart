@@ -102,6 +102,10 @@ class _ImuCollectorState extends State<ImuCollector>
           : [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
     );
     AppLogger.info('ImuCollector initialized');
+    isCollecting = _sensorService.isCollecting;
+    _imuDataCount = _sensorService.processedCount;
+    _uploadedImuCount = _sensorService.uploadedCount;
+    _sensorService.setDataCountCallback(_updateDataCounts);
     _initForegroundTask();
     FlutterForegroundTask.addTaskDataCallback(_onTaskData);
     _initAll();
@@ -115,6 +119,15 @@ class _ImuCollectorState extends State<ImuCollector>
   void _onTaskData(Object data) {
     if (data is Map && data['action'] == 'stop_collection' && isCollecting) {
       stopCollection();
+    }
+  }
+
+  void _updateDataCounts(int processed, int uploaded) {
+    if (mounted) {
+      setState(() {
+        _imuDataCount = processed;
+        _uploadedImuCount = uploaded;
+      });
     }
   }
 
@@ -267,14 +280,7 @@ class _ImuCollectorState extends State<ImuCollector>
       await _sensorService.start(
         context: context,
         sessionId: _sessionId,
-        onDataCountUpdate: (processed, uploaded) {
-          if (mounted) {
-            setState(() {
-              _imuDataCount = processed;
-              _uploadedImuCount = uploaded;
-            });
-          }
-        },
+        onDataCountUpdate: _updateDataCounts,
       );
 
       if (widget.useCamera) {
@@ -347,7 +353,8 @@ class _ImuCollectorState extends State<ImuCollector>
       if (widget.useCamera) await WakelockPlus.disable();
 
       if (!widget.useCamera) {
-        FlutterForegroundTask.stopService();
+        await FlutterForegroundTask.stopService();
+        FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
       }
 
       // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
@@ -359,7 +366,10 @@ class _ImuCollectorState extends State<ImuCollector>
         });
       }
       if (widget.useCamera) await WakelockPlus.disable();
-      if (!widget.useCamera) FlutterForegroundTask.stopService();
+      if (!widget.useCamera) {
+        await FlutterForegroundTask.stopService();
+        FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+      }
     }
   }
 
@@ -391,10 +401,11 @@ class _ImuCollectorState extends State<ImuCollector>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+    if (!isCollecting) {
+      FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+    }
     if (widget.useCamera) WakelockPlus.disable();
     _cameraService.dispose();
-    _sensorService.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -407,45 +418,7 @@ class _ImuCollectorState extends State<ImuCollector>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: !isCollecting,
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        if (didPop) {
-          return;
-        }
-
-        // Show confirmation dialog if collection is active
-        if (isCollecting) {
-          final shouldPop = await showDialog<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Stop Data Collection?'),
-                content: const Text(
-                  'Data transmission is currently active. Going back will stop the transmission. Do you want to continue?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Stop & Go Back'),
-                  ),
-                ],
-              );
-            },
-          );
-
-          if (shouldPop == true) {
-            stopCollection();
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        }
-      },
+      canPop: true,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
