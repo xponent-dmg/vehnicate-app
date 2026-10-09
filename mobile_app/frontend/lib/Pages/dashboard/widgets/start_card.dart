@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnway/Providers/imu_collection_controller.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
@@ -97,19 +98,6 @@ class _StartCardState extends State<StartCard> {
       }
     }
 
-    if (!useCamera) {
-      final notificationStatus = await Permission.notification.request();
-      if (!notificationStatus.isGranted && !notificationStatus.isLimited) {
-        if (context.mounted) {
-          CustomSnackBar.showError(
-            context,
-            'Notification permission is required for background IMU collection.',
-          );
-        }
-        return false;
-      }
-    }
-
     return true;
   }
 
@@ -155,11 +143,6 @@ class _StartCardState extends State<StartCard> {
   }
 
   Future<void> _startDrive(BuildContext context) async {
-    if (_isCollecting) {
-      Navigator.pushNamed(context, '/imu', arguments: false);
-      return;
-    }
-
     final vehicleProvider = Provider.of<VehicleProvider>(
       context,
       listen: false,
@@ -203,35 +186,52 @@ class _StartCardState extends State<StartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final imuCollection = context.watch<ImuCollectionController>();
+
     return GlassLiteContainer(
       hasBorder: false,
       backgroundColor: AppColors.background,
       padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => _startDrive(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: _isCollecting ? Colors.transparent : Theme.of(context).primaryColor,
-                border: _isCollecting
-                    ? Border.all(color: Theme.of(context).primaryColor)
-                    : null,
-                borderRadius: BorderRadius.circular(25),
+          if (imuCollection.isCollecting)
+            OutlinedButton.icon(
+              onPressed:
+                  () => Navigator.pushNamed(context, '/imu', arguments: false),
+              icon: const Icon(Icons.sensors_rounded),
+              label: const Text('Data collection in progress'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white70),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                shape: const StadiumBorder(),
               ),
-              child: Text(
-                _isCollecting ? 'Data is being collected' : 'Start Drive',
-                style: TextStyle(
-                  color: _isCollecting
-                      ? Theme.of(context).primaryColor
-                      : Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+            )
+          else
+            GestureDetector(
+              onTap: () => _startDrive(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: const Text(
+                  'Start Drive',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
-          ),
           const Spacer(),
           GestureDetector(
             onTap: () => Navigator.pushNamed(context, "/map-webview"),

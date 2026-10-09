@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vehnway/Providers/user_provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Providers/connectivity_provider.dart';
+import 'package:vehnway/Providers/imu_collection_controller.dart';
 import 'package:vehnway/app.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,16 +18,20 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:vehnway/services/cache_service.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import 'package:vehnway/services/supabase/supabase_core_service.dart';
+import 'package:vehnway/services/foreground_collection_service.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterForegroundTask.initCommunicationPort();
+  ForegroundCollectionService.initialize();
   await Hive.initFlutter();
   await CacheService().init();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   try {
-    const String environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'prod');
+    const String environment = String.fromEnvironment(
+      'ENVIRONMENT',
+      defaultValue: 'prod',
+    );
     AppLogger.info('Active Environment: $environment');
     await dotenv.load(fileName: ".env.$environment");
     _validateEnv();
@@ -78,6 +83,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => VehicleProvider()),
+        ChangeNotifierProvider(create: (_) => ImuCollectionController()),
       ],
       child: const App(),
     ),
