@@ -18,9 +18,11 @@ import 'package:vehnway/services/cache_service.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import 'package:vehnway/services/supabase/supabase_core_service.dart';
 import 'package:vehnway/services/foreground_collection_service.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterForegroundTask.initCommunicationPort();
   ForegroundCollectionService.initialize();
   await Hive.initFlutter();
   await CacheService().init();

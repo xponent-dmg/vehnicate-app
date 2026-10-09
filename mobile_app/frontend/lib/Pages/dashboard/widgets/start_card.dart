@@ -164,8 +164,7 @@ class StartCard extends StatelessWidget {
             OutlinedButton.icon(
               onPressed:
                   () => Navigator.pushNamed(context, '/imu', arguments: false),
-              icon: const Icon(Icons.sensors_rounded),
-              label: const Text('Data collection in progress'),
+              label: const Text('Collecting data...'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: Colors.white70),

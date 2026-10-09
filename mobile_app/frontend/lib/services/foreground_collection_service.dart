@@ -7,6 +7,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 /// the collector page.
 class ForegroundCollectionService {
   static const _serviceId = 1201;
+  static const stopActionId = 'stop_imu_collection';
 
   static void initialize() {
     FlutterForegroundTask.init(
@@ -51,6 +52,9 @@ class ForegroundCollectionService {
       ],
       notificationTitle: 'VehnWay is collecting drive data',
       notificationText: 'IMU and location collection is active.',
+      notificationButtons: const [
+        NotificationButton(id: stopActionId, text: 'Stop'),
+      ],
       callback: startImuForegroundTask,
     );
     return result is ServiceRequestSuccess;
@@ -77,6 +81,15 @@ class _ImuForegroundTaskHandler extends TaskHandler {
 
   @override
   Future<void> onDestroy(DateTime timestamp, bool isBackground) async {}
+
+  @override
+  void onNotificationButtonPressed(String id) {
+    if (id == ForegroundCollectionService.stopActionId) {
+      FlutterForegroundTask.sendDataToMain(
+        ForegroundCollectionService.stopActionId,
+      );
+    }
+  }
 
   @override
   void onNotificationPressed() => FlutterForegroundTask.launchApp();
