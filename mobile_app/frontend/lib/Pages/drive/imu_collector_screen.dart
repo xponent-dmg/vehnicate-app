@@ -221,14 +221,7 @@ class _ImuCollectorState extends State<ImuCollector>
       await _sensorService.start(
         context: context,
         sessionId: _sessionId,
-        onDataCountUpdate: (processed, uploaded) {
-          if (mounted) {
-            setState(() {
-              _imuDataCount = processed;
-              _uploadedImuCount = uploaded;
-            });
-          }
-        },
+        onDataCountUpdate: _updateDataCounts,
       );
 
       if (widget.useCamera) {

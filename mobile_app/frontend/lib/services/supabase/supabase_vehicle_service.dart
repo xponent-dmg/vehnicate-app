@@ -85,7 +85,6 @@ class SupabaseVehicleService {
   }
 
   Future<void> createVehicle({
-    required String name,
     required String model,
     required String registration,
     required String vehicleType,
@@ -104,7 +103,6 @@ class SupabaseVehicleService {
 
       await client.from(AppConfig.tableVehicleDetails).insert({
         'firebaseuid': firebaseUser.uid,
-        'name': name,
         'model': model,
         'registration': registration,
         'vehicle_type': vehicleType,

@@ -9,11 +9,15 @@ import '../models/sensor_data.dart';
 import '../Widgets/custom_snackbar.dart';
 
 class SensorService {
+  static final SensorService _instance = SensorService._internal();
+
+  factory SensorService() => _instance;
+
+  SensorService._internal({SupabaseClient? supabaseClient})
+    : _supabase = supabaseClient ?? Supabase.instance.client;
+
   static const EventChannel _eventChannel = EventChannel('vehnway/sensors');
   final SupabaseClient _supabase;
-
-  SensorService({SupabaseClient? supabaseClient})
-    : _supabase = supabaseClient ?? Supabase.instance.client;
 
   StreamSubscription? _subscription;
   final StreamController<dynamic> _controller =
@@ -32,15 +36,27 @@ class SensorService {
   String? _sessionId;
 
   bool get isCollecting => _isCollecting;
+  int get processedCount => _processedCount;
+  int get uploadedCount => _uploadedCount;
   Stream<dynamic> get sensorStream => _controller.stream;
   Function(int processed, int uploaded)? onDataCountUpdate;
+
+  void setDataCountCallback(
+    Function(int processed, int uploaded)? callback,
+  ) {
+    onDataCountUpdate = callback;
+    callback?.call(_processedCount, _uploadedCount);
+  }
 
   Future<void> start({
     required BuildContext context,
     required String sessionId,
     Function(int processed, int uploaded)? onDataCountUpdate,
   }) async {
-    if (_isCollecting) return;
+    if (_isCollecting) {
+      setDataCountCallback(onDataCountUpdate);
+      return;
+    }
 
     _sessionId = sessionId;
     _isCollecting = true;
