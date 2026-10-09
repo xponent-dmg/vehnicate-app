@@ -26,7 +26,6 @@ class VehicleProvider extends ChangeNotifier {
   Vehicle? get selectedVehicle => _selectedVehicle;
 
   int? get vehicleId => _selectedVehicle?.id;
-  String? get vehicleName => _selectedVehicle?.name;
   String? get vehicleModel => _selectedVehicle?.model;
   String? get vehicleInsurance => _selectedVehicle?.insurance;
   String? get vehicleRegistration => _selectedVehicle?.registration;
@@ -201,7 +200,6 @@ class VehicleProvider extends ChangeNotifier {
   }
 
   Future<void> addVehicle({
-    required String name,
     required String model,
     required String registration,
     required String vehicleType,
@@ -219,7 +217,6 @@ class VehicleProvider extends ChangeNotifier {
 
     try {
       await SupabaseVehicleService().createVehicle(
-        name: name,
         model: model,
         registration: registration,
         vehicleType: vehicleType,

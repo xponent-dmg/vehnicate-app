@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
@@ -17,7 +18,9 @@ class StartCard extends StatelessWidget {
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Start drive'),
-          content: const Text('Would you like to use the camera for this drive?'),
+          content: const Text(
+            'Would you like to use the camera for this drive?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -40,7 +43,10 @@ class StartCard extends StatelessWidget {
     final locationStatus = await Permission.location.request();
     if (!locationStatus.isGranted && !locationStatus.isLimited) {
       if (context.mounted) {
-        CustomSnackBar.showError(context, 'Location permission is required to start a drive.');
+        CustomSnackBar.showError(
+          context,
+          'Location permission is required to start a drive.',
+        );
       }
       return false;
     }
@@ -49,7 +55,23 @@ class StartCard extends StatelessWidget {
       final cameraStatus = await Permission.camera.request();
       if (!cameraStatus.isGranted && !cameraStatus.isLimited) {
         if (context.mounted) {
-          CustomSnackBar.showError(context, 'Camera permission is required for this drive.');
+          CustomSnackBar.showError(
+            context,
+            'Camera permission is required for this drive.',
+          );
+        }
+        return false;
+      }
+    }
+
+    if (!useCamera) {
+      final notificationStatus = await Permission.notification.request();
+      if (!notificationStatus.isGranted && !notificationStatus.isLimited) {
+        if (context.mounted) {
+          CustomSnackBar.showError(
+            context,
+            'Notification permission is required for background IMU collection.',
+          );
         }
         return false;
       }
@@ -100,7 +122,10 @@ class StartCard extends StatelessWidget {
   }
 
   Future<void> _startDrive(BuildContext context) async {
-    final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
+    final vehicleProvider = Provider.of<VehicleProvider>(
+      context,
+      listen: false,
+    );
     if (vehicleProvider.vehicleId == null) {
       CustomSnackBar.showWarning(
         context,
@@ -132,11 +157,7 @@ class StartCard extends StatelessWidget {
       arguments: {
         "duration": const Duration(seconds: 3),
         "onComplete": () {
-          Navigator.pushReplacementNamed(
-            context,
-            "/imu",
-            arguments: useCamera,
-          );
+          Navigator.pushReplacementNamed(context, "/imu", arguments: useCamera);
         },
       },
     );
@@ -182,6 +203,37 @@ class StartCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              CustomSnackBar.showInfo(
+                context,
+                'The IMU notification appears when a camera-free drive starts.',
+              );
+            },
+            onLongPress: () async {
+              if (await FlutterForegroundTask.isRunningService) {
+                await FlutterForegroundTask.stopService();
+                if (context.mounted) {
+                  CustomSnackBar.showSuccess(
+                    context,
+                    'IMU foreground notification stopped.',
+                  );
+                }
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.notifications_active_outlined,
+                color: Colors.white70,
+                size: 24,
+              ),
+            ),
+          ),
         ],
       ),
     );

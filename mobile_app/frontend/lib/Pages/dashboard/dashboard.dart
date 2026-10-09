@@ -89,18 +89,13 @@ class _DashboardPageState extends State<DashboardPage> {
     String selectedFuelType = 'Petrol';
     bool isSubmitting = false;
     final formKey = GlobalKey<FormState>();
+    final messenger = ScaffoldMessenger.of(context);
+    final successColor = Theme.of(context).primaryColor;
 
     // Reuse these controllers if they are not disposed
     final vehicleNameController = TextEditingController();
     final registrationController = TextEditingController();
     final mileageController = TextEditingController();
-
-    // Cleanup on close
-    void cleanup() {
-      vehicleNameController.dispose();
-      registrationController.dispose();
-      mileageController.dispose();
-    }
 
     showGeneralDialog(
       context: context,
@@ -149,7 +144,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                     color: Colors.white70,
                                   ),
                                   onPressed: () {
-                                    cleanup();
                                     Navigator.pop(context);
                                   },
                                 ),
@@ -359,18 +353,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                         if (!formKey.currentState!.validate())
                                           return;
                                         setState(() => isSubmitting = true);
+                                        var submitted = false;
                                         try {
-                                          String finalName =
-                                              vehicleNameController.text.trim();
-                                          if (finalName.isEmpty)
-                                            finalName = 'Untitled';
-
                                           await Provider.of<VehicleProvider>(
                                             context,
                                             listen: false,
                                           ).addVehicle(
-                                            name: finalName,
-                                            model: 'Unknown Model',
+                                            model:
+                                                vehicleNameController.text.trim(),
                                             registration:
                                                 registrationController.text
                                                     .trim()
@@ -382,34 +372,27 @@ class _DashboardPageState extends State<DashboardPage> {
                                             ),
                                           );
                                           if (context.mounted) {
+                                            submitted = true;
                                             Navigator.pop(context);
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
+                                            messenger.showSnackBar(
                                               SnackBar(
                                                 content: const Text(
                                                   'Vehicle added successfully!',
                                                 ),
-                                                backgroundColor:
-                                                    Theme.of(
-                                                      context,
-                                                    ).primaryColor,
+                                                backgroundColor: successColor,
                                               ),
                                             );
                                           }
-                                          cleanup();
                                         } catch (e) {
                                           if (context.mounted)
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
+                                            messenger.showSnackBar(
                                               SnackBar(
                                                 content: Text('Failed: $e'),
                                                 backgroundColor: Colors.red,
                                               ),
                                             );
                                         } finally {
-                                          if (context.mounted)
+                                          if (!submitted && context.mounted)
                                             setState(
                                               () => isSubmitting = false,
                                             );

@@ -124,9 +124,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
     }
 
     final vehicleName =
-        (currentVehicle != null && currentVehicle.name.isNotEmpty)
-            ? currentVehicle.name
-            : (currentVehicle?.model ?? vehicleProvider.vehicleModel ?? 'Vehicle');
+      currentVehicle?.model ?? vehicleProvider.vehicleModel ?? 'Vehicle';
 
     return Scaffold(
       backgroundColor: const Color(

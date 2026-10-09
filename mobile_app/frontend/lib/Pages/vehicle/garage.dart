@@ -35,19 +35,14 @@ class GaragePageState extends State<GaragePage> {
     String selectedFuelType = 'Petrol';
     bool isSubmitting = false;
     final formKey = GlobalKey<FormState>();
+    final messenger = ScaffoldMessenger.of(context);
+    final successColor = Theme.of(context).primaryColor;
 
     // Reuse these controllers if they are not disposed
-    final vehicleNameController = TextEditingController();
+    final vehicleModelController = TextEditingController();
     final registrationController = TextEditingController();
     final mileageController = TextEditingController();
     
-    // Cleanup on close
-    void cleanup() {
-      vehicleNameController.dispose();
-      registrationController.dispose();
-      mileageController.dispose();
-    }
-
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -81,14 +76,12 @@ class GaragePageState extends State<GaragePage> {
                               const Text('Add Vehicle', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                               if (!isSubmitting)
                                 IconButton(icon: const Icon(Icons.close, color: Colors.white70), onPressed: () {
-                                  cleanup();
                                   Navigator.pop(context);
                                 }),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          // Name
-                          _buildCustomTextField(context, 'Name', 'My Car', Icons.edit, vehicleNameController, isRequired: false),
+                          _buildCustomTextField(context, 'Model', 'e.g. Honda City', Icons.directions_car, vehicleModelController, isRequired: true),
                           const SizedBox(height: 16),
                           // Type Dropdown
                           const Text('Vehicle Type *', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
@@ -221,13 +214,10 @@ class GaragePageState extends State<GaragePage> {
                               onPressed: isSubmitting ? null : () async {
                                 if (!formKey.currentState!.validate()) return;
                                 setState(() => isSubmitting = true);
+                                var submitted = false;
                                 try {
-                                  String finalName = vehicleNameController.text.trim();
-                                  if (finalName.isEmpty) finalName = 'Untitled';
-                                  
                                   await SupabaseVehicleService().createVehicle(
-                                    name: finalName,
-                                    model: 'Unknown Model',
+                                    model: vehicleModelController.text.trim(),
                                     registration: registrationController.text.trim().toUpperCase(),
                                     vehicleType: selectedType,
                                     fuelType: selectedFuelType.toLowerCase(),
@@ -235,14 +225,14 @@ class GaragePageState extends State<GaragePage> {
                                   );
                                   if (context.mounted) {
                                     await Provider.of<VehicleProvider>(context, listen: false).refresh();
+                                    submitted = true;
                                     Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Vehicle added successfully!'), backgroundColor: Theme.of(context).primaryColor));
+                                    messenger.showSnackBar(SnackBar(content: const Text('Vehicle added successfully!'), backgroundColor: successColor));
                                   }
-                                  cleanup();
                                 } catch (e) {
-                                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
+                                  if (context.mounted) messenger.showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
                                 } finally {
-                                  if (context.mounted) setState(() => isSubmitting = false);
+                                  if (!submitted && context.mounted) setState(() => isSubmitting = false);
                                 }
                               },
                               style: ElevatedButton.styleFrom(
