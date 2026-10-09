@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 /// Owns the Android foreground notification for an IMU-only drive.
@@ -8,6 +10,12 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 class ForegroundCollectionService {
   static const _serviceId = 1201;
   static const stopActionId = 'stop_imu_collection';
+  static const restoreActionId = 'restore_imu_notification';
+  static const _notificationTitle = 'VehnWay is collecting drive data';
+  static const _notificationText = 'IMU and location collection is active.';
+  static const _notificationButtons = [
+    NotificationButton(id: stopActionId, text: 'Stop'),
+  ];
 
   static void initialize() {
     FlutterForegroundTask.init(
@@ -50,11 +58,9 @@ class ForegroundCollectionService {
         ForegroundServiceTypes.location,
         ForegroundServiceTypes.dataSync,
       ],
-      notificationTitle: 'VehnWay is collecting drive data',
-      notificationText: 'IMU and location collection is active.',
-      notificationButtons: const [
-        NotificationButton(id: stopActionId, text: 'Stop'),
-      ],
+      notificationTitle: _notificationTitle,
+      notificationText: _notificationText,
+      notificationButtons: _notificationButtons,
       callback: startImuForegroundTask,
     );
     return result is ServiceRequestSuccess;
@@ -64,6 +70,18 @@ class ForegroundCollectionService {
     if (await FlutterForegroundTask.isRunningService) {
       await FlutterForegroundTask.stopService();
     }
+  }
+
+  /// Android normally prevents dismissal for ongoing notifications. This is a
+  /// fallback for device-specific notification UIs that still allow a swipe.
+  static Future<void> restoreNotification() async {
+    if (!await FlutterForegroundTask.isRunningService) return;
+
+    await FlutterForegroundTask.updateService(
+      notificationTitle: _notificationTitle,
+      notificationText: _notificationText,
+      notificationButtons: _notificationButtons,
+    );
   }
 }
 
@@ -89,6 +107,16 @@ class _ImuForegroundTaskHandler extends TaskHandler {
         ForegroundCollectionService.stopActionId,
       );
     }
+  }
+
+  @override
+  void onNotificationDismissed() {
+    // The main isolate owns the service API configuration. Ask it to rebuild
+    // the ongoing notification as well as attempting the local restoration.
+    FlutterForegroundTask.sendDataToMain(
+      ForegroundCollectionService.restoreActionId,
+    );
+    unawaited(ForegroundCollectionService.restoreNotification());
   }
 
   @override

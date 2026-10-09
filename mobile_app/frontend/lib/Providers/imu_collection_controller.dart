@@ -146,6 +146,9 @@ class ImuCollectionController extends ChangeNotifier {
   void _onForegroundTaskData(Object data) {
     if (data == ForegroundCollectionService.stopActionId) {
       unawaited(stop());
+    } else if (data == ForegroundCollectionService.restoreActionId &&
+        _isCollecting) {
+      unawaited(ForegroundCollectionService.restoreNotification());
     }
   }
 
