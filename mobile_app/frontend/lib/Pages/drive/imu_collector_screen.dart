@@ -44,8 +44,19 @@ class MyTaskHandler extends TaskHandler {
   @override
   void onNotificationButtonPressed(String id) {
     if (id == 'stop_collection') {
-      FlutterForegroundTask.stopService();
+      FlutterForegroundTask.sendDataToMain({'action': 'stop_collection'});
     }
+  }
+
+  @override
+  void onNotificationDismissed() {
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'vehnWay',
+      notificationText: 'IMU data collection is active',
+      notificationButtons: const [
+        NotificationButton(id: 'stop_collection', text: 'Stop'),
+      ],
+    );
   }
 }
 
@@ -92,12 +103,19 @@ class _ImuCollectorState extends State<ImuCollector>
     );
     AppLogger.info('ImuCollector initialized');
     _initForegroundTask();
+    FlutterForegroundTask.addTaskDataCallback(_onTaskData);
     _initAll();
 
     // Listen to camera service stats updates
     _cameraService.onStatsUpdated = () {
       if (mounted) setState(() {});
     };
+  }
+
+  void _onTaskData(Object data) {
+    if (data is Map && data['action'] == 'stop_collection' && isCollecting) {
+      stopCollection();
+    }
   }
 
   void _initForegroundTask() {
@@ -373,6 +391,7 @@ class _ImuCollectorState extends State<ImuCollector>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     if (widget.useCamera) WakelockPlus.disable();
     _cameraService.dispose();
     _sensorService.dispose();

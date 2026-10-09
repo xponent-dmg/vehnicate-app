@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
@@ -203,37 +202,6 @@ class StartCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () {
-              CustomSnackBar.showInfo(
-                context,
-                'The IMU notification appears when a camera-free drive starts.',
-              );
-            },
-            onLongPress: () async {
-              if (await FlutterForegroundTask.isRunningService) {
-                await FlutterForegroundTask.stopService();
-                if (context.mounted) {
-                  CustomSnackBar.showSuccess(
-                    context,
-                    'IMU foreground notification stopped.',
-                  );
-                }
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.notifications_active_outlined,
-                color: Colors.white70,
-                size: 24,
-              ),
-            ),
-          ),
         ],
       ),
     );
