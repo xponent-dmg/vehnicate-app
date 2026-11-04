@@ -19,6 +19,46 @@ import 'package:vehnway/core/constants/app_config.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+
+@pragma('vm:entry-point')
+void startCallback() {
+  FlutterForegroundTask.setTaskHandler(MyTaskHandler());
+}
+
+class MyTaskHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
+
+  @override
+  void onRepeatEvent(DateTime timestamp) {}
+
+  @override
+  Future<void> onDestroy(DateTime timestamp, bool isBackground) async {}
+
+  @override
+  void onNotificationPressed() {
+    FlutterForegroundTask.launchApp();
+  }
+
+  @override
+  void onNotificationButtonPressed(String id) {
+    if (id == 'stop_collection') {
+      FlutterForegroundTask.sendDataToMain({'action': 'stop_collection'});
+    }
+  }
+
+  @override
+  void onNotificationDismissed() {
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'vehnWay',
+      notificationText: 'IMU data collection is active',
+      notificationButtons: const [
+        NotificationButton(id: 'stop_collection', text: 'Stop'),
+      ],
+    );
+  }
+}
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key, this.useCamera = true});
@@ -29,7 +69,8 @@ class ImuCollector extends StatefulWidget {
   State<ImuCollector> createState() => _ImuCollectorState();
 }
 
-class _ImuCollectorState extends State<ImuCollector> {
+class _ImuCollectorState extends State<ImuCollector>
+    with WidgetsBindingObserver {
   final SensorService _sensorService = SensorService();
   final CameraServiceRGB _cameraService = CameraServiceRGB();
   final DeviceIdService _deviceIdService = DeviceIdService();
@@ -51,29 +92,79 @@ class _ImuCollectorState extends State<ImuCollector> {
   String _deviceId = 'pending...';
   String _sessionId = '';
 
-
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     SystemChrome.setPreferredOrientations(
       widget.useCamera
-          ? [
-            DeviceOrientation.landscapeLeft,
-            DeviceOrientation.landscapeRight,
-          ]
-          : [
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.portraitDown,
-          ],
+          ? [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]
+          : [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
     );
     AppLogger.info('ImuCollector initialized');
+    isCollecting = _sensorService.isCollecting;
+    _imuDataCount = _sensorService.processedCount;
+    _uploadedImuCount = _sensorService.uploadedCount;
+    _sensorService.setDataCountCallback(_updateDataCounts);
+    _initForegroundTask();
+    FlutterForegroundTask.addTaskDataCallback(_onTaskData);
     _initAll();
 
     // Listen to camera service stats updates
     _cameraService.onStatsUpdated = () {
       if (mounted) setState(() {});
     };
+  }
+
+  void _onTaskData(Object data) {
+    if (data is Map && data['action'] == 'stop_collection' && isCollecting) {
+      stopCollection();
+    }
+  }
+
+  void _updateDataCounts(int processed, int uploaded) {
+    if (mounted) {
+      setState(() {
+        _imuDataCount = processed;
+        _uploadedImuCount = uploaded;
+      });
+    }
+  }
+
+  void _initForegroundTask() {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'vehnicate_background',
+        channelName: 'Vehnicate Data Collection',
+        channelDescription: 'Keeps data collection running in the background',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(5000),
+        autoRunOnBoot: false,
+        allowWakeLock: false,
+        allowWifiLock: false,
+      ),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      if (widget.useCamera && isCollecting) {
+        CustomSnackBar.showWarning(
+          context,
+          'Camera recording stopped because app was put in background.',
+        );
+        stopCollection();
+      }
+    }
   }
 
   Future<void> _initAll() async {
@@ -91,7 +182,8 @@ class _ImuCollectorState extends State<ImuCollector> {
       );
     } catch (e, st) {
       AppLogger.error('ImuCollector initialization failed', e, st);
-      if (mounted) CustomSnackBar.showError(context, 'Initialization failed: $e');
+      if (mounted)
+        CustomSnackBar.showError(context, 'Initialization failed: $e');
     }
   }
 
@@ -100,7 +192,8 @@ class _ImuCollectorState extends State<ImuCollector> {
       await _cameraService.initialize();
       if (mounted) setState(() {}); // Rebuild to show preview
     } catch (e) {
-      if (mounted) CustomSnackBar.showError(context, 'Camera initialization failed: $e');
+      if (mounted)
+        CustomSnackBar.showError(context, 'Camera initialization failed: $e');
     }
   }
 
@@ -117,11 +210,10 @@ class _ImuCollectorState extends State<ImuCollector> {
         throw Exception('Location permissions are permanently denied');
       }
     } catch (e) {
-      if (mounted) CustomSnackBar.showError(context, 'Location initialization failed: $e');
+      if (mounted)
+        CustomSnackBar.showError(context, 'Location initialization failed: $e');
     }
   }
-
-
 
   void startCollection() async {
     if (isCollecting) return;
@@ -144,7 +236,9 @@ class _ImuCollectorState extends State<ImuCollector> {
     }
 
     // 2. Enable Wakelock
-    await WakelockPlus.enable();
+    if (widget.useCamera) {
+      await WakelockPlus.enable();
+    }
 
     if (!mounted) return;
     final vehicleId = context.read<VehicleProvider>().vehicleId;
@@ -155,11 +249,9 @@ class _ImuCollectorState extends State<ImuCollector> {
           'Error: No vehicle selected. Please go to Garage and select a vehicle.',
         );
       }
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
       return;
     }
-
-
 
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -168,7 +260,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
 
       // Capture start time
-      _driveStartTime = DateTime.now().toLocal();
+      _driveStartTime = DateTime.now().toUtc();
 
       // Generate session UUID
       _sessionId = const Uuid().v4();
@@ -188,14 +280,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       await _sensorService.start(
         context: context,
         sessionId: _sessionId,
-        onDataCountUpdate: (processed, uploaded) {
-          if (mounted) {
-            setState(() {
-              _imuDataCount = processed;
-              _uploadedImuCount = uploaded;
-            });
-          }
-        },
+        onDataCountUpdate: _updateDataCounts,
       );
 
       if (widget.useCamera) {
@@ -207,6 +292,22 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
 
       setState(() => isCollecting = true);
+
+      if (!widget.useCamera) {
+        if (await FlutterForegroundTask.isRunningService == false) {
+          final result = await FlutterForegroundTask.startService(
+            notificationTitle: 'vehnWay',
+            notificationText: 'IMU data collection is active',
+            notificationButtons: const [
+              NotificationButton(id: 'stop_collection', text: 'Stop'),
+            ],
+            callback: startCallback,
+          );
+          if (result is ServiceRequestFailure) {
+            throw Exception(result.error);
+          }
+        }
+      }
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e, st) {
       AppLogger.error('Failed to start collection', e, st);
@@ -215,7 +316,7 @@ class _ImuCollectorState extends State<ImuCollector> {
       }
       _driveStartTime = null; // Reset if failed
       // CustomSnackBar.showError(context, 'Failed to start collection: $e');
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
     }
   }
 
@@ -228,7 +329,7 @@ class _ImuCollectorState extends State<ImuCollector> {
 
     try {
       // Capture end time
-      _driveEndTime = DateTime.now().toLocal();
+      _driveEndTime = DateTime.now().toUtc();
 
       // Stop Sensor collection and Camera streaming in parallel
       final stopTasks = <Future<void>>[_sensorService.stop(context)];
@@ -249,7 +350,12 @@ class _ImuCollectorState extends State<ImuCollector> {
         });
       }
 
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
+
+      if (!widget.useCamera) {
+        await FlutterForegroundTask.stopService();
+        FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+      }
 
       // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
     } catch (e, st) {
@@ -259,7 +365,11 @@ class _ImuCollectorState extends State<ImuCollector> {
           isStopping = false;
         });
       }
-      await WakelockPlus.disable();
+      if (widget.useCamera) await WakelockPlus.disable();
+      if (!widget.useCamera) {
+        await FlutterForegroundTask.stopService();
+        FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+      }
     }
   }
 
@@ -290,9 +400,12 @@ class _ImuCollectorState extends State<ImuCollector> {
 
   @override
   void dispose() {
-    WakelockPlus.disable();
+    WidgetsBinding.instance.removeObserver(this);
+    if (!isCollecting) {
+      FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+    }
+    if (widget.useCamera) WakelockPlus.disable();
     _cameraService.dispose();
-    _sensorService.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -305,45 +418,7 @@ class _ImuCollectorState extends State<ImuCollector> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: !isCollecting,
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        if (didPop) {
-          return;
-        }
-
-        // Show confirmation dialog if collection is active
-        if (isCollecting) {
-          final shouldPop = await showDialog<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Stop Data Collection?'),
-                content: const Text(
-                  'Data transmission is currently active. Going back will stop the transmission. Do you want to continue?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Stop & Go Back'),
-                  ),
-                ],
-              );
-            },
-          );
-
-          if (shouldPop == true) {
-            stopCollection();
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        }
-      },
+      canPop: true,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
@@ -351,18 +426,37 @@ class _ImuCollectorState extends State<ImuCollector> {
           decoration: const BoxDecoration(
             gradient: AppGradients.mainBackground,
           ),
-          child: OrientationBuilder(
-            builder: (context, orientation) {
-              if (!widget.useCamera) {
-                return _buildImuOnlyLayout();
-              }
+          child: SafeArea(
+            child: Stack(
+              children: [
+                OrientationBuilder(
+                  builder: (context, orientation) {
+                    if (!widget.useCamera) {
+                      return _buildImuOnlyLayout();
+                    }
 
-              if (orientation == Orientation.landscape) {
-                return _buildLandscapeLayout();
-              } else {
-                return _buildPortraitLayout();
-              }
-            },
+                    if (orientation == Orientation.landscape) {
+                      return _buildLandscapeLayout();
+                    } else {
+                      return _buildPortraitLayout();
+                    }
+                  },
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.maybePop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ), // Close Scaffold
@@ -597,7 +691,8 @@ class _ImuCollectorState extends State<ImuCollector> {
             child: ElevatedButton.icon(
               onPressed: () async {
                 await _cameraService.uploadBatch();
-                if (mounted) CustomSnackBar.showSuccess(context, 'Upload triggered');
+                if (mounted)
+                  CustomSnackBar.showSuccess(context, 'Upload triggered');
               },
               icon: const Icon(Icons.upload),
               label: const Text('Upload Now'),

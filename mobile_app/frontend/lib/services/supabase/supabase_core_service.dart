@@ -25,8 +25,8 @@ class SupabaseCoreService {
     } catch (_) {
       try {
         await Supabase.initialize(
-          url: dotenv.get('SUPABASE_PROD_URL'),
-          anonKey: dotenv.get('SUPABASE_PROD_ANON_KEY'),
+          url: dotenv.get('SUPABASE_URL'),
+          anonKey: dotenv.get('SUPABASE_ANON_KEY'),
           accessToken: getFirebaseAccessToken,
         );
         _client = Supabase.instance.client;

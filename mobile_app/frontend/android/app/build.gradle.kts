@@ -27,6 +27,20 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13846066"
 
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".test"
+            versionNameSuffix = "-test"
+        }
+
+        create("prod") {
+            dimension = "environment"
+        }
+    }
+
     signingConfigs {
         if (hasReleaseKeystore) {
             create("release") {

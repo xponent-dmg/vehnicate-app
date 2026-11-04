@@ -1,4 +1,5 @@
 import 'package:vehnway/models/event_model.dart';
+import 'package:vehnway/utils/ist_date_time.dart';
 
 // Drive Model matching Supabase 'trips' table
 class Drive {
@@ -35,8 +36,8 @@ class Drive {
     return Drive(
       tripId: json['session_id'] as String,
       vehicleId: json['vehicle_id'] as int,
-      startTime: DateTime.parse(json['start_time']),
-      endTime: DateTime.parse(json['end_time']),
+      startTime: parseUtc(json['start_time']),
+      endTime: parseUtc(json['end_time']),
       // Handle double or int for distance
       distance: (json['distance'] as num?)?.toDouble() ?? 0.0,
       liquidEllar: (json['liquid_ellar'] as num?)?.toInt() ?? 0,
@@ -97,7 +98,7 @@ class SensorDataPoint {
 
   factory SensorDataPoint.fromJson(Map<String, dynamic> json) {
     return SensorDataPoint(
-      timeSent: DateTime.parse(json['timesent']),
+      timeSent: parseUtc(json['timesent']),
       accelX: (json['accelx'] as num?)?.toDouble() ?? 0.0,
       accelY: (json['accely'] as num?)?.toDouble() ?? 0.0,
       accelZ: (json['accelz'] as num?)?.toDouble() ?? 0.0,

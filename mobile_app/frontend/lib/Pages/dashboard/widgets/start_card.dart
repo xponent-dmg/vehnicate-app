@@ -1,14 +1,49 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:vehnway/Providers/imu_collection_controller.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 
-class StartCard extends StatelessWidget {
+class StartCard extends StatefulWidget {
   const StartCard({super.key});
+
+  @override
+  State<StartCard> createState() => _StartCardState();
+}
+
+class _StartCardState extends State<StartCard> {
+  bool _isCollecting = false;
+  Timer? _serviceStateTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshServiceState();
+    _serviceStateTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _refreshServiceState(),
+    );
+  }
+
+  Future<void> _refreshServiceState() async {
+    final isRunning = await FlutterForegroundTask.isRunningService;
+    if (mounted && isRunning != _isCollecting) {
+      setState(() => _isCollecting = isRunning);
+    }
+  }
+
+  @override
+  void dispose() {
+    _serviceStateTimer?.cancel();
+    super.dispose();
+  }
 
   Future<bool?> _chooseCameraMode(BuildContext context) {
     return showDialog<bool>(
@@ -17,7 +52,9 @@ class StartCard extends StatelessWidget {
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Start drive'),
-          content: const Text('Would you like to use the camera for this drive?'),
+          content: const Text(
+            'Would you like to use the camera for this drive?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -40,7 +77,10 @@ class StartCard extends StatelessWidget {
     final locationStatus = await Permission.location.request();
     if (!locationStatus.isGranted && !locationStatus.isLimited) {
       if (context.mounted) {
-        CustomSnackBar.showError(context, 'Location permission is required to start a drive.');
+        CustomSnackBar.showError(
+          context,
+          'Location permission is required to start a drive.',
+        );
       }
       return false;
     }
@@ -49,7 +89,10 @@ class StartCard extends StatelessWidget {
       final cameraStatus = await Permission.camera.request();
       if (!cameraStatus.isGranted && !cameraStatus.isLimited) {
         if (context.mounted) {
-          CustomSnackBar.showError(context, 'Camera permission is required for this drive.');
+          CustomSnackBar.showError(
+            context,
+            'Camera permission is required for this drive.',
+          );
         }
         return false;
       }
@@ -100,7 +143,10 @@ class StartCard extends StatelessWidget {
   }
 
   Future<void> _startDrive(BuildContext context) async {
-    final vehicleProvider = Provider.of<VehicleProvider>(context, listen: false);
+    final vehicleProvider = Provider.of<VehicleProvider>(
+      context,
+      listen: false,
+    );
     if (vehicleProvider.vehicleId == null) {
       CustomSnackBar.showWarning(
         context,
@@ -132,11 +178,7 @@ class StartCard extends StatelessWidget {
       arguments: {
         "duration": const Duration(seconds: 3),
         "onComplete": () {
-          Navigator.pushReplacementNamed(
-            context,
-            "/imu",
-            arguments: useCamera,
-          );
+          Navigator.pushReplacementNamed(context, "/imu", arguments: useCamera);
         },
       },
     );
@@ -144,30 +186,52 @@ class StartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imuCollection = context.watch<ImuCollectionController>();
+
     return GlassLiteContainer(
       hasBorder: false,
       backgroundColor: AppColors.background,
       padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => _startDrive(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(25),
+          if (imuCollection.isCollecting)
+            OutlinedButton.icon(
+              onPressed:
+                  () => Navigator.pushNamed(context, '/imu', arguments: false),
+              icon: const Icon(Icons.sensors_rounded),
+              label: const Text('Data collection in progress'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white70),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                shape: const StadiumBorder(),
               ),
-              child: const Text(
-                'Start Drive',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+            )
+          else
+            GestureDetector(
+              onTap: () => _startDrive(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: const Text(
+                  'Start Drive',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
-          ),
           const Spacer(),
           GestureDetector(
             onTap: () => Navigator.pushNamed(context, "/map-webview"),

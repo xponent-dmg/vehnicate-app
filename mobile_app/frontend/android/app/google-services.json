@@ -7,34 +7,34 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1088463950262:android:2ec8908bea56ac070a3117",
+        "mobilesdk_app_id": "1:1088463950262:android:f9b8cfd890d12a6b0a3117",
         "android_client_info": {
-          "package_name": "com.opsin.app"
+          "package_name": "com.vehnway.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1088463950262-ede3aqu5c553km65nfhnkbcgggq7amf0.apps.googleusercontent.com",
+          "client_id": "1088463950262-0qv9sqh821f66itgtf97utdpb0rk368k.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.opsin.app",
-            "certificate_hash": "97870ae8cf51e9a9bb082d46b4c6ee5801ecfac7"
-          }
-        },
-        {
-          "client_id": "1088463950262-hlrlpm4ro90lrh48ncjrh3o1tdhinmb0.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.opsin.app",
-            "certificate_hash": "db9bf9730db13779ae7e6ee4aee7861dc2bf7426"
-          }
-        },
-        {
-          "client_id": "1088463950262-mt474ujjtu44bsvdk8r1v0nc9cplom25.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.opsin.app",
+            "package_name": "com.vehnway.app",
             "certificate_hash": "e47cd38ce3714afe9581e82ce80d64e4c0a3ea97"
+          }
+        },
+        {
+          "client_id": "1088463950262-lu5bd8udvne7pbi3cmqdtpim5b8ndoq8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vehnway.app",
+            "certificate_hash": "ae71f90e15eb3bd55cf7d7fe52399870f448777b"
+          }
+        },
+        {
+          "client_id": "1088463950262-pm50794el90ujj5qqk85gfvta321roah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vehnway.app",
+            "certificate_hash": "db9bf9730db13779ae7e6ee4aee7861dc2bf7426"
           }
         },
         {
@@ -67,9 +67,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1088463950262:android:f9b8cfd890d12a6b0a3117",
+        "mobilesdk_app_id": "1:1088463950262:android:5ba14af62d24b4470a3117",
         "android_client_info": {
-          "package_name": "com.vehnway.app"
+          "package_name": "com.vehnway.app.test"
         }
       },
       "oauth_client": [

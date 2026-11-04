@@ -1,7 +1,9 @@
 class Vehicle {
   final int id;
-  final String name;
   final String model;
+  final String? vehicleType;
+  final String? fuelType;
+  final double? averageMileage;
   final String? insurance;
   final String registration;
   final String? puc;
@@ -9,8 +11,10 @@ class Vehicle {
 
   const Vehicle({
     required this.id,
-    required this.name,
     required this.model,
+    this.vehicleType,
+    this.fuelType,
+    this.averageMileage,
     this.insurance,
     required this.registration,
     this.puc,
@@ -20,10 +24,10 @@ class Vehicle {
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
       id: json['vehicleid'] as int,
-      name:
-          json['name'] as String? ??
-          'My Vehicle', // Default name if not present
       model: json['model'] as String? ?? 'Unknown Model',
+      vehicleType: json['vehicle_type'] as String?,
+      fuelType: json['fuel_type'] as String?,
+      averageMileage: (json['average_mileage'] as num?)?.toDouble(),
       insurance: json['insurance'] as String?,
       registration: json['registration'] as String? ?? '',
       puc: json['puc']?.toString(), // Handle potential non-string types safely
@@ -34,8 +38,10 @@ class Vehicle {
   Map<String, dynamic> toJson() {
     return {
       'vehicleid': id,
-      'name': name,
       'model': model,
+      'vehicle_type': vehicleType,
+      'fuel_type': fuelType,
+      'average_mileage': averageMileage,
       'insurance': insurance,
       'registration': registration,
       'puc': puc,

@@ -11,6 +11,10 @@ import android.location.Location
 import android.os.Looper
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 /**
  * Manages sensor acquisition and coordinate conversion.
@@ -31,18 +35,28 @@ class VehnicateSensorManager(
     
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            locationResult.lastLocation?.let { location ->
-                val locationMap = mapOf(
-                    "type" to "gps",
-                    "timestamp" to System.currentTimeMillis(),
-                    "latitude" to location.latitude,
-                    "longitude" to location.longitude,
-                    "speed" to location.speed,
-                    "bearing" to location.bearing
-                )
-                onDataCallback(locationMap)
+            locationResult.locations.forEach { location ->
+                latestLocation = location
             }
         }
+    }
+
+    @Volatile
+    private var latestLocation: Location? = null
+    private var gpsEmissionTask: ScheduledFuture<*>? = null
+
+    private fun emitLatestLocation() {
+        val location = latestLocation ?: return
+        val locationMap = mapOf(
+            "type" to "gps",
+            // This is the time the fixed-rate collector emitted the record.
+            "timestamp" to System.currentTimeMillis(),
+            "latitude" to location.latitude,
+            "longitude" to location.longitude,
+            "speed" to location.speed,
+            "bearing" to location.bearing
+        )
+        onDataCallback(locationMap)
     }
 
     // Sensors
@@ -51,21 +65,35 @@ class VehnicateSensorManager(
     private val gyroscope: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
 
     // Latest sensor values
+    @Volatile
     private var ax = 0f
+    @Volatile
     private var ay = 0f
+    @Volatile
     private var az = 0f
     
+    @Volatile
     private var Ax = 0f
+    @Volatile
     private var Ay = 0f
+    @Volatile
     private var Az = 0f
     
+    @Volatile
     private var Gx = 0f
+    @Volatile
     private var Gy = 0f
+    @Volatile
     private var Gz = 0f
 
+    @Volatile
+    private var latestSensorTimestampNs = 0L
+
     private var isRunning = false
-    private var lastUpdateTime = 0L
-    private val UPDATE_INTERVAL_MS = 20  // Update at ~50 Hz
+    private val imuExecutor: ScheduledExecutorService =
+        Executors.newSingleThreadScheduledExecutor()
+    private val IMU_INTERVAL_MS = 20L // Fixed output rate: 50 Hz
+    private val GPS_INTERVAL_MS = 1000L // Fixed output rate: 1 Hz
 
     /**
      * Starts listening to all sensors and location updates.
@@ -75,21 +103,33 @@ class VehnicateSensorManager(
         
         // Start IMU sensors
         accelerometer?.let {
-            sensorManager.registerListener(this, it, 20000)
+            sensorManager.registerListener(this, it, 20000, 0)
         }
         
         linearAcceleration?.let {
-            sensorManager.registerListener(this, it, 20000)
+            sensorManager.registerListener(this, it, 20000, 0)
         }
         
         gyroscope?.let {
-            sensorManager.registerListener(this, it, 20000)
+            sensorManager.registerListener(this, it, 20000, 0)
         }
         
         // Start location updates if permission granted
         startLocationUpdates()
         
         isRunning = true
+        imuExecutor.scheduleAtFixedRate(
+            { processAndSendData() },
+            0L,
+            IMU_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        )
+        gpsEmissionTask = imuExecutor.scheduleAtFixedRate(
+            { emitLatestLocation() },
+            0L,
+            GPS_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        )
     }
 
     /**
@@ -109,7 +149,7 @@ class VehnicateSensorManager(
             1000 // 1 second interval
         ).apply {
             setMinUpdateIntervalMillis(500)
-            setMaxUpdateDelayMillis(2000)
+            setMaxUpdateDelayMillis(1000)
         }.build()
 
         fusedLocationClient.requestLocationUpdates(
@@ -127,11 +167,16 @@ class VehnicateSensorManager(
         
         sensorManager.unregisterListener(this)
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        gpsEmissionTask?.cancel(false)
+        gpsEmissionTask = null
+        latestLocation = null
         isRunning = false
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         event ?: return
+
+        latestSensorTimestampNs = maxOf(latestSensorTimestampNs, event.timestamp)
 
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
@@ -151,9 +196,6 @@ class VehnicateSensorManager(
                 Gz = Math.toDegrees(event.values[2].toDouble()).toFloat()
             }
         }
-
-        // Process and send data at controlled rate
-        processAndSendData()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -165,19 +207,11 @@ class VehnicateSensorManager(
      * Includes throttling to avoid overwhelming the event channel.
      */
     private fun processAndSendData() {
-        val currentTime = System.currentTimeMillis()
-        
-        // Throttle updates
-        if (currentTime - lastUpdateTime < UPDATE_INTERVAL_MS) {
-            return
-        }
-        
-        lastUpdateTime = currentTime
-
         try {
             val imuMap = mapOf(
                 "type" to "imu",
-                "timestamp" to currentTime,
+                // Keep timestamp in epoch milliseconds for the existing database schema.
+                "timestamp" to System.currentTimeMillis(),
                 "ax" to ax,
                 "ay" to ay,
                 "az" to az,
@@ -186,7 +220,10 @@ class VehnicateSensorManager(
                 "gz" to Gz,
                 "Ax" to Ax,
                 "Ay" to Ay,
-                "Az" to Az
+                "Az" to Az,
+                // Sensor timestamps use elapsedRealtimeNanos and are monotonic,
+                // unlike wall-clock timestamps.
+                "sensor_timestamp_ns" to latestSensorTimestampNs
             )
             onDataCallback(imuMap)
         } catch (e: Exception) {
@@ -200,6 +237,7 @@ class VehnicateSensorManager(
      */
     fun cleanup() {
         stopSensors()
+        imuExecutor.shutdownNow()
     }
 
     /**

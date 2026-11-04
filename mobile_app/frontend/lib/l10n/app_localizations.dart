@@ -121,8 +121,8 @@ abstract class AppLocalizations {
   /// Copyright text shown on splash screen
   ///
   /// In en, this message translates to:
-  /// **'vehnicate@2025'**
-  String get vehnicate2025;
+  /// **'vehnicate@2026'**
+  String get vehnicate2026;
 
   /// Navigation tab title for main dashboard
   ///

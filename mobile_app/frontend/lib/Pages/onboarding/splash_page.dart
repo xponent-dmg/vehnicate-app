@@ -107,7 +107,7 @@ class _SplashPageState extends State<SplashPage>
               Transform.translate(
                 offset: Offset(0, MediaQuery.of(context).size.height / 3),
                 child: Text(
-                  "vehnicate@2025",
+                  "vehnicate@2026",
                   style: TextStyle(
                     color: const Color.fromARGB(255, 255, 255, 255),
                     fontSize: 14,

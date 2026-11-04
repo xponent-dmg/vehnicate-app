@@ -145,7 +145,7 @@ class _OfflinePageState extends State<OfflinePage>
 
                     // ── Footer branding ─────────────────────────────────────
                     Text(
-                      'vehnicate@2025',
+                      'vehnicate@2026',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.18),
                         fontSize: 13,

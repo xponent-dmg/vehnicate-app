@@ -26,11 +26,11 @@ class VehicleProvider extends ChangeNotifier {
   Vehicle? get selectedVehicle => _selectedVehicle;
 
   int? get vehicleId => _selectedVehicle?.id;
-  String? get vehicleName => _selectedVehicle?.name;
   String? get vehicleModel => _selectedVehicle?.model;
   String? get vehicleInsurance => _selectedVehicle?.insurance;
   String? get vehicleRegistration => _selectedVehicle?.registration;
   String? get vehiclePUC => _selectedVehicle?.puc;
+  double? get vehicleDistance => _selectedVehicle?.distance;
 
   bool get isLoading => _isLoading;
   Object? get error => _error;
@@ -150,10 +150,10 @@ class VehicleProvider extends ChangeNotifier {
       if (_drives.isNotEmpty) {
         _latestDrive = _drives.first;
         final latest = _drives.first;
-        _lastSeenTime =
-            latest.endTime.isAfter(latest.startTime)
-                ? latest.endTime
-                : latest.startTime;
+        final lastTime = latest.endTime.isAfter(latest.startTime)
+            ? latest.endTime
+            : latest.startTime;
+        _lastSeenTime = lastTime.toUtc();
       } else {
         _latestDrive = null;
         _lastSeenTime = null;
@@ -186,7 +186,7 @@ class VehicleProvider extends ChangeNotifier {
         final parsedTime = _latestDrive!.endTime.isAfter(_latestDrive!.startTime)
             ? _latestDrive!.endTime
             : _latestDrive!.startTime;
-        _lastSeenTime = parsedTime.toLocal();
+        _lastSeenTime = parsedTime.toUtc();
       } else {
         _latestDrive = null;
         _lastSeenTime = null;
@@ -202,6 +202,9 @@ class VehicleProvider extends ChangeNotifier {
   Future<void> addVehicle({
     required String model,
     required String registration,
+    required String vehicleType,
+    required String? fuelType,
+    required double? averageMileage,
     String? insurance,
     String? puc,
   }) async {
@@ -216,6 +219,9 @@ class VehicleProvider extends ChangeNotifier {
       await SupabaseVehicleService().createVehicle(
         model: model,
         registration: registration,
+        vehicleType: vehicleType,
+        fuelType: fuelType,
+        averageMileage: averageMileage,
         insurance: insurance,
         puc: puc,
       );
