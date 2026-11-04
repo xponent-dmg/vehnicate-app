@@ -160,6 +160,16 @@ class _DashboardPageState extends State<DashboardPage> {
                             isRequired: false,
                           ),
                           const SizedBox(height: 16),
+                          // Name
+                          _buildCustomTextField(
+                            context,
+                            'Name',
+                            'My Car',
+                            Icons.edit,
+                            vehicleNameController,
+                            isRequired: false,
+                          ),
+                          const SizedBox(height: 16),
                           // Type Dropdown
                           const Text(
                             'Vehicle Type *',
@@ -266,8 +276,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                     .toList();
                               },
                               onChanged: (val) {
-                                if (val != null)
+                                if (val != null) {
                                   setState(() => selectedType = val);
+                                }
                               },
                             ),
                           ),
@@ -350,8 +361,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   isSubmitting
                                       ? null
                                       : () async {
-                                        if (!formKey.currentState!.validate())
+                                        if (!formKey.currentState!.validate()) {
                                           return;
+                                        }
                                         setState(() => isSubmitting = true);
                                         var submitted = false;
                                         try {
@@ -391,11 +403,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 backgroundColor: Colors.red,
                                               ),
                                             );
+                                          }
                                         } finally {
                                           if (!submitted && context.mounted)
                                             setState(
                                               () => isSubmitting = false,
                                             );
+                                          }
                                         }
                                       },
                               style: ElevatedButton.styleFrom(
