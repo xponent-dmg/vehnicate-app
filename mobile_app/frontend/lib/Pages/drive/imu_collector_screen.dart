@@ -19,7 +19,46 @@ import 'package:vehnway/core/constants/app_config.dart';
 import 'package:vehnway/utils/app_logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vehnway/Providers/imu_collection_controller.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+
+@pragma('vm:entry-point')
+void startCallback() {
+  FlutterForegroundTask.setTaskHandler(MyTaskHandler());
+}
+
+class MyTaskHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {}
+
+  @override
+  void onRepeatEvent(DateTime timestamp) {}
+
+  @override
+  Future<void> onDestroy(DateTime timestamp, bool isBackground) async {}
+
+  @override
+  void onNotificationPressed() {
+    FlutterForegroundTask.launchApp();
+  }
+
+  @override
+  void onNotificationButtonPressed(String id) {
+    if (id == 'stop_collection') {
+      FlutterForegroundTask.sendDataToMain({'action': 'stop_collection'});
+    }
+  }
+
+  @override
+  void onNotificationDismissed() {
+    FlutterForegroundTask.updateService(
+      notificationTitle: 'vehnWay',
+      notificationText: 'IMU data collection is active',
+      notificationButtons: const [
+        NotificationButton(id: 'stop_collection', text: 'Stop'),
+      ],
+    );
+  }
+}
 
 class ImuCollector extends StatefulWidget {
   const ImuCollector({super.key, this.useCamera = true});
@@ -36,7 +75,6 @@ class _ImuCollectorState extends State<ImuCollector>
   final CameraServiceRGB _cameraService = CameraServiceRGB();
   final DeviceIdService _deviceIdService = DeviceIdService();
   final supabase = Supabase.instance.client;
-  ImuCollectionController? _imuCollection;
 
   // Collection state
   bool isCollecting = false;
@@ -64,11 +102,12 @@ class _ImuCollectorState extends State<ImuCollector>
           : [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
     );
     AppLogger.info('ImuCollector initialized');
-    if (!widget.useCamera) {
-      _imuCollection = context.read<ImuCollectionController>();
-      _imuCollection!.addListener(_onImuCollectionChanged);
-      _onImuCollectionChanged();
-    }
+    isCollecting = _sensorService.isCollecting;
+    _imuDataCount = _sensorService.processedCount;
+    _uploadedImuCount = _sensorService.uploadedCount;
+    _sensorService.setDataCountCallback(_updateDataCounts);
+    _initForegroundTask();
+    FlutterForegroundTask.addTaskDataCallback(_onTaskData);
     _initAll();
 
     // Listen to camera service stats updates
@@ -77,16 +116,41 @@ class _ImuCollectorState extends State<ImuCollector>
     };
   }
 
-  void _onImuCollectionChanged() {
-    if (!mounted || widget.useCamera) return;
-    final imuCollection = _imuCollection;
-    if (imuCollection == null) return;
-    setState(() {
-      isCollecting = imuCollection.isCollecting;
-      isStopping = imuCollection.isStopping;
-      _imuDataCount = imuCollection.processedCount;
-      _uploadedImuCount = imuCollection.uploadedCount;
-    });
+  void _onTaskData(Object data) {
+    if (data is Map && data['action'] == 'stop_collection' && isCollecting) {
+      stopCollection();
+    }
+  }
+
+  void _updateDataCounts(int processed, int uploaded) {
+    if (mounted) {
+      setState(() {
+        _imuDataCount = processed;
+        _uploadedImuCount = uploaded;
+      });
+    }
+  }
+
+  void _initForegroundTask() {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'vehnicate_background',
+        channelName: 'Vehnicate Data Collection',
+        channelDescription: 'Keeps data collection running in the background',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(5000),
+        autoRunOnBoot: false,
+        allowWakeLock: false,
+        allowWifiLock: false,
+      ),
+    );
   }
 
   @override
@@ -153,11 +217,6 @@ class _ImuCollectorState extends State<ImuCollector>
 
   void startCollection() async {
     if (isCollecting) return;
-
-    if (!widget.useCamera) {
-      await context.read<ImuCollectionController>().start(context);
-      return;
-    }
 
     // 1. Request Location Service (Gated)
     // Use location package to trigger the native Google Play Services popup
@@ -234,6 +293,21 @@ class _ImuCollectorState extends State<ImuCollector>
 
       setState(() => isCollecting = true);
 
+      if (!widget.useCamera) {
+        if (await FlutterForegroundTask.isRunningService == false) {
+          final result = await FlutterForegroundTask.startService(
+            notificationTitle: 'vehnWay',
+            notificationText: 'IMU data collection is active',
+            notificationButtons: const [
+              NotificationButton(id: 'stop_collection', text: 'Stop'),
+            ],
+            callback: startCallback,
+          );
+          if (result is ServiceRequestFailure) {
+            throw Exception(result.error);
+          }
+        }
+      }
       // CustomSnackBar.showSuccess(context, 'Data collection started!');
     } catch (e, st) {
       AppLogger.error('Failed to start collection', e, st);
@@ -248,11 +322,6 @@ class _ImuCollectorState extends State<ImuCollector>
 
   void stopCollection() async {
     if (isStopping) return;
-
-    if (!widget.useCamera) {
-      await context.read<ImuCollectionController>().stop(context);
-      return;
-    }
 
     setState(() {
       isStopping = true;
@@ -283,6 +352,11 @@ class _ImuCollectorState extends State<ImuCollector>
 
       if (widget.useCamera) await WakelockPlus.disable();
 
+      if (!widget.useCamera) {
+        await FlutterForegroundTask.stopService();
+        FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+      }
+
       // CustomSnackBar.showSuccess(context, 'Data collection stopped!');
     } catch (e, st) {
       AppLogger.error('Error stopping collection', e, st);
@@ -292,6 +366,10 @@ class _ImuCollectorState extends State<ImuCollector>
         });
       }
       if (widget.useCamera) await WakelockPlus.disable();
+      if (!widget.useCamera) {
+        await FlutterForegroundTask.stopService();
+        FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+      }
     }
   }
 
@@ -323,12 +401,11 @@ class _ImuCollectorState extends State<ImuCollector>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if (!widget.useCamera) {
-      _imuCollection?.removeListener(_onImuCollectionChanged);
+    if (!isCollecting) {
+      FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     }
     if (widget.useCamera) WakelockPlus.disable();
     _cameraService.dispose();
-    if (widget.useCamera) _sensorService.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -341,52 +418,7 @@ class _ImuCollectorState extends State<ImuCollector>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: widget.useCamera ? !isCollecting : false,
-      onPopInvokedWithResult: (bool didPop, dynamic result) async {
-        if (didPop) {
-          return;
-        }
-
-        if (!widget.useCamera) {
-          Navigator.of(context).popUntil(
-            (route) => route.settings.name == '/home' || route.isFirst,
-          );
-          return;
-        }
-
-        // Show confirmation dialog if collection is active
-        if (isCollecting) {
-          final shouldPop = await showDialog<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Stop Data Collection?'),
-                content: const Text(
-                  'Data transmission is currently active. Going back will stop the transmission. Do you want to continue?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Stop & Go Back'),
-                  ),
-                ],
-              );
-            },
-          );
-
-          if (shouldPop == true) {
-            stopCollection();
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        }
-      },
+      canPop: true,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
