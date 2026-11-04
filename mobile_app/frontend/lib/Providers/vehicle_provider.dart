@@ -26,7 +26,6 @@ class VehicleProvider extends ChangeNotifier {
   Vehicle? get selectedVehicle => _selectedVehicle;
 
   int? get vehicleId => _selectedVehicle?.id;
-  String? get vehicleName => _selectedVehicle?.name;
   String? get vehicleModel => _selectedVehicle?.model;
   String? get vehicleInsurance => _selectedVehicle?.insurance;
   String? get vehicleRegistration => _selectedVehicle?.registration;

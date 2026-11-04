@@ -1,6 +1,8 @@
 package com.vehnway.app
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import io.flutter.plugin.common.EventChannel
 
 /**
@@ -11,6 +13,7 @@ class SensorEventChannel(private val context: Context) : EventChannel.StreamHand
 
     private var sensorManager: VehnicateSensorManager? = null
     private var eventSink: EventChannel.EventSink? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     companion object {
         const val CHANNEL_NAME = "vehnway/sensors"
@@ -21,8 +24,10 @@ class SensorEventChannel(private val context: Context) : EventChannel.StreamHand
 
         // Create and start sensor manager
         sensorManager = VehnicateSensorManager(context) { dataMap ->
-            // Send data to Flutter
-            eventSink?.success(dataMap)
+            // EventSink must be called on Flutter's main thread.
+            mainHandler.post {
+                eventSink?.success(dataMap)
+            }
         }
 
         // Check if sensors are available
@@ -40,6 +45,7 @@ class SensorEventChannel(private val context: Context) : EventChannel.StreamHand
     override fun onCancel(arguments: Any?) {
         sensorManager?.stopSensors()
         sensorManager?.cleanup()
+        mainHandler.removeCallbacksAndMessages(null)
         sensorManager = null
         eventSink = null
     }

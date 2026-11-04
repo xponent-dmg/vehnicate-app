@@ -1,6 +1,5 @@
 class Vehicle {
   final int id;
-  final String name;
   final String model;
   final String? vehicleType;
   final String? fuelType;
@@ -12,7 +11,6 @@ class Vehicle {
 
   const Vehicle({
     required this.id,
-    required this.name,
     required this.model,
     this.vehicleType,
     this.fuelType,
@@ -26,9 +24,6 @@ class Vehicle {
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
       id: json['vehicleid'] as int,
-      name:
-          json['name'] as String? ??
-          'My Vehicle', // Default name if not present
       model: json['model'] as String? ?? 'Unknown Model',
       vehicleType: json['vehicle_type'] as String?,
       fuelType: json['fuel_type'] as String?,
@@ -43,7 +38,6 @@ class Vehicle {
   Map<String, dynamic> toJson() {
     return {
       'vehicleid': id,
-      'name': name,
       'model': model,
       'vehicle_type': vehicleType,
       'fuel_type': fuelType,

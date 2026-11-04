@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vehiclesCommunicate => 'vehicles+communicate';
 
   @override
-  String get vehnicate2025 => 'vehnicate@2025';
+  String get vehnicate2026 => 'vehnicate@2026';
 
   @override
   String get vehnicateTab => 'vehnicate';

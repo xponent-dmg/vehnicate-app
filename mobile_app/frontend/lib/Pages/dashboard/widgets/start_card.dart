@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:vehnway/Providers/imu_collection_controller.dart';
@@ -8,8 +11,39 @@ import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/Widgets/glass_lite_container.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 
-class StartCard extends StatelessWidget {
+class StartCard extends StatefulWidget {
   const StartCard({super.key});
+
+  @override
+  State<StartCard> createState() => _StartCardState();
+}
+
+class _StartCardState extends State<StartCard> {
+  bool _isCollecting = false;
+  Timer? _serviceStateTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshServiceState();
+    _serviceStateTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _refreshServiceState(),
+    );
+  }
+
+  Future<void> _refreshServiceState() async {
+    final isRunning = await FlutterForegroundTask.isRunningService;
+    if (mounted && isRunning != _isCollecting) {
+      setState(() => _isCollecting = isRunning);
+    }
+  }
+
+  @override
+  void dispose() {
+    _serviceStateTimer?.cancel();
+    super.dispose();
+  }
 
   Future<bool?> _chooseCameraMode(BuildContext context) {
     return showDialog<bool>(

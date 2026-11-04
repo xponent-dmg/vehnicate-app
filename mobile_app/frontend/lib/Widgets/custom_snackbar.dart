@@ -112,6 +112,7 @@ class CustomSnackBar {
     messenger.removeCurrentSnackBar();
 
     ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? controller;
+    var isClosed = false;
 
     controller = messenger.showSnackBar(
       SnackBar(
@@ -235,7 +236,7 @@ class CustomSnackBar {
             Timer(duration, () {
               // If the snackbar is NOT expanded after the initial duration (5s), close it.
               // If it IS expanded, leave it open (it will close after finalDuration, i.e., 1 min).
-              if (!isExpanded && context.mounted) {
+              if (!isExpanded && !isClosed && context.mounted) {
                 controller?.close();
               }
             });
@@ -243,5 +244,6 @@ class CustomSnackBar {
         },
       ),
     );
+    controller.closed.then((_) => isClosed = true);
   }
 }
