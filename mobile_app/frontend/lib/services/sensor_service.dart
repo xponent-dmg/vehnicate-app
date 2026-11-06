@@ -128,7 +128,7 @@ class SensorService {
     AppLogger.info('SensorService started for session $_sessionId');
   }
 
-  Future<void> _attemptUpload(BuildContext context) async {
+  Future<void> _attemptUpload(BuildContext? context) async {
     if (_isUploading || (_imuBuffer.isEmpty && _gpsBuffer.isEmpty)) return;
 
     _isUploading = true;
@@ -174,9 +174,9 @@ class SensorService {
         reason: 'Sensor data transmission failed',
       );
 
-      if (context.mounted) {
+      if (context?.mounted ?? false) {
         CustomSnackBar.showWarning(
-          context,
+          context!,
           'Connection weak. Retrying Sync...',
         );
       }
@@ -185,7 +185,7 @@ class SensorService {
     }
   }
 
-  Future<void> stop(BuildContext context) async {
+  Future<void> stop([BuildContext? context]) async {
     _subscription?.cancel();
     _uploadTimer?.cancel();
     _isCollecting = false;
@@ -195,8 +195,8 @@ class SensorService {
       await _attemptUpload(context);
     }
 
-    if (context.mounted) {
-      CustomSnackBar.showWarning(context, 'Collection stopped');
+    if (context?.mounted ?? false) {
+      CustomSnackBar.showWarning(context!, 'Collection stopped');
     }
   }
 
