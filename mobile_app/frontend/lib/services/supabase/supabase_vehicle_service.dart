@@ -86,7 +86,7 @@ class SupabaseVehicleService {
 
   Future<void> createVehicle({
     required String model,
-    required String registration,
+    String? registration,
     required String vehicleType,
     required String? fuelType,
     required double? averageMileage,
@@ -101,10 +101,15 @@ class SupabaseVehicleService {
         throw Exception('Firebase user is null during vehicle creation');
       }
 
+      final cleanRegistration =
+          (registration == null || registration.trim().isEmpty)
+              ? null
+              : registration.trim().toUpperCase();
+
       await client.from(AppConfig.tableVehicleDetails).insert({
         'firebaseuid': firebaseUser.uid,
         'model': model,
-        'registration': registration,
+        'registration': cleanRegistration,
         'vehicle_type': vehicleType,
         'fuel_type': fuelType,
         'average_mileage': averageMileage,

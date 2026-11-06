@@ -201,7 +201,7 @@ class VehicleProvider extends ChangeNotifier {
 
   Future<void> addVehicle({
     required String model,
-    required String registration,
+    String? registration,
     required String vehicleType,
     required String? fuelType,
     required double? averageMileage,
