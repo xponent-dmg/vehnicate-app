@@ -8,6 +8,7 @@ import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/Widgets/vehicle_location_text.dart';
 import 'package:vehnway/services/supabase/supabase_vehicle_service.dart';
 import 'package:vehnway/utils/vehicle_type_helper.dart';
+import 'package:vehnway/utils/vehicle_validation.dart';
 
 class GaragePage extends StatefulWidget {
   const GaragePage({super.key});
@@ -202,11 +203,11 @@ class GaragePageState extends State<GaragePage> {
                           ),
                           const SizedBox(height: 16),
                           // Registration
-                          _buildCustomTextField(context, 'Registration Number', 'KA01AB1234', Icons.confirmation_number, registrationController),
+                          _buildCustomTextField(context, 'Registration Number', 'KA01AB1234', Icons.confirmation_number, registrationController, validator: registrationNumberValidator),
                           const SizedBox(height: 16),
                           // Average Mileage
                           _buildCustomTextField(context, 'Average Mileage', '15', Icons.speed, mileageController, 
-                           suffixText: selectedType == 'EV' ? 'km/kWh' : 'km/L', isNumber: true),
+                           suffixText: selectedFuelType == 'Electric' ? 'km/kWh' : 'km/L', isNumber: true),
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
@@ -256,7 +257,7 @@ class GaragePageState extends State<GaragePage> {
     );
   }
 
-  Widget _buildCustomTextField(BuildContext context, String label, String hint, IconData icon, TextEditingController controller, {String? suffixText, bool isNumber = false, bool isRequired = true}) {
+  Widget _buildCustomTextField(BuildContext context, String label, String hint, IconData icon, TextEditingController controller, {String? suffixText, bool isNumber = false, bool isRequired = true, String? Function(String?)? validator}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -279,7 +280,7 @@ class GaragePageState extends State<GaragePage> {
             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 1)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
-          validator: (value) => isRequired && (value == null || value.trim().isEmpty) ? 'Required' : null,
+          validator: validator ?? (value) => isRequired && (value == null || value.trim().isEmpty) ? 'Required' : null,
         ),
       ],
     );

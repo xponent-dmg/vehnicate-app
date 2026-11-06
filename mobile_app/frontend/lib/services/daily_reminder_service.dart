@@ -40,6 +40,17 @@ class DailyReminderService {
         return;
       }
 
+      final existingSchedules =
+          await notifications.listScheduledNotifications();
+      final isAlreadyScheduled = existingSchedules.any(
+        (notification) => notification.content?.id == _notificationId,
+      );
+      if (isAlreadyScheduled) {
+        AppLogger.info('Daily vehnWay reminder is already scheduled');
+        return;
+      }
+
+      final localTimeZone = await notifications.getLocalTimeZoneIdentifier();
       final scheduled = await notifications.createNotification(
         content: NotificationContent(
           id: _notificationId,
@@ -55,6 +66,7 @@ class DailyReminderService {
           second: 0,
           repeats: true,
           allowWhileIdle: true,
+          timeZone: localTimeZone,
         ),
       );
 

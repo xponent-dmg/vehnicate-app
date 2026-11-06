@@ -10,6 +10,7 @@ import 'package:vehnway/Pages/dashboard/widgets/start_card.dart';
 import 'package:vehnway/Pages/dashboard/widgets/selected_car_card.dart';
 import 'package:vehnway/Pages/dashboard/widgets/last_drive_stats_card.dart';
 import 'package:vehnway/utils/vehicle_type_helper.dart';
+import 'package:vehnway/utils/vehicle_validation.dart';
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
@@ -342,6 +343,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             'KA01AB1234',
                             Icons.confirmation_number,
                             registrationController,
+                            validator: registrationNumberValidator,
                           ),
                           const SizedBox(height: 16),
                           // Average Mileage
@@ -352,7 +354,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             Icons.speed,
                             mileageController,
                             suffixText:
-                                selectedType == 'EV' ? 'km/kWh' : 'km/L',
+                                selectedFuelType == 'Electric'
+                                    ? 'km/kWh'
+                                    : 'km/L',
                             isNumber: true,
                           ),
                           const SizedBox(height: 24),
@@ -467,6 +471,7 @@ class _DashboardPageState extends State<DashboardPage> {
     String? suffixText,
     bool isNumber = false,
     bool isRequired = true,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -520,6 +525,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           validator:
+              validator ??
               (value) =>
                   isRequired && (value == null || value.trim().isEmpty)
                       ? 'Required'
