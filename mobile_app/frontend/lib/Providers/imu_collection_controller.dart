@@ -73,6 +73,7 @@ class ImuCollectionController extends ChangeNotifier {
         'start_time': _driveStartTime!.toIso8601String(),
         'status': 'active',
         'distance': 0.0,
+        'imu_only': true,
       });
 
       foregroundStarted = await ForegroundCollectionService.start();

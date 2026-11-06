@@ -51,16 +51,29 @@ class _StartCardState extends State<StartCard> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Start drive'),
+          backgroundColor: AppColors.darkBackground,
+          surfaceTintColor: Colors.transparent,
+          title: const Text(
+            'Start drive',
+            style: TextStyle(color: Colors.white),
+          ),
           content: const Text(
             'Would you like to use the camera for this drive?',
+            style: TextStyle(color: Colors.white70),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Without camera'),
+              child: const Text(
+                'Without camera',
+                style: TextStyle(color: AppColors.lightPurple),
+              ),
             ),
             FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
               child: const Text('With camera'),
             ),
@@ -124,15 +137,24 @@ class _StartCardState extends State<StartCard> {
           duration: const Duration(milliseconds: 900),
           builder: (context, value, child) {
             return AlertDialog(
+              backgroundColor: AppColors.darkBackground,
+              surfaceTintColor: Colors.transparent,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Transform.rotate(
                     angle: value * 1.5708,
-                    child: const Icon(Icons.screen_rotation_rounded, size: 54),
+                    child: const Icon(
+                      Icons.screen_rotation_rounded,
+                      size: 54,
+                      color: AppColors.lightPurple,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  const Text('Switching to horizontal view'),
+                  const Text(
+                    'Switching to horizontal view',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ],
               ),
             );
