@@ -14,6 +14,7 @@ import 'package:vehnway/Providers/connectivity_provider.dart';
 import 'package:vehnway/Providers/imu_collection_controller.dart';
 import 'package:vehnway/app.dart';
 import 'package:vehnway/services/cache_service.dart';
+import 'package:vehnway/services/daily_reminder_service.dart';
 import 'package:vehnway/services/foreground_collection_service.dart';
 import 'package:vehnway/services/supabase/supabase_core_service.dart';
 import 'package:vehnway/utils/app_logger.dart';
@@ -40,6 +41,7 @@ Future<void> main() async {
 Future<void> _initializeServices() async {
   try {
     ForegroundCollectionService.initialize();
+    await DailyReminderService.initialize();
 
     await Hive.initFlutter();
     await CacheService().init();
