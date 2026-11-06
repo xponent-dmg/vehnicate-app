@@ -273,6 +273,7 @@ class _ImuCollectorState extends State<ImuCollector>
         'start_time': _driveStartTime!.toIso8601String(),
         'status': 'active',
         'distance': 0.0,
+        'imu_only': !widget.useCamera,
       });
 
       // Start Sensor collection
