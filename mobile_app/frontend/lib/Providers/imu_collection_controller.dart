@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -21,6 +24,10 @@ class ImuCollectionController extends ChangeNotifier {
   int _uploadedCount = 0;
   DateTime? _driveStartTime;
   String _sessionId = '';
+
+  ImuCollectionController() {
+    FlutterForegroundTask.addTaskDataCallback(_onForegroundTaskData);
+  }
 
   bool get isCollecting => _isCollecting;
   bool get isStopping => _isStopping;
@@ -66,6 +73,7 @@ class ImuCollectionController extends ChangeNotifier {
         'start_time': _driveStartTime!.toIso8601String(),
         'status': 'active',
         'distance': 0.0,
+        'imu_only': true,
       });
 
       foregroundStarted = await ForegroundCollectionService.start();
@@ -105,7 +113,7 @@ class ImuCollectionController extends ChangeNotifier {
     }
   }
 
-  Future<void> stop(BuildContext context) async {
+  Future<void> stop([BuildContext? context]) async {
     if (!_isCollecting || _isStopping) return;
     _isStopping = true;
     notifyListeners();
@@ -123,8 +131,8 @@ class ImuCollectionController extends ChangeNotifier {
       }
     } catch (error, stackTrace) {
       AppLogger.error('Failed to stop IMU-only collection', error, stackTrace);
-      if (context.mounted) {
-        CustomSnackBar.showError(context, 'Failed to stop collection: $error');
+      if (context?.mounted ?? false) {
+        CustomSnackBar.showError(context!, 'Failed to stop collection: $error');
       }
     } finally {
       await ForegroundCollectionService.stop();
@@ -136,8 +144,18 @@ class ImuCollectionController extends ChangeNotifier {
     }
   }
 
+  void _onForegroundTaskData(Object data) {
+    if (data == ForegroundCollectionService.stopActionId) {
+      unawaited(stop());
+    } else if (data == ForegroundCollectionService.restoreActionId &&
+        _isCollecting) {
+      unawaited(ForegroundCollectionService.restoreNotification());
+    }
+  }
+
   @override
   void dispose() {
+    FlutterForegroundTask.removeTaskDataCallback(_onForegroundTaskData);
     _sensorService.dispose();
     super.dispose();
   }
