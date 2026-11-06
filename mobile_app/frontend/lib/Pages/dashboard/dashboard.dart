@@ -20,12 +20,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  // Form controllers for add vehicle
-  final _vehicleModelController = TextEditingController();
-  final _registrationController = TextEditingController();
-  final _insuranceController = TextEditingController();
-  final _pucDateController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -33,10 +27,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void dispose() {
-    _vehicleModelController.dispose();
-    _registrationController.dispose();
-    _insuranceController.dispose();
-    _pucDateController.dispose();
     super.dispose();
   }
 
@@ -148,16 +138,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                   },
                                 ),
                             ],
-                          ),
-                          const SizedBox(height: 16),
-                          // Name
-                          _buildCustomTextField(
-                            context,
-                            'Name',
-                            'My Car',
-                            Icons.edit,
-                            vehicleNameController,
-                            isRequired: false,
                           ),
                           const SizedBox(height: 16),
                           // Name
@@ -300,9 +280,15 @@ class _DashboardPageState extends State<DashboardPage> {
                               isExpanded: true,
                               dropdownColor: AppColors.surface,
                               borderRadius: BorderRadius.circular(16),
-                              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70),
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: Colors.white70,
+                              ),
                               elevation: 4,
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: AppColors.surface,
@@ -321,14 +307,30 @@ class _DashboardPageState extends State<DashboardPage> {
                                     width: 2,
                                   ),
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
                               ),
-                              items: ['Petrol', 'Diesel', 'CNG', 'Electric'].map((type) => DropdownMenuItem(
-                                value: type,
-                                child: Text(type, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                              )).toList(),
+                              items:
+                                  ['Petrol', 'Diesel', 'CNG', 'Electric']
+                                      .map(
+                                        (type) => DropdownMenuItem(
+                                          value: type,
+                                          child: Text(
+                                            type,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
                               onChanged: (val) {
-                                if (val != null) setState(() => selectedFuelType = val);
+                                if (val != null) {
+                                  setState(() => selectedFuelType = val);
+                                }
                               },
                             ),
                           ),
@@ -372,13 +374,15 @@ class _DashboardPageState extends State<DashboardPage> {
                                             listen: false,
                                           ).addVehicle(
                                             model:
-                                                vehicleNameController.text.trim(),
+                                                vehicleNameController.text
+                                                    .trim(),
                                             registration:
                                                 registrationController.text
                                                     .trim()
                                                     .toUpperCase(),
                                             vehicleType: selectedType,
-                                            fuelType: selectedFuelType.toLowerCase(),
+                                            fuelType:
+                                                selectedFuelType.toLowerCase(),
                                             averageMileage: double.tryParse(
                                               mileageController.text.trim(),
                                             ),
@@ -396,7 +400,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             );
                                           }
                                         } catch (e) {
-                                          if (context.mounted)
+                                          if (context.mounted) {
                                             messenger.showSnackBar(
                                               SnackBar(
                                                 content: Text('Failed: $e'),
@@ -405,7 +409,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             );
                                           }
                                         } finally {
-                                          if (!submitted && context.mounted)
+                                          if (!submitted && context.mounted) {
                                             setState(
                                               () => isSubmitting = false,
                                             );
