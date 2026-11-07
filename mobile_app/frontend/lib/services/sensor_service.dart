@@ -34,6 +34,8 @@ class SensorService {
   int _uploadedCount = 0;
   bool _isCollecting = false;
   String? _sessionId;
+  DateTime? _collectionStartTime;
+  static const Duration _minimumUploadDuration = Duration(minutes: 1);
 
   bool get isCollecting => _isCollecting;
   int get processedCount => _processedCount;
@@ -41,9 +43,7 @@ class SensorService {
   Stream<dynamic> get sensorStream => _controller.stream;
   Function(int processed, int uploaded)? onDataCountUpdate;
 
-  void setDataCountCallback(
-    Function(int processed, int uploaded)? callback,
-  ) {
+  void setDataCountCallback(Function(int processed, int uploaded)? callback) {
     onDataCountUpdate = callback;
     callback?.call(_processedCount, _uploadedCount);
   }
@@ -59,6 +59,7 @@ class SensorService {
     }
 
     _sessionId = sessionId;
+    _collectionStartTime = DateTime.now();
     _isCollecting = true;
     _processedCount = 0; // Reset counters on new session
     _uploadedCount = 0;
@@ -130,6 +131,11 @@ class SensorService {
 
   Future<void> _attemptUpload(BuildContext? context) async {
     if (_isUploading || (_imuBuffer.isEmpty && _gpsBuffer.isEmpty)) return;
+    if (_collectionStartTime == null ||
+        DateTime.now().difference(_collectionStartTime!) <
+            _minimumUploadDuration) {
+      return;
+    }
 
     _isUploading = true;
 
@@ -185,15 +191,18 @@ class SensorService {
     }
   }
 
-  Future<void> stop([BuildContext? context]) async {
+  Future<void> stop([BuildContext? context, bool discard = false]) async {
     _subscription?.cancel();
     _uploadTimer?.cancel();
     _isCollecting = false;
 
-    // Final Flush
-    if (_imuBuffer.isNotEmpty || _gpsBuffer.isNotEmpty) {
+    if (discard) {
+      _imuBuffer.clear();
+      _gpsBuffer.clear();
+    } else if (_imuBuffer.isNotEmpty || _gpsBuffer.isNotEmpty) {
       await _attemptUpload(context);
     }
+    _collectionStartTime = null;
 
     if (context?.mounted ?? false) {
       CustomSnackBar.showWarning(context!, 'Collection stopped');

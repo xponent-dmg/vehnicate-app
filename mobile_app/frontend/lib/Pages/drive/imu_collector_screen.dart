@@ -321,7 +321,7 @@ class _ImuCollectorState extends State<ImuCollector>
     }
   }
 
-  void stopCollection() async {
+  Future<void> stopCollection() async {
     if (isStopping) return;
 
     setState(() {
@@ -331,17 +331,23 @@ class _ImuCollectorState extends State<ImuCollector>
     try {
       // Capture end time
       _driveEndTime = DateTime.now().toUtc();
+      final isShortRide =
+          _driveStartTime == null ||
+          _driveEndTime!.difference(_driveStartTime!) <
+              const Duration(minutes: 1);
 
       // Stop Sensor collection and Camera streaming in parallel
-      final stopTasks = <Future<void>>[_sensorService.stop(context)];
+      final stopTasks = <Future<void>>[
+        _sensorService.stop(context, isShortRide),
+      ];
       if (widget.useCamera) {
-        stopTasks.add(_cameraService.stopStreaming());
+        stopTasks.add(_cameraService.stopStreaming(discard: isShortRide));
       }
       await Future.wait(stopTasks);
 
       // Send start and end times to backend
       if (_driveStartTime != null && _driveEndTime != null) {
-        await _saveDriveSession();
+        await _saveDriveSession(discard: isShortRide);
       }
 
       if (mounted) {
@@ -365,6 +371,7 @@ class _ImuCollectorState extends State<ImuCollector>
         setState(() {
           isStopping = false;
         });
+        CustomSnackBar.showError(context, 'Failed to end ride: $e');
       }
       if (widget.useCamera) await WakelockPlus.disable();
       if (!widget.useCamera) {
@@ -374,28 +381,33 @@ class _ImuCollectorState extends State<ImuCollector>
     }
   }
 
-  Future<void> _saveDriveSession() async {
-    try {
-      if (_driveStartTime == null || _driveEndTime == null) {
-        return;
-      }
+  Future<void> _endRide() async {
+    if (!isCollecting || isStopping) return;
 
-      // Update existing session
-      await supabase
-          .from(AppConfig.tableSessions)
-          .update({
-            'end_time': _driveEndTime!.toIso8601String(),
-            'status': 'completed',
-          })
-          .eq('session_id', _sessionId);
-    } catch (e, st) {
-      AppLogger.error('Failed to save drive session times', e, st);
-      if (mounted) {
-        CustomSnackBar.showWarning(
-          context,
-          'Warning: Failed to save drive session times',
-        );
-      }
+    await stopCollection();
+    if (mounted && !isCollecting && !isStopping) {
+      Navigator.maybePop(context);
+    }
+  }
+
+  Future<void> _saveDriveSession({required bool discard}) async {
+    if (_driveStartTime == null ||
+        _driveEndTime == null ||
+        _sessionId.isEmpty) {
+      throw StateError('Cannot end ride without an active session');
+    }
+
+    final updatedRows = await supabase
+        .from(AppConfig.tableSessions)
+        .update({
+          'end_time': _driveEndTime!.toIso8601String(),
+          'status': discard ? 'discarded' : 'completed',
+        })
+        .eq('session_id', _sessionId)
+        .select('session_id');
+
+    if (updatedRows.isEmpty) {
+      throw StateError('No matching session was updated');
     }
   }
 
@@ -423,6 +435,24 @@ class _ImuCollectorState extends State<ImuCollector>
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
+        bottomNavigationBar: SafeArea(
+          minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: ElevatedButton.icon(
+            onPressed: (isCollecting && !isStopping) ? _endRide : null,
+            icon: const Icon(Icons.flag_rounded),
+            label: const Text('End Ride'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              disabledBackgroundColor: Colors.white24,
+              foregroundColor: Colors.white,
+              disabledForegroundColor: Colors.white54,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
         body: Container(
           decoration: const BoxDecoration(
             gradient: AppGradients.mainBackground,
