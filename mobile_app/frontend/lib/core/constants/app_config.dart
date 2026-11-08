@@ -7,8 +7,10 @@ class AppConfig {
   static const String tableImuData = 'imu_data';
   static const String tableGpsData = 'gps_data';
   static const String tableFrames = 'frames';
+  static const String tableAppFeedback = 'app_feedback';
 
   // Supabase Storage Buckets
   static const String bucketUserAvatars = 'user_avatars';
   static const String bucketVehicleImages = 'vehicle_ride_img';
+  static const String bucketFeedbackAttachments = 'feedback-attachments';
 }

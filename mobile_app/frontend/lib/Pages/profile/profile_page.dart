@@ -442,6 +442,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 14),
                   _buildPersonalInfoSection(context),
                   const SizedBox(height: 30),
+                  _buildSupportSection(),
+                  const SizedBox(height: 30),
                   _buildSettingsSection(),
                 ],
               ),
@@ -693,6 +695,26 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildSupportSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Support', style: ProfileConstants.sectionTitleStyle),
+          const SizedBox(height: 8),
+          _buildNavigationRow(
+            'Send Feedback',
+            Icons.feedback_outlined,
+            onTap: () => Navigator.pushNamed(context, '/feedback'),
+            isFirst: true,
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSettingsSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -702,14 +724,9 @@ class _ProfilePageState extends State<ProfilePage> {
           const Text('Settings', style: ProfileConstants.sectionTitleStyle),
           const SizedBox(height: 8),
           _buildSettingRow('Notification', false, isFirst: true),
-          SizedBox(height: 3),
+          const SizedBox(height: 3),
           _buildSettingRow('Dark Mode', true),
-          SizedBox(height: 3),
-          // GestureDetector(
-          //   onTap: () => _showUpdateVehicleOverlay(context),
-          //   child: _buildInfoRow('Update Vehicle Details', '', isLast: false),
-          // ),
-          // SizedBox(height: 3),
+          const SizedBox(height: 3),
           _buildDeleteAccountRow(),
         ],
       ),
@@ -826,6 +843,48 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         child: const Center(
           child: Text('Delete Account', style: ProfileConstants.deleteStyle),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationRow(
+    String label,
+    IconData icon, {
+    required VoidCallback onTap,
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: ProfileConstants.cardHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: ProfileConstants.cardBackground,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
+            topRight: Radius.circular(isFirst ? ProfileConstants.cardRadius : 0),
+            bottomLeft: Radius.circular(isLast ? ProfileConstants.cardRadius : 0),
+            bottomRight: Radius.circular(isLast ? ProfileConstants.cardRadius : 0),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Colors.white70, size: 20),
+                const SizedBox(width: 12),
+                Text(label, style: ProfileConstants.labelStyle),
+              ],
+            ),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white54,
+              size: 16,
+            ),
+          ],
         ),
       ),
     );

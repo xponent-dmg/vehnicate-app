@@ -11,6 +11,7 @@ import 'package:vehnway/Pages/navigation/map_webview_page.dart';
 import 'package:vehnway/Pages/vehicle/garage.dart';
 import 'package:vehnway/Pages/auth/login_page.dart';
 import 'package:vehnway/Pages/profile/profile_page.dart';
+import 'package:vehnway/Pages/profile/feedback_page.dart';
 import 'package:vehnway/Pages/onboarding/loading_page.dart';
 import 'package:vehnway/Pages/onboarding/splash_page.dart';
 import 'package:vehnway/Pages/onboarding/offline_page.dart';
@@ -80,6 +81,8 @@ class App extends StatelessWidget {
             return PageTransitions.fade(EmailVerificationPage());
           case "/profile":
             return PageTransitions.fadeSlideUp(ProfilePage());
+          case "/feedback":
+            return PageTransitions.slideFromRight(const FeedbackPage());
           case "/dash":
             return PageTransitions.fade(DashboardPage());
           case "/imu":
