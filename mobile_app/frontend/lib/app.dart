@@ -20,9 +20,14 @@ import 'package:vehnway/Pages/auth/email_verification_page.dart';
 import 'package:vehnway/Pages/drive/imu_collector_screen.dart';
 import 'package:vehnway/Pages/auth/user_details_page.dart';
 import 'package:vehnway/Pages/vehicle/vehicle_details.dart';
+import 'package:vehnway/Pages/reports/reports_map_page.dart';
+import 'package:vehnway/Pages/reports/create_report_page.dart';
+import 'package:vehnway/Pages/reports/report_details_page.dart';
+import 'package:vehnway/Pages/reports/my_contributions_page.dart';
 import 'package:vehnway/Providers/connectivity_provider.dart';
 import 'package:vehnway/home.dart';
 import 'package:vehnway/models/drive_model.dart';
+import 'package:vehnway/models/road_report_model.dart';
 import 'package:vehnway/models/vehicle_model.dart';
 import 'package:vehnway/services/page_transitions.dart';
 
@@ -125,6 +130,15 @@ class App extends StatelessWidget {
 
           case "/map-webview":
             return PageTransitions.slideFromBottom(MapWebviewScreen());
+          case "/reports":
+            return PageTransitions.fade(const ReportsMapPage());
+          case "/create-report":
+            return PageTransitions.fadeSlideUp(const CreateReportPage());
+          case "/report-details":
+            final report = settings.arguments as RoadReport;
+            return PageTransitions.fadeSlideUp(ReportDetailsPage(report: report));
+          case "/my-contributions":
+            return PageTransitions.fadeSlideUp(const MyContributionsPage());
           default:
             return null;
         }

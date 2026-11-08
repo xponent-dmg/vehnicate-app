@@ -12,6 +12,7 @@ import 'package:vehnway/Providers/user_provider.dart';
 import 'package:vehnway/Providers/vehicle_provider.dart';
 import 'package:vehnway/Providers/connectivity_provider.dart';
 import 'package:vehnway/Providers/imu_collection_controller.dart';
+import 'package:vehnway/Providers/road_report_provider.dart';
 import 'package:vehnway/app.dart';
 import 'package:vehnway/services/cache_service.dart';
 import 'package:vehnway/services/daily_reminder_service.dart';
@@ -32,6 +33,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => VehicleProvider()),
         ChangeNotifierProvider(create: (_) => ImuCollectionController()),
+        ChangeNotifierProvider(create: (_) => RoadReportProvider()),
       ],
       child: const App(),
     ),

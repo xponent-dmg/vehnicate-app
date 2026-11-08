@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vehnway/Pages/dashboard/dashboard.dart';
 import 'package:vehnway/Pages/drive/drive_analyze_page.dart';
+import 'package:vehnway/Pages/reports/reports_map_page.dart';
 import 'package:vehnway/Pages/vehicle/garage.dart';
 import 'package:vehnway/Widgets/gnav_bar.dart';
 import 'package:vehnway/Widgets/header.dart';
@@ -17,6 +18,8 @@ class _HomeState extends State<Home> {
   int selectedIndex = 0;
   final GlobalKey<DriveAnalyzePageState> _driveAnalyzeKey =
       GlobalKey<DriveAnalyzePageState>();
+  final GlobalKey<ReportsMapPageState> _reportsMapKey =
+      GlobalKey<ReportsMapPageState>();
   final GlobalKey<GaragePageState> _garageKey = GlobalKey<GaragePageState>();
   late final PageController _pageController;
 
@@ -48,6 +51,8 @@ class _HomeState extends State<Home> {
       case 1:
         return 'analytics';
       case 2:
+        return 'road reports';
+      case 3:
         return 'your garage';
       default:
         return 'vehnWay';
@@ -81,6 +86,7 @@ class _HomeState extends State<Home> {
                   children: [
                     DashboardPage(),
                     DriveAnalyzePage(key: _driveAnalyzeKey),
+                    ReportsMapPage(key: _reportsMapKey),
                     GaragePage(key: _garageKey),
                   ],
                 ),
@@ -105,6 +111,9 @@ class _HomeState extends State<Home> {
                         _driveAnalyzeKey.currentState?.showFilterSheet();
                         break;
                       case 2:
+                        Navigator.pushNamed(context, '/create-report');
+                        break;
+                      case 3:
                         _garageKey.currentState?.showAddVehicleOverlay(context);
                         break;
                     }
@@ -135,7 +144,11 @@ class _HomeState extends State<Home> {
                       return FadeTransition(opacity: animation, child: child);
                     },
                     child: Text(
-                      selectedIndex == 1 ? 'Filter' : 'Add Vehicle',
+                      selectedIndex == 1
+                          ? 'Filter'
+                          : selectedIndex == 2
+                              ? 'Report Issue'
+                              : 'Add Vehicle',
                       key: ValueKey<int>(selectedIndex),
                       style: const TextStyle(
                         color: Colors.white,

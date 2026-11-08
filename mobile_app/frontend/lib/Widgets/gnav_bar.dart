@@ -26,13 +26,18 @@ class GnavBar extends StatelessWidget {
         activeColor: Theme.of(context).primaryColor,
         iconSize: 25,
         tabBackgroundColor: Theme.of(context).primaryColor.withAlpha(30),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         tabs: const [
           GButton(icon: Icons.home, text: 'Home', semanticLabel: "Home"),
           GButton(
             icon: Icons.analytics,
             text: 'Analytics',
             semanticLabel: "Analytics",
+          ),
+          GButton(
+            icon: Icons.alt_route_rounded,
+            text: 'Reports',
+            semanticLabel: "Reports",
           ),
           GButton(
             icon: Icons.directions_car,

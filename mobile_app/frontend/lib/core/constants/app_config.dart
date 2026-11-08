@@ -8,9 +8,13 @@ class AppConfig {
   static const String tableGpsData = 'gps_data';
   static const String tableFrames = 'frames';
   static const String tableAppFeedback = 'app_feedback';
+  static const String tableRoadReports = 'road_reports';
+  static const String tableRoadReportMedia = 'road_report_media';
+  static const String tableRoadReportVerifications = 'road_report_verifications';
 
   // Supabase Storage Buckets
   static const String bucketUserAvatars = 'user_avatars';
   static const String bucketVehicleImages = 'vehicle_ride_img';
   static const String bucketFeedbackAttachments = 'feedback-attachments';
+  static const String bucketRoadReportMedia = 'road-report-media';
 }
