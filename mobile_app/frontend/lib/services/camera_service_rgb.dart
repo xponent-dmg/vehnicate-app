@@ -44,6 +44,8 @@ class CameraServiceRGB {
   String? _vehicleId;
   String? _deviceId;
   String? _sessionId;
+  DateTime? _collectionStartTime;
+  static const Duration _minimumUploadDuration = Duration(minutes: 1);
 
   // Stats
   int _processedCount = 0;
@@ -89,11 +91,13 @@ class CameraServiceRGB {
       for (final file in entries) {
         final name = file.path.split(Platform.pathSeparator).last;
         final parts = name.split('_');
-        
+
         if (parts.length >= 5 && parts[0] == 'frame') {
           final sessionId = parts[1];
           final vehicleId = parts[2];
-          final timestamp = int.tryParse(parts[3]) ?? DateTime.now().toLocal().millisecondsSinceEpoch;
+          final timestamp =
+              int.tryParse(parts[3]) ??
+              DateTime.now().toLocal().millisecondsSinceEpoch;
           final deviceId = parts[4].replaceAll('.jpg', '');
 
           _pendingFrames.add(
@@ -149,6 +153,7 @@ class CameraServiceRGB {
     _vehicleId = vehicleId;
     _deviceId = deviceId;
     _sessionId = sessionId;
+    _collectionStartTime = DateTime.now();
 
     _processedCount = 0;
     _uploadedCount = 0;
@@ -169,7 +174,7 @@ class CameraServiceRGB {
     }
   }
 
-  Future<void> stopStreaming() async {
+  Future<void> stopStreaming({bool discard = false}) async {
     if (!_isStreaming) return;
 
     try {
@@ -182,8 +187,13 @@ class CameraServiceRGB {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      // Try one last upload
-      await uploadBatch();
+      if (discard) {
+        await discardPendingFrames();
+      } else {
+        // Try one last upload
+        await uploadBatch();
+      }
+      _collectionStartTime = null;
       AppLogger.info('Stopped camera streaming');
     } catch (e, stack) {
       AppLogger.error('Error stopping camera streaming', e, stack);
@@ -240,7 +250,8 @@ class CameraServiceRGB {
         }
 
         // 2. Save locally
-        final String fileName = 'frame_${sessionId}_${vehicleId}_${now}_$deviceId.jpg';
+        final String fileName =
+            'frame_${sessionId}_${vehicleId}_${now}_$deviceId.jpg';
         final String fullPath = '$framesDirPath/$fileName';
         final File newFile = File(fullPath);
         await newFile.writeAsBytes(compressedBytes, flush: true);
@@ -251,7 +262,11 @@ class CameraServiceRGB {
       if (newPath == null) return;
 
       final parts = newPath.split(Platform.pathSeparator).last.split('_');
-      final int timestamp = parts.length >= 5 ? (int.tryParse(parts[3]) ?? DateTime.now().toLocal().millisecondsSinceEpoch) : DateTime.now().toLocal().millisecondsSinceEpoch;
+      final int timestamp =
+          parts.length >= 5
+              ? (int.tryParse(parts[3]) ??
+                  DateTime.now().toLocal().millisecondsSinceEpoch)
+              : DateTime.now().toLocal().millisecondsSinceEpoch;
 
       _pendingFrames.add(
         _FrameRecord(
@@ -277,6 +292,11 @@ class CameraServiceRGB {
   Future<void> uploadBatch() async {
     if (_pendingFrames.isEmpty) return;
     if (_isUploading) return;
+    if (_collectionStartTime == null ||
+        DateTime.now().difference(_collectionStartTime!) <
+            _minimumUploadDuration) {
+      return;
+    }
 
     _isUploading = true;
 
@@ -289,7 +309,7 @@ class CameraServiceRGB {
     try {
       final List<Map<String, dynamic>> rows = <Map<String, dynamic>>[];
       final List<_FrameRecord> recordsForInsert = <_FrameRecord>[];
-      
+
       final client = await SupabaseCoreService().getAuthenticatedClient();
 
       for (final _FrameRecord rec in batch) {
@@ -362,7 +382,9 @@ class CameraServiceRGB {
             _uploadedCount++;
           } catch (singleErr) {
             if (singleErr is PostgrestException &&
-                (singleErr.code == '23505' || singleErr.code == '42501' || singleErr.code == '23503')) {
+                (singleErr.code == '23505' ||
+                    singleErr.code == '42501' ||
+                    singleErr.code == '23503')) {
               // 23505 = duplicate key, 42501 = RLS violation, 23503 = foreign key violation
               _pendingFrames.remove(rec);
               final f = File(rec.filePath);
@@ -384,6 +406,18 @@ class CameraServiceRGB {
     } finally {
       _isUploading = false;
     }
+  }
+
+  Future<void> discardPendingFrames() async {
+    final pendingFrames = List<_FrameRecord>.from(_pendingFrames);
+    _pendingFrames.clear();
+    for (final frame in pendingFrames) {
+      final file = File(frame.filePath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
+    onStatsUpdated?.call();
   }
 
   Future<void> clearCache() async {

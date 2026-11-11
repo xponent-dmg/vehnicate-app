@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -15,6 +16,7 @@ import 'package:vehnway/Widgets/custom_snackbar.dart';
 import 'package:vehnway/Pages/profile/constants/profile_constants.dart';
 import 'package:vehnway/core/constants/app_gradients.dart';
 import 'package:vehnway/services/supabase/supabase_user_service.dart';
+import 'package:vehnway/services/daily_reminder_service.dart';
 
 // Constants and Theme
 class ProfilePage extends StatefulWidget {
@@ -24,6 +26,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _notificationsEnabled = false;
+  TimeOfDay _notificationTime = const TimeOfDay(hour: 16, minute: 0);
   // Form controllers for edit user details
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
@@ -39,6 +43,51 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _loadNotificationSetting();
+  }
+
+  Future<void> _loadNotificationSetting() async {
+    final enabled = await DailyReminderService.isEnabled();
+    final time = await DailyReminderService.getReminderTime();
+    if (!mounted) return;
+    setState(() {
+      _notificationsEnabled = enabled;
+      _notificationTime = time;
+    });
+  }
+
+  Future<void> _toggleNotifications() async {
+    if (_notificationsEnabled) {
+      await DailyReminderService.disable();
+      if (mounted) setState(() => _notificationsEnabled = false);
+      return;
+    }
+
+    if (!await DailyReminderService.isNotificationAllowed()) {
+      final allowed =
+          await AwesomeNotifications().requestPermissionToSendNotifications();
+      if (!allowed) {
+        if (mounted) {
+          CustomSnackBar.showInfo(
+            context,
+            'Please allow notifications in your device settings.',
+          );
+        }
+        return;
+      }
+    }
+
+    final scheduled = await DailyReminderService.schedule(_notificationTime);
+    if (!mounted) return;
+    if (scheduled) {
+      setState(() => _notificationsEnabled = true);
+      CustomSnackBar.showInfo(
+        context,
+        'Daily reminder enabled for ${_notificationTime.format(context)}.',
+      );
+    } else {
+      CustomSnackBar.showError(context, 'Could not schedule the reminder.');
+    }
   }
 
   @override
@@ -723,14 +772,77 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           const Text('Settings', style: ProfileConstants.sectionTitleStyle),
           const SizedBox(height: 8),
-          _buildSettingRow('Notification', false, isFirst: true),
-          const SizedBox(height: 3),
+          _buildSettingRow(
+            'Notification',
+            _notificationsEnabled,
+            isFirst: true,
+            onTap: _toggleNotifications,
+          ),
+          if (_notificationsEnabled) ...[
+            const SizedBox(height: 3),
+            _buildNotificationTimeSelector(),
+          ],
+          SizedBox(height: 3),
           _buildSettingRow('Dark Mode', true),
           const SizedBox(height: 3),
           _buildDeleteAccountRow(),
         ],
       ),
     );
+  }
+
+  Widget _buildNotificationTimeSelector() {
+    return InkWell(
+      onTap: _pickNotificationTime,
+      child: Container(
+        height: ProfileConstants.cardHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: const BoxDecoration(color: ProfileConstants.cardBackground),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Reminder time', style: ProfileConstants.labelStyle),
+            Row(
+              children: [
+                Text(
+                  _notificationTime.format(context),
+                  style: ProfileConstants.valueStyle,
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.access_time_rounded,
+                  color: Colors.white70,
+                  size: 20,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickNotificationTime() async {
+    final selectedTime = await showTimePicker(
+      context: context,
+      initialTime: _notificationTime,
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
+    );
+    if (selectedTime == null) return;
+
+    final scheduled = await DailyReminderService.schedule(selectedTime);
+    if (scheduled && mounted) {
+      setState(() => _notificationTime = selectedTime);
+    }
+    if (!scheduled && mounted) {
+      CustomSnackBar.showError(context, 'Could not update the reminder time.');
+    }
   }
 
   Widget _buildInfoRow(
@@ -774,11 +886,12 @@ class _ProfilePageState extends State<ProfilePage> {
     String label,
     bool isEnabled, {
     bool isFirst = false,
+    VoidCallback? onTap,
   }) {
     return GestureDetector(
-      onTap: () {
-        CustomSnackBar.showInfo(context, 'Feature not yet implemented');
-      },
+      onTap:
+          onTap ??
+          () => CustomSnackBar.showInfo(context, 'Feature not yet implemented'),
       child: Container(
         height: ProfileConstants.cardHeight,
         padding: const EdgeInsets.symmetric(horizontal: 15),
