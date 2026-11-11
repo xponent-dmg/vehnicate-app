@@ -73,10 +73,19 @@ class _LoginPageState extends State<LoginPage> {
 
       await context.read<UserProvider>().refresh();
 
+      final currentUser = context.read<UserProvider>().currentUser;
+      if (currentUser == null) {
+        throw Exception(
+          "Failed to load user profile. Please check your connection and try again.",
+        );
+      }
+
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
+      // Sign out of Firebase so app doesn't leave the user in an inconsistent half-authenticated state
+      await AuthService().signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
@@ -108,10 +117,19 @@ class _LoginPageState extends State<LoginPage> {
 
       await context.read<UserProvider>().refresh();
 
+      final currentUser = context.read<UserProvider>().currentUser;
+      if (currentUser == null) {
+        throw Exception(
+          "Failed to load user profile. Please check your connection and try again.",
+        );
+      }
+
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
       }
     } catch (e) {
+      // Sign out of Firebase so app doesn't leave the user in an inconsistent half-authenticated state
+      await AuthService().signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),

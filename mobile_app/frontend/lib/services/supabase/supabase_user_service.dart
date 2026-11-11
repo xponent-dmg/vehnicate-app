@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -139,15 +138,51 @@ class SupabaseUserService {
     try {
       final client = await _core.getAuthenticatedClient();
 
-      final existingUser =
+      // 1. Check if user already exists by firebaseuid
+      final existingByUid =
           await client
               .from(AppConfig.tableUserDetails)
               .select()
               .eq('firebaseuid', uid)
               .maybeSingle();
 
-      if (existingUser != null) {
-        return existingUser;
+      if (existingByUid != null) {
+        return existingByUid;
+      }
+
+      // 2. Check if user already exists by email
+      if (email.isNotEmpty) {
+        final existingByEmail =
+            await client
+                .from(AppConfig.tableUserDetails)
+                .select()
+                .eq('email', email)
+                .maybeSingle();
+
+        if (existingByEmail != null) {
+          // If the record has a different/outdated firebaseuid (e.g. recreated in Firebase test project),
+          // update the firebaseuid to link it to the current Firebase user.
+          if (existingByEmail['firebaseuid'] != uid) {
+            try {
+              final updated =
+                  await client
+                      .from(AppConfig.tableUserDetails)
+                      .update({'firebaseuid': uid})
+                      .eq('email', email)
+                      .select()
+                      .single();
+              AppLogger.info(
+                'Updated existing user with email $email to new firebaseuid $uid',
+              );
+              return updated;
+            } catch (updateErr) {
+              AppLogger.warning(
+                'Could not update firebaseuid for existing email $email: $updateErr',
+              );
+            }
+          }
+          return existingByEmail;
+        }
       }
 
       final name = displayName ?? 'New User';
@@ -182,6 +217,7 @@ class SupabaseUserService {
           return response;
         } on PostgrestException catch (insertError, insertStack) {
           if (insertError.code == '23505') {
+            // Check by firebaseuid
             final existingAfterConflict = await client
                 .from(AppConfig.tableUserDetails)
                 .select()
@@ -190,13 +226,41 @@ class SupabaseUserService {
 
             if (existingAfterConflict != null) {
               AppLogger.info(
-                'Existing user row found after conflict while creating $uid',
+                'Existing user row found by uid after conflict while creating $uid',
               );
               return existingAfterConflict;
             }
 
+            // Check by email (e.g., userdetails_email_key violation)
+            if (email.isNotEmpty) {
+              final existingByEmailAfterConflict = await client
+                  .from(AppConfig.tableUserDetails)
+                  .select()
+                  .eq('email', email)
+                  .maybeSingle();
+
+              if (existingByEmailAfterConflict != null) {
+                AppLogger.info(
+                  'Existing user row found by email after conflict while creating $uid',
+                );
+                if (existingByEmailAfterConflict['firebaseuid'] != uid) {
+                  try {
+                    final updated =
+                        await client
+                            .from(AppConfig.tableUserDetails)
+                            .update({'firebaseuid': uid})
+                            .eq('email', email)
+                            .select()
+                            .single();
+                    return updated;
+                  } catch (_) {}
+                }
+                return existingByEmailAfterConflict;
+              }
+            }
+
             AppLogger.warning(
-              'Username conflict while creating user $uid with username $username',
+              'Conflict (23505) while creating user $uid with username $username',
               insertError,
               insertStack,
             );
@@ -213,6 +277,17 @@ class SupabaseUserService {
           .maybeSingle();
       if (existingAfterRetries != null) {
         return existingAfterRetries;
+      }
+
+      if (email.isNotEmpty) {
+        final existingByEmail = await client
+            .from(AppConfig.tableUserDetails)
+            .select()
+            .eq('email', email)
+            .maybeSingle();
+        if (existingByEmail != null) {
+          return existingByEmail;
+        }
       }
 
       throw Exception(
@@ -233,6 +308,17 @@ class SupabaseUserService {
                   .maybeSingle();
           if (existingUser != null) {
             return existingUser;
+          }
+          if (email.isNotEmpty) {
+            final existingByEmail =
+                await client
+                    .from(AppConfig.tableUserDetails)
+                    .select()
+                    .eq('email', email)
+                    .maybeSingle();
+            if (existingByEmail != null) {
+              return existingByEmail;
+            }
           }
         } catch (retryError, retryStack) {
           AppLogger.error(
@@ -288,7 +374,16 @@ class SupabaseUserService {
     required String email,
     String? displayName,
   }) async {
-    await getOrCreateUser(uid: uid, email: email, displayName: displayName);
+    final result = await getOrCreateUser(
+      uid: uid,
+      email: email,
+      displayName: displayName,
+    );
+    if (result == null) {
+      throw Exception(
+        'Could not load or initialize user account in database. Please try again.',
+      );
+    }
   }
 
   Future<void> deleteUser() async {

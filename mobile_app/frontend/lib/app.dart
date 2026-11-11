@@ -36,9 +36,14 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const environment = String.fromEnvironment(
+      'ENVIRONMENT',
+      defaultValue: 'prod',
+    );
+
     return MaterialApp(
       title: 'vehnWay',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: environment == 'test' || environment == 'dev',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         primaryColor: AppColors.primary,
