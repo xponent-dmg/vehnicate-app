@@ -82,10 +82,10 @@ class GaragePageState extends State<GaragePage> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _buildCustomTextField(context, 'Model', 'e.g. Honda City', Icons.directions_car, vehicleModelController, isRequired: true),
+                          _buildCustomTextField(context, 'Model', 'Honda City', Icons.directions_car, vehicleModelController, isRequired: true),
                           const SizedBox(height: 16),
                           // Type Dropdown
-                          const Text('Vehicle Type *', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                          const Text('Vehicle Type', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
                           const SizedBox(height: 8),
                           ButtonTheme(
                             alignedDropdown: true,
@@ -160,7 +160,7 @@ class GaragePageState extends State<GaragePage> {
                           ),
                           const SizedBox(height: 16),
                           // Fuel Type Dropdown
-                          const Text('Fuel Type *', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                          const Text('Fuel Type', style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
                           const SizedBox(height: 8),
                           ButtonTheme(
                             alignedDropdown: true,
@@ -202,33 +202,44 @@ class GaragePageState extends State<GaragePage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Registration
-                          _buildCustomTextField(context, 'Registration Number', 'KA01AB1234', Icons.confirmation_number, registrationController, validator: registrationNumberValidator),
-                          const SizedBox(height: 16),
                           // Average Mileage
                           _buildCustomTextField(context, 'Average Mileage', '15', Icons.speed, mileageController, 
                            suffixText: selectedFuelType == 'Electric' ? 'km/kWh' : 'km/L', isNumber: true),
+                          const SizedBox(height: 16),
+                          // Registration (Optional, moved to the end)
+                          _buildCustomTextField(
+                            context,
+                            'Registration Number',
+                            'KA-01-AB-1234 or KA 01 AB 1234',
+                            Icons.confirmation_number,
+                            registrationController,
+                            isRequired: false,
+                            validator: registrationNumberValidator,
+                          ),
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: isSubmitting ? null : () async {
                                 if (!formKey.currentState!.validate()) return;
+                                final regText = registrationController.text.trim();
                                 setState(() => isSubmitting = true);
                                 var submitted = false;
                                 try {
                                   await SupabaseVehicleService().createVehicle(
                                     model: vehicleModelController.text.trim(),
-                                    registration: registrationController.text.trim().toUpperCase(),
+                                    registration: regText.isEmpty ? null : regText.toUpperCase(),
                                     vehicleType: selectedType,
                                     fuelType: selectedFuelType.toLowerCase(),
                                     averageMileage: double.tryParse(mileageController.text.trim()),
                                   );
                                   if (context.mounted) {
                                     await Provider.of<VehicleProvider>(context, listen: false).refresh();
-                                    submitted = true;
-                                    Navigator.pop(context);
-                                    messenger.showSnackBar(SnackBar(content: const Text('Vehicle added successfully!'), backgroundColor: successColor));
+                                    if (context.mounted) {
+                                      submitted = true;
+                                      Navigator.pop(context);
+                                      messenger.showSnackBar(SnackBar(content: const Text('Vehicle added successfully!'), backgroundColor: successColor));
+                                    }
                                   }
                                 } catch (e) {
                                   if (context.mounted) messenger.showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
@@ -261,7 +272,7 @@ class GaragePageState extends State<GaragePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(isRequired ? '$label *' : label, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(isRequired ? label : '$label (Optional)', style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -278,6 +289,7 @@ class GaragePageState extends State<GaragePage> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2)),
             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 1)),
+            errorMaxLines: 2,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
           validator: validator ?? (value) => isRequired && (value == null || value.trim().isEmpty) ? 'Required' : null,

@@ -19,9 +19,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<_OnboardingItem> _items = const [
     _OnboardingItem(
       icon: Icons.directions_car_filled_rounded,
-      title: 'Welcome to vehnicate',
+      title: 'Welcome to vehnWay',
       description:
-          'vehnicate is your connected driving companion for smarter and safer vehicle journeys.',
+          'vehnWay is your connected driving companion for smarter and safer vehicle journeys.',
     ),
     _OnboardingItem(
       icon: Icons.analytics_rounded,

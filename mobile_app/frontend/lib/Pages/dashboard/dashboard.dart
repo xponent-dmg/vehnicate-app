@@ -148,12 +148,12 @@ class _DashboardPageState extends State<DashboardPage> {
                             'My Car',
                             Icons.edit,
                             vehicleNameController,
-                            isRequired: false,
+                            isRequired: true,
                           ),
                           const SizedBox(height: 16),
                           // Type Dropdown
                           const Text(
-                            'Vehicle Type *',
+                            'Vehicle Type',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
@@ -266,7 +266,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           const SizedBox(height: 16),
                           // Fuel Type Dropdown
                           const Text(
-                            'Fuel Type *',
+                            'Fuel Type',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
@@ -336,16 +336,6 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Registration
-                          _buildCustomTextField(
-                            context,
-                            'Registration Number',
-                            'KA01AB1234',
-                            Icons.confirmation_number,
-                            registrationController,
-                            validator: registrationNumberValidator,
-                          ),
-                          const SizedBox(height: 16),
                           // Average Mileage
                           _buildCustomTextField(
                             context,
@@ -359,6 +349,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                     : 'km/L',
                             isNumber: true,
                           ),
+                          const SizedBox(height: 16),
+                          // Registration (Optional, moved to end)
+                          _buildCustomTextField(
+                            context,
+                            'Registration Number',
+                            'KA-01-AB-1234 or KA 01 AB 1234',
+                            Icons.confirmation_number,
+                            registrationController,
+                            isRequired: false,
+                            validator: registrationNumberValidator,
+                          ),
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
@@ -370,6 +371,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                         if (!formKey.currentState!.validate()) {
                                           return;
                                         }
+                                        final regText = registrationController.text.trim();
                                         setState(() => isSubmitting = true);
                                         var submitted = false;
                                         try {
@@ -381,9 +383,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 vehicleNameController.text
                                                     .trim(),
                                             registration:
-                                                registrationController.text
-                                                    .trim()
-                                                    .toUpperCase(),
+                                                regText.isEmpty
+                                                    ? null
+                                                    : regText.toUpperCase(),
                                             vehicleType: selectedType,
                                             fuelType:
                                                 selectedFuelType.toLowerCase(),
@@ -477,7 +479,7 @@ class _DashboardPageState extends State<DashboardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isRequired ? '$label *' : label,
+          isRequired ? label : '$label (Optional)',
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
@@ -519,6 +521,7 @@ class _DashboardPageState extends State<DashboardPage> {
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.red, width: 1),
             ),
+            errorMaxLines: 2,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,

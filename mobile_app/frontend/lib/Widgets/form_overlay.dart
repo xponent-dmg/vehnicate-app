@@ -278,7 +278,7 @@ class FormOverlay {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label + (isRequired ? ' *' : ''),
+          isRequired ? label : '$label (Optional)',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 14,
@@ -367,7 +367,7 @@ class FormOverlay {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label + (isRequired ? ' *' : ''),
+          isRequired ? label : '$label (Optional)',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 14,

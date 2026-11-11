@@ -51,7 +51,7 @@ class Vehicle {
 
   /// Formats the registration number for UI rendering (e.g., "AA 00 AA 0000")
   String get formattedRegistration {
-    if (registration.isEmpty) return registration;
+    if (registration.isEmpty) return '------';
 
     // Remove any existing spaces or special characters
     final cleanReg =
@@ -64,6 +64,13 @@ class Vehicle {
 
     if (match != null) {
       return '${match.group(1)} ${match.group(2)} ${match.group(3)} ${match.group(4)}';
+    }
+
+    // Bharat Series (BH): 2 digits year, BH, 4 digits, 1-2 letters
+    final bhRegex = RegExp(r'^(\d{2})(BH)(\d{4})([A-Z]{1,2})$');
+    final bhMatch = bhRegex.firstMatch(cleanReg);
+    if (bhMatch != null) {
+      return '${bhMatch.group(1)} ${bhMatch.group(2)} ${bhMatch.group(3)} ${bhMatch.group(4)}';
     }
 
     // If it doesn't match standard format perfectly but has enough characters,
