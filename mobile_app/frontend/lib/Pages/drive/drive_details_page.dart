@@ -525,7 +525,7 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
   }
 
   Widget _buildMetricItem({
-    required IconData icon,
+    required dynamic icon,
     required String label,
     required String value,
   }) {
@@ -540,7 +540,10 @@ class _DriveDetailsPageState extends State<DriveDetailsPage>
           children: [
             Row(
               children: [
-                Icon(icon, color: Colors.grey[400], size: 18),
+                if (icon is FaIconData)
+                  FaIcon(icon, color: Colors.grey[400], size: 18)
+                else
+                  Icon(icon as IconData, color: Colors.grey[400], size: 18),
                 const SizedBox(width: 8),
               ],
             ),

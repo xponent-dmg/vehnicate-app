@@ -285,7 +285,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   Widget _buildCategoryChip({
     required FeedbackCategory category,
-    required IconData icon,
+    required dynamic icon,
     required String label,
   }) {
     final isSelected = _selectedCategory == category;
@@ -314,11 +314,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isSelected ? Colors.white : Colors.white60,
-              ),
+              if (icon is FaIconData)
+                FaIcon(
+                  icon,
+                  size: 20,
+                  color: isSelected ? Colors.white : Colors.white60,
+                )
+              else
+                Icon(
+                  icon as IconData,
+                  size: 20,
+                  color: isSelected ? Colors.white : Colors.white60,
+                ),
               const SizedBox(height: 8),
               Text(
                 label,

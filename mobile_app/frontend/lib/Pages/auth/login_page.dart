@@ -484,7 +484,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           elevation: 0,
                         ),
-                        icon: const Icon(FontAwesomeIcons.google, size: 20),
+                        icon: const FaIcon(FontAwesomeIcons.google, size: 20),
                         label: const Text(
                           'Continue with Google',
                           style: TextStyle(

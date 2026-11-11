@@ -442,11 +442,14 @@ class DriveAnalyzePageState extends State<DriveAnalyzePage> {
     );
   }
 
-  Widget _buildMetric({required IconData icon, required String value}) {
+  Widget _buildMetric({required dynamic icon, required String value}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.grey[400], size: 14),
+        if (icon is FaIconData)
+          FaIcon(icon, color: Colors.grey[400], size: 14)
+        else
+          Icon(icon as IconData, color: Colors.grey[400], size: 14),
         const SizedBox(width: 6),
         Text(value, style: DriveAnalyzeConstants.metricStyle),
       ],

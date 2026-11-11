@@ -574,7 +574,7 @@ class _ProfilePageState extends State<ProfilePage> {
               right: -10,
               child: IconButton(
                 onPressed: _pickAndUploadImage,
-                icon: const Icon(FontAwesomeIcons.penToSquare),
+                icon: const FaIcon(FontAwesomeIcons.penToSquare),
                 color: Colors.white,
                 iconSize: 18,
               ),
@@ -647,7 +647,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildStatMetric({
-    required IconData icon,
+    required dynamic icon,
     required int value,
     required String unit,
     required String label,
@@ -664,14 +664,23 @@ class _ProfilePageState extends State<ProfilePage> {
             shape: BoxShape.circle,
           ),
           child: Center(
-            child: Icon(
-              icon,
-              color:
-                  (value > 0)
-                      ? iconColor
-                      : const Color.fromARGB(255, 218, 218, 218),
-              size: 32,
-            ),
+            child: icon is FaIconData
+                ? FaIcon(
+                    icon,
+                    color:
+                        (value > 0)
+                            ? iconColor
+                            : const Color.fromARGB(255, 218, 218, 218),
+                    size: 32,
+                  )
+                : Icon(
+                    icon as IconData,
+                    color:
+                        (value > 0)
+                            ? iconColor
+                            : const Color.fromARGB(255, 218, 218, 218),
+                    size: 32,
+                  ),
           ),
         ),
         const SizedBox(height: 8),
